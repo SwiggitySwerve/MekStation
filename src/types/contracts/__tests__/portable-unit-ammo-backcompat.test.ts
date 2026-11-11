@@ -4,6 +4,7 @@ import { join } from 'node:path';
 
 import {
   buildEditableMechBVInput,
+  buildEditableMechProjectionInput,
   projectEditableMech,
 } from '@/services/construction/editableMechProjection';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
@@ -136,7 +137,7 @@ it('imports the exact pre-A portable bytes with main-identical state, ammo and B
     );
     const input = buildEditableMechBVInput(
       projectEditableMech(
-        state,
+        buildEditableMechProjectionInput(state),
         Math.floor(state.engineRating / state.tonnage),
       ),
     );

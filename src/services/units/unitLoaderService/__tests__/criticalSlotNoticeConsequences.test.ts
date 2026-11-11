@@ -5,6 +5,7 @@ import type { UnitState } from '@/stores/unitState';
 
 import {
   buildEditableMechBVInput,
+  buildEditableMechProjectionInput,
   projectEditableMech,
 } from '@/services/construction/editableMechProjection';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
@@ -59,7 +60,10 @@ function roundTrip(file: string) {
 }
 function metrics(state: UnitState) {
   const input = buildEditableMechBVInput(
-    projectEditableMech(state, Math.floor(state.engineRating / state.tonnage)),
+    projectEditableMech(
+      buildEditableMechProjectionInput(state),
+      Math.floor(state.engineRating / state.tonnage),
+    ),
   );
   const scan = scanCrits(input, input.id);
   const bv = calculateUnitBV(input, input.id);

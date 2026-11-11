@@ -85,6 +85,19 @@ export interface IEditableMechProjectionInput {
 }
 
 /**
+ * Compile-time brand. The symbol is declared, never exported and never given a value, so only
+ * {@link buildEditableMechProjectionInput} (which casts to it) can produce a value of this type.
+ * `projectEditableMech` accepts only the branded type: a hand-built object, a raw `UnitState`, or an
+ * input built through an aliased or namespace import cannot be passed, whatever the caller imports.
+ */
+declare const projectionInputBrand: unique symbol;
+type ProjectionInputBrand = { readonly [projectionInputBrand]: true };
+
+/** What `projectEditableMech` accepts: the input as the one owner built it. */
+export type EditableMechProjectionInput = IEditableMechProjectionInput &
+  ProjectionInputBrand;
+
+/**
  * Every field of {@link IEditableMechProjectionInput}. `satisfies` makes the list exhaustive: adding a
  * field to the interface without listing it here is a compile error, so the owner can never silently
  * drop one (this is how `PreviewTab` once lost `bvContext`).
@@ -121,19 +134,26 @@ const PROJECTION_INPUT_FIELDS = {
  */
 export function buildEditableMechProjectionInput<
   S extends IEditableMechProjectionInput,
->(source: S): Pick<S, Extract<keyof S, keyof IEditableMechProjectionInput>> {
+>(
+  source: S,
+): Pick<S, Extract<keyof S, keyof IEditableMechProjectionInput>> &
+  ProjectionInputBrand {
   // Generic so a caller keeps its own narrower field types (the store's engine and gyro enums).
   const input: Record<string, unknown> = {};
   for (const key of Object.keys(PROJECTION_INPUT_FIELDS)) {
     const value = (source as unknown as Record<string, unknown>)[key];
     if (value !== undefined) input[key] = value;
   }
-  return input as Pick<S, Extract<keyof S, keyof IEditableMechProjectionInput>>;
+  return input as Pick<
+    S,
+    Extract<keyof S, keyof IEditableMechProjectionInput>
+  > &
+    ProjectionInputBrand;
 }
 
 /** Shared construction-service projection for editor summaries and record sheets. */
 export function projectEditableMech(
-  state: IEditableMechProjectionInput,
+  state: EditableMechProjectionInput,
   walkMP: number,
   id = 'preview',
 ): IEditableMech {

@@ -3,6 +3,7 @@ import { join } from 'node:path';
 
 import {
   buildEditableMechBVInput,
+  buildEditableMechProjectionInput,
   projectEditableMech,
 } from '@/services/construction/editableMechProjection';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
@@ -52,7 +53,7 @@ const load = (file: string) =>
 const score = (state: ReturnType<typeof load>) => {
   const input = buildEditableMechBVInput(
     projectEditableMech(
-      state,
+      buildEditableMechProjectionInput(state),
       Math.floor(state.engineRating / state.tonnage),
       state.id,
     ),
@@ -162,7 +163,7 @@ it('caps excessive APDS ammunition at the surviving resolved weapon BV', () => {
   const state = load('6-dark-age/experimental/Jackalope JLP-KB.json');
   const input = buildEditableMechBVInput(
     projectEditableMech(
-      state,
+      buildEditableMechProjectionInput(state),
       Math.floor(state.engineRating / state.tonnage),
       state.id,
     ),

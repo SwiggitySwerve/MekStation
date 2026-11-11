@@ -13,9 +13,18 @@ BattleMech BV owner. It does not implement CASE, heat, or BV arithmetic.
   alternative evidence.
 - Preserve the unit's explicit technology mode independently of the binary
   component setting. The shared encoders also serve custom-unit serialization.
-- Status, saved quick-game construction, and serialization already have source
-  BV context. Preview transports only the chassis source and live selections;
-  supplying that evidence must not opt Preview into other source-BV repairs.
+- One shared projection input, built by the owner
+  (`buildEditableMechProjectionInput`), feeds the status bar, the record sheet
+  (Preview tab, canvas, PDF, print), saved quick-game construction, and
+  serialization. All of them carry the unit's `bvContext`. Preview and print use
+  it deliberately: without it, 2,609 of 4,263 printed BattleMech BVs were wrong
+  (the record sheet and the status bar disagreed; measurement in
+  `_scratch/sm-audit-reports/parity-preview-bv/RESULT.md`). `chassisSource`
+  remains only as an explicit override for a caller that has no `bvContext`.
+- Enforcement: `projectEditableMech` accepts only the owner's branded
+  `EditableMechProjectionInput`, so no caller can hand-build an input, however it
+  imports. `editableMechProjection.callers.test.ts` pins every caller and the
+  arguments given to the owner (TypeScript AST, import aliases resolved).
 - Tests cover the unlisted Clan synthetic, the legacy listed Clan default,
   all 43 source-IS counterexamples, caller refresh, and explicit save/reopen.
   The pinned rules remain in `openspec/specs/battle-value-system/spec.md`.

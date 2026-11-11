@@ -3,6 +3,7 @@ import { join } from 'node:path';
 
 import {
   buildEditableMechBVInput,
+  buildEditableMechProjectionInput,
   projectEditableMech,
 } from '@/services/construction/editableMechProjection';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
@@ -482,7 +483,9 @@ describe('serializeCustomUnitState', () => {
         },
         false,
       );
-      const before = buildEditableMechBVInput(projectEditableMech(state, 4));
+      const before = buildEditableMechBVInput(
+        projectEditableMech(buildEditableMechProjectionInput(state), 4),
+      );
       const saved = serializeCustomUnitState(state, {
         id: state.id,
         chassis: state.chassis,
@@ -490,7 +493,9 @@ describe('serializeCustomUnitState', () => {
         era: Era.DARK_AGE,
       });
       const reopened = loader.mapToUnitState(parseUnit(saved), false);
-      const after = buildEditableMechBVInput(projectEditableMech(reopened, 4));
+      const after = buildEditableMechBVInput(
+        projectEditableMech(buildEditableMechProjectionInput(reopened), 4),
+      );
       expect(before.componentTechBases?.chassis).toBe(chassis);
       expect(after.componentTechBases?.chassis).toBe(chassis);
       expect(calculateUnitBV(after, after.id).bv).toBe(

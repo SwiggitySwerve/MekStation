@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { getCalculationService } from '@/services/construction/CalculationService';
 import {
   buildEditableMechBVInput,
+  buildEditableMechProjectionInput,
   projectEditableMech,
 } from '@/services/construction/editableMechProjection';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
@@ -51,7 +52,7 @@ const load = (file: string) =>
   );
 const editable = (state: ReturnType<typeof load>) =>
   projectEditableMech(
-    state,
+    buildEditableMechProjectionInput(state),
     Math.floor(state.engineRating / state.tonnage),
     state.id,
   );

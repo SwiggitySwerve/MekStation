@@ -15,6 +15,7 @@ import { calculateUnitBV } from '@/utils/construction/mechBV/calculator';
 
 import {
   buildEditableMechBVInput,
+  buildEditableMechProjectionInput,
   projectEditableMech,
 } from '../editableMechProjection';
 import { chassisDesign as design } from './editableMechProjection.chassis.test-helpers';
@@ -202,7 +203,9 @@ const listedISChassis = [
 
 function project(source: IRawSerializedUnit) {
   const state = normalizeUnitConfiguration(source, []);
-  return buildEditableMechBVInput(projectEditableMech(state, 4));
+  return buildEditableMechBVInput(
+    projectEditableMech(buildEditableMechProjectionInput(state), 4),
+  );
 }
 
 it('gives an unlisted explicit Mixed Clan chassis native CASE through the editor', () => {
@@ -220,7 +223,9 @@ it('does not turn the loader IS default into evidence for a legacy listed Clan d
   const state = normalizeUnitConfiguration(source, []);
   expect(state.componentTechBases.chassis).toBe(TechBase.INNER_SPHERE);
   expect(state.techBaseMode).toBe(TechBaseMode.MIXED);
-  const input = buildEditableMechBVInput(projectEditableMech(state, 4));
+  const input = buildEditableMechBVInput(
+    projectEditableMech(buildEditableMechProjectionInput(state), 4),
+  );
   expect(input).not.toHaveProperty('componentTechBases');
   expect(bv(input)).toEqual(
     bv({ ...input, componentTechBases: { chassis: 'CLAN' } }),
@@ -262,12 +267,14 @@ it('uses live chassis edits only after the source establishes explicit provenanc
     },
   };
   expect(
-    buildEditableMechBVInput(projectEditableMech(changed, 4)).componentTechBases
-      ?.chassis,
+    buildEditableMechBVInput(
+      projectEditableMech(buildEditableMechProjectionInput(changed), 4),
+    ).componentTechBases?.chassis,
   ).toBe('INNER_SPHERE');
   expect(
-    buildEditableMechBVInput(projectEditableMech(state, 4)).componentTechBases
-      ?.chassis,
+    buildEditableMechBVInput(
+      projectEditableMech(buildEditableMechProjectionInput(state), 4),
+    ).componentTechBases?.chassis,
   ).toBe('CLAN');
 });
 
@@ -283,7 +290,9 @@ it('does not infer chassis from structure or unrelated component technology', ()
     },
   };
   expect(
-    buildEditableMechBVInput(projectEditableMech(altered, 4)),
+    buildEditableMechBVInput(
+      projectEditableMech(buildEditableMechProjectionInput(altered), 4),
+    ),
   ).not.toHaveProperty('componentTechBases');
 });
 
