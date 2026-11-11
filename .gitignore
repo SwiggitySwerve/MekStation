@@ -77,6 +77,8 @@ scripts/**
 !scripts/jest/jest-dom-usage.js
 !scripts/lib/
 !scripts/lib/**
+!scripts/runtime-path-bv/
+!scripts/runtime-path-bv/**
 !scripts/next/
 !scripts/next/**
 !scripts/playwright/
