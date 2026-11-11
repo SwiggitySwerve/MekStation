@@ -25,40 +25,12 @@
 // Relative imports only, and in this order (they sort that way): ./install-mocks registers the mocks before ./preview-view
 // loads the product modules. install-mocks.test-order guards it.
 import { probe } from './install-mocks';
+import { checkSheetCalculation, previewFailure } from './observation.cjs';
 import {
   cleanup,
   getRecordSheetService,
   renderPreviewTab,
 } from './preview-view';
-import { ObservationError } from './status-observer';
-
-const failure = (message, cause) => {
-  const error = new Error(message);
-  if (cause !== undefined) error.cause = cause;
-  return new ObservationError(error, 'preview', true);
-};
-
-/**
- * The header's BV and cost, accepted only if the preview's own calculation succeeded and produced that BV. The
- * sheet's 0 fallback (calculation threw, or cost threw after BV succeeded) is told from a real value by the probe.
- */
-function calculatedValues(header) {
-  const calculation = probe.bv;
-  if (!calculation)
-    throw failure(
-      "The sheet was handed a BV but no mechBV calculation ran for it (the projection failed before calculating, or the sheet's 0 fallback)",
-    );
-  if (calculation.error)
-    throw failure(
-      `The sheet's BV calculation threw: ${calculation.error?.message ?? calculation.error}`,
-      calculation.error,
-    );
-  if (calculation.result.bv !== header.battleValue)
-    throw failure(
-      `The sheet was handed BV ${header.battleValue} but its calculation produced ${calculation.result.bv} (its cost calculation failed, or the value was replaced)`,
-    );
-  return { bv: header.battleValue, cost: header.cost };
-}
 
 export function createPreviewObserver() {
   const service = getRecordSheetService();
@@ -81,7 +53,7 @@ export function createPreviewObserver() {
       await renderPreviewTab(store);
       const data = extracted.at(-1);
       if (!data)
-        throw failure(
+        throw previewFailure(
           'PreviewTab did not hand a unit to the sheet renderer (extractData was not called)',
         );
       const header = data.header;
@@ -90,8 +62,11 @@ export function createPreviewObserver() {
         typeof header.battleValue !== 'number' ||
         typeof header.cost !== 'number'
       )
-        throw failure('The extracted sheet data has no numeric BV and cost');
-      return calculatedValues(header);
+        throw previewFailure(
+          'The extracted sheet data has no numeric BV and cost',
+        );
+      // A failed sheet calculation is never a value: see checkSheetCalculation (tested in plain Node).
+      return checkSheetCalculation(header, probe.bv);
     } finally {
       cleanup();
     }
