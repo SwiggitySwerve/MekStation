@@ -62,6 +62,7 @@ export interface IServerMatchHostInternals extends IServerMatchHostCaptureContex
   readonly pendingPeers: PendingPeerTracker;
   readonly setPaused: (paused: boolean) => void;
   readonly broadcast: (message: IServerMessage) => void;
+  readonly sendRefusal: (message: IServerMessage) => void;
   readonly broadcastEvent: (message: IEventMessage) => Promise<void>;
   /** Undelivered-only broadcast for the outbox drains (umbrella 7.1). */
   readonly broadcastUndeliveredEvent: (message: IEventMessage) => Promise<void>;
@@ -157,7 +158,7 @@ export function buildIntentContext(
     closed: host.closed,
     isPaused: host.isPaused,
     pauseRefusal: host.pauseRefusal,
-    broadcast: host.broadcast,
+    sendRefusal: host.sendRefusal,
     broadcastEvent: host.broadcastEvent,
     broadcastUndeliveredEvent: host.broadcastUndeliveredEvent,
     closeMatch: host.closeMatch,
@@ -203,6 +204,7 @@ export function buildLobbyContext(
     playerRefs: host.playerRefs,
     pendingPeers: host.pendingPeers,
     broadcast: host.broadcast,
+    sendRefusal: host.sendRefusal,
     broadcastEvent: host.broadcastEvent,
     maybeResume: host.maybeResume,
     installFreshCapture: host.installFreshCapture,
