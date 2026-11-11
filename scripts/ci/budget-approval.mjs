@@ -291,6 +291,7 @@ export async function checkBudgetPolicy({
     supersededHead: supersededHeadProof(result, evidence),
     evaluatedHead: initial.head.sha,
     currentHead: result.currentHead ?? initial.head.sha,
+    latestHead: reads.at(-1).head,
     reads,
   };
 }
@@ -358,6 +359,25 @@ export function guardOutcome(number, result) {
     return {
       fail: false,
       line: `${line}; superseded head: refusal written to the evaluated head only, the new head gets its own run`,
+    };
+  // The one designed red case: the head moved while this run was still
+  // evaluating. Say so in words, because this job is listed on main's tip.
+  if (
+    result.code === 'changed-context' &&
+    result.headChanged === true &&
+    result.baseChanged === false &&
+    result.labelsChanged === false &&
+    result.snapshotMismatch === true
+  )
+    return {
+      fail: true,
+      line:
+        `PR #${number}: the PR head moved from ${result.evaluatedHead} to ` +
+        `${result.latestHead} while this run was still evaluating, so the run ` +
+        `refused and fails by design. It wrote failure to ` +
+        `${result.evaluatedHead} only and nothing to ${result.latestHead}; that ` +
+        `head's own run decides. This job concerns PR #${number}, not main. ` +
+        `(${line})`,
     };
   return { fail: true, line };
 }

@@ -490,7 +490,7 @@ test('pure head change after the evaluation: failure on the evaluated head only;
 // moved while the nested approval check was reading, so the approval evaluated
 // the new head, and a later read overwrote that evidence. The mismatch is now
 // sticky, so the job fails.
-test('head change during the nested approval: a sticky snapshot mismatch fails the job', async () => {
+test('head change during the evaluation: the job fails and says so in words', async () => {
   const f = fixture();
   changeAfterFirstRead(f, 'head');
   const result = await policy({
@@ -507,7 +507,16 @@ test('head change during the nested approval: a sticky snapshot mismatch fails t
     finalState(f.statuses, f.pull.head.sha, 'Lint and Test'),
     'failure',
   );
-  assert.equal(guardOutcome(7, result).fail, true);
+  assert.equal(result.supersededHead, false);
+  assert.equal(result.latestHead, NEW_HEAD);
+  // This job is listed on main's tip: the line must make it a five-second read.
+  const outcome = guardOutcome(7, result);
+  assert.equal(outcome.fail, true);
+  assert.ok(outcome.line.startsWith('PR #7: the PR head moved from '));
+  assert.ok(outcome.line.includes(`from ${f.pull.head.sha} to ${NEW_HEAD}`));
+  assert.match(outcome.line, /while this run was still evaluating/);
+  assert.match(outcome.line, /that head's own run decides/);
+  assert.match(outcome.line, /This job concerns PR #7, not main\./);
 });
 
 for (const mode of ['labels', 'base']) {
