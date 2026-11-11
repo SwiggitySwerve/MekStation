@@ -22,6 +22,7 @@ import type { StoreApi } from 'zustand';
 
 import { createStore } from 'zustand/vanilla';
 
+import type { IPendingWrite } from '@/lib/campaign/persistence/campaignPendingWrite';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
@@ -29,6 +30,7 @@ import { sourceCampaignAuthority } from '@/lib/campaign/authority/campaignAuthor
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
+import { sha256Sync, toCanonicalJson } from '@/utils/events/hashUtils';
 
 import {
   installCampaignPersistenceWiring,
@@ -50,6 +52,8 @@ jest.mock('@/components/shared/Toast', () => ({
 
 interface MockCampaignStore {
   campaign: ICampaign | null;
+  pendingWrite: IPendingWrite | null;
+  setPendingWrite: (marker: IPendingWrite | null) => void;
   updateCampaign: (updates: Partial<ICampaign>) => void;
   switchCampaign: (campaign: ICampaign) => void;
 }
@@ -63,6 +67,8 @@ function makeMockCampaignStore(
 ): StoreApi<MockCampaignStore> {
   return createStore<MockCampaignStore>((set, get) => ({
     campaign: initial,
+    pendingWrite: null,
+    setPendingWrite: (marker) => set({ pendingWrite: marker }),
     updateCampaign: (updates) => {
       const current = get().campaign;
       set({
@@ -76,8 +82,12 @@ function makeMockCampaignStore(
   }));
 }
 
+/** The mock campaign store most recently registered (for its marker). */
+let registeredStore: StoreApi<MockCampaignStore>;
+
 function registerLiveCampaign(campaign: ICampaign | null): void {
-  const store = makeMockCampaignStore(campaign);
+  registeredStore = makeMockCampaignStore(campaign);
+  const store = registeredStore;
   registerCampaignStoreAccessor(
     () => store as unknown as ReturnType<MockAccessor>,
   );
@@ -793,5 +803,221 @@ describe('a flush the document survives is acknowledged by reading the record it
     await drainMicrotasks();
 
     expect(getRequests()).toHaveLength(0);
+  });
+});
+
+// --- The pending-write marker the reloaded document decides with ---
+
+/** The marker the persisted copy carries right now. */
+function marker(): IPendingWrite | null {
+  return registeredStore.getState().pendingWrite;
+}
+
+/** Digest of what a PUT carried, computed from the wire, not from the store. */
+function digestOfPut(request: CapturedRequest): string {
+  const { envelope } = parsePutBody(request);
+  return sha256Sync(
+    toCanonicalJson({
+      schemaVersion: envelope.schemaVersion,
+      campaignId: envelope.campaignId,
+      savedAt: envelope.savedAt,
+      originDeviceId: envelope.originDeviceId,
+      body: envelope.body,
+    }),
+  );
+}
+
+describe('the pending-write marker follows the unsaved edit', () => {
+  let campaign: ICampaign;
+  let server: FakeServer;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    captured.length = 0;
+    __resetCampaignPersistenceCoordinationForTests();
+    useCampaignPersistenceStore.getState().reset();
+    server = { getStatus: 200, record: null, putStatus: 200 };
+    stubServer(server);
+    campaign = { ...buildPopulatedCampaign(), name: 'Pending Rename' };
+  });
+
+  afterEach(() => {
+    useCampaignPersistenceStore.getState().reset();
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it('is written in the SAME task as the edit, before any timer or await', () => {
+    seedDirtyCampaign(campaign);
+
+    // Synchronously after markDirty: nothing has been awaited and no timer
+    // has run, so a document that unloads here still carries the claim.
+    expect(marker()).toEqual({
+      campaignId: campaign.id,
+      baseVersion: BASE_VERSION,
+      editSeq: 1,
+    });
+    expect(captured).toHaveLength(0);
+  });
+
+  it('counts every further edit', () => {
+    seedDirtyCampaign(campaign);
+    useCampaignPersistenceStore.getState().markDirty();
+
+    expect(marker()?.editSeq).toBe(2);
+  });
+
+  it('survives the start of a save: only an ACKNOWLEDGEMENT clears it', async () => {
+    seedDirtyCampaign(campaign);
+    let resolveSave!: (response: Response) => void;
+    jest.mocked(globalThis.fetch).mockImplementationOnce((input, init) => {
+      captured.push({ url: String(input), init: init ?? {} });
+      return new Promise<Response>((resolve) => {
+        resolveSave = resolve;
+      });
+    });
+
+    const saving = useCampaignPersistenceStore.getState().saveCampaign();
+    await drainMicrotasks();
+    expect(useCampaignPersistenceStore.getState().saveState).toBe('saving');
+    expect(marker()).not.toBeNull();
+
+    resolveSave({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        ...parsePutBody(putRequests()[0]).envelope,
+        version: BASE_VERSION + 1,
+        instanceId: HOST_INSTANCE_ID,
+        authority: sourceCampaignAuthority(),
+      }),
+    } as Response);
+    await saving;
+
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
+    expect(marker()).toBeNull();
+  });
+
+  it('survives a refused or failed save, which is not an acknowledgement', async () => {
+    seedDirtyCampaign(campaign);
+    server.putStatus = 409;
+
+    await useCampaignPersistenceStore.getState().saveCampaign();
+
+    expect(useCampaignPersistenceStore.getState().saveState).toBe('conflict');
+    expect(marker()).toEqual({
+      campaignId: campaign.id,
+      baseVersion: BASE_VERSION,
+      editSeq: 1,
+    });
+  });
+
+  it('keeps the claim for an edit made while a save was in flight, at the new base', async () => {
+    seedDirtyCampaign(campaign);
+    let resolveSave!: (response: Response) => void;
+    jest.mocked(globalThis.fetch).mockImplementationOnce((input, init) => {
+      captured.push({ url: String(input), init: init ?? {} });
+      return new Promise<Response>((resolve) => {
+        resolveSave = resolve;
+      });
+    });
+    const saving = useCampaignPersistenceStore.getState().saveCampaign();
+    await drainMicrotasks();
+    useCampaignPersistenceStore.getState().markDirty();
+    resolveSave({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        ...parsePutBody(putRequests()[0]).envelope,
+        version: BASE_VERSION + 1,
+        instanceId: HOST_INSTANCE_ID,
+        authority: sourceCampaignAuthority(),
+      }),
+    } as Response);
+    await saving;
+
+    // The first save landed (base moved to 8) but the second edit is not in it.
+    expect(marker()).toEqual({
+      campaignId: campaign.id,
+      baseVersion: BASE_VERSION + 1,
+      editSeq: 2,
+    });
+  });
+
+  it('records what the flush sent, before the request leaves, and keeps it across later edits', () => {
+    seedDirtyCampaign(campaign);
+
+    flush();
+
+    expect(marker()).toEqual({
+      campaignId: campaign.id,
+      baseVersion: BASE_VERSION,
+      editSeq: 1,
+      flush: {
+        baseVersion: BASE_VERSION,
+        editSeq: 1,
+        // Tied to the bytes on the wire, not to a recomputation in the store.
+        digest: digestOfPut(putRequests()[0]),
+      },
+    });
+
+    useCampaignPersistenceStore.getState().markDirty();
+    expect(marker()?.editSeq).toBe(2);
+    expect(marker()?.flush?.editSeq).toBe(1);
+  });
+
+  it('drops the flush evidence when a proven flush moves the base', async () => {
+    seedDirtyCampaign(campaign);
+    flush();
+    server.record = storedFromFlush(putRequests()[0]);
+
+    reconcile();
+    await drainMicrotasks();
+
+    // The base is now the flush's own row; the old evidence describes a
+    // different base and must not be read against it.
+    expect(marker()).toEqual({
+      campaignId: campaign.id,
+      baseVersion: BASE_VERSION + 1,
+      editSeq: 1,
+    });
+  });
+
+  it('is never written for a co-op campaign', () => {
+    seedDirtyCampaign({
+      ...campaign,
+      coopSession: createHostCoopSession(campaign.id, 'ABCD'),
+    });
+
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
+    expect(marker()).toBeNull();
+  });
+
+  it('is never written for an unadopted legacy copy', () => {
+    registerLiveCampaign(campaign);
+    useCampaignPersistenceStore.setState({
+      campaignId: campaign.id,
+      baseVersion: BASE_VERSION,
+      legacyUnadopted: true,
+    });
+    useCampaignPersistenceStore.getState().markDirty();
+
+    expect(marker()).toBeNull();
+  });
+
+  it('is left alone by a fresh document that has not yet read a row', () => {
+    // The previous document's claim, rehydrated with the copy.
+    registerLiveCampaign(campaign);
+    const previous: IPendingWrite = {
+      campaignId: campaign.id,
+      baseVersion: BASE_VERSION,
+      editSeq: 5,
+    };
+    registeredStore.getState().setPendingWrite(previous);
+
+    // This document edits before its first load lands (baseVersion 0).
+    useCampaignPersistenceStore.getState().markDirty();
+
+    expect(marker()).toBe(previous);
   });
 });

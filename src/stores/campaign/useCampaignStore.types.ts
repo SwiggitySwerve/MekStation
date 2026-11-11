@@ -2,6 +2,7 @@ import type { StoreApi } from 'zustand';
 
 import type { DayReport } from '@/lib/campaign/dayAdvancement';
 import type { ICampaignCacheKey } from '@/lib/campaign/persistence/campaignCacheKey';
+import type { IPendingWrite } from '@/lib/campaign/persistence/campaignPendingWrite';
 import type { IStarmapTravelPreview } from '@/lib/starmap/starmapTravelPreview';
 import type { IActivityLogEntry } from '@/types/campaign/ActivityLog';
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
@@ -10,6 +11,7 @@ import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
+import type { CampaignPendingOutcomeSource } from './campaignBattleOutcomeState';
 import type { ForcesStore } from './useForcesStore';
 import type { MissionsStore } from './useMissionsStore';
 
@@ -78,6 +80,14 @@ export interface CampaignState {
   cachedCampaignKey: ICampaignCacheKey | null;
   /** Records the identity of the copy this client now holds. */
   setCachedCampaignKey: (key: ICampaignCacheKey | null) => void;
+  /**
+   * The unsaved-edit claim the persisted copy carries (`campaignPendingWrite`).
+   * Written by the persistence store in the same task as `markDirty` and
+   * persisted WITH the copy, so a reload can tell a copy that is newer than the
+   * server's from one that merely looks current. Null when nothing is owed.
+   */
+  pendingWrite: IPendingWrite | null;
+  setPendingWrite: (marker: IPendingWrite | null) => void;
   pendingBattleOutcomes: ICombatOutcome[];
   processedBattleIds: string[];
   reviewedBattleIds: Record<string, number>;
@@ -119,7 +129,10 @@ export interface CampaignActions {
     hostMatchId: string,
     snapshot: IGuestMirrorSnapshot,
   ) => string;
-  switchCampaign: (campaign: ICampaign) => void;
+  switchCampaign: (
+    campaign: ICampaign,
+    pendingSource?: CampaignPendingOutcomeSource,
+  ) => void;
   saveCampaign: () => MaybePromise<CampaignCommitResult>;
   advanceDay: () => MaybePromise<DayReport | null>;
   advanceDays: (count: number) => MaybePromise<DayReport[] | null>;

@@ -25,7 +25,9 @@
  * campaign (switchCampaign, which also swaps in a fresh missions store) and,
  * on a conflict, the roster from the server's record. The ledgers it merges
  * with this attempt's, and the roster on a plain error, the vault and the
- * activity log it leaves alone - those are restored here.
+ * activity log it leaves alone - those are restored here. Battle rollback
+ * restores snapshot application evidence and keeps independent pending entries
+ * added after the attempted state; the battle-state owner performs that merge.
  *
  * Each restore applies only to what this attempt itself left behind. When
  * another writer got there first - the persistence layer's roster, a roster
@@ -43,6 +45,7 @@ import { usePilotStore } from '@/stores/usePilotStore';
 
 import type { CampaignStore } from './useCampaignStore.types';
 
+import { restoreBattleOutcomeState } from './campaignBattleOutcomeState';
 import { useCampaignPersistenceStore } from './useCampaignPersistenceStore';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
 import { persistCampaignRecord } from './useCampaignStore.persistence';
@@ -147,11 +150,15 @@ export function rollbackDayAdvance(
   // just cleared it, and the restored campaign is the saved one, so it is
   // put back below rather than left showing "Unsaved changes".
   const wasDirty = useCampaignPersistenceStore.getState().dirty;
-  const ledgers = {
-    pendingBattleOutcomes: snapshot.pendingBattleOutcomes,
-    processedBattleIds: snapshot.processedBattleIds,
-    reviewedBattleIds: snapshot.reviewedBattleIds,
-  };
+  const ledgers = restoreBattleOutcomeState(
+    snapshot,
+    snapshot.appliedCampaign,
+    get(),
+  );
+  const retainedPending =
+    ledgers.pendingBattleOutcomes !== snapshot.pendingBattleOutcomes;
+  const restoredCampaign =
+    live === snapshot.appliedCampaign ? snapshot.campaign : live;
   attempt(() =>
     set({
       ...ledgers,
@@ -162,9 +169,9 @@ export function rollbackDayAdvance(
       // refused co-op save (switchCampaign), and in doing so merged this
       // attempt's ledgers into that copy; keep the copy, put the ledgers back.
       campaign:
-        live === snapshot.appliedCampaign
+        live === snapshot.appliedCampaign && !retainedPending
           ? snapshot.campaign
-          : ({ ...live, ...ledgers } as ICampaign),
+          : { ...restoredCampaign, ...ledgers },
     }),
   );
   attempt(() => restoreRoster(snapshot));
@@ -173,12 +180,16 @@ export function rollbackDayAdvance(
   attempt(() =>
     persistCampaignRecord(
       get().campaign ?? snapshot.campaign,
-      snapshot.pendingBattleOutcomes,
-      snapshot.processedBattleIds,
-      snapshot.reviewedBattleIds,
+      ledgers.pendingBattleOutcomes,
+      ledgers.processedBattleIds,
+      ledgers.reviewedBattleIds,
     ),
   );
-  useCampaignPersistenceStore.getState().restoreDirtyAfterRollback(wasDirty);
+  // An independently enqueued result still needs a write even when the failed
+  // co-op save cleared dirty while rolling its own optimistic campaign back.
+  useCampaignPersistenceStore
+    .getState()
+    .restoreDirtyAfterRollback(wasDirty || retainedPending);
   return failure;
 }
 
