@@ -51,7 +51,7 @@ function makeEvent(matchId: string, sequence: number): IGameEvent {
     type: GameEventType.PhaseChanged,
     turn: 1,
     phase: GamePhase.Initiative,
-    payload: {} as never,
+    payload: { fromPhase: GamePhase.End, toPhase: GamePhase.Initiative },
   } as IGameEvent;
 }
 

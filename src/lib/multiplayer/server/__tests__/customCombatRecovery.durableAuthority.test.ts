@@ -9,6 +9,7 @@
  * @spec openspec/changes/enable-saved-custom-unit-combat/specs/custom-unit-combat/spec.md
  */
 
+import Database from 'better-sqlite3';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -320,15 +321,39 @@ describe('custom combat durable match recovery', () => {
       ...matchMeta(unitRef),
       matchId: 'invalid-snapshot-match',
     });
-    for (const event of corruptEvents) {
-      await store.appendEvent('invalid-snapshot-match', {
+    // Deliberate corrupt history must enter below the guarded write seam.
+    insertRawMatchEvents(
+      path.join(dir, 'invalid-snapshot-matches.db'),
+      'invalid-snapshot-match',
+      corruptEvents.map((event) => ({
         ...event,
         gameId: 'invalid-snapshot-match',
-      });
-    }
+      })),
+    );
 
     const recovered = await recoverActiveMatches(store);
     expect(recovered.hosts.has('invalid-snapshot-match')).toBe(false);
     expect(recovered.failed).toContain('invalid-snapshot-match');
   });
 });
+
+/** Test-only raw rows preserve the malformed snapshot the reader must refuse. */
+function insertRawMatchEvents(
+  file: string,
+  matchId: string,
+  events: readonly IGameEvent[],
+): void {
+  const db = new Database(file);
+  try {
+    const insert = db.prepare(
+      'INSERT INTO mp_match_events (match_id, sequence, event_json) VALUES (?, ?, ?)',
+    );
+    db.transaction(() => {
+      for (const event of events) {
+        insert.run(matchId, event.sequence, JSON.stringify(event));
+      }
+    })();
+  } finally {
+    db.close();
+  }
+}
