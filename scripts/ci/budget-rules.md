@@ -265,13 +265,22 @@ cursor or additional storage/API permissions. List-time drafts are excluded
 before computing N/S and receive no direct PR reads or visits from the runner.
 
 Budget truncation has a conditional expected bound, not a finite worst-case
-bound. Model SHA-256 priorities as independent uniform ranks across sweeps,
-assume churn is not chosen in response to those ranks, at most B eligible PRs
-in the bucket, and at least its first visit completes each selected run. Then
-a continuously eligible PR's expected wait is at most B bucket visits (S*B
-runs), and its probability of still waiting after t bucket visits is at most
-(1 - 1/B)^t. For B=5 and one completed visit: expected wait 5 bucket visits;
-after 31 visits the modeled miss probability is 0.000990352 (about 0.099%).
+bound. Model SHA-256 priorities as independent uniform ranks for distinct
+sweep values, assume churn is not chosen in response to those ranks, and
+assume at least the first visit completes each selected run. For a fixed
+bucket of k eligible PRs with one completed visit per distinct sweep,
+P(T > m) = (1 - 1/k)^m and E[T] = k, where T and m
+count distinct sweep values, not repeated visits with the same sweep. With
+at most B eligible members the corresponding modeled upper bounds are B
+distinct sweeps and (1 - 1/B)^m. The S*B runs estimate requires S fixed.
+A change in S can repeat a sweep value or move it backward, reusing priorities
+and correlating visits; those visits cannot be counted as independent trials.
+For example, R=1 with PRs {1,2,3,4,5} has S=1/sweep=0; adding #6 before R=2
+gives S=2/sweep=0 and bucket {1,3,5}. PR #1 misses both visits with modeled
+probability 2/3, not (4/5)^2 = 0.64. Sol found no permanent-starvation path
+once S stabilizes, but no finite worst-case bound is claimed. For fixed S,
+B=5 and one completed visit per distinct sweep: expected wait 5 sweeps;
+after 31 distinct sweeps the modeled miss probability is 0.000990352 (0.099%).
 Sol's exact five-PR #2/#6 churn trace visits #3 on run 5 in the regression.
 A stable 60-PR example (S=12, B=5) has expected wait at most 60 runs per PR;
 after 720 runs, the modeled union bound for any of those 60 still waiting is
