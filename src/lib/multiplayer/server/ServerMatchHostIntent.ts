@@ -7,10 +7,7 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import { GameStatus } from '@/types/gameplay/GameSessionInterfaces';
-import {
-  intentHasForbiddenDiceField,
-  nowIso,
-} from '@/types/multiplayer/Protocol';
+import { intentHasForbiddenDiceField } from '@/types/multiplayer/Protocol';
 
 import type { ICommandRejectionAuditPort } from './audit/CommandRejectionAudit';
 import type { IAuthorizedViewer } from './authorization/AuthorizedViewer';
@@ -35,6 +32,10 @@ import {
 } from './authorization/HumanActionAuthorizationGate';
 import { MembershipSourceUnavailableError } from './authorization/MatchSeatMembershipSource';
 import {
+  intentRefusalMessage as errorMessage,
+  rejectAuditedIntent as rejectCommand,
+} from './intentRefusal';
+import {
   runLegacyShadowComparison,
   shadowAudienceInput,
 } from './journalAuthorityShadow';
@@ -55,7 +56,6 @@ import {
 import { commitJournalAuthorityCommand } from './ServerMatchHostJournalAuthority';
 import {
   commitThenPublish,
-  errorMessage,
   outboxCommitDeps,
 } from './ServerMatchHostPublication';
 import { sideOfPlayer } from './sideAssignments';
@@ -102,7 +102,7 @@ export interface IServerMatchHostIntentContext extends IServerMatchHostCaptureCo
   readonly isPaused: boolean;
   /** M-H3: refusal text naming the active pause cause. */
   readonly pauseRefusal?: string;
-  readonly broadcast: (message: IServerMessage) => void;
+  readonly sendRefusal: (message: IServerMessage) => void;
   readonly broadcastEvent: (message: IEventMessage) => Promise<void>;
   /** Undelivered-only broadcast for the outbox resume pass (7.1); optional for test contexts, production always supplies it. */
   readonly broadcastUndeliveredEvent?: (
@@ -166,11 +166,14 @@ export async function handleIntent(
   connectionKey = 'default',
   verifiedPrincipalId: IntentVerifiedPrincipal = SERVER_INTERNAL_INTENT_CALLER,
 ): Promise<readonly IServerMessage[]> {
-  const broadcasts: IServerMessage[] = [];
-
   if (ctx.closed) {
-    const err = errorMessage(ctx.matchId, 'UNKNOWN_MATCH', 'Match is closed');
-    ctx.broadcast(err);
+    const err = errorMessage(
+      ctx.matchId,
+      'UNKNOWN_MATCH',
+      'Match is closed',
+      envelope.intentId,
+    );
+    ctx.sendRefusal(err);
     return [err];
   }
 
@@ -181,7 +184,7 @@ export async function handleIntent(
       'server-command-only',
       envelope.intentId,
     );
-    ctx.broadcast(err);
+    ctx.sendRefusal(err);
     return [err];
   }
 
@@ -219,7 +222,7 @@ export async function handleIntent(
       `rollback-reader-blocked:${ctx.rollbackBlockReason}`,
       envelope.intentId,
     );
-    ctx.broadcast(err);
+    ctx.sendRefusal(err);
     return [err];
   }
 
@@ -380,7 +383,7 @@ export async function handleIntent(
     events: newEvents,
     intentId: envelope.intentId,
     appendEvent: (event) => ctx.store.appendEvent(ctx.matchId, event),
-    broadcast: ctx.broadcast,
+    sendRefusal: ctx.sendRefusal,
     broadcastEvent: ctx.broadcastEvent,
     closeMatch: ctx.closeMatch,
     ...(ctx.broadcastUndeliveredEvent != null
@@ -388,12 +391,11 @@ export async function handleIntent(
       : {}),
     ...outboxCommitDeps(ctx.store, ctx.matchId, envelope, newEvents),
   });
-  broadcasts.push(...published.messages);
-  if (!published.committed) return broadcasts;
+  if (!published.committed) return published.messages;
 
   await markMatchCompleted(ctx.store, ctx.matchId, newEvents);
   ctx.tryPublishOutcome();
-  return broadcasts;
+  return published.messages;
 }
 
 /**
@@ -415,37 +417,7 @@ function rejectMismatchedPrincipal(
     'player-mismatch',
     envelope.intentId,
   );
-  ctx.broadcast(err);
-  return [err];
-}
-
-/**
- * Terminal command refusal WITH its audit row, in that order.
- *
- * The row is appended before the Error frame is built or broadcast, so
- * a reader who can observe the refusal on the wire can already observe
- * the record of it - "append then reject" cannot quietly become
- * "reject then append". Recording is deliberately best-effort (see
- * `CommandRejectionAudit`'s NEVER FATAL law): the command is refused
- * either way, and a failed audit must not upgrade a clean refusal into
- * an internal error.
- */
-function rejectCommand(
-  ctx: IServerMatchHostIntentContext,
-  envelope: IIntent,
-  viewer: IAuthorizedViewer,
-  code: Extract<IServerMessage, { kind: 'Error' }>['code'],
-  reason: string,
-): readonly IServerMessage[] {
-  ctx.commandRejectionAudit?.recordCommandRejection({
-    viewer,
-    matchId: ctx.matchId,
-    commandId: envelope.intentId ?? null,
-    intent: envelope.intent,
-    occurredAt: nowIso(),
-  });
-  const err = errorMessage(ctx.matchId, code, reason, envelope.intentId);
-  ctx.broadcast(err);
+  ctx.sendRefusal(err);
   return [err];
 }
 
@@ -459,7 +431,7 @@ type CommandAuthorizationResult =
 
 /**
  * Rechecks command authorization through the human-action gate before
- * any engine dispatch or store append. Broadcasts a typed Error and
+ * any engine dispatch or store append. Sends a typed Error to the submitting connection and
  * returns it on refusal; returns the branded viewer when the caller may
  * proceed.
  *
@@ -490,10 +462,10 @@ async function refuseUnauthorizedCommand(
       const infra = errorMessage(
         ctx.matchId,
         'INTERNAL_ERROR',
-        'membership verification unavailable',
+        error.message,
         envelope.intentId,
       );
-      ctx.broadcast(infra);
+      ctx.sendRefusal(infra);
       return { refusal: [infra] };
     }
     if (
@@ -503,10 +475,10 @@ async function refuseUnauthorizedCommand(
       const err = errorMessage(
         ctx.matchId,
         'AUTH_REJECTED',
-        `command refused: ${error.code}`,
+        `command refused: ${error.code}: ${error.message}`,
         envelope.intentId,
       );
-      ctx.broadcast(err);
+      ctx.sendRefusal(err);
       return { refusal: [err] };
     }
     throw error;
@@ -554,7 +526,15 @@ async function refuseForeignUnitCommand(
 
   const unitSide =
     ctx.session.getSession().currentState.units[actorUnitId]?.side;
-  if (unitSide === undefined) return null;
+  if (unitSide === undefined) {
+    return rejectCommand(
+      ctx,
+      envelope,
+      viewer,
+      'INVALID_INTENT',
+      'unit-unavailable',
+    );
+  }
 
   const meta = await ctx.store.getMatchMeta(ctx.matchId);
 
@@ -577,7 +557,8 @@ async function refuseForeignUnitCommand(
     ctx,
     envelope,
     viewer,
-    'AUTH_REJECTED',
+    // Match unknown-unit and engine refusals: ownership must not reveal a hidden unit's existence.
+    'INVALID_INTENT',
     'unit-not-owned',
   );
 }
@@ -615,6 +596,6 @@ async function rejectSpectatorIntent(
     'spectator-cannot-act',
     envelope.intentId,
   );
-  ctx.broadcast(err);
+  ctx.sendRefusal(err);
   return [err];
 }

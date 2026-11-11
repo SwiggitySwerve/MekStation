@@ -237,6 +237,7 @@ export class ServerMatchHost {
   private readonly viewerResolver: AuthorizedViewerResolver;
 
   private readonly broadcaster = new ServerMatchBroadcaster();
+  private readonly intentConnections = new Map<string, IMatchSocket>();
   private readonly lifecycle: ServerMatchSocketLifecycle;
   private readonly fogVisibilityCache = new FogOfWarVisibilityCache();
   /** Per-viewer gapless delivery numbering (umbrella 11.1). */
@@ -820,6 +821,7 @@ export class ServerMatchHost {
   admitSocket = async (
     socket: IMatchSocket,
     verifiedPlayerId: string,
+    connectionKey?: string,
   ): Promise<IAuthorizedViewer | null> => {
     try {
       const viewer = await this.viewerResolver.resolve(
@@ -836,6 +838,8 @@ export class ServerMatchHost {
         return null;
       }
       this.attachSocket(socket, verifiedPlayerId);
+      if (connectionKey != null)
+        this.intentConnections.set(connectionKey, socket);
       return viewer;
     } catch (error) {
       if (error instanceof AuthorizedViewerError) {
@@ -931,6 +935,9 @@ export class ServerMatchHost {
    * path (client bye, heartbeat timeout, host shutdown).
    */
   detachSocket = (socket: IMatchSocket): void => {
+    for (const [key, target] of this.intentConnections) {
+      if (target === socket) this.releaseConnection(key);
+    }
     this.lifecycle.detach(socket);
   };
 
@@ -1223,8 +1230,8 @@ export class ServerMatchHost {
   // ---------------------------------------------------------------------------
 
   /**
-   * Apply an intent. Returns a list of broadcast envelopes (events +
-   * any error) that have already been sent to all sockets. Returning
+   * Apply an intent. Returns published events and private refusal replies.
+   * Refusals are sent only to the submitting connection. Returning
    * them lets tests assert without reaching into the socket mock.
    *
    * `connectionKey` identifies the inbound socket so the per-connection
@@ -1298,7 +1305,7 @@ export class ServerMatchHost {
     return this.queueCommand(async () => {
       await this.retryPendingRewindRebuild();
       const messages = await handleIntentWithContext(
-        buildIntentContext(this.internals()),
+        buildIntentContext(this.internals(false, connectionKey)),
         envelope,
         connectionKey,
         verifiedPrincipalId,
@@ -1335,8 +1342,10 @@ export class ServerMatchHost {
    * connection's rate-limit bucket. The WebSocket upgrade handler calls
    * this on socket detach so per-socket state is not retained forever.
    */
-  releaseConnection = (connectionKey: string): void =>
-    void this.rateLimiter.release(connectionKey);
+  releaseConnection = (connectionKey: string): void => {
+    this.intentConnections.delete(connectionKey);
+    this.rateLimiter.release(connectionKey);
+  };
 
   /** Test/observability: number of accepted intent ids retained. */
   acceptedIntentCount = (): number => this.acceptedIntents.size();
@@ -1481,7 +1490,10 @@ export class ServerMatchHost {
    * callbacks are bound arrows so the free-function modules can hold
    * stable references without `this` rebinding.
    */
-  private internals(internalCommand = false): IServerMatchHostInternals {
+  private internals(
+    internalCommand = false,
+    connectionKey?: string,
+  ): IServerMatchHostInternals {
     return {
       matchId: this.matchId,
       store: this.store,
@@ -1496,6 +1508,13 @@ export class ServerMatchHost {
       pauseSnapshot: this.pauseSnapshot,
       pauseRefusal: pauseRefusalReason(this.pauseSnapshot()?.reason ?? null),
       broadcast: (message) => this.broadcast(message),
+      sendRefusal: (message) => {
+        const socket =
+          connectionKey == null
+            ? undefined
+            : this.intentConnections.get(connectionKey);
+        if (socket != null) this.safeSend(socket, message);
+      },
       broadcastEvent: (message) => this.broadcastEvent(message),
       broadcastUndeliveredEvent: (message) =>
         this.broadcastUndeliveredEvent(message),
@@ -1506,7 +1525,8 @@ export class ServerMatchHost {
       drainNewEvents: () => this.drainNewEvents(),
       stampRollsOnNewEvents: (events) => this.stampRollsOnNewEvents(events),
       tryPublishOutcome: () => this.tryPublishOutcome(),
-      handleLobbyIntent: (envelope) => this.handleLobbyIntent(envelope),
+      handleLobbyIntent: (envelope) =>
+        this.handleLobbyIntent(envelope, connectionKey),
       rateLimiter: this.rateLimiter,
       acceptedIntents: this.acceptedIntents,
       viewerResolver: this.viewerResolver,
@@ -1743,10 +1763,11 @@ export class ServerMatchHost {
    */
   private async handleLobbyIntent(
     envelope: IIntent,
+    connectionKey?: string,
   ): Promise<readonly IServerMessage[]> {
     const wasPaused = this.isPausedForReconnect();
     const messages = await handleLobbyIntentWithContext(
-      buildLobbyContext(this.internals()),
+      buildLobbyContext(this.internals(false, connectionKey)),
       envelope,
     );
     // Authority-audit PR 2: seats may have changed - revoked members

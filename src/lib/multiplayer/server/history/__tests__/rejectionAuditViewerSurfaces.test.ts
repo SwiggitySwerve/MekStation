@@ -1,45 +1,8 @@
 /**
- * A live-path rejection is visible to the GM, redacted for players, and
- * invisible to everything else - across retries (umbrella task 18.4).
- *
- * WHAT IS ALREADY PROVEN, and therefore cited rather than re-authored:
- * `ViewerHistoryService.test.ts` "hides other principals and committed
- * revisions from a player; gm sees both" already seeds a REJECTED row
- * and pins the redaction - player rows carry exactly
- * `VIEWER_PLAYER_TIMELINE_KEYS`, a non-actor player sees
- * `actorPrincipalId: null`, and only the safe class survives; the GM
- * arm sees both principals and both revision ranges. #1505 added the
- * GM/P1/P2 timeline-export digest parity. None of that is repeated
- * here.
- *
- * WHAT WAS MISSING, and is what this file adds: every one of those rows
- * seeds the audit repository DIRECTLY. Nothing connected the row a REAL
- * refused command produces on the live host (#1514) to the viewer
- * surfaces that render it. A redaction proven only against hand-built
- * rows is a proof about the mapper, not about the system - the live
- * path could write a row those rows never anticipated and no test
- * would notice.
- *
- * So the audit rows here are produced by driving `handleIntent` on a
- * real `ServerMatchHost` over a real `DurableMatchStore`, and read back
- * through a real `ViewerHistoryService` over the same SQLite file.
- *
- * HONEST FRAMING: these rows are PINS, not red-first regressions. The
- * behaviour they describe holds on arrival - 18.4 is a verification
- * task, not an implementation one. What makes them non-vacuous is (a)
- * the positive control in the sweep, which fails if the scanner stops
- * scanning, and (b) the mutation matrix, which turns each row red on a
- * plausible defect.
- *
- * NON-CLAIM: the GM viewer is minted by a test membership source.
- * `MatchSeatMembershipSource` emits `role: 'gm'` only for a durable
- * campaign gm seat. A standalone tactical match still mints `player`.
- * The GM arm here proves the PROJECTION, not live campaign seating.
- *
- * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/audit-timeline/spec.md
- * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/gm-authority-redaction/spec.md
+ * Sender-only rejection history across real-host SQLite viewer surfaces.
+ * GM membership is test-minted: this verifies projection, not campaign seating.
+ * @spec openspec/changes/fix-mp-refusals-sender-only/specs/audit-timeline/spec.md
  */
-
 import type Database from 'better-sqlite3';
 
 import fs from 'node:fs';
@@ -50,8 +13,9 @@ import type { IAdaptedUnit } from '@/engine/types';
 
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { SQLiteActionAuditRepository } from '@/lib/events/audit/SQLiteActionAuditRepository';
-import { InMemoryEventJournal } from '@/lib/events/journal/InMemoryEventJournal';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { SQLitePrivateRecordRepository } from '@/lib/events/privacy/SQLitePrivateRecordRepository';
+import { connect, type IClientWebSocket } from '@/lib/multiplayer/client';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -65,7 +29,12 @@ import {
   type IGameUnit,
 } from '@/types/gameplay';
 import { defaultSeats } from '@/types/multiplayer/Lobby';
-import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
+import {
+  type IIntent,
+  type IServerMessage,
+  RECONNECT_INITIAL_MS,
+  nowIso,
+} from '@/types/multiplayer/Protocol';
 
 import type {
   IMembershipRecord,
@@ -73,6 +42,7 @@ import type {
 } from '../../authorization/AuthorizedViewer';
 
 import { leakScan } from '../../__tests__/campaignGrantChannel.test-helpers';
+import { commandRejectionDigest } from '../../audit/CommandRejectionAudit';
 import { AuthorizedViewerResolver } from '../../authorization/AuthorizedViewer';
 import { SQLiteDeliveryEpochStore } from '../../delivery/SQLiteDeliveryEpochStore';
 import { DurableMatchStore } from '../../DurableMatchStore';
@@ -299,6 +269,7 @@ describe('live-path rejection across viewer surfaces', () => {
   let db: Database.Database;
   let host: ServerMatchHost;
   let history: ViewerHistoryService;
+  let journal: SQLiteEventJournal;
   let socket: ReturnType<typeof makeSocket>;
 
   beforeEach(async () => {
@@ -349,7 +320,7 @@ describe('live-path rejection across viewer surfaces', () => {
     await Promise.resolve();
     await Promise.resolve();
     socket = makeSocket();
-    expect(await host.admitSocket(socket, OWNER)).not.toBeNull();
+    expect(await host.admitSocket(socket, OWNER, 'conn-a')).not.toBeNull();
 
     const source = new FixtureMembershipSource();
     source.set(PLAYER_A_ROW);
@@ -359,12 +330,25 @@ describe('live-path rejection across viewer surfaces', () => {
     registry.register({
       projectorVersion: 1,
       streamType: STREAM_TYPE,
-      decisions: [],
+      decisions: [
+        {
+          eventType: 'committed-control',
+          decision: {
+            kind: 'public',
+            project(payload) {
+              if (typeof payload !== 'string')
+                throw new Error('expected committed event id');
+              return payload;
+            },
+          },
+        },
+      ],
     });
+    journal = new SQLiteEventJournal(db, () => RECORDED_AT);
     history = new ViewerHistoryService({
       resolver: new AuthorizedViewerResolver(source),
       projection: new ViewerProjectionService({
-        journal: new InMemoryEventJournal(() => RECORDED_AT),
+        journal,
         registry,
       }),
       epochStore: new SQLiteDeliveryEpochStore(db, () => RECORDED_AT),
@@ -386,39 +370,559 @@ describe('live-path rejection across viewer surfaces', () => {
     });
   }
 
-  it('shows the GM the live rejection and redacts it for both players', async () => {
-    await host.handleIntent(refusedIntent('cmd-live-reject'), 'conn-a', OWNER);
+  it("keeps another player's later reconnect baseline and full export free of the refusal", async () => {
+    const before = makeSocket();
+    await host.handleSessionJoin(before, PLAYER_B_ROW.principalId);
+    expect(before.sent).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: 'ReplayStart' }),
+        expect.objectContaining({ kind: 'ReplayChunk' }),
+        expect.objectContaining({ kind: 'ReplayEnd' }),
+        expect.objectContaining({ kind: 'LobbyUpdated' }),
+      ]),
+    );
+    const beforeExport = await history.exportForViewer(
+      PLAYER_B_ROW.principalId,
+      SESSION_ID,
+      {
+        streamType: STREAM_TYPE,
+        streamId: SESSION_ID,
+      },
+    );
+    await host.handleIntent(
+      refusedIntent('cmd-later-baseline'),
+      'conn-a',
+      OWNER,
+    );
+    const later = makeSocket();
+    await host.handleSessionJoin(later, PLAYER_B_ROW.principalId);
+    expect(withoutSendClock(later.sent)).toEqual(withoutSendClock(before.sent));
+    expect(JSON.stringify(later.sent)).not.toContain('cmd-later-baseline');
+    expect(JSON.stringify(later.sent)).not.toContain('command-rejected');
+    const laterExport = await history.exportForViewer(
+      PLAYER_B_ROW.principalId,
+      SESSION_ID,
+      {
+        streamType: STREAM_TYPE,
+        streamId: SESSION_ID,
+      },
+    );
+    expect(laterExport).toEqual(beforeExport);
+    expect(JSON.stringify(laterExport)).not.toContain('cmd-later-baseline');
+    expect(JSON.stringify(laterExport)).not.toContain('command-rejected');
+    const durable = new SQLiteActionAuditRepository(db).readBySession(
+      SESSION_ID,
+    );
+    expect(durable).toEqual([
+      expect.objectContaining({
+        commandId: 'cmd-later-baseline',
+        lifecycleState: 'rejected',
+      }),
+    ]);
+    expect(
+      (
+        await history.exportForViewer(OWNER, SESSION_ID, {
+          streamType: STREAM_TYPE,
+          streamId: SESSION_ID,
+        })
+      ).timeline,
+    ).toEqual([expect.objectContaining({ commandId: 'cmd-later-baseline' })]);
+  });
 
-    const gm = await timelineFor(GM_ROW.principalId);
-    const actor = await timelineFor(PLAYER_A_ROW.principalId);
-    const other = await timelineFor(PLAYER_B_ROW.principalId);
-
-    // One live-produced rejection, seen by all three - the redaction is
-    // about FIELDS, not about hiding that a command was refused.
-    for (const rows of [gm, actor, other]) {
-      expect(rows).toHaveLength(1);
-      expect(rows[0]?.commandId).toBe('cmd-live-reject');
-      expect(rows[0]?.lifecycleState).toBe('rejected');
-      expect(rows[0]?.safeReasonCode).toBe('command-rejected');
-    }
-
-    // GM: full actor identity.
-    expect(gm[0]?.actorPrincipalId).toBe(OWNER);
-
-    // Actor: their own row, so their own principal is theirs to see.
-    expect(actor[0]?.actorPrincipalId).toBe(OWNER);
-
-    // The OTHER player learns a command was refused and nothing about
-    // who refused it. This is the field the mutation matrix attacks.
-    expect(other[0]?.actorPrincipalId).toBeNull();
-    expect(JSON.stringify(other)).not.toContain(OWNER);
-
-    // Strict allowlist on both player arms: a new key on the mapper
-    // cannot reach a player without failing here.
-    for (const rows of [actor, other]) {
-      expect(Object.keys(rows[0] ?? {})).toEqual([
-        ...VIEWER_PLAYER_TIMELINE_KEYS,
+  it('preserves committed events and accepted timeline rows for every viewer after a refusal', async () => {
+    const accepted = await host.handleIntent(
+      {
+        kind: 'Intent',
+        matchId: SESSION_ID,
+        ts: nowIso(),
+        playerId: OWNER,
+        intentId: 'cmd-public-accepted',
+        intent: { kind: 'AdvancePhase' },
+      },
+      'conn-a',
+      OWNER,
+    );
+    expect(accepted).toEqual(
+      expect.arrayContaining([expect.objectContaining({ kind: 'Event' })]),
+    );
+    const committed = await store.getEvents(SESSION_ID, 0);
+    expect(committed.length).toBeGreaterThan(0);
+    const controlEvent = committed[0];
+    if (!controlEvent) throw new Error('missing committed control');
+    // This fixture's history projector publishes the real host event identity as a public control.
+    const append = await journal.append({
+      streamType: STREAM_TYPE,
+      streamId: SESSION_ID,
+      expectedBranchId: 'root',
+      expectedRevision: 0,
+      commandId: 'cmd-public-history',
+      principal: {
+        actorKind: 'system',
+        actorId: 'history-test',
+        authorityType: 'match',
+        authorityId: SESSION_ID,
+      },
+      events: [
+        {
+          eventId: 'committed-history-control',
+          eventType: 'committed-control',
+          eventVersion: 1,
+          correlationId: 'cmd-public-accepted',
+          causationEventIds: [],
+          occurredAt: RECORDED_AT,
+          payload: controlEvent.id,
+          entityRefs: [],
+        },
+      ],
+    });
+    expect(append.kind).toBe('committed');
+    // The legacy host has no accepted-audit writer; seed provenance for the real committed prefix.
+    new SQLiteActionAuditRepository(db).recordLifecycle({
+      campaignSessionId: SESSION_ID,
+      matchId: SESSION_ID,
+      streamType: STREAM_TYPE,
+      streamId: SESSION_ID,
+      commandId: 'cmd-public-accepted',
+      commandDigest: 'c'.repeat(64),
+      actor: {
+        principalId: OWNER,
+        participantId: PLAYER_A_ROW.participantId,
+        role: 'player',
+      },
+      correlationId: 'cmd-public-accepted',
+      createdAt: RECORDED_AT,
+      lifecycleState: 'accepted',
+      safeReasonCode: null,
+      committedFirstRevision: 1,
+      committedLastRevision: committed.length,
+      committedEventCount: committed.length,
+    });
+    const viewers = [OWNER, PLAYER_B_ROW.principalId, GM_ROW.principalId];
+    const before = await Promise.all(
+      viewers.map(async (principal) => ({
+        timeline: await timelineFor(principal),
+        exported: await history.exportForViewer(principal, SESSION_ID, {
+          streamType: STREAM_TYPE,
+          streamId: SESSION_ID,
+        }),
+      })),
+    );
+    const replayBefore = await Promise.all(
+      [OWNER, PLAYER_B_ROW.principalId].map(async (principal) => {
+        const replay = makeSocket();
+        await host.sendReplay(replay, 0, principal);
+        return withoutSendClock(replay.sent);
+      }),
+    );
+    await host.handleIntent(refusedIntent('cmd-after-commit'), 'conn-a', OWNER);
+    expect(await store.getEvents(SESSION_ID, 0)).toEqual(committed);
+    for (const [index, principal] of viewers.entries()) {
+      const timeline = await timelineFor(principal);
+      const exported = await history.exportForViewer(principal, SESSION_ID, {
+        streamType: STREAM_TYPE,
+        streamId: SESSION_ID,
+      });
+      expect(
+        timeline.filter((row) => row.lifecycleState === 'accepted'),
+      ).toEqual(before[index]?.timeline);
+      expect(exported.stream).toEqual(before[index]?.exported.stream);
+      expect(exported.stream.facts).toEqual([
+        {
+          factType: 'committed-control',
+          sequenceHint: 1,
+          payload: controlEvent.id,
+        },
       ]);
+      expect(
+        exported.timeline.filter((row) => row.lifecycleState === 'accepted'),
+      ).toEqual(before[index]?.exported.timeline);
+      expect(
+        timeline.find((row) => row.commandId === 'cmd-public-accepted'),
+      ).toBeDefined();
+      if (principal !== OWNER)
+        expect(exported).toEqual(before[index]?.exported);
+    }
+    for (const [index, principal] of [
+      OWNER,
+      PLAYER_B_ROW.principalId,
+    ].entries()) {
+      const replay = makeSocket();
+      await host.sendReplay(replay, 0, principal);
+      expect(withoutSendClock(replay.sent)).toEqual(replayBefore[index]);
+    }
+  });
+
+  it.each([
+    {
+      name: 'retries an already audited rejection on the replacement key and settles the sender',
+      becomesValid: false,
+    },
+    {
+      name: 'a refused id that later becomes valid is applied and keeps its rejected audit row',
+      becomesValid: true,
+    },
+  ])('$name', async ({ becomesValid }) => {
+    jest.useFakeTimers();
+    if (becomesValid) jest.setSystemTime(new Date('2026-11-11T00:00:00Z'));
+    const bridges: {
+      client: IClientWebSocket;
+      server: ReturnType<typeof makeSocket>;
+      intents: IIntent[];
+    }[] = [];
+    const client = connect(
+      'ws://test/refusal',
+      SESSION_ID,
+      { playerId: OWNER, token: 'test' },
+      {
+        socketFactory: () => {
+          const intents: IIntent[] = [];
+          const transport: IClientWebSocket = {
+            readyState: 1,
+            onopen: null,
+            onmessage: null,
+            onerror: null,
+            onclose: null,
+            send(raw) {
+              const frame = JSON.parse(raw) as IIntent;
+              if (frame.kind === 'Intent') intents.push(frame);
+            },
+            close() {
+              transport.readyState = 3;
+              transport.onclose?.({});
+            },
+          };
+          const server = makeSocket();
+          const send = server.send.bind(server);
+          server.send = (raw: string) => {
+            send(raw);
+            transport.onmessage?.({ data: raw });
+          };
+          bridges.push({ client: transport, server, intents });
+          return transport;
+        },
+      },
+    );
+    const errors: unknown[] = [];
+    client.on('error', (error) => errors.push(error));
+    const other = makeSocket();
+    const spectator = makeSocket();
+    try {
+      const meta = await store.getMatchMeta(SESSION_ID);
+      await store.updateMatchMeta(SESSION_ID, {
+        seats: [
+          ...(meta.seats ?? []),
+          {
+            slotId: 'spectator-1',
+            side: 'spectator',
+            seatNumber: 1,
+            kind: 'spectator',
+            ready: false,
+            occupant: { playerId: 'watch', displayName: 'Watcher' },
+          },
+        ],
+      });
+      expect(
+        await host.admitSocket(other, PLAYER_B_ROW.principalId, 'other-key'),
+      ).not.toBeNull();
+      expect(
+        await host.admitSocket(spectator, 'watch', 'watch-key'),
+      ).not.toBeNull();
+      const first = bridges[0];
+      if (!first) throw new Error('missing original client socket');
+      expect(
+        await host.admitSocket(first.server, OWNER, 'dead-key'),
+      ).not.toBeNull();
+      first.client.onopen?.({});
+      await host.handleSessionJoin(first.server, OWNER);
+      expect(client.isReady()).toBe(true);
+      first.server.sent.length = 0;
+      const baseline = await store.getEvents(SESSION_ID, 0);
+      client.send(
+        becomesValid
+          ? {
+              kind: 'RequestSpot',
+              unitId: 'unit-A',
+              targetId: 'unit-foe',
+            }
+          : {
+              kind: 'Move',
+              unitId: 'missing-private-unit',
+              to: { q: 0, r: 1 },
+              facing: 0,
+              movementType: 'walk',
+            },
+      );
+      const original = first.intents[0];
+      if (!original?.intentId) throw new Error('missing submitted intent id');
+      expect(client.lifecycle().pendingIntentCount).toBe(1);
+      // Queue the real host command, then release its key before its refusal can be delivered.
+      const firstAttempt = host.handleIntent(original, 'dead-key', OWNER);
+      first.client.close();
+      host.releaseConnection('dead-key');
+      host.detachSocket(first.server);
+      jest.advanceTimersByTime(RECONNECT_INITIAL_MS * 2);
+      const replacement = bridges[1];
+      if (!replacement) throw new Error('client did not reconnect');
+      expect(
+        await host.admitSocket(replacement.server, OWNER, 'new-key'),
+      ).not.toBeNull();
+      replacement.client.onopen?.({});
+      const firstReply = await firstAttempt;
+      expect(firstReply).toEqual([
+        expect.objectContaining({
+          kind: 'Error',
+          code: 'INVALID_INTENT',
+          intentId: original.intentId,
+          reason: 'Intent could not be applied.',
+        }),
+      ]);
+      const audit = new SQLiteActionAuditRepository(db);
+      const rejected = audit.readBySession(SESSION_ID);
+      expect(rejected).toEqual([
+        expect.objectContaining({
+          commandId: original.intentId,
+          lifecycleState: 'rejected',
+        }),
+      ]);
+      for (const observer of [
+        socket,
+        first.server,
+        replacement.server,
+        other,
+        spectator,
+      ])
+        expect(observer.sent).toEqual([]);
+      expect(errors).toEqual([]);
+      expect(client.lifecycle().pendingIntentCount).toBe(1);
+      if (becomesValid) {
+        expect(await store.getEvents(SESSION_ID, 0)).toEqual(baseline);
+        expect(
+          await journal.readStream({
+            streamType: 'match',
+            streamId: SESSION_ID,
+            branchId: 'root',
+            afterRevision: 0,
+            limit: 100,
+          }),
+        ).toEqual([]);
+        expect(rejected).toEqual([
+          expect.objectContaining({
+            commandDigest: commandRejectionDigest(
+              SESSION_ID,
+              original.intentId,
+              original.intent,
+            ),
+            safeReasonCode: 'command-rejected',
+            createdAt: nowIso(),
+            updatedAt: nowIso(),
+            correlationId: null,
+            publishedReceiptId: null,
+            committedFirstRevision: null,
+            committedLastRevision: null,
+            committedEventCount: null,
+          }),
+        ]);
+        jest.setSystemTime(new Date('2026-11-11T00:00:10.000Z'));
+        // A separate admitted owner socket advances Initiative -> Movement -> WeaponAttack.
+        const advanced: IServerMessage[] = [];
+        for (const step of [1, 2])
+          advanced.push(
+            ...(await host.handleIntent(
+              {
+                kind: 'Intent',
+                matchId: SESSION_ID,
+                ts: nowIso(),
+                playerId: OWNER,
+                intentId: `cmd-phase-change-${step}`,
+                intent: { kind: 'AdvancePhase' },
+              },
+              'conn-a',
+              OWNER,
+            )),
+          );
+        expect(advanced.length).toBeGreaterThan(0);
+        expect(advanced.every((frame) => frame.kind === 'Event')).toBe(true);
+        for (const observer of [socket, replacement.server, other, spectator]) {
+          expect(
+            (observer.sent as IServerMessage[]).some(
+              (frame) => frame.kind === 'Event',
+            ),
+          ).toBe(true);
+          expect(
+            (observer.sent as IServerMessage[]).some(
+              (frame) => frame.kind === 'Error',
+            ),
+          ).toBe(false);
+          observer.sent.length = 0;
+        }
+        expect(first.server.sent).toEqual([]);
+        expect(client.lifecycle().pendingIntentCount).toBe(1);
+        expect(errors).toEqual([]);
+      }
+      await host.handleSessionJoin(replacement.server, OWNER);
+      expect(replacement.server.sent).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ kind: 'ReplayEnd' }),
+        ]),
+      );
+      // ReplayEnd must retry the same already-audited identity, never mint a new one.
+      expect(replacement.intents).toEqual([original]);
+      const retry = replacement.intents[0];
+      if (!retry)
+        throw new Error('ReplayEnd did not resend the pending intent');
+      const beforeRetry = await store.getEvents(SESSION_ID, 0);
+      if (becomesValid) {
+        expect(client.lifecycle().pendingIntentCount).toBe(1);
+        expect(errors).toEqual([]);
+        for (const observer of [socket, replacement.server, other, spectator])
+          observer.sent.length = 0;
+        jest.setSystemTime(new Date('2026-11-11T00:00:20.000Z'));
+      }
+      const retryReply = await host.handleIntent(retry, 'new-key', OWNER);
+      if (becomesValid) {
+        const committed = await store.getEvents(SESSION_ID, 0);
+        expect(committed.slice(0, beforeRetry.length)).toEqual(beforeRetry);
+        const applied = committed.slice(beforeRetry.length);
+        expect(applied.map((event) => event.type)).toEqual([
+          'spotting_declared',
+        ]);
+        expect(applied[0]?.payload).toEqual(
+          expect.objectContaining({ intentId: original.intentId }),
+        );
+        expect(applied.every((event) => event.timestamp === nowIso())).toBe(
+          true,
+        );
+        expect(retryReply).toEqual(
+          applied.map((event) =>
+            expect.objectContaining({ kind: 'Event', event }),
+          ),
+        );
+        const journalEvents = await journal.readStream({
+          streamType: 'match',
+          streamId: SESSION_ID,
+          branchId: 'root',
+          afterRevision: 0,
+          limit: 100,
+        });
+        // The legacy host commits mp_match_events; this harness does not mirror them.
+        expect(journalEvents).toEqual([]);
+        expect(await journal.getCommandReceipt(original.intentId)).toBeNull();
+        expect(audit.readBySession(SESSION_ID)).toEqual(rejected);
+        for (const observer of [socket, replacement.server, other, spectator]) {
+          const frames = observer.sent as IServerMessage[];
+          expect(frames).toEqual([
+            expect.objectContaining({
+              kind: 'Event',
+              event: expect.objectContaining({ type: 'spotting_declared' }),
+            }),
+          ]);
+        }
+        expect(first.server.sent).toEqual([]);
+        expect(client.lifecycle().pendingIntentCount).toBe(0);
+        expect(client.isReady()).toBe(true);
+        expect(errors).toEqual([]);
+        return;
+      }
+      expect(retryReply).toEqual(
+        firstReply.map((frame) =>
+          expect.objectContaining({
+            kind: frame.kind,
+            ...(frame.kind === 'Error'
+              ? {
+                  code: frame.code,
+                  reason: frame.reason,
+                  intentId: frame.intentId,
+                }
+              : {}),
+          }),
+        ),
+      );
+      expect(
+        (replacement.server.sent as IServerMessage[]).filter(
+          (frame) => frame.kind === 'Error',
+        ),
+      ).toEqual(retryReply);
+      expect(audit.readBySession(SESSION_ID)).toEqual(rejected);
+      expect(client.lifecycle().pendingIntentCount).toBe(0);
+      expect(client.isReady()).toBe(true);
+      expect(errors).toEqual([
+        expect.objectContaining({
+          code: 'INVALID_INTENT',
+          reason: 'Intent could not be applied.',
+        }),
+      ]);
+      for (const observer of [socket, first.server, other, spectator])
+        expect(observer.sent).toEqual([]);
+    } finally {
+      client.close();
+      jest.useRealTimers();
+    }
+  });
+
+  it('shows the live rejected row only to its sender, including the GM rule', async () => {
+    await host.handleIntent(refusedIntent('cmd-live-reject'), 'conn-a', OWNER);
+    const actor = await timelineFor(OWNER);
+    expect(actor).toEqual([
+      expect.objectContaining({
+        commandId: 'cmd-live-reject',
+        lifecycleState: 'rejected',
+        safeReasonCode: 'command-rejected',
+        actorPrincipalId: OWNER,
+      }),
+    ]);
+    expect(Object.keys(actor[0] ?? {})).toEqual([
+      ...VIEWER_PLAYER_TIMELINE_KEYS,
+    ]);
+    expect(await timelineFor(PLAYER_B_ROW.principalId)).toEqual([]);
+    expect(await timelineFor(GM_ROW.principalId)).toEqual([]);
+  });
+
+  it('allows the GM to read their own rejected row in both surfaces', async () => {
+    new SQLiteActionAuditRepository(db).recordLifecycle({
+      campaignSessionId: SESSION_ID,
+      matchId: SESSION_ID,
+      streamType: STREAM_TYPE,
+      streamId: SESSION_ID,
+      commandId: 'cmd-gm-own-reject',
+      commandDigest: 'a'.repeat(64),
+      actor: {
+        principalId: GM_ROW.principalId,
+        participantId: GM_ROW.participantId,
+        role: 'gm',
+      },
+      correlationId: 'cmd-gm-own-reject',
+      createdAt: RECORDED_AT,
+      lifecycleState: 'rejected',
+      safeReasonCode: 'command-rejected',
+      committedFirstRevision: null,
+      committedLastRevision: null,
+      committedEventCount: null,
+    });
+    const own = await timelineFor(GM_ROW.principalId);
+    expect(own).toEqual([
+      expect.objectContaining({
+        commandId: 'cmd-gm-own-reject',
+        actorPrincipalId: GM_ROW.principalId,
+      }),
+    ]);
+    expect(
+      (
+        await history.exportForViewer(GM_ROW.principalId, SESSION_ID, {
+          streamType: STREAM_TYPE,
+          streamId: SESSION_ID,
+        })
+      ).timeline,
+    ).toEqual(own);
+    for (const principal of [OWNER, PLAYER_B_ROW.principalId]) {
+      expect(await timelineFor(principal)).toEqual([]);
+      expect(
+        JSON.stringify(
+          await history.exportForViewer(principal, SESSION_ID, {
+            streamType: STREAM_TYPE,
+            streamId: SESSION_ID,
+          }),
+        ),
+      ).not.toContain('cmd-gm-own-reject');
     }
   });
 
@@ -436,6 +940,15 @@ describe('live-path rejection across viewer surfaces', () => {
       // computed from the export's own rows through the shared
       // function the timeline caller uses.
       expect(exported.timeline).toEqual(timeline);
+      if (row.principalId === OWNER) {
+        expect(exported.timeline).toEqual([
+          expect.objectContaining({ commandId: 'cmd-live-export' }),
+        ]);
+      } else {
+        expect(exported.timeline).toEqual([]);
+        expect(JSON.stringify(exported)).not.toContain('cmd-live-export');
+        expect(JSON.stringify(exported)).not.toContain('command-rejected');
+      }
       expect(exported.privateRecords).toEqual([]);
     }
   });
@@ -511,6 +1024,26 @@ describe('live-path rejection across viewer surfaces', () => {
       ]),
     );
 
+    new SQLiteActionAuditRepository(db).recordLifecycle({
+      campaignSessionId: SESSION_ID,
+      matchId: SESSION_ID,
+      streamType: STREAM_TYPE,
+      streamId: SESSION_ID,
+      commandId: 'cmd-gm-scan',
+      commandDigest: 'b'.repeat(64),
+      actor: {
+        principalId: GM_ROW.principalId,
+        participantId: GM_ROW.participantId,
+        role: 'gm',
+      },
+      correlationId: 'cmd-gm-scan',
+      createdAt: RECORDED_AT,
+      lifecycleState: 'rejected',
+      safeReasonCode: 'command-rejected',
+      committedFirstRevision: null,
+      committedLastRevision: null,
+      committedEventCount: null,
+    });
     // POSITIVE CONTROL 2 - the GM's real export trips the PLAYER key
     // list. This is what makes PLAYER_ONLY_KEYS a live discriminator
     // rather than a list of keys nothing ever carries: the same scan

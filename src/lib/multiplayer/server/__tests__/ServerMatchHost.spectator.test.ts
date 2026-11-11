@@ -378,7 +378,7 @@ describe('ServerMatchHost spectator connection — design D5', () => {
     expect(sock.sent.some((s) => s.parsed.kind === 'Event')).toBe(true);
   });
 
-  it('rejects an Intent from a spectator with spectator-cannot-act', async () => {
+  it('rejects a spectator Intent with fixed wording', async () => {
     // Scenario: Spectator intent rejected.
     const { host, store, matchId } = await makeHostWithSpectator(false);
     const before = (await store.getEvents(matchId, 0)).length;
@@ -397,7 +397,7 @@ describe('ServerMatchHost spectator connection — design D5', () => {
     expect(err.kind).toBe('Error');
     if (err.kind === 'Error') {
       expect(err.code).toBe('INVALID_INTENT');
-      expect(err.reason).toBe('spectator-cannot-act');
+      expect(err.reason).toBe('Intent could not be applied.');
     }
     // No event appended.
     expect((await store.getEvents(matchId, 0)).length).toBe(before);
