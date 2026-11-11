@@ -153,6 +153,36 @@ const mountOwner = {
 /** Both ends of a reopen row carry the same observation plus the BV terms. */
 const reopenObservation = observation.extend({ terms });
 
+/** A cell the loader could not place, with the classifier's attribution. */
+const noticeEntry = cell.extend({
+  bucket: ownerBucket,
+  effectId: text,
+  kind: text,
+  responsibility: text,
+});
+
+/**
+ * Whether the save dialog asks for a loss confirmation, from the loaded (BEFORE) target store,
+ * read where the dialog reads it (useUnitLoadDiagnostics, as MultiUnitTabs feeds SaveUnitDialog):
+ * it confirms on `unrecoveredCriticalSlots?.length || lossTrackingUnknown || armorSaveLoss`.
+ * Nothing here is computed a second time: the three inputs come from that owner, `confirmation`
+ * is their `||` and is cross-checked by validateRow.
+ */
+const saveLoss = z.strictObject({
+  /** The diagnostics had finished refreshing when read (the dialog disables save while they have not). */
+  settled: z.boolean(),
+  /** The entries were undefined (`lossTrackingUnknown={entries === undefined}`). Never coerced to empty. */
+  lossTrackingUnknown: z.boolean(),
+  /** The store's exact unrecoveredCriticalSlots with attribution; null exactly when lossTrackingUnknown. */
+  noticeBefore: z.array(noticeEntry).nullable(),
+  /** getArmorSaveLoss(source, armorType) returned a loss (called, not recomputed). */
+  armorSaveLoss: z.boolean(),
+  /** That loss's `sourceType`; null exactly when armorSaveLoss is false. */
+  armorSaveLossSourceType: text.nullable(),
+  /** The dialog's predicate: lossTrackingUnknown || noticeBefore non-empty || armorSaveLoss. */
+  confirmation: z.boolean(),
+});
+
 const reopenBlock = z.strictObject({
   before: reopenObservation,
   after: reopenObservation,
@@ -194,6 +224,8 @@ const reopenBlock = z.strictObject({
   ),
   /** Mounts the reopened unit has that no loaded mount accounts for (e.g. marker-recovered). */
   addedLoadedMounts: z.array(mountView.extend({ cells: ownedCells })),
+  /** The save dialog's loss-confirmation facts on the loaded (BEFORE) store. */
+  saveLoss,
 });
 
 const unitKey = {
@@ -351,6 +383,22 @@ export function checkMountOwnership(row, expected) {
   return { ok: !overlaps.length && !missing.length && !extra.length, overlaps, missing, extra };
 }
 
+/** SaveUnitDialog's trigger over the dialog's three inputs: `entries?.length || unknown || armorSaveLoss`. */
+export const saveLossConfirms = (s) =>
+  Boolean(s.noticeBefore?.length) || s.lossTrackingUnknown || s.armorSaveLoss;
+
+/**
+ * "Saves with no loss confirmation" (the third nightly number) for one row: a complete, settled row
+ * whose dialog would not ask. Error rows, unsettled rows and rows needing a confirmation are not it.
+ */
+export const noSaveLossConfirmation = (row) =>
+  row.measure === 'reopen' &&
+  row.status === 'ok' &&
+  row.reopen.saveLoss.settled &&
+  !row.reopen.saveLoss.lossTrackingUnknown &&
+  row.reopen.saveLoss.noticeBefore.length === 0 &&
+  !row.reopen.saveLoss.armorSaveLoss;
+
 /** Cross-field rules JSON Schema cannot express. Returns a list of problems. */
 function crossChecks(row) {
   const problems = [];
@@ -377,6 +425,16 @@ function crossChecks(row) {
       });
     ownership('addedLoadedMounts', r.addedLoadedMounts, (m) => m);
     ownership('changedLoadedMounts', r.changedLoadedMounts, (m) => m.after);
+    const s = r.saveLoss;
+    if ((s.noticeBefore === null) !== s.lossTrackingUnknown)
+      problems.push('saveLoss.noticeBefore must be null exactly when lossTrackingUnknown (unknown is never coerced to empty)');
+    if (s.armorSaveLoss !== (s.armorSaveLossSourceType !== null))
+      problems.push('saveLoss.armorSaveLossSourceType must be set exactly when armorSaveLoss');
+    if (s.confirmation !== saveLossConfirms(s))
+      problems.push("saveLoss.confirmation is not the dialog's predicate over its own fields");
+    // One owner for the cells: the noticeResidual residual is the same list, not a second reading.
+    if (s.noticeBefore !== null && !(sameSet(s.noticeBefore, n.residual) && s.noticeBefore.length === n.residual.length))
+      problems.push('saveLoss.noticeBefore differs from noticeResidual.residual');
   }
   return problems;
 }

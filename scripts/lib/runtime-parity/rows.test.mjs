@@ -5,6 +5,7 @@ import { test } from 'node:test';
 import {
   OUTPUT_FILES,
   checkMountOwnership,
+  noSaveLossConfirmation,
   ownedCellList,
   parseRows,
   receiptJsonSchema,
@@ -60,11 +61,22 @@ const mount = (equipmentId, slots = [1, 2]) => ({
   criticalSlots: 2,
   heat: 3,
 });
+const noticeOf = (slot, t = 'Foo') => ({ ...cellOf(slot, t), bucket: 'o3a', effectId: 'effect-1', kind: 'equipment', responsibility: 'o3a' });
+/** The dialog's three inputs and their predicate, as the observer reads them. */
+const saveLoss = ({ entries = [noticeOf(3)], settled = true, armor = null } = {}) => ({
+  settled,
+  lossTrackingUnknown: entries === null,
+  noticeBefore: entries,
+  armorSaveLoss: armor !== null,
+  armorSaveLossSourceType: armor,
+  confirmation: entries === null || entries.length > 0 || armor !== null,
+});
 const reopenRow = (unitId, overrides = {}) => ({
   ...key(unitId),
   measure: 'reopen',
   status: 'ok',
   reopen: {
+    saveLoss: saveLoss(),
     before: withTerms(observed(1000)),
     after: withTerms(observed(990), { armorBV: 360, structureBV: 41 }),
     lostCells: [
@@ -97,6 +109,53 @@ test('valid load, reopen and error rows pass', () => {
     status: 'error',
     error: { stage: 'load', name: 'Error', message: 'boom' },
   });
+});
+
+test('saveLoss carries the dialog inputs, and confirmation is their predicate', () => {
+  // noticeBefore with attribution, the same list as noticeResidual.residual (one owner).
+  validateRow(reopenRow('s1'));
+  // Nothing to confirm: empty entries, settled, no armor loss.
+  const none = { saveLoss: saveLoss({ entries: [] }), noticeResidual: { residual: [], noticeOnly: [], roundTripOnly: [], equal: true, reopenedResidualCells: 0 }, lostCells: [], tokenChanges: [], rawIdentityLosses: [] };
+  validateRow(reopenRow('s2', none));
+  // Armor loss alone asks for a confirmation, with its source type kept.
+  const armor = reopenRow('s3', { ...none, saveLoss: saveLoss({ entries: [], armor: 'PATCHWORK' }) });
+  validateRow(armor);
+  assert.equal(armor.reopen.saveLoss.confirmation, true);
+  assert.equal(noSaveLossConfirmation(armor), false);
+  // Unknown tracking asks for a confirmation and is never an empty list.
+  const unknown = reopenRow('s4', { ...none, saveLoss: saveLoss({ entries: null }) });
+  validateRow(unknown);
+  assert.equal(unknown.reopen.saveLoss.noticeBefore, null);
+  assert.equal(noSaveLossConfirmation(unknown), false);
+  // Not settled is not "no confirmation", even with nothing found yet.
+  assert.equal(noSaveLossConfirmation(reopenRow('s5', { ...none, saveLoss: saveLoss({ entries: [], settled: false }) })), false);
+  assert.equal(noSaveLossConfirmation(reopenRow('s6', none)), true);
+  // Failed rows and load rows are never "no confirmation".
+  assert.equal(noSaveLossConfirmation({ ...key('e'), measure: 'reopen', status: 'error', error: { stage: 'x', name: 'E', message: 'm' } }), false);
+  assert.equal(noSaveLossConfirmation(loadRow('l')), false);
+});
+
+test('saveLoss rejects a coerced unknown, a wrong predicate, a stray armor type and a second reading of the cells', () => {
+  const emptyNotice = { noticeResidual: { residual: [], noticeOnly: [], roundTripOnly: [], equal: true, reopenedResidualCells: 0 }, lostCells: [], tokenChanges: [], rawIdentityLosses: [] };
+  const why = (overrides, pattern) => assert.throws(() => validateRow(reopenRow('x', overrides)), pattern);
+  // Unknown coerced to an empty list.
+  why({ ...emptyNotice, saveLoss: { ...saveLoss({ entries: [] }), lossTrackingUnknown: true } }, /never coerced to empty/);
+  // Null entries without saying unknown.
+  why({ ...emptyNotice, saveLoss: { ...saveLoss({ entries: [] }), noticeBefore: null } }, /never coerced to empty/);
+  // The confirmation is not the dialog's predicate.
+  why({ ...emptyNotice, saveLoss: { ...saveLoss({ entries: [] }), confirmation: true } }, /dialog's predicate/);
+  why({ saveLoss: { ...saveLoss(), confirmation: false } }, /dialog's predicate/);
+  // armorSaveLoss without its source type, and a source type without the flag.
+  why({ ...emptyNotice, saveLoss: { ...saveLoss({ entries: [], armor: 'PATCHWORK' }), armorSaveLossSourceType: null } }, /armorSaveLossSourceType/);
+  why({ ...emptyNotice, saveLoss: { ...saveLoss({ entries: [] }), armorSaveLossSourceType: 'PATCHWORK' } }, /armorSaveLossSourceType/);
+  // noticeBefore is the residual, not a second list that can drift from it.
+  why({ saveLoss: saveLoss({ entries: [noticeOf(9)] }) }, /differs from noticeResidual.residual/);
+  // The notice entry needs its attribution, and unknown keys are rejected.
+  const noAttribution = saveLoss();
+  delete noAttribution.noticeBefore[0].effectId;
+  why({ saveLoss: noAttribution }, undefined);
+  why({ saveLoss: { ...saveLoss(), armorDetail: {} } }, undefined);
+  assert.throws(() => validateRow(reopenRow('x', { saveLoss: undefined })));
 });
 
 test('rejects values that vary between runs or normalise them away', () => {

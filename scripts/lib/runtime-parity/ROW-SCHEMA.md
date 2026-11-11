@@ -62,8 +62,23 @@ so `compareRows` works on these rows unchanged. Rows are sorted by (`family`, `p
 - A mount view is `{equipmentId, category?, techBase?, location?, slots?, splitSlots?, spreadSlots?, isRearMounted?, isOmniPodMounted?, weight?, criticalSlots?, heat?}`;
   the editor-only `instanceId` is excluded, and absent facts stay absent.
 
+- `saveLoss`: whether the save dialog asks for a loss confirmation, from the loaded (BEFORE) target store. The dialog confirms on
+  `unrecoveredCriticalSlots?.length || lossTrackingUnknown || armorSaveLoss` (`SaveUnitDialog.tsx` `handleSave`), fed by
+  `useUnitLoadDiagnostics()` (`MultiUnitTabs.tsx` `StoreValidatedSaveUnitDialog`). The shared observer calls that hook, so nothing is
+  recomputed: `settled` (diagnostics not refreshing), `lossTrackingUnknown` (`entries === undefined`), `noticeBefore` (the store's exact
+  entries, each `{location, slot, text, bucket, effectId, kind, responsibility}`; `null` exactly when unknown, never coerced to empty),
+  `armorSaveLoss` (`getArmorSaveLoss(source, armorType)` returned a loss) with its `armorSaveLossSourceType`, and `confirmation`
+  (their `||`). The AFTER side is not carried: a cold-reopen headline would need the same field from the reopened state.
+
 Checked by `validateRow`: `equal` is true exactly when `residual` equals the `non-system` `lostCells` and `noticeOnly`/`roundTripOnly` are empty;
-`rawIdentityLosses` is exactly `lostCells` + `tokenChanges`.
+`rawIdentityLosses` is exactly `lostCells` + `tokenChanges`; `saveLoss.noticeBefore` is the same list as `noticeResidual.residual` (one owner),
+is `null` exactly when `lossTrackingUnknown`, `armorSaveLossSourceType` is set exactly when `armorSaveLoss`, and `confirmation` equals the
+dialog's predicate over the row's own fields.
+
+**Third nightly number, "saves with no loss confirmation":** `noSaveLossConfirmation(row)` in `rows.mjs` is
+`settled && !lossTrackingUnknown && noticeBefore.length === 0 && !armorSaveLoss` on an `ok` reopen row. Error rows and unsettled rows are
+kept in the denominator and are not counted. This measures the dialog's confirmation only; the save button's other gates (name,
+construction validity, saving/refreshing) are separate and are not part of it.
 
 ## Run receipt (`receipt.json`)
 
