@@ -295,6 +295,7 @@ async function dispatchEnvelope({
         envelope.lastSeq,
         envelope.matchId,
         envelope.deliveryCursor,
+        envelope.replayFidelityReaderMaxVersion,
       );
       logger.log(
         `[mp-socket] session joined matchId=${matchId} playerId=${verifiedPlayerId}`,

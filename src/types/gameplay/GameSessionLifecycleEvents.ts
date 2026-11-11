@@ -11,6 +11,7 @@ import type { IRepresentedGroundObjectState } from './GameSessionGroundObjectEve
 import type { IRepresentedMinefieldState } from './GameSessionStateTypes';
 import type { IGameConfig, IGameUnit } from './GameSessionUnitTypes';
 import type { IHexTerrain } from './TerrainTypes';
+import type { ReplayFidelityVersion } from './ReplayFidelityVersion';
 
 /**
  * Encounter snapshot stamped onto `IGameCreatedPayload.encounterMeta` at
@@ -54,6 +55,8 @@ export interface IEncounterMeta {
  * Game created event payload.
  */
 export interface IGameCreatedPayload {
+  /** Producer-rules version; absent historical values read as 1 without backfill. */
+  readonly replayFidelityVersion?: ReplayFidelityVersion;
   /** Game configuration */
   readonly config: IGameConfig;
   /** Participating units */

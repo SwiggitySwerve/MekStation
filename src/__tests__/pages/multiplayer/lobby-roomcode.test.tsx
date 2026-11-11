@@ -78,6 +78,8 @@ jest.mock('@/lib/multiplayer/client/commitGmCombatRewind', () => ({
 
 import LobbyPage from '@/pages/multiplayer/lobby/[roomCode]';
 
+
+
 const mockedPreviewGmCombatRewind =
   previewGmCombatRewind as jest.MockedFunction<typeof previewGmCombatRewind>;
 const mockedCommitGmCombatRewind = commitGmCombatRewind as jest.MockedFunction<
@@ -248,6 +250,14 @@ async function unlockVault(): Promise<void> {
 // =============================================================================
 
 describe('Multiplayer lobby page — surface swap on status', () => {
+it('shows a terminal Reload action instead of Joining for an unsupported reader', async () => {
+  mockSession = { ...baseSession('lobby'), status: 'reload-required', lobbyState: null, error: { code: 'reload-required', reason: 'reload-required: Reload this tab to join this match.' } };
+  render(<LobbyPage />);
+  await unlockVault();
+  expect(await screen.findByRole('button', { name: 'Reload' })).toBeVisible();
+  expect(screen.getByRole('alert')).toHaveTextContent('Reload this tab');
+  expect(screen.queryByText('Joining lobby...')).not.toBeInTheDocument();
+});
   beforeEach(() => {
     mockFetch();
     // The page persists the minted identity per room code (umbrella

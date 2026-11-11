@@ -19,6 +19,7 @@ import { MATCH_PAUSE_MESSAGES } from '@/lib/multiplayer/matchPauseCopy';
 import { projectionSignalFromServerError } from '@/lib/multiplayer/tacticalLifecycleState';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { RECONNECT_GRACE_MS } from '@/types/multiplayer/Protocol';
+import { isReplayFidelityReloadRequired } from '@/types/gameplay/ReplayFidelityVersion';
 
 import type {
   IMatchClosedInfo,
@@ -347,6 +348,11 @@ function handleClientError(
   if (err instanceof Error) {
     setters.setStatus('error');
     setters.setError({ code: 'CLIENT_ERROR', reason: err.message });
+    return;
+  }
+  if (isReplayFidelityReloadRequired(err)) {
+    setters.setStatus('reload-required');
+    setters.setError({ code: 'reload-required', reason: err.reason });
     return;
   }
   if (typeof err.code === 'string' && err.code !== 'CLIENT_ERROR') {

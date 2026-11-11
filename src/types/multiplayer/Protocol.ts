@@ -95,6 +95,8 @@ export const SessionJoinSchema = z.object({
   ts: tsSchema,
   playerId: z.string().min(1),
   token: z.string().min(1),
+  /** Absent old tabs support only historical producer-rules version 1. */
+  replayFidelityReaderMaxVersion: z.number().int().positive().optional(),
   lastSeq: z.number().int().nonnegative().optional(),
   /**
    * The client's own delivery cursor - the last `deliverySequence` it

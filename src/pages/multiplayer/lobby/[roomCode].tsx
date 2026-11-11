@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { MultiplayerTokenState } from '@/pages-modules/multiplayer/multiplayerPage.helpers';
 
 import { LobbyPanel } from '@/components/multiplayer/LobbyPanel';
+import { ReplayReloadRequired } from '@/components/multiplayer/ReplayReloadRequired';
 import { NetworkedGameSurface } from '@/components/multiplayer/NetworkedGameSurface';
 import { useMultiplayerSession } from '@/hooks/useMultiplayerSession';
 import {
@@ -367,6 +368,8 @@ export default function LobbyPage(): React.ReactElement {
       />
     );
   }
+
+  if (session.status === 'reload-required') return <ReplayReloadRequired />;
 
   const unavailableReason = multiplayerUnavailableReason(session);
   if (unavailableReason) {

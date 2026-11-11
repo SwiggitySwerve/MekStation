@@ -22,6 +22,8 @@
 import type { IGameEvent } from '@/types/gameplay';
 
 import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import { GameEventType } from '@/types/gameplay/GameSessionCoreTypes';
+import { readReplayFidelityVersion, ReplayFidelityVersionError } from '@/types/gameplay/ReplayFidelityVersion';
 
 import type { LegacySourceAttributionCode } from './ReplayLegacySourceAdapters';
 import type { ReplayQuarantineReason } from './ReplayQuarantineRegistry';
@@ -44,6 +46,7 @@ import { classifyReplayFailure } from './ReplayQuarantineRegistry';
 import { UnsupportedReplayHistoryError } from './ReplaySchemaRegistry';
 
 export type ReplaySurfaceBlockReason =
+  | 'reload-required'
   | LegacySourceAttributionCode
   | ReplayQuarantineReason;
 
@@ -264,6 +267,7 @@ export function gateReplaySurfaceHistory(
           'Stored record is not a valid IGameEvent envelope',
         );
       const { canonical } = splitHostStamps(options.formatId, envelope.payload);
+      if (envelope.type === GameEventType.GameCreated) readReplayFidelityVersion(canonical);
       const upcast = REPLAY_SURFACE_REGISTRY.upcast(
         envelope.type,
         attributed.schemaVersion,
@@ -273,6 +277,10 @@ export function gateReplaySurfaceHistory(
       census = REPLAY_LIBRARY_CENSUS_PROJECTOR.project(census, upcast);
       accepted.push(envelope);
     } catch (error) {
+      if (error instanceof ReplayFidelityVersionError) {
+        blocked.push(Object.freeze({ index, sequence, reason: error.code === 'reload-required' ? 'reload-required' : 'invalid-payload', eventType, evidenceDigest: boundEvidenceDigest, message: error.message }));
+        continue;
+      }
       if (error instanceof LegacySourceAttributionError) {
         blocked.push(
           Object.freeze({

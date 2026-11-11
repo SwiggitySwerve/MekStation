@@ -20,6 +20,8 @@ import {
 } from '@/lib/p2p/matchLogStorage';
 import { nowIso } from '@/types/multiplayer/Protocol';
 import { deriveState } from '@/utils/gameplay/gameState';
+import { GameEventType } from '@/types/gameplay/GameSessionCoreTypes';
+import { canReadReplayFidelityVersion, readReplayFidelityVersion, REPLAY_FIDELITY_RELOAD_REASON } from '@/types/gameplay/ReplayFidelityVersion';
 
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
 import type { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
@@ -335,6 +337,7 @@ export async function handleSessionJoin(
    */
   fromSeq?: number,
   requestedMatchId = ctx.matchId,
+  replayFidelityReaderMaxVersion?: number,
 ): Promise<boolean> {
   if (requestedMatchId !== ctx.matchId) {
     ctx.safeSend(socket, {
@@ -353,6 +356,14 @@ export async function handleSessionJoin(
     return false;
   }
   const viewer = resolution.viewer;
+
+  // Authorization precedes capability disclosure. Inspect the retained seed,
+  // including for tail resumes, before any replay frame reaches an old parser.
+  const created = ctx.session.getSession().events.find((event) => event.type === GameEventType.GameCreated);
+  if (created && !canReadReplayFidelityVersion(readReplayFidelityVersion(created.payload), replayFidelityReaderMaxVersion)) {
+    ctx.safeSend(socket, { kind: 'Error', matchId: ctx.matchId, ts: nowIso(), code: 'PROTOCOL_VIOLATION', reason: REPLAY_FIDELITY_RELOAD_REASON });
+    return false;
+  }
 
   const requestFrom = fromSeq ?? 0;
   const replayed = await sendReplay(ctx, socket, requestFrom, playerId, viewer);

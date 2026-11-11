@@ -14,6 +14,7 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 import { logger } from '@/utils/logger';
+import { ReplayFidelityVersionError } from '@/types/gameplay/ReplayFidelityVersion';
 
 import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.runtime';
 
@@ -209,6 +210,8 @@ export async function hydrateRecoverableSessionWithReport(
     formatVersion: 2,
   });
   if (gated.kind === 'blocked') {
+    if (gated.blockedEvents.some((event) => event.reason === 'reload-required'))
+      throw new ReplayFidelityVersionError('reload-required');
     throw new InteractiveSessionRecoveryCorruptError(
       matchId,
       new Error(

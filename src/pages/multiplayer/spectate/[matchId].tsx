@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ReplayReloadRequired } from '@/components/multiplayer/ReplayReloadRequired';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -155,6 +156,8 @@ export default function SpectatePage(): React.ReactElement {
   if (registerError) {
     return <SpectatorRegisterError error={registerError} />;
   }
+
+  if (session.status === 'reload-required') return <ReplayReloadRequired />;
 
   return (
     <div className="text-text-theme-primary mx-auto max-w-4xl px-4 py-8">

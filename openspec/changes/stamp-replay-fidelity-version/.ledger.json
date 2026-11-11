@@ -1,0 +1,6 @@
+{
+  "name": "stamp-replay-fidelity-version",
+  "status": "in-progress",
+  "reason": "Root-approved D-8 R11a producer-rules stamp and strict-reader reload compatibility; no gameplay rule or historical backfill.",
+  "lastReviewed": "2026-11-09"
+}
