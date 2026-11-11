@@ -1,3 +1,4 @@
+import type { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import type { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import type { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
@@ -42,6 +43,9 @@ export interface IEditableMech {
   readonly variant: string;
   readonly tonnage: number;
   readonly techBase: TechBase;
+  readonly techBaseMode?: TechBaseMode;
+  /** Known chassis identity; an absent source fact must not acquire a default. */
+  readonly chassisTechBase?: TechBase;
 
   // Engine
   readonly engineType: EngineType | string;

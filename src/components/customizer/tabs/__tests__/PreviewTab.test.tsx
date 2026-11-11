@@ -1,8 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
+import type { IMechBVContext } from '@/services/construction/editableMechProjection';
+import type { IEditableMech } from '@/services/construction/MechBuilderService';
 import type { IUnitConfig } from '@/services/printing/recordsheet/types';
 
+import { chassisDesign } from '@/services/construction/__tests__/editableMechProjection.chassis.test-helpers';
+import { normalizeUnitConfiguration } from '@/services/units/unitLoaderService/normalizeUnitConfiguration';
 import { useUnitStore } from '@/stores/useUnitStore';
 import { createEmptyArmorAllocation } from '@/types/construction/ArmorAllocation';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
@@ -11,6 +15,10 @@ import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import {
+  TechBaseMode,
+  createDefaultComponentTechBases,
+} from '@/types/construction/TechBaseConfiguration';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
@@ -20,6 +28,7 @@ import { PreviewTab } from '../PreviewTab';
 let mockRegistryReady = false;
 let mockCanvasUnitConfig: IUnitConfig | undefined;
 let mockToolbarUnitConfig: IUnitConfig | undefined;
+let mockCalculatedMech: IEditableMech | undefined;
 
 jest.mock('@/hooks/useEquipmentRegistry', () => ({
   useEquipmentRegistry: () => ({ isReady: mockRegistryReady }),
@@ -27,7 +36,10 @@ jest.mock('@/hooks/useEquipmentRegistry', () => ({
 
 jest.mock('@/services/construction/CalculationService', () => ({
   getCalculationService: () => ({
-    calculateBattleValue: () => (mockRegistryReady ? 1234 : 0),
+    calculateBattleValue: (mech: IEditableMech) => {
+      mockCalculatedMech = mech;
+      return mockRegistryReady ? 1234 : 0;
+    },
     calculateCost: () => (mockRegistryReady ? 5_000_000 : 0),
   }),
 }));
@@ -65,6 +77,9 @@ const storeState = {
   model: 'AS7-D',
   tonnage: 100,
   techBase: TechBase.INNER_SPHERE,
+  techBaseMode: TechBaseMode.INNER_SPHERE,
+  componentTechBases: createDefaultComponentTechBases(TechBase.INNER_SPHERE),
+  bvContext: undefined as IMechBVContext | undefined,
   rulesLevel: RulesLevel.STANDARD,
   year: 3025,
   role: 'Juggernaut',
@@ -93,6 +108,12 @@ describe('PreviewTab', () => {
     expect(mockCanvasUnitConfig).toBe(mockToolbarUnitConfig);
   });
   beforeEach(() => {
+    storeState.techBaseMode = TechBaseMode.INNER_SPHERE;
+    storeState.componentTechBases = createDefaultComponentTechBases(
+      TechBase.INNER_SPHERE,
+    );
+    storeState.bvContext = undefined;
+    mockCalculatedMech = undefined;
     storeState.role = 'Juggernaut';
     mockRegistryReady = false;
     mockCanvasUnitConfig = undefined;
@@ -113,5 +134,23 @@ describe('PreviewTab', () => {
 
     expect(screen.getByTestId('preview-bv')).toHaveTextContent('1234');
     expect(mockCanvasUnitConfig).toBe(mockToolbarUnitConfig);
+  });
+
+  it('forwards chassis provenance and refreshes Preview on a chassis-only edit', () => {
+    const normalized = normalizeUnitConfiguration(chassisDesign('CLAN'), []);
+    storeState.techBaseMode = TechBaseMode.MIXED;
+    storeState.componentTechBases = normalized.componentTechBases;
+    storeState.bvContext = normalized.bvContext;
+    mockRegistryReady = true;
+    const { rerender } = render(<PreviewTab />);
+    expect(mockCalculatedMech?.chassisTechBase).toBe(TechBase.CLAN);
+    expect(mockCalculatedMech?.techBaseMode).toBe(TechBaseMode.MIXED);
+    expect(mockCalculatedMech?.bvContext).toBeUndefined();
+    storeState.componentTechBases = {
+      ...storeState.componentTechBases,
+      chassis: TechBase.INNER_SPHERE,
+    };
+    rerender(<PreviewTab />);
+    expect(mockCalculatedMech?.chassisTechBase).toBe(TechBase.INNER_SPHERE);
   });
 });
