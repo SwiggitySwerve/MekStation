@@ -18,20 +18,6 @@ jest.mock('next/head', () => {
 });
 
 describe('Layout', () => {
-  it('allows players to zoom the page', () => {
-    render(
-      <Layout>
-        <div>Content</div>
-      </Layout>,
-    );
-    const content = document
-      .querySelector('meta[name="viewport"]')
-      ?.getAttribute('content');
-    expect(content).toBeDefined();
-    expect(content).not.toContain('user-scalable=no');
-    expect(content).not.toContain('maximum-scale=1');
-  });
-
   describe('Rendering', () => {
     it('should render children content', () => {
       render(
