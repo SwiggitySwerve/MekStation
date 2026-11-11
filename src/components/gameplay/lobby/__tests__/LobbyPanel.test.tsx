@@ -1,12 +1,12 @@
-import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-
+import '@testing-library/jest-dom';
 import type {
   ILobbyState,
   ILoadout,
   ISelectedUnit,
 } from '@/types/gameplay/GameLobbyInterfaces';
 
+import { modeAvailability } from '@/lib/multiplayer/modeAvailability';
 import { PilotStatus, PilotType, type IPilot } from '@/types/pilot';
 
 import { GameplayLobbyPanel } from '../LobbyPanel';
@@ -98,6 +98,30 @@ function renderPanel(
 }
 
 describe('GameplayLobbyPanel', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  it('disables a ready lobby launch with a visible accessible reason', () => {
+    const onLaunch = jest.fn();
+    renderPanel(makeLobby({ hostReady: true, guestReady: true }), 'host-peer', {
+      onLaunch,
+    });
+    const launch = screen.getByRole('button', { name: 'Launch Match' });
+    expect(launch).toBeDisabled();
+    expect(launch).toHaveAccessibleDescription(modeAvailability.p2p.sentence);
+    expect(screen.getByText(modeAvailability.p2p.sentence)).toBeVisible();
+    fireEvent.click(launch);
+    expect(onLaunch).not.toHaveBeenCalled();
+  });
+
+  it('removes the warning when P2P becomes available', () => {
+    jest.replaceProperty(modeAvailability.p2p, 'status', 'available');
+    renderPanel(makeLobby({ hostReady: true, guestReady: true }), 'host-peer');
+    expect(screen.queryByText('Preview')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(modeAvailability.p2p.sentence),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Launch Match' })).toBeEnabled();
+  });
   beforeEach(() => {
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
@@ -187,9 +211,7 @@ describe('GameplayLobbyPanel', () => {
     expect(
       screen.queryByRole('button', { name: 'Launch Match' }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.getByText('Waiting for host to launch...'),
-    ).toBeInTheDocument();
+    expect(screen.getByText(modeAvailability.p2p.sentence)).toBeInTheDocument();
     expect(screen.getByLabelText('Map radius')).toBeDisabled();
   });
 
@@ -208,7 +230,8 @@ describe('GameplayLobbyPanel', () => {
     expect(screen.getByRole('button', { name: 'Ready' })).toBeDisabled();
   });
 
-  it('lets a ready host launch a valid lobby', () => {
+  it('lets a ready host launch a valid lobby when available', () => {
+    jest.replaceProperty(modeAvailability.p2p, 'status', 'available');
     const onLaunch = jest.fn();
     renderPanel(makeLobby({ hostReady: true, guestReady: true }), 'host-peer', {
       onLaunch,

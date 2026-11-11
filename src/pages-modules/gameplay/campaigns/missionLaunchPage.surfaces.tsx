@@ -5,6 +5,7 @@ import type { IMissionReadinessProjection } from '@/lib/campaign/readiness/missi
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { CoopParticipationChoice } from '@/types/campaign/CoopCampaign';
 
+import { CampaignAvailabilityFooter } from '@/components/campaign/CampaignAvailabilityFooter';
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { CoopParticipationPicker } from '@/components/campaign/coop';
 import { PageLayout } from '@/components/ui';
@@ -188,6 +189,10 @@ export function SinglePlayerMissionLaunchSurface({
           </div>
         </aside>
       </div>
+      <CampaignAvailabilityFooter
+        campaignId={loadedCampaign.id}
+        coopSession={loadedCampaign.coopSession}
+      />
     </PageLayout>
   );
 }
@@ -301,6 +306,10 @@ export function CoopMissionLaunchSurface({
               : 'Launch Mission'}
         </button>
       </div>
+      <CampaignAvailabilityFooter
+        campaignId={loadedCampaign.id}
+        coopSession={loadedCampaign.coopSession}
+      />
     </PageLayout>
   );
 }

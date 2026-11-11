@@ -384,6 +384,7 @@ export function CampaignCoopRouteSurfaceConnected({
 
   const surface = (
     <CampaignCoopRouteSurface
+      compactAvailability
       campaign={campaign}
       routeId={routeId}
       dashboardMount={dashboardMount}

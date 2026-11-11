@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
+import { modeAvailability } from '@/lib/multiplayer/modeAvailability';
+
 jest.mock('@/components/multiplayer/CreateMatchForm', () => ({
   CreateMatchForm: () => <div data-testid="create-match-form" />,
 }));
@@ -17,6 +19,23 @@ jest.mock('@/types/multiplayer/Player', () => ({
 import MultiplayerHubPage from '@/pages/multiplayer/index';
 
 describe('MultiplayerHubPage vault gate', () => {
+  afterEach(() => jest.restoreAllMocks());
+  it.each(['preview', 'available'] as const)(
+    'discloses hosted availability for %s',
+    (status) => {
+      jest.replaceProperty(modeAvailability.hosted, 'status', status);
+      render(<MultiplayerHubPage />);
+      if (status === 'available') {
+        expect(
+          screen.queryByText(modeAvailability.hosted.sentence),
+        ).not.toBeInTheDocument();
+      } else {
+        expect(
+          screen.getByText(modeAvailability.hosted.sentence),
+        ).toBeVisible();
+      }
+    },
+  );
   it('offers vault identity setup and a path-forward affordance before token minting', () => {
     render(<MultiplayerHubPage />);
 

@@ -17,7 +17,9 @@ import type {
 import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
 import type { ICustomUnitIndexEntry } from '@/types/persistence/UnitPersistence';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { buildSeededGameSessionFromLobbyState } from '@/engine/combatSeedDerivation';
+import { isModeLaunchDisabled } from '@/lib/multiplayer/modeAvailability';
 import {
   createLobbyChannel,
   getGameSessionAwarenessStates,
@@ -43,10 +45,12 @@ export function LobbyShell({
     <div className="text-text-theme-primary mx-auto max-w-2xl px-4 py-8">
       <Link
         href="/gameplay/games"
-        className="text-text-theme-secondary text-sm"
+        className="text-text-theme-secondary inline-flex min-h-11 items-center text-sm"
       >
         Back to games
       </Link>
+      <h1 className="mt-4 text-2xl font-semibold">Peer-to-Peer Lobby</h1>
+      <ModeAvailabilityNotice mode="p2p" />
       <p className="border-border-theme-subtle bg-surface-deep mt-6 rounded-lg border p-4">
         {children}
       </p>
@@ -113,7 +117,7 @@ export function useEnsureActiveRoom({
   readonly routeRoomCode: string | null;
 }): void {
   useEffect(() => {
-    if (!routeRoomCode) return;
+    if (isModeLaunchDisabled('p2p') || !routeRoomCode) return;
     if (activeRoom?.roomCode === routeRoomCode) return;
 
     void (async () => {
@@ -304,7 +308,7 @@ export function useLaunchedMatchNavigation({
   readonly setSession: (session: IGameSession) => void;
 }): void {
   useEffect(() => {
-    if (!lobbyState?.matchId) return;
+    if (!lobbyState?.matchId || isModeLaunchDisabled('p2p')) return;
     const matchId = lobbyState.matchId;
     void matchLogStorage
       .upsertMatchMetadata({
@@ -356,6 +360,7 @@ export async function launchLobbyMatch({
   readonly routeRoomCode: string;
   readonly setSession: (session: IGameSession) => void;
 }): Promise<void> {
+  if (isModeLaunchDisabled('p2p')) return;
   const matchId = lobbyState.matchId ?? `p2p-${routeRoomCode.toLowerCase()}`;
   const result = launch(matchId);
   if (result?.ok && result.state) {

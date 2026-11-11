@@ -1,5 +1,8 @@
 import React from 'react';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
+import { getModeNotice } from '@/lib/multiplayer/modeAvailability';
+
 import type { NavItemConfig } from './TopBarMenu';
 
 import {
@@ -58,7 +61,10 @@ export function getGameplayNavItems(): GameplayHubItem[] {
       href: '/multiplayer',
       icon: <GameplayIcon />,
       label: 'Multiplayer',
-      description: 'Host or join networked battles with room codes.',
+      badge: <ModeAvailabilityNotice mode="hosted" compact />,
+      description:
+        getModeNotice('hosted')?.sentence ??
+        'Host or join networked battles with room codes.',
     },
   ];
 }

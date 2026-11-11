@@ -1,5 +1,31 @@
 # GM Two-Player Campaign
 
+## Multiplayer Availability
+
+<!-- multiplayer:hosted:start -->
+
+**Hosted Matches: Preview**
+
+You cannot yet select enemy targets, and some matches stop before they finish.
+
+<!-- multiplayer:hosted:end -->
+
+<!-- multiplayer:coop:start -->
+
+**Co-op Campaigns: Preview**
+
+Some campaign changes can be lost after saving or reloading.
+
+<!-- multiplayer:coop:end -->
+
+<!-- multiplayer:p2p:start -->
+
+**Peer-to-Peer Matches: Preview**
+
+Peer-to-peer lobbies can't connect because the connection service they use is unavailable. Battles also do not yet stay in sync between two players.
+
+<!-- multiplayer:p2p:end -->
+
 Operator view of the live GM plus two tactical-player campaign session. This page sits under `docs/features/` with the other product-facing notes (`docs/features/room-codes.md`, `docs/features/p2p-vault-sync.md`). It does not replace the construction-loop architecture note (`docs/architecture/campaign-combat-loop.md`).
 
 Source: `openspec/changes/harden-gm-two-player-campaign-sessions/design.md` (D2 topology: one non-playing GM plus exactly two tactical seats).

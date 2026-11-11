@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { MultiplayerTokenState } from '@/pages-modules/multiplayer/multiplayerPage.helpers';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { NetworkedGameSurface } from '@/components/multiplayer/NetworkedGameSurface';
 import { useMultiplayerSession } from '@/hooks/useMultiplayerSession';
 import { useSpectatorRegistration } from '@/hooks/useSpectatorRegistration';
@@ -31,6 +32,7 @@ function SpectatorAuthPrompt({
       >
         Back to multiplayer hub
       </Link>
+      <ModeAvailabilityNotice mode="hosted" />
       <h1 className="mt-2 text-2xl font-bold">Unlock vault to spectate</h1>
       <p className="text-text-theme-secondary mt-2 text-xs">
         Watching a match requires a signed identity. Enter your vault password
@@ -73,6 +75,7 @@ function SpectatorRegisterError({
       >
         Back to multiplayer hub
       </Link>
+      <ModeAvailabilityNotice mode="hosted" />
       <h1 className="mt-2 text-2xl font-bold">Cannot spectate</h1>
       <p className="mt-2 text-sm text-rose-400" role="alert">
         {error}
@@ -165,6 +168,7 @@ export default function SpectatePage(): React.ReactElement {
         >
           Back to multiplayer hub
         </Link>
+        <ModeAvailabilityNotice mode="hosted" />
         <span className="rounded border border-sky-700 bg-sky-900/30 px-2 py-1 text-xs font-medium text-sky-300">
           Spectator
         </span>
@@ -177,6 +181,7 @@ export default function SpectatePage(): React.ReactElement {
       )}
 
       <NetworkedGameSurface
+        compactAvailability
         mirrorSession={session.mirrorSession}
         mirrorEvents={session.mirrorEvents}
         seats={session.lobbyState?.seats ?? []}

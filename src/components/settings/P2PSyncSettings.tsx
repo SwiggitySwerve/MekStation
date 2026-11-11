@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import {
   SyncStatusIndicator,
   PeerList,
@@ -7,6 +8,7 @@ import {
 } from '@/components/sync';
 import { Input } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
+import { isModeDisabled } from '@/lib/multiplayer/modeAvailability';
 import { ConnectionState } from '@/lib/p2p/types';
 import {
   useSyncRoomSelector,
@@ -22,6 +24,8 @@ export function P2PSyncSettings({
   onToggle,
   onRef,
 }: SettingsSectionProps): React.ReactElement {
+  const reasonId = React.useId();
+  const sharingDisabled = isModeDisabled('p2p');
   const connectionState = useConnectionState();
   const peers = usePeers();
   const roomCode = useRoomCode();
@@ -51,12 +55,22 @@ export function P2PSyncSettings({
   return (
     <SettingsSection
       id="p2p-sync"
-      title="P2P Sync"
-      description="Real-time peer-to-peer synchronization for collaborative play"
+      title={
+        <>
+          <span>P2P Sync</span>{' '}
+          <ModeAvailabilityNotice mode="p2p" purpose="vault-sharing" compact />
+        </>
+      }
+      description="Share vault items with peers"
       isExpanded={isExpanded}
       onToggle={onToggle}
       onRef={onRef}
     >
+      <ModeAvailabilityNotice
+        mode="p2p"
+        purpose="vault-sharing"
+        sentenceId={reasonId}
+      />
       <div className="bg-surface-raised/50 border-border-theme-subtle flex items-center justify-between rounded-lg border p-4">
         <div className="flex items-center gap-4">
           <SyncStatusIndicator
@@ -82,8 +96,11 @@ export function P2PSyncSettings({
             </button>
           ) : (
             <button
-              onClick={() => setShowRoomDialog(true)}
-              disabled={isConnecting}
+              onClick={() => {
+                if (!isModeDisabled('p2p')) setShowRoomDialog(true);
+              }}
+              aria-describedby={sharingDisabled ? reasonId : undefined}
+              disabled={isConnecting || sharingDisabled}
               className="bg-accent hover:bg-accent-hover text-on-accent rounded-md px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50"
             >
               {isConnecting ? 'Connecting...' : 'Connect'}
@@ -178,8 +195,10 @@ export function P2PSyncSettings({
       )}
 
       <div className="border-border-theme-subtle border-t pt-4">
+        <h3 className="font-medium">Peer-to-Peer Matches</h3>
+        <ModeAvailabilityNotice mode="p2p" />
         <div className="text-text-theme-primary mb-2 text-sm font-medium">
-          How P2P Sync Works
+          How Vault Sharing Works
         </div>
         <ul className="text-text-theme-secondary space-y-2 text-xs">
           <li className="flex items-start gap-2">
@@ -224,13 +243,15 @@ export function P2PSyncSettings({
       </div>
 
       <RoomCodeDialog
-        isOpen={showRoomDialog}
+        isOpen={showRoomDialog && !sharingDisabled}
         onClose={() => setShowRoomDialog(false)}
         onCreateRoom={async (password) => {
+          if (isModeDisabled('p2p')) return '';
           const code = await createRoom(password ? { password } : undefined);
           return code;
         }}
         onJoinRoom={async (code, password) => {
+          if (isModeDisabled('p2p')) return;
           await joinRoom(code, password);
         }}
         onLeaveRoom={leaveRoom}

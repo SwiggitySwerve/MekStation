@@ -1,3 +1,10 @@
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 /**
  * Co-op entry points on the campaign list page (`wire-coop-campaign-route`
  * Section 1).
@@ -18,16 +25,9 @@
  *
  * @spec openspec/specs/coop-campaign-sync/spec.md
  */
-
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
 import React from 'react';
 
+import { modeAvailability } from '@/lib/multiplayer/modeAvailability';
 import {
   CampaignPreset,
   PRESET_STARTING_FUNDS,
@@ -256,6 +256,21 @@ async function mountAndHydrate(): Promise<void> {
 // =============================================================================
 
 describe('CampaignsListPage — co-op entry points', () => {
+  afterEach(() => jest.restoreAllMocks());
+  it.each(['preview', 'available'] as const)(
+    'discloses %s in the entry and join dialog',
+    async (status) => {
+      jest.replaceProperty(modeAvailability.coop, 'status', status);
+      await mountAndHydrate();
+      expect(screen.queryByText(modeAvailability.coop.sentence) !== null).toBe(
+        status !== 'available',
+      );
+      fireEvent.click(screen.getByTestId('join-coop-campaign-btn'));
+      expect(
+        screen.queryAllByText(modeAvailability.coop.sentence),
+      ).toHaveLength(status === 'available' ? 0 : 2);
+    },
+  );
   beforeEach(() => {
     mockRouterPush.mockReset();
     mockCreateCampaign.mockReset().mockReturnValue('campaign-host-1');

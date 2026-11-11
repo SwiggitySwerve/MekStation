@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 /**
  * Campaign Personnel Page
  * Manage pilot roster for the campaign.
@@ -17,10 +18,9 @@
  * @spec openspec/council-decisions/2026-05-01-personnel-architecture-path.md
  */
 
-import React, { useState } from 'react';
-
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
+import { CampaignAvailabilityFooter } from '@/components/campaign/CampaignAvailabilityFooter';
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { CampaignCoopRouteSurfaceConnected } from '@/components/campaign/coop';
 import { PersonnelSidePanel } from '@/components/campaign/personnel/PersonnelSidePanel';
@@ -145,6 +145,10 @@ export default function PersonnelPage(): React.ReactElement {
           </div>
         </div>
       )}
+      <CampaignAvailabilityFooter
+        campaignId={campaign.id}
+        coopSession={campaign.coopSession}
+      />
     </PageLayout>
   );
 }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { IMatchConfig } from '@/lib/multiplayer/server/IMatchStore';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { Button } from '@/components/ui';
 import { buildCampaignAuthoritativeState } from '@/lib/campaign/coop/campaignAuthoritativeState';
 import {
@@ -415,6 +416,7 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
     <>
       <LocalSeatOperatorPanel />
       <section className="border-border-theme bg-surface-deep/50 mb-6 rounded-lg border px-4 py-3">
+        <ModeAvailabilityNotice mode="coop" />
         <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="secondary"
@@ -513,72 +515,75 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
           onClick={handleCloseJoinCoop}
         >
           <div
-            className="bg-surface-raised border-border-theme w-full max-w-md rounded-xl border p-6 shadow-2xl"
+            className="bg-surface-raised border-border-theme flex max-h-[calc(100dvh-2rem)] w-full max-w-md flex-col rounded-xl border p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2
-              id="join-coop-dialog-title"
-              className="text-text-theme-primary mb-2 text-xl font-semibold"
-            >
-              Join Co-op Campaign
-            </h2>
-            <p className="text-text-theme-secondary mb-4 text-sm">
-              Enter the 6-character room code your host shared with you.
-            </p>
-            <label
-              htmlFor="join-coop-room-code"
-              className="text-text-theme-secondary mb-1 block text-xs tracking-wide uppercase"
-            >
-              Room code
-            </label>
-            <input
-              id="join-coop-room-code"
-              data-testid="join-coop-room-code-input"
-              type="text"
-              value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value)}
-              placeholder="ABC-DEF"
-              autoFocus
-              disabled={joinBusy}
-              className="text-text-theme-primary border-border-theme bg-surface-deep w-full rounded border px-3 py-2 font-mono text-lg tracking-widest uppercase focus:border-sky-500 focus:outline-none"
-            />
-            <LocalSeatCredentialPanel />
-            <label
-              htmlFor="join-coop-password"
-              className="text-text-theme-secondary mt-4 mb-1 block text-xs tracking-wide uppercase"
-            >
-              Selected co-op credential password
-            </label>
-            <input
-              id="join-coop-password"
-              data-testid="join-coop-password-input"
-              type="password"
-              ref={joinPasswordRef}
-              autoComplete="current-password"
-              disabled={joinBusy}
-              className="text-text-theme-primary border-border-theme bg-surface-deep w-full rounded border px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
-            />
-            {joinError && (
-              <p
-                role="alert"
-                data-testid="join-coop-error"
-                className="mt-3 rounded border border-rose-700 bg-rose-900/30 px-3 py-2 text-sm text-rose-200"
+            <div className="min-h-0 overflow-y-auto">
+              <h2
+                id="join-coop-dialog-title"
+                className="text-text-theme-primary mb-2 text-xl font-semibold"
               >
-                {joinError}
-                {joinErrorKind === 'vault-identity' && (
-                  <>
-                    {' '}
-                    <Link
-                      href="/settings#vault"
-                      className="font-medium underline underline-offset-2"
-                    >
-                      Set up your vault identity in Settings
-                    </Link>
-                  </>
-                )}
+                Join Co-op Campaign
+              </h2>
+              <ModeAvailabilityNotice mode="coop" />
+              <p className="text-text-theme-secondary mb-4 text-sm">
+                Enter the 6-character room code your host shared with you.
               </p>
-            )}
-            <div className="mt-4 flex justify-end gap-2">
+              <label
+                htmlFor="join-coop-room-code"
+                className="text-text-theme-secondary mb-1 block text-xs tracking-wide uppercase"
+              >
+                Room code
+              </label>
+              <input
+                id="join-coop-room-code"
+                data-testid="join-coop-room-code-input"
+                type="text"
+                value={joinCode}
+                onChange={(e) => setJoinCode(e.target.value)}
+                placeholder="ABC-DEF"
+                autoFocus
+                disabled={joinBusy}
+                className="text-text-theme-primary border-border-theme bg-surface-deep w-full rounded border px-3 py-2 font-mono text-lg tracking-widest uppercase focus:border-sky-500 focus:outline-none"
+              />
+              <LocalSeatCredentialPanel />
+              <label
+                htmlFor="join-coop-password"
+                className="text-text-theme-secondary mt-4 mb-1 block text-xs tracking-wide uppercase"
+              >
+                Selected co-op credential password
+              </label>
+              <input
+                id="join-coop-password"
+                data-testid="join-coop-password-input"
+                type="password"
+                ref={joinPasswordRef}
+                autoComplete="current-password"
+                disabled={joinBusy}
+                className="text-text-theme-primary border-border-theme bg-surface-deep w-full rounded border px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
+              />
+              {joinError && (
+                <p
+                  role="alert"
+                  data-testid="join-coop-error"
+                  className="mt-3 rounded border border-rose-700 bg-rose-900/30 px-3 py-2 text-sm text-rose-200"
+                >
+                  {joinError}
+                  {joinErrorKind === 'vault-identity' && (
+                    <>
+                      {' '}
+                      <Link
+                        href="/settings#vault"
+                        className="font-medium underline underline-offset-2"
+                      >
+                        Set up your vault identity in Settings
+                      </Link>
+                    </>
+                  )}
+                </p>
+              )}
+            </div>
+            <div className="mt-4 flex shrink-0 justify-end gap-2">
               <Button
                 variant="ghost"
                 onClick={handleCloseJoinCoop}

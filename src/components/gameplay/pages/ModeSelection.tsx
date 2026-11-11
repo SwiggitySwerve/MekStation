@@ -1,7 +1,12 @@
 import React from 'react';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { Card } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
+import {
+  isModeDisabled,
+  getModeNotice,
+} from '@/lib/multiplayer/modeAvailability';
 
 interface ModeSelectionProps {
   onAutoResolve: () => void;
@@ -29,7 +34,10 @@ export function ModeSelection({
   networked1v1DisabledReason,
   isResolving,
 }: ModeSelectionProps): React.ReactElement {
+  const reasonId = React.useId();
+  const modeDisabled = isModeDisabled('p2p');
   const networkedDisabled =
+    modeDisabled ||
     isResolving ||
     !onNetworked1v1 ||
     (networked1v1DisabledReason !== undefined &&
@@ -117,12 +125,17 @@ export function ModeSelection({
 
           {onNetworked1v1 && (
             <button
-              onClick={onNetworked1v1}
+              onClick={() => {
+                if (!isModeDisabled('p2p')) onNetworked1v1();
+              }}
+              aria-describedby={modeDisabled ? reasonId : undefined}
               disabled={networkedDisabled}
               title={
-                networked1v1DisabledReason
-                  ? networked1v1DisabledReason
-                  : 'Open a peer-to-peer 1v1 lobby'
+                modeDisabled
+                  ? getModeNotice('p2p')?.sentence
+                  : networked1v1DisabledReason
+                    ? networked1v1DisabledReason
+                    : 'Open a peer-to-peer 1v1 lobby'
               }
               className="group border-border-theme-subtle rounded-lg border-2 p-6 text-left transition-all hover:border-fuchsia-500/50 hover:bg-fuchsia-500/5 disabled:cursor-not-allowed disabled:opacity-60"
               data-testid="networked-1v1-btn"
@@ -134,11 +147,12 @@ export function ModeSelection({
                 </SvgIcon>
               </div>
               <h3 className="text-text-theme-primary mb-1 font-medium">
-                Networked 1v1
+                Networked 1v1 <ModeAvailabilityNotice mode="p2p" compact />
               </h3>
+              <ModeAvailabilityNotice mode="p2p" sentenceId={reasonId} />
               <p className="text-text-theme-muted text-sm">
                 {networked1v1DisabledReason ??
-                  'Open a peer-to-peer lobby and battle a friend over the network.'}
+                  'Open a peer-to-peer lobby to choose units.'}
               </p>
             </button>
           )}

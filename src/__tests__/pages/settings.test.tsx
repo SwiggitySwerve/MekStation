@@ -1,11 +1,12 @@
+import { render, screen, fireEvent, act } from '@testing-library/react';
 /**
  * Characterization tests for Settings page — captures current behavior
  * of all 8 sections before decomposition into smaller components.
  */
-
-import { render, screen, fireEvent, act } from '@testing-library/react';
 import React from 'react';
 
+import { Toggle } from '@/components/settings/SettingsShared';
+import { modeAvailability } from '@/lib/multiplayer/modeAvailability';
 import { useAccessibilityStore } from '@/stores/useAccessibilityStore';
 import { useAppearanceStore } from '@/stores/useAppearanceStore';
 import { useCustomizerSettingsStore } from '@/stores/useCustomizerSettingsStore';
@@ -392,13 +393,30 @@ describe('Settings Page', () => {
   });
 
   describe('P2P Sync Section', () => {
+    afterEach(() => jest.restoreAllMocks());
+    it.each(['disabled', 'available'] as const)(
+      'scopes vault sharing and discloses %s match availability',
+      (status) => {
+        jest.replaceProperty(modeAvailability.p2p, 'status', status);
+        renderSettings();
+        clickSectionHeader('P2P Sync');
+        expect(
+          screen.getAllByText('Share vault items with peers').length,
+        ).toBeGreaterThan(0);
+        expect(screen.queryByText(modeAvailability.p2p.sentence) !== null).toBe(
+          status !== 'available',
+        );
+        expect(screen.getByText('Connect')).toBeInTheDocument();
+      },
+    );
+
     it('renders P2P sync controls when expanded', () => {
       renderSettings();
       clickSectionHeader('P2P Sync');
 
       expect(screen.getByTestId('sync-status-indicator')).toBeInTheDocument();
       expect(screen.getByText('Your Display Name')).toBeInTheDocument();
-      expect(screen.getByText('How P2P Sync Works')).toBeInTheDocument();
+      expect(screen.getByText('How Vault Sharing Works')).toBeInTheDocument();
       expect(screen.getByText('Connect')).toBeInTheDocument();
     });
   });
@@ -484,4 +502,11 @@ describe('Settings Page', () => {
       ).not.toBeInTheDocument();
     });
   });
+});
+
+it('names a settings switch with its visible label', () => {
+  const onChange = jest.fn();
+  render(<Toggle label="Show previews" checked={false} onChange={onChange} />);
+  fireEvent.click(screen.getByRole('switch', { name: 'Show previews' }));
+  expect(onChange).toHaveBeenCalledWith(true);
 });

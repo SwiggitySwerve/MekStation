@@ -94,9 +94,9 @@ export function OperationsQueueCard({
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-text-theme-primary text-sm font-semibold">
+                    <h3 className="text-text-theme-primary text-sm font-semibold">
                       {item.title}
-                    </p>
+                    </h3>
                     <p className="text-text-theme-secondary mt-1 text-xs">
                       {item.detail}
                     </p>

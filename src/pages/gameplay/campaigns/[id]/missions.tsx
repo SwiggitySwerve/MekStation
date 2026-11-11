@@ -7,6 +7,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { CampaignAvailabilityFooter } from '@/components/campaign/CampaignAvailabilityFooter';
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { PageLayout, Card, EmptyState, Badge } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
@@ -304,6 +305,10 @@ export default function MissionsPage(): React.ReactElement {
           ))}
         </div>
       )}
+      <CampaignAvailabilityFooter
+        campaignId={campaign.id}
+        coopSession={campaign.coopSession}
+      />
     </PageLayout>
   );
 }
