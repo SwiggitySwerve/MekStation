@@ -10,6 +10,7 @@ import {
   InputError,
   buildPlan,
   emitterCommand,
+  obtainJoin,
   readJoinFiles,
   verifyAgainstReference,
 } from '../lib/runtime-parity/join.mjs';
@@ -122,6 +123,39 @@ test('the emitter runs as a child step with the pinned arguments', () => {
   for (const flag of ['--commit', '--mekfiles', '--reference', '--out', '--source-only-families-identity-only'])
     assert.ok(args.includes(flag), flag);
   assert.equal(args[args.indexOf('--mekfiles') + 1], '/m');
+  assert.ok(!args.includes('--reference-only'));
+});
+
+test('without a mm-data checkout the emitter runs in its repo-only mode (what the hosted job has)', () => {
+  const { args } = emitterCommand({ repoRoot: '/r', commit: hex('c', 40), referenceFile: '/ref.jsonl', out: '/o' });
+  assert.ok(args.includes('--reference-only'));
+  for (const flag of ['--mekfiles', '--reference']) assert.ok(!args.includes(flag), `${flag} must not be passed`);
+  for (const flag of ['--commit', '--out', '--source-only-families-identity-only']) assert.ok(args.includes(flag), flag);
+});
+
+test('obtainJoin without --sources or --mekfiles runs the emitter instead of failing on mekfiles', () => {
+  const root = tmp();
+  fs.mkdirSync(path.join(root, 'scripts/ci'), { recursive: true });
+  // A stand-in emitter that proves it was started in repo-only mode and writes the join files.
+  fs.writeFileSync(
+    path.join(root, 'scripts/ci/committed-catalog-sources.ts'),
+    `const fs=require('fs'),path=require('path');const a=process.argv;
+if(!a.includes('--reference-only')||a.includes('--mekfiles'))process.exit(3);
+const out=a[a.indexOf('--out')+1];fs.mkdirSync(out,{recursive:true});
+fs.writeFileSync(path.join(out,'sources.ndjson'),'');
+fs.writeFileSync(path.join(out,'sources.ndjson.manifest.json'),'{"committedCatalog":{"joined":0,"errors":[],"joins":[]}}');`,
+  );
+  // The emitter is started as `node --require tsx/cjs <file>` from the temp root, so let the child find tsx.
+  const before = process.env.NODE_PATH;
+  process.env.NODE_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../node_modules');
+  try {
+    const join = obtainJoin({ repoRoot: root, commit: hex('c', 40), referenceFile: '', workDir: root });
+    assert.equal(join.rows.length, 0);
+    assert.equal(join.dir, path.join(root, 'join'));
+  } finally {
+    if (before === undefined) delete process.env.NODE_PATH;
+    else process.env.NODE_PATH = before;
+  }
 });
 
 const planEntry = (id) => ({

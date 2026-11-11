@@ -103,6 +103,12 @@ export function verifyAgainstReference(plan, referenceRows) {
 
 /** The command that runs the S0b emitter as a child step. Pure, so it can be tested. */
 export function emitterCommand({ repoRoot, commit, mekfiles, referenceFile, out }) {
+  // Without a mm-data checkout the emitter's repo-only mode is used: only Git, tsx and committed
+  // files (the verified reference supplies each source's path and SHA), so the hosted job needs
+  // nothing else. With --mekfiles it runs the local source-text mode.
+  const mode = mekfiles
+    ? ['--mekfiles', mekfiles, '--reference', referenceFile]
+    : ['--reference-only'];
   return {
     command: process.execPath,
     args: [
@@ -113,10 +119,7 @@ export function emitterCommand({ repoRoot, commit, mekfiles, referenceFile, out 
       repoRoot,
       '--commit',
       commit,
-      '--mekfiles',
-      mekfiles,
-      '--reference',
-      referenceFile,
+      ...mode,
       '--out',
       out,
       '--source-only-families-identity-only',
@@ -126,14 +129,12 @@ export function emitterCommand({ repoRoot, commit, mekfiles, referenceFile, out 
 
 /**
  * The one place the join comes from. `sourcesDir` (--sources) reads an existing emitter output;
- * otherwise the emitter runs as a child step. The emitter needs `mekfiles` (the pinned mm-data
- * checkout) until S0b offers a repo-only mode.
+ * otherwise the emitter runs as a child step, in its repo-only mode unless `mekfiles` is given.
  */
 export function obtainJoin({ repoRoot, sourcesDir, mekfiles, commit, referenceFile, workDir }) {
   if (sourcesDir) return { dir: path.resolve(sourcesDir), ...readJoinFiles(sourcesDir) };
   if (!fs.existsSync(path.join(repoRoot, EMITTER)))
     throw new InputError('S0B_MANIFEST_MISSING', `${EMITTER} is not in this checkout and no --sources directory was given`);
-  if (!mekfiles) throw new InputError('S0B_MANIFEST_MISSING', 'the emitter needs --mekfiles until it has a repo-only mode');
   const out = path.join(workDir, 'join');
   const { command, args } = emitterCommand({ repoRoot, commit, mekfiles, referenceFile, out });
   const result = spawnSync(command, args, { cwd: repoRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
