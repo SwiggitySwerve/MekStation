@@ -1,5 +1,6 @@
 ﻿import { v4 as uuidv4 } from 'uuid';
 
+import { stampReplayBvTotal } from '@/replay-library/eventMetadata';
 import {
   GameEventType,
   GamePhase,
@@ -101,6 +102,8 @@ export interface ICreateGameSessionOptions {
    * manifest from disk. Null/omitted for non-encounter callers.
    */
   readonly encounterMeta?: IEncounterMeta;
+  /** Existing recorded-BV metadata, shared by quick and encounter launches. */
+  readonly quickMeta?: IGameCreatedPayload['quickMeta'];
   readonly hexTerrain?: readonly IHexTerrain[];
   readonly c3Network?: IC3NetworkState;
   readonly groundObjects?: IGameCreatedPayload['groundObjects'];
@@ -115,16 +118,19 @@ export function createGameSession(
   const id = options.id ?? uuidv4();
   const now = options.createdAt ?? new Date().toISOString();
 
-  const createdEvent = createGameCreatedEvent(
-    id,
-    config,
-    units,
-    options.encounterMeta,
-    undefined,
-    options.hexTerrain,
-    options.c3Network,
-    options.groundObjects,
-    options.minefields,
+  const createdEvent = stampReplayBvTotal(
+    createGameCreatedEvent(
+      id,
+      config,
+      units,
+      options.encounterMeta,
+      undefined,
+      options.hexTerrain,
+      options.c3Network,
+      options.groundObjects,
+      options.minefields,
+    ),
+    options.quickMeta?.bvTotal,
   );
   const events: IGameEvent[] = [createdEvent];
   const currentState = deriveState(id, events);

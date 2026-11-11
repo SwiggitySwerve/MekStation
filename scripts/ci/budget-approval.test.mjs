@@ -1,9 +1,25 @@
 import assert from 'node:assert/strict';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
+import { setImmediate as settleMicrotasks } from 'node:timers/promises';
+import { parse } from 'yaml';
 
-import { checkBudgetPolicy } from './budget-approval.mjs';
+import {
+  checkBudgetPolicy,
+  guardOutcome,
+  STALE_REF_REMEDY,
+} from './budget-approval.mjs';
 import { loadBudgets } from './budget-config.mjs';
 import { DEPENDENCY_GROWTH_LABEL } from './budget-dependencies.mjs';
+import { BUDGET_RAISE_LABEL } from './garden-approval.mjs';
+
+// Every caller binds the run to a head. These rows run for the fixture's head
+// unless they name another; the binding rows call checkBudgetPolicy directly.
+const RUN_HEAD = 'a'.repeat(40);
+const policy = (args) =>
+  checkBudgetPolicy({ expectedHead: RUN_HEAD, eventPath: undefined, ...args });
 
 function fixture() {
   const statuses = [],
@@ -15,8 +31,9 @@ function fixture() {
   const budgets = { base: null, head: config };
   const pull = {
     number: 1,
+    state: 'open',
     head: { sha: 'a'.repeat(40) },
-    base: { sha: 'b'.repeat(40) },
+    base: { sha: 'b'.repeat(40), ref: 'main', repo: { full_name: 'o/r' } },
     labels: [{ name: DEPENDENCY_GROWTH_LABEL }],
   };
   const manifest = { dependencies: { x: '1' } },
@@ -27,6 +44,7 @@ function fixture() {
   const github = {
     rest: {
       repos: {
+        listPullRequestsAssociatedWithCommit: () => {},
         get: async () => ({
           data: { owner: { login: 'owner', type: 'User', id: 1 } },
         }),
@@ -99,7 +117,10 @@ function fixture() {
         }),
       },
     },
-    paginate: async () => [],
+    paginate: async (method) =>
+      method === github.rest.repos.listPullRequestsAssociatedWithCommit
+        ? [structuredClone(pull)]
+        : [],
   };
   return { github, pull, statuses, budgets };
 }
@@ -123,7 +144,7 @@ test('legacy byte fields on the PR head are allowed with no raise or status writ
       });
     }
     if (onBase && onHead) f.budgets.head.limits.installerBytes++;
-    const result = await checkBudgetPolicy({
+    const result = await policy({
       github: f.github,
       owner: 'o',
       repo: 'r',
@@ -142,7 +163,7 @@ test('legacy fields cannot mask unknown fields or a count raise requiring approv
     f.budgets.base = structuredClone(f.budgets.head);
     f.budgets.head.limits.standaloneStaticBytes = 290_000_000;
     f.budgets[side].limits.fooBytes = 1;
-    const result = await checkBudgetPolicy({
+    const result = await policy({
       github: f.github,
       owner: 'o',
       repo: 'r',
@@ -168,19 +189,23 @@ test('legacy fields cannot mask unknown fields or a count raise requiring approv
     number: 1,
     publish: false,
   };
-  assert.equal((await checkBudgetPolicy(args)).code, 'missing-label');
+  assert.equal((await policy(args)).code, 'missing-label');
   f.pull.labels.push({ name: 'ci-budget-raise' });
-  assert.equal((await checkBudgetPolicy(args)).code, 'owner-approval-required');
-  f.github.paginate = async () => [
-    {
-      id: 1,
-      user: { id: 1, login: 'owner', type: 'User' },
-      state: 'APPROVED',
-      commit_id: f.pull.head.sha,
-      submitted_at: '2026-11-01T00:00:00Z',
-    },
-  ];
-  assert.equal((await checkBudgetPolicy(args)).code, 'owner-approved');
+  assert.equal((await policy(args)).code, 'owner-approval-required');
+  const paginate = f.github.paginate;
+  f.github.paginate = async (method, args) =>
+    method !== f.github.rest.pulls.listReviews
+      ? paginate(method, args)
+      : [
+          {
+            id: 1,
+            user: { id: 1, login: 'owner', type: 'User' },
+            state: 'APPROVED',
+            commit_id: f.pull.head.sha,
+            submitted_at: '2026-11-01T00:00:00Z',
+          },
+        ];
+  assert.equal((await policy(args)).code, 'owner-approved');
   assert.deepEqual(f.statuses, []);
 });
 
@@ -209,7 +234,7 @@ test('owner-authored legacy byte-limit removal needs no size label or approval',
     }
     return read(request);
   };
-  const result = await checkBudgetPolicy({
+  const result = await policy({
     github: f.github,
     owner: 'o',
     repo: 'r',
@@ -239,7 +264,7 @@ test('draft to ready retains successful required statuses on the same exact head
     f.statuses.length = 0;
     assert.equal(
       (
-        await checkBudgetPolicy({
+        await policy({
           github: f.github,
           owner: 'o',
           repo: 'r',
@@ -259,10 +284,10 @@ test('draft to ready retains successful required statuses on the same exact head
 test('live policy rejects dependency-label removal and publishes a failed current-head status', async () => {
   const fixture_ = fixture(),
     args = { github: fixture_.github, owner: 'o', repo: 'r', number: 1 };
-  assert.equal((await checkBudgetPolicy(args)).allowed, true);
+  assert.equal((await policy(args)).allowed, true);
   assert.equal(fixture_.statuses.at(-1).state, 'success');
   fixture_.pull.labels = [];
-  const result = await checkBudgetPolicy(args);
+  const result = await policy(args);
   assert.equal(result.allowed, false);
   assert.equal(result.code, 'dependency-growth');
   assert.equal(fixture_.statuses.at(-1).state, 'failure');
@@ -272,14 +297,14 @@ test('live policy rejects dependency-label removal and publishes a failed curren
 test('primary policy gate reads live rules without a write token; unknown JSON is red', async () => {
   const { github, statuses } = fixture();
   const args = { github, owner: 'o', repo: 'r', number: 1, publish: false };
-  assert.equal((await checkBudgetPolicy(args)).allowed, true);
+  assert.equal((await policy(args)).allowed, true);
   assert.equal(statuses.length, 0);
   const original = github.rest.repos.getContent;
   github.rest.repos.getContent = async (args_) =>
     args_.path.endsWith('package.json')
       ? { data: { encoding: 'unknown' } }
       : original(args_);
-  assert.equal((await checkBudgetPolicy(args)).allowed, false);
+  assert.equal((await policy(args)).allowed, false);
   assert.equal(statuses.length, 0);
 });
 
@@ -303,7 +328,7 @@ test('approval alone cannot bless missing, pending or later failed primary check
     f.github.rest.checks.listForRef = async () => ({
       data: { check_runs: checks },
     });
-    await checkBudgetPolicy(args);
+    await policy(args);
     assert.equal(f.statuses.at(-1).context, 'Lint and Test');
     assert.equal(f.statuses.at(-1).state, 'pending');
   }
@@ -331,7 +356,7 @@ test('approval alone cannot bless missing, pending or later failed primary check
       ],
     },
   });
-  await checkBudgetPolicy(args);
+  await policy(args);
   assert.equal(f.statuses.at(-1).state, 'failure');
   f.github.rest.actions.listWorkflowRuns = async () => ({
     data: {
@@ -349,7 +374,7 @@ test('approval alone cannot bless missing, pending or later failed primary check
       ],
     },
   });
-  await checkBudgetPolicy(args);
+  await policy(args);
   assert.equal(f.statuses.at(-1).state, 'pending');
 });
 
@@ -387,7 +412,7 @@ test('primary approval status rejects stale attempts, unrelated suites and unkno
     mutate(runs.workflow_runs[0], checks.check_runs[0]);
     f.github.rest.actions.listWorkflowRuns = async () => ({ data: runs });
     f.github.rest.checks.listForRef = async () => ({ data: checks });
-    await checkBudgetPolicy({
+    await policy({
       github: f.github,
       owner: 'o',
       repo: 'r',
@@ -396,4 +421,1651 @@ test('primary approval status rejects stale attempts, unrelated suites and unkno
     assert.equal(f.statuses.at(-1).context, 'Lint and Test');
     assert.equal(f.statuses.at(-1).state, 'pending');
   }
+});
+
+// ---------------------------------------------------------------------------
+// A run writes statuses only to the SHA it evaluated (§107). Branch protection
+// requires `Lint and Test` only; `CI Budget Raise Approval` is advisory, and the
+// gate for budget policy is the check inside the required aggregator job.
+// ---------------------------------------------------------------------------
+const NEW_HEAD = 'c'.repeat(40);
+const OLD_HEAD = 'd'.repeat(40);
+
+// Reads after the first `after` return the changed context (head, base or labels).
+function changeAfterFirstRead(f, mode, after = 1) {
+  let reads = 0;
+  f.github.rest.pulls.get = async () => {
+    const pr = structuredClone(f.pull);
+    if (++reads > after) {
+      if (mode === 'head') pr.head.sha = NEW_HEAD;
+      if (mode === 'base') pr.base.sha = 'e'.repeat(40);
+      if (mode === 'labels') pr.labels = [];
+    }
+    return { data: pr };
+  };
+}
+// How many PR reads the evaluation itself makes (initial read plus the nested
+// approval reads), measured: the first status write follows the post-evaluation
+// read and that write's own read.
+async function evaluationReads() {
+  const f = fixture();
+  let reads = 0;
+  let atFirstWrite;
+  const get = f.github.rest.pulls.get;
+  f.github.rest.pulls.get = async (args) => (reads++, get(args));
+  const write = f.github.rest.repos.createCommitStatus;
+  f.github.rest.repos.createCommitStatus = async (s) => {
+    atFirstWrite ??= reads;
+    return write(s);
+  };
+  await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+  return atFirstWrite - 2;
+}
+// The last status per (sha, context): what GitHub shows for that context.
+const finalState = (statuses, sha, context) =>
+  statuses.filter((s) => s.sha === sha && s.context === context).at(-1)?.state;
+
+test('pure head change after the evaluation: failure on the evaluated head only; the job is not failed', async () => {
+  const f = fixture();
+  const after = await evaluationReads();
+  assert.ok(after >= 5, `evaluation reads: ${after}`);
+  changeAfterFirstRead(f, 'head', after);
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.code, 'changed-context');
+  assert.equal(result.headChanged, true);
+  assert.equal(result.snapshotMismatch, false);
+  assert.equal(result.evaluatedHead, f.pull.head.sha);
+  assert.equal(result.currentHead, NEW_HEAD);
+  assert.ok(f.statuses.length > 0);
+  assert.ok(f.statuses.every((s) => s.sha === f.pull.head.sha));
+  assert.ok(f.statuses.every((s) => s.sha !== NEW_HEAD));
+  assert.equal(
+    finalState(f.statuses, f.pull.head.sha, 'Lint and Test'),
+    'failure',
+  );
+  // A superseded head is not a failure of the job; the log names both heads.
+  const outcome = guardOutcome(7, result);
+  assert.equal(outcome.fail, false);
+  assert.match(outcome.line, /PR #7/);
+  assert.ok(
+    outcome.line.includes(f.pull.head.sha) && outcome.line.includes(NEW_HEAD),
+  );
+});
+
+// Before Sol's delta read this row expected `outcome.fail === false`: the head
+// moved while the nested approval check was reading, so the approval evaluated
+// the new head, and a later read overwrote that evidence. The mismatch is now
+// sticky, so the job fails.
+test('head change during the evaluation: the job fails and says so in words', async () => {
+  const f = fixture();
+  changeAfterFirstRead(f, 'head');
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.code, 'changed-context');
+  assert.equal(result.headChanged, true);
+  assert.equal(result.snapshotMismatch, true);
+  assert.ok(f.statuses.every((s) => s.sha === f.pull.head.sha));
+  assert.equal(
+    finalState(f.statuses, f.pull.head.sha, 'Lint and Test'),
+    'failure',
+  );
+  assert.equal(result.supersededHead, false);
+  assert.equal(result.latestHead, NEW_HEAD);
+  // This job is listed on main's tip: the line must make it a five-second read.
+  const outcome = guardOutcome(7, result);
+  assert.equal(outcome.fail, true);
+  assert.ok(
+    outcome.line.startsWith(
+      'PR #7: the PR head changed while this run was still evaluating',
+    ),
+  );
+  assert.ok(
+    outcome.line.includes(
+      `(evaluated ${f.pull.head.sha}; also seen ${NEW_HEAD}; now ${NEW_HEAD})`,
+    ),
+  );
+  assert.ok(
+    outcome.line.includes(`It wrote failure to ${f.pull.head.sha} only;`),
+  );
+  assert.ok(
+    outcome.line.includes(
+      `the run for the PR's current head (${NEW_HEAD}) decides`,
+    ),
+  );
+  assert.match(outcome.line, /This job concerns PR #7, not main\./);
+});
+
+for (const mode of ['labels', 'base']) {
+  test(`${mode} change on the same head: failure on that head and the job fails`, async () => {
+    const f = fixture();
+    changeAfterFirstRead(f, mode);
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    assert.equal(result.code, 'changed-context');
+    assert.equal(result.headChanged, false);
+    assert.ok(f.statuses.every((s) => s.sha === f.pull.head.sha));
+    assert.equal(
+      finalState(f.statuses, f.pull.head.sha, 'Lint and Test'),
+      'failure',
+    );
+    const outcome = guardOutcome(7, result);
+    assert.equal(outcome.fail, true);
+    assert.match(outcome.line, /PR #7/);
+  });
+}
+
+test('race: the new head reports success, then the stale run writes last; the new head stays success', async () => {
+  const statuses = [];
+  // Run for the new head: completes green on `a…` (the fixture's head).
+  const fresh = fixture();
+  fresh.github.rest.repos.createCommitStatus = async (s) => {
+    statuses.push(s);
+    return { data: s };
+  };
+  // Stale run: evaluated OLD_HEAD; every later read already shows the new head.
+  const stale = fixture();
+  stale.pull.head.sha = OLD_HEAD;
+  let reads = 0;
+  stale.github.rest.pulls.get = async () => {
+    const pr = structuredClone(stale.pull);
+    if (++reads > 1) pr.head.sha = fresh.pull.head.sha;
+    return { data: pr };
+  };
+  stale.github.rest.repos.createCommitStatus = async (s) => {
+    statuses.push(s);
+    return { data: s };
+  };
+  const args = { owner: 'o', repo: 'r', number: 1 };
+  assert.equal((await policy({ github: fresh.github, ...args })).allowed, true);
+  assert.equal(
+    finalState(statuses, fresh.pull.head.sha, 'Lint and Test'),
+    'success',
+  );
+  const late = await policy({
+    github: stale.github,
+    ...args,
+    expectedHead: OLD_HEAD,
+  });
+  assert.equal(late.code, 'changed-context');
+  assert.equal(
+    finalState(statuses, fresh.pull.head.sha, 'Lint and Test'),
+    'success',
+  );
+  assert.equal(finalState(statuses, OLD_HEAD, 'Lint and Test'), 'failure');
+});
+
+// A budget raise the owner approved on the exact head, with the raise label.
+function approvedRaise() {
+  const f = fixture();
+  const base = structuredClone(f.budgets.head);
+  const head = structuredClone(base);
+  head.limits.typicalPrJobs += 1;
+  f.budgets.base = base;
+  f.budgets.head = head;
+  f.pull.user = { login: 'author', id: 2 };
+  f.pull.labels = [
+    { name: DEPENDENCY_GROWTH_LABEL },
+    { name: BUDGET_RAISE_LABEL },
+  ];
+  const paginate = f.github.paginate;
+  f.github.paginate = async (method, args) =>
+    method !== f.github.rest.pulls.listReviews
+      ? paginate(method, args)
+      : [
+          {
+            id: 5,
+            submitted_at: '2026-11-01T00:00:00Z',
+            user: { id: 1, type: 'User', login: 'owner' },
+            commit_id: f.pull.head.sha,
+            state: 'APPROVED',
+          },
+        ];
+  return f;
+}
+
+test('raise label removed after a success: the unlabeled re-evaluation fails that head', async () => {
+  // Re-evaluating event: pull_request_target `unlabeled` runs
+  // ci-budget-label-approval.yml, which calls checkBudgetPolicy for the current head.
+  const f = approvedRaise();
+  const args = { github: f.github, owner: 'o', repo: 'r', number: 1 };
+  const before = await policy(args);
+  assert.equal(before.allowed, true, before.message);
+  assert.equal(
+    finalState(f.statuses, f.pull.head.sha, 'Lint and Test'),
+    'success',
+  );
+  f.pull.labels = f.pull.labels.filter((l) => l.name !== BUDGET_RAISE_LABEL);
+  const after = await policy(args);
+  assert.equal(after.allowed, false);
+  assert.equal(after.code, 'missing-label');
+  assert.equal(
+    finalState(f.statuses, f.pull.head.sha, 'Lint and Test'),
+    'failure',
+  );
+  assert.equal(guardOutcome(1, after).fail, true);
+  const workflow = readFileSync(
+    '.github/workflows/ci-budget-label-approval.yml',
+    'utf8',
+  );
+  assert.match(workflow, /types: \[[^\]]*\bunlabeled\b/);
+});
+
+async function runApprovalEvent(github, pull, action, changes) {
+  const workflow = parse(
+    readFileSync('.github/workflows/ci-budget-label-approval.yml', 'utf8'),
+  );
+  const script = workflow.jobs.approval.steps[1].with.script.replace(
+    /^.*const \{ checkBudgetPolicy, guardOutcome \} = await import.*;\n/m,
+    '',
+  );
+  const run = new (Object.getPrototypeOf(async function () {}).constructor)(
+    'github',
+    'context',
+    'core',
+    'checkBudgetPolicy',
+    'guardOutcome',
+    script,
+  );
+  const context = {
+    repo: { owner: 'o', repo: 'r' },
+    payload: { action, changes, pull_request: structuredClone(pull) },
+  };
+  const failures = [];
+  const core = { info: () => {}, setFailed: (line) => failures.push(line) };
+  await run(github, context, core, checkBudgetPolicy, guardOutcome);
+  return failures;
+}
+
+test('label workflow fails an unchanged budget head after main lowered the cap and the owner revoked approval', async () => {
+  const f = approvedRaise();
+  // No budget change on this branch: its budget remains the merge-base value.
+  const mergeBaseBudget = structuredClone(f.budgets.base);
+  f.budgets.head = structuredClone(mergeBaseBudget);
+  f.budgets.base.limits.typicalPrJobs -= 1;
+  assert.deepEqual(f.budgets.head, mergeBaseBudget);
+  f.github.rest.pulls.listFiles = () =>
+    assert.fail('File diffs must not gate label reevaluation');
+  const before = await runApprovalEvent(f.github, f.pull, 'labeled');
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'success');
+  assert.deepEqual(before, []);
+  f.pull.labels = f.pull.labels.filter(
+    (label) => label.name !== BUDGET_RAISE_LABEL,
+  );
+  const failures = await runApprovalEvent(f.github, f.pull, 'unlabeled');
+  for (const name of ['Lint and Test', 'CI Budget Raise Approval'])
+    assert.equal(finalState(f.statuses, RUN_HEAD, name), 'failure');
+  assert.equal(failures.length, 1);
+  assert.ok(f.statuses.every((status) => status.sha === RUN_HEAD));
+});
+
+test('a queued direct evaluation after close or merge still reads live labels and writes only its bound head', async () => {
+  for (const merged of [false, true]) {
+    const f = approvedRaise();
+    f.pull.state = 'closed';
+    f.pull.merged = merged;
+    const args = { github: f.github, owner: 'o', repo: 'r', number: 1 };
+    assert.equal((await policy(args)).allowed, true);
+    assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'success');
+    f.pull.labels = f.pull.labels.filter(
+      (label) => label.name !== BUDGET_RAISE_LABEL,
+    );
+    assert.equal((await policy(args)).code, 'missing-label');
+    assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'failure');
+    assert.ok(f.statuses.every((status) => status.sha === RUN_HEAD));
+  }
+});
+
+test('a budget raise with no label cannot obtain a successful required Lint and Test by any path', async () => {
+  const f = approvedRaise();
+  f.pull.labels = [{ name: DEPENDENCY_GROWTH_LABEL }];
+  // Path 1: the guard and approval workflows publish statuses.
+  const published = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(published.allowed, false);
+  assert.ok(
+    !f.statuses.some(
+      (s) => s.context === 'Lint and Test' && s.state === 'success',
+    ),
+  );
+  // Path 2: the aggregator job evaluates without publishing and throws on refusal.
+  const gate = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+    publish: false,
+  });
+  assert.equal(gate.allowed, false);
+  const prChecks = readFileSync('.github/workflows/pr-checks.yml', 'utf8');
+  assert.match(
+    prChecks,
+    /publish: false,[\s\S]{0,120}\}\);[\s\S]{0,80}if \(!result\.allowed\) throw new Error/,
+  );
+  // The status publishers fail their job on every refusal except a superseded head.
+  for (const file of ['lint-and-test-guard.yml', 'ci-budget-approval.yml']) {
+    const text = readFileSync(`.github/workflows/${file}`, 'utf8');
+    assert.match(text, /guardOutcome\(/);
+    assert.match(text, /if \(outcome\.fail\) core\.setFailed\(outcome\.line\)/);
+    assert.doesNotMatch(text, /if \(!result\.allowed\) core\.setFailed/);
+  }
+});
+
+test('head change together with a label or base change is a refusal and fails the job', async () => {
+  for (const extra of ['labels', 'base']) {
+    const f = fixture();
+    let reads = 0;
+    f.github.rest.pulls.get = async () => {
+      const pr = structuredClone(f.pull);
+      if (++reads > 1) {
+        pr.head.sha = NEW_HEAD;
+        if (extra === 'labels') pr.labels = [];
+        else pr.base.sha = 'e'.repeat(40);
+      }
+      return { data: pr };
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    assert.equal(result.code, 'changed-context');
+    assert.equal(result.headChanged, true);
+    assert.ok(f.statuses.every((s) => s.sha === f.pull.head.sha));
+    assert.equal(guardOutcome(1, result).fail, true, extra);
+  }
+});
+
+test('X then Y then X: an approval evaluated on another head never publishes success to X', async () => {
+  // The run starts on X (a raise, no label). The nested approval check reads
+  // Y (no raise) twice; every later read is back on X.
+  const f = approvedRaise();
+  const X = f.pull.head.sha;
+  const Y = 'f'.repeat(40);
+  f.pull.labels = [{ name: DEPENDENCY_GROWTH_LABEL }];
+  const noRaise = structuredClone(f.budgets.base);
+  const content = f.github.rest.repos.getContent;
+  f.github.rest.repos.getContent = async (args) =>
+    args.path === 'config/ci/budgets.json' && args.ref === Y
+      ? {
+          data: {
+            encoding: 'base64',
+            content: Buffer.from(JSON.stringify(noRaise)).toString('base64'),
+          },
+        }
+      : content(args);
+  let reads = 0;
+  f.github.rest.pulls.get = async () => {
+    const pr = structuredClone(f.pull);
+    reads += 1;
+    if (reads === 2 || reads === 3) pr.head.sha = Y;
+    return { data: pr };
+  };
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.allowed, false);
+  assert.equal(result.snapshotMismatch, true);
+  assert.ok(!f.statuses.some((s) => s.sha === X && s.state === 'success'));
+  assert.ok(f.statuses.every((s) => s.sha === X));
+  // The message reports the head seen during evaluation (Y) separately from
+  // the latest head (back at X); it never reads "from X to X".
+  const outcome = guardOutcome(1, result);
+  assert.equal(outcome.fail, true);
+  assert.equal(result.latestHead, X);
+  assert.deepEqual(result.otherHeads, [Y]);
+  assert.ok(
+    outcome.line.includes(`(evaluated ${X}; also seen ${Y}; now ${X})`),
+  );
+  assert.ok(outcome.line.includes(`It wrote failure to ${X} only;`));
+  assert.ok(!outcome.line.includes(`from ${X} to ${X}`));
+  assert.ok(!outcome.line.includes(`nothing to ${X}`));
+});
+
+test('the aggregator refuses when the PR head is no longer the head its run is for', async () => {
+  const f = fixture();
+  const args = {
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+    publish: false,
+  };
+  assert.equal(
+    (await policy({ ...args, expectedHead: f.pull.head.sha })).allowed,
+    true,
+  );
+  const stale = await policy({ ...args, expectedHead: OLD_HEAD });
+  assert.equal(stale.allowed, false);
+  assert.equal(stale.code, 'changed-context');
+  const prChecks = readFileSync('.github/workflows/pr-checks.yml', 'utf8');
+  assert.match(
+    prChecks,
+    /expectedHead: context\.payload\.pull_request\.head\.sha \}\);/,
+  );
+});
+
+// ---------------------------------------------------------------------------
+// Sol's delta read of #3381: the binding is mandatory (P1) and disqualifying
+// evidence is sticky across the whole evaluation (P2).
+// ---------------------------------------------------------------------------
+const tmp = mkdtempSync(path.join(os.tmpdir(), 'budget-approval-'));
+const eventFile = (payload) => {
+  const file = path.join(
+    tmp,
+    `event-${Math.random().toString(16).slice(2)}.json`,
+  );
+  writeFileSync(file, JSON.stringify(payload));
+  return file;
+};
+
+test('a run with no valid head binding is refused, writes nothing, fails the job and names the remedy', async () => {
+  for (const publish of [false, true]) {
+    for (const binding of [
+      { eventPath: undefined },
+      { eventPath: path.join(tmp, 'missing.json') },
+      { eventPath: eventFile({ workflow_run: { head_sha: RUN_HEAD } }) },
+      {
+        eventPath: eventFile({
+          pull_request: { number: 2, head: { sha: RUN_HEAD } },
+        }),
+      },
+      {
+        eventPath: eventFile({
+          pull_request: { number: 1, head: { sha: 'short' } },
+        }),
+      },
+      { expectedHead: null },
+      { expectedHead: '' },
+      { expectedHead: 'A'.repeat(40) },
+      { expectedHead: 'a'.repeat(39) },
+      { expectedHead: 42 },
+    ]) {
+      const f = fixture();
+      const result = await checkBudgetPolicy({
+        github: f.github,
+        owner: 'o',
+        repo: 'r',
+        number: 1,
+        publish,
+        ...binding,
+      });
+      const label = `${publish} ${JSON.stringify(binding)}`;
+      assert.equal(result.allowed, false, label);
+      assert.equal(result.code, 'unbound-run', label);
+      assert.ok(result.message.includes(STALE_REF_REMEDY), label);
+      assert.deepEqual(f.statuses, [], label);
+      assert.equal(guardOutcome(1, result).fail, true, label);
+    }
+  }
+});
+
+test('an old pr-checks.yml that passes no head is bound to its own pull_request event', async () => {
+  // The stale-ref case: a re-run, or a run whose aggregator starts after this
+  // merges, carries a pr-checks.yml without expectedHead but loads this
+  // validator from main. It binds to the head of the event that started it.
+  const call = (f, head) =>
+    checkBudgetPolicy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+      publish: false,
+      eventPath: eventFile({
+        pull_request: { number: 1, head: { sha: head } },
+      }),
+    });
+  assert.equal((await call(fixture(), RUN_HEAD)).allowed, true);
+  const superseded = await call(fixture(), OLD_HEAD);
+  assert.equal(superseded.allowed, false);
+  assert.equal(superseded.code, 'changed-context');
+  assert.equal(superseded.evaluatedHead, OLD_HEAD);
+  // An explicit head wins over the event.
+  const f = fixture();
+  const explicit = await checkBudgetPolicy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+    publish: false,
+    expectedHead: RUN_HEAD,
+    eventPath: eventFile({
+      pull_request: { number: 1, head: { sha: OLD_HEAD } },
+    }),
+  });
+  assert.equal(explicit.allowed, true);
+});
+
+test('a publisher bound to a superseded head writes nothing and is not failed', async () => {
+  const f = fixture();
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+    expectedHead: OLD_HEAD,
+  });
+  assert.equal(result.code, 'changed-context');
+  assert.deepEqual(f.statuses, []);
+  assert.equal(guardOutcome(1, result).fail, false);
+});
+
+// Sol's read of d31ea0e0a: the message for several heads, and for a nested
+// result that names no head. otherHeads lists read heads in read order, then
+// heads named by nested results.
+test('the head-changed message lists every other head seen, and a nested result with no head', async () => {
+  const X = RUN_HEAD;
+  const Y = 'f'.repeat(40);
+  const Z = 'e'.repeat(40);
+  // X -> Y -> Z: the nested check reads Y then Z; every later read is Z.
+  const f = fixture();
+  let reads = 0;
+  f.github.rest.pulls.get = async () => {
+    const pr = structuredClone(f.pull);
+    reads += 1;
+    if (reads === 2) pr.head.sha = Y;
+    if (reads >= 3) pr.head.sha = Z;
+    return { data: pr };
+  };
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.deepEqual(result.otherHeads, [Y, Z]);
+  const line = guardOutcome(1, result).line;
+  assert.ok(line.includes(`(evaluated ${X}; also seen ${Y}, ${Z}; now ${Z})`));
+  assert.ok(line.includes(`the run for the PR's current head (${Z}) decides`));
+  // A nested result that names no head, then the head moves after evaluation.
+  const g = fixture();
+  changeAfterFirstRead(g, 'head');
+  const unnamed = await policy({
+    github: g.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+    checkRaise: async () => ({
+      allowed: true,
+      code: 'no-raise',
+      message: 'ok',
+    }),
+  });
+  assert.deepEqual(unnamed.otherHeads, [NEW_HEAD, '(none)']);
+  const outcome = guardOutcome(1, unnamed);
+  assert.equal(outcome.fail, true);
+  assert.ok(
+    outcome.line.includes(
+      `(evaluated ${X}; also seen ${NEW_HEAD}, (none); now ${NEW_HEAD})`,
+    ),
+  );
+});
+
+test('a nested approval that names no head is a refusal and fails the job', async () => {
+  const f = fixture();
+  for (const evaluatedHead of [undefined, null, '']) {
+    f.statuses.length = 0;
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+      checkRaise: async () => ({
+        allowed: true,
+        code: 'no-raise',
+        message: 'ok',
+        evaluatedHead,
+      }),
+    });
+    assert.equal(result.allowed, false, String(evaluatedHead));
+    assert.equal(result.snapshotMismatch, true);
+    assert.ok(!f.statuses.some((s) => s.state === 'success'));
+    assert.equal(guardOutcome(1, result).fail, true);
+  }
+});
+
+test('a mismatch during the refreshed approval evaluation is sticky and fails the job', async () => {
+  // The first approval evaluation and the dependency reads are on X; from the
+  // refreshed approval evaluation on, every read shows Y (where approval passes).
+  const after = await evaluationReads();
+  const f = fixture();
+  const X = f.pull.head.sha;
+  const Y = 'f'.repeat(40);
+  let reads = 0;
+  f.github.rest.pulls.get = async () => {
+    const pr = structuredClone(f.pull);
+    reads += 1;
+    if (reads >= after - 1) pr.head.sha = Y;
+    return { data: pr };
+  };
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.allowed, false);
+  assert.equal(result.snapshotMismatch, true);
+  assert.ok(f.statuses.every((s) => s.sha === X));
+  assert.ok(!f.statuses.some((s) => s.state === 'success'));
+  assert.equal(guardOutcome(1, result).fail, true);
+});
+
+test('a label or base change survives a later pure head change, even if it reverts', async () => {
+  for (const extra of ['labels', 'base']) {
+    const after = await evaluationReads();
+    const f = fixture();
+    let reads = 0;
+    f.github.rest.pulls.get = async () => {
+      const pr = structuredClone(f.pull);
+      reads += 1;
+      if (reads > after) pr.head.sha = NEW_HEAD;
+      // Only the post-evaluation read sees the label/base change; every later
+      // read (before each status write) shows it reverted.
+      if (reads === after + 1) {
+        if (extra === 'labels') pr.labels = [];
+        else pr.base.sha = 'e'.repeat(40);
+      }
+      return { data: pr };
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    assert.equal(result.code, 'changed-context', extra);
+    assert.equal(
+      extra === 'labels' ? result.labelsChanged : result.baseChanged,
+      true,
+      extra,
+    );
+    assert.ok(f.statuses.every((s) => s.sha === f.pull.head.sha));
+    assert.equal(guardOutcome(1, result).fail, true, extra);
+  }
+});
+
+// Sol's re-read of bf613ef9f: the nested approval check saw a base (or label)
+// change on the same head; it reverted and the head moved before the outer
+// reads, which see only a head change. The nested evidence must survive.
+test('a base or label change seen only by the nested approval check still fails the job', async () => {
+  for (const extra of ['base', 'labels']) {
+    const f = fixture();
+    let reads = 0;
+    f.github.rest.pulls.get = async () => {
+      const pr = structuredClone(f.pull);
+      reads += 1;
+      // 1: outer initial (X/B). 2: nested initial (X/B). 3: nested final
+      // (X/C, or labels changed). 4+: reverted, head moved to Y.
+      if (reads === 3) {
+        if (extra === 'base') pr.base.sha = 'e'.repeat(40);
+        else pr.labels = [];
+      }
+      if (reads >= 4) pr.head.sha = NEW_HEAD;
+      return { data: pr };
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    assert.equal(result.allowed, false, extra);
+    assert.equal(
+      extra === 'base' ? result.baseChanged : result.labelsChanged,
+      true,
+      extra,
+    );
+    assert.ok(f.statuses.every((s) => s.sha === f.pull.head.sha));
+    assert.ok(!f.statuses.some((s) => s.state === 'success'));
+    assert.equal(guardOutcome(1, result).fail, true, extra);
+  }
+});
+
+test('any nested changed-context refusal is not proof of a superseded head', async () => {
+  // The stubbed nested check makes no PR reads, so every outer read after the
+  // first shows a new head. Whatever the nested refusal says changed, it is not
+  // a clean evaluation, so the job is not exempt.
+  for (const flags of [
+    {},
+    { headChanged: true },
+    { headChanged: true, baseChanged: false, labelsChanged: false },
+  ]) {
+    const f = fixture();
+    changeAfterFirstRead(f, 'head');
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+      checkRaise: async () => ({
+        allowed: false,
+        code: 'changed-context',
+        message: 'changed',
+        evaluatedHead: RUN_HEAD,
+        ...flags,
+      }),
+    });
+    const label = JSON.stringify(flags);
+    assert.equal(result.nestedChanged, true, label);
+    assert.equal(result.supersededHead, false, label);
+    assert.equal(guardOutcome(1, result).fail, true, label);
+  }
+});
+
+// Round 4 (Sol's re-read of d8512a550): each nested check sees a stable but
+// different snapshot, so neither refuses, and the outer reads never see it.
+test('a base or label seen only inside one nested check, stable there, still fails the job', async () => {
+  for (const extra of ['base', 'labels']) {
+    const after = await evaluationReads();
+    const f = fixture();
+    let reads = 0;
+    f.github.rest.pulls.get = async () => {
+      const pr = structuredClone(f.pull);
+      reads += 1;
+      // 1: outer X/B. 2-3: first nested check, X/C both times. 4-5: refreshed
+      // nested check, X/B. After the evaluation: head Y, base B.
+      if (reads === 2 || reads === 3) {
+        if (extra === 'base') pr.base.sha = 'e'.repeat(40);
+        else pr.labels = [];
+      }
+      if (reads > after) pr.head.sha = NEW_HEAD;
+      return { data: pr };
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    assert.equal(result.allowed, false, extra);
+    assert.equal(result.supersededHead, false, extra);
+    assert.equal(guardOutcome(1, result).fail, true, extra);
+  }
+});
+
+// A small deterministic generator, so the sweep below is reproducible.
+function lcg(seed) {
+  let state = seed >>> 0;
+  return () => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    return state / 2 ** 32;
+  };
+}
+
+test('every PR read, outer and nested, is in the log in order', async () => {
+  const random = lcg(3381);
+  for (let run = 0; run < 200; run += 1) {
+    const f = fixture();
+    const served = [];
+    f.github.rest.pulls.get = async () => {
+      const pr = structuredClone(f.pull);
+      if (served.length > 0) {
+        if (random() < 0.2) pr.head.sha = NEW_HEAD;
+        if (random() < 0.1) pr.base.sha = 'e'.repeat(40);
+        if (random() < 0.1) pr.labels = [];
+      }
+      served.push({
+        head: pr.head.sha,
+        base: pr.base.sha,
+        labels: JSON.stringify(pr.labels.map((l) => l.name).sort()),
+      });
+      return { data: pr };
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    assert.deepEqual(
+      result.reads.map(({ head, base, labels }) => ({ head, base, labels })),
+      served,
+      `run ${run}`,
+    );
+  }
+});
+
+test('sweep: an exempt job always means every read kept the base and labels and the evaluation saw one head', async () => {
+  // Safety, checked against what the stub served, not against the validator's
+  // own evidence: if the job is exempt, every served read had the initial base
+  // and labels, and the head changed only after the reads the evaluation made.
+  const random = lcg(1107);
+  const evaluation = await evaluationReads();
+  let exempt = 0;
+  for (let run = 0; run < 2000; run += 1) {
+    const f = fixture();
+    const served = [];
+    const changeAt = 1 + Math.floor(random() * (evaluation + 4));
+    const p = random();
+    f.github.rest.pulls.get = async () => {
+      const pr = structuredClone(f.pull);
+      const index = served.length;
+      if (index >= changeAt) pr.head.sha = NEW_HEAD;
+      if (index > 0 && random() < p * 0.15) pr.base.sha = 'e'.repeat(40);
+      if (index > 0 && random() < p * 0.15) pr.labels = [];
+      served.push(pr);
+      return { data: pr };
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    if (guardOutcome(1, result).fail) continue;
+    if (result.allowed) continue;
+    exempt += 1;
+    const labels = JSON.stringify(f.pull.labels.map((l) => l.name).sort());
+    for (const pr of served) {
+      assert.equal(pr.base.sha, f.pull.base.sha, `run ${run}`);
+      assert.equal(
+        JSON.stringify(pr.labels.map((l) => l.name).sort()),
+        labels,
+        `run ${run}`,
+      );
+    }
+    for (const pr of served.slice(0, evaluation))
+      assert.equal(pr.head.sha, f.pull.head.sha, `run ${run}`);
+  }
+  // The sweep must exercise the exemption, not only refusals.
+  assert.ok(exempt > 50, `exempt runs: ${exempt}`);
+});
+
+test('every status publisher binds its run to the head it is for', () => {
+  const guard = readFileSync(
+    '.github/workflows/lint-and-test-guard.yml',
+    'utf8',
+  );
+  assert.match(
+    guard,
+    /checkBudgetPolicy\(\{[^}]*expectedHead: source\.head_sha \}\)/,
+  );
+  const approval = readFileSync(
+    '.github/workflows/ci-budget-approval.yml',
+    'utf8',
+  );
+  assert.match(approval, /checkBudgetPolicy\(\{[^}]*expectedHead: head \}\)/);
+  assert.match(approval, /head: signal\.head_sha/);
+  assert.match(approval, /head: context\.payload\.pull_request\.head\.sha/);
+  assert.match(approval, /targets = \[\{ number, head: pr\.head\.sha \}\]/);
+  for (const text of [guard, approval])
+    assert.doesNotMatch(
+      text,
+      /checkBudgetPolicy\(\{ github, [^}]*number(: pull\.number)? \}\)/,
+    );
+});
+
+test('every real success write is followed by a verify read in the complete read log', async () => {
+  const f = approvedRaise();
+  const served = [];
+  const successes = [];
+  const get = f.github.rest.pulls.get;
+  f.github.rest.pulls.get = async (args) => {
+    const response = await get(args);
+    served.push({
+      head: response.data.head.sha,
+      base: response.data.base.sha,
+      labels: JSON.stringify(
+        response.data.labels.map((label) => label.name).sort(),
+      ),
+    });
+    return response;
+  };
+  const write = f.github.rest.repos.createCommitStatus;
+  f.github.rest.repos.createCommitStatus = async (status) => {
+    if (status.state === 'success')
+      successes.push({ context: status.context, nextRead: served.length });
+    return write(status);
+  };
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.allowed, true);
+  // Nested approval writes use the sink, so these are the only real successes.
+  assert.deepEqual(
+    successes.map((write) => write.context),
+    ['CI Budget Raise Approval', 'Lint and Test'],
+  );
+  assert.deepEqual(
+    result.reads.map(({ head, base, labels }) => ({ head, base, labels })),
+    served,
+  );
+  for (const success of successes) {
+    assert.ok(result.reads.length > success.nextRead, success.context);
+    assert.equal(
+      result.reads[success.nextRead].phase,
+      'verify',
+      success.context,
+    );
+  }
+});
+
+for (const context of ['CI Budget Raise Approval', 'Lint and Test']) {
+  for (const field of ['labels', 'base', 'head']) {
+    test(`verify after ${context} success corrects a changed ${field} on the evaluated head and fails the job`, async () => {
+      const f = approvedRaise();
+      const write = f.github.rest.repos.createCommitStatus;
+      f.github.rest.repos.createCommitStatus = async (status) => {
+        const response = await write(status);
+        if (status.context === context && status.state === 'success') {
+          // Even a label change that leaves policy allowed must invalidate the
+          // original snapshot; required-label removals have separate rows.
+          if (field === 'labels')
+            f.pull.labels.push({ name: 'context-changed' });
+          if (field === 'base') f.pull.base.sha = 'e'.repeat(40);
+          if (field === 'head') f.pull.head.sha = NEW_HEAD;
+        }
+        return response;
+      };
+      const result = await policy({
+        github: f.github,
+        owner: 'o',
+        repo: 'r',
+        number: 1,
+      });
+      assert.equal(result.allowed, false);
+      assert.equal(result.supersededHead, false);
+      assert.equal(guardOutcome(1, result).fail, true);
+      assert.equal(finalState(f.statuses, RUN_HEAD, context), 'failure');
+      assert.ok(f.statuses.every((status) => status.sha === RUN_HEAD));
+      assert.ok(result.reads.some((read) => read.phase === 'verify'));
+    });
+  }
+}
+
+test('a stale success written after the revocation failure is corrected by its own verify', async () => {
+  const f = approvedRaise();
+  const write = f.github.rest.repos.createCommitStatus;
+  let interleaved = false;
+  f.github.rest.repos.createCommitStatus = async (status) => {
+    if (
+      !interleaved &&
+      status.state === 'success' &&
+      status.context === 'Lint and Test'
+    ) {
+      interleaved = true;
+      f.pull.labels = f.pull.labels.filter(
+        (label) => label.name !== BUDGET_RAISE_LABEL,
+      );
+      const revoked = await policy({
+        github: f.github,
+        owner: 'o',
+        repo: 'r',
+        number: 1,
+      });
+      assert.equal(revoked.allowed, false);
+      assert.equal(
+        finalState(f.statuses, RUN_HEAD, 'Lint and Test'),
+        'failure',
+      );
+    }
+    return write(status);
+  };
+  const stale = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.ok(interleaved);
+  assert.equal(stale.allowed, false);
+  assert.equal(guardOutcome(1, stale).fail, true);
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'failure');
+});
+
+function sharedHeadApprovals(count = 2) {
+  const fixtures = Array.from({ length: count }, () => approvedRaise());
+  fixtures.forEach((f, index) => {
+    f.pull.number = index + 1;
+  });
+  const statuses = [];
+  const github = fixtures[0].github;
+  github.rest.pulls.get = async ({ pull_number }) => ({
+    data: structuredClone(fixtures[pull_number - 1].pull),
+  });
+  github.paginate = async (method, args) =>
+    method === github.rest.repos.listPullRequestsAssociatedWithCommit
+      ? fixtures.map((f) => structuredClone(f.pull))
+      : [
+          {
+            id: 5,
+            submitted_at: '2026-11-01T00:00:00Z',
+            user: { id: 1, type: 'User', login: 'owner' },
+            commit_id: fixtures[args.pull_number - 1].pull.head.sha,
+            state: 'APPROVED',
+          },
+        ];
+  github.rest.repos.createCommitStatus = async (status) => {
+    statuses.push(status);
+    return { data: status };
+  };
+  return { fixtures, github, statuses };
+}
+
+test('an out-of-scope publishing target evaluates nothing, writes nothing and does not fail', async () => {
+  for (const outside of ['branch', 'repository']) {
+    const f = sharedHeadApprovals();
+    const target = f.fixtures[1].pull;
+    if (outside === 'branch') target.base.ref = 'release';
+    else target.base.repo.full_name = 'foreign/repo';
+    target.labels = [];
+    assert.equal(
+      (await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 }))
+        .allowed,
+      true,
+    );
+    const before = structuredClone(f.statuses);
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 2,
+      checkRaise: () =>
+        assert.fail('An ineligible target must not evaluate policy'),
+    });
+    assert.equal(result.code, 'not-main', outside);
+    assert.equal(
+      result.allowed,
+      true,
+      'Read-only aggregators must also skip without failing',
+    );
+    assert.equal(result.evaluatedHead, null);
+    assert.equal(result.reads.length, 1);
+    assert.deepEqual(f.statuses, before, outside);
+    const outcome = guardOutcome(2, result);
+    assert.equal(outcome.fail, false);
+    assert.match(outcome.line, /not-main/);
+    assert.doesNotMatch(outcome.line, /evaluated null/);
+  }
+});
+
+test('a peer retargeted out of main after association listing is skipped by the shared policy', async () => {
+  const f = sharedHeadApprovals();
+  const paginate = f.github.paginate;
+  f.github.paginate = async (method, args) => {
+    const listed = await paginate(method, args);
+    if (method === f.github.rest.repos.listPullRequestsAssociatedWithCommit) {
+      f.fixtures[1].pull.base.ref = 'release';
+      f.fixtures[1].pull.labels = [];
+    }
+    return listed;
+  };
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.allowed, true);
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'success');
+});
+
+test('a base-change event retargeting an unapproved same-head PR into main fails that head without a budget diff', async () => {
+  const f = sharedHeadApprovals();
+  const target = f.fixtures[1].pull;
+  target.base.ref = 'release';
+  target.labels = [];
+  f.github.rest.pulls.listFiles = () =>
+    assert.fail('Retarget evaluation must not depend on file diffs');
+  assert.equal(
+    (await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 }))
+      .allowed,
+    true,
+  );
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'success');
+  target.base.ref = 'main';
+  const failures = await runApprovalEvent(f.github, target, 'edited', {
+    base: { ref: { from: 'release' } },
+  });
+  assert.equal(failures.length, 1);
+  for (const context of ['Lint and Test', 'CI Budget Raise Approval'])
+    assert.equal(finalState(f.statuses, RUN_HEAD, context), 'failure');
+  assert.ok(f.statuses.every((status) => status.sha === RUN_HEAD));
+});
+
+test('a non-main peer is ignored before and after its label removal on the shared SHA', async () => {
+  const f = sharedHeadApprovals();
+  const peer = f.fixtures[1].pull;
+  peer.base.ref = 'release';
+  const get = f.github.rest.pulls.get;
+  const peerReads = [];
+  f.github.rest.pulls.get = (args) => {
+    if (args.pull_number === 2) peerReads.push(args);
+    return get(args);
+  };
+  const args = { github: f.github, owner: 'o', repo: 'r', number: 1 };
+  assert.equal((await policy(args)).allowed, true);
+  peer.labels = peer.labels.filter(
+    (label) => label.name !== BUDGET_RAISE_LABEL,
+  );
+  const after = await policy(args);
+  assert.equal(
+    after.allowed,
+    true,
+    'A non-main peer cannot invalidate main approval',
+  );
+  for (const context of ['Lint and Test', 'CI Budget Raise Approval'])
+    assert.equal(finalState(f.statuses, RUN_HEAD, context), 'success');
+  assert.deepEqual(peerReads, [], 'Non-main peer policy must not be evaluated');
+});
+
+for (const context of ['CI Budget Raise Approval', 'Lint and Test']) {
+  test(`verify of ${context} success refreshes a dismissed owner review on the shared SHA`, async () => {
+    const f = sharedHeadApprovals();
+    const paginate = f.github.paginate;
+    const write = f.github.rest.repos.createCommitStatus;
+    let dismissed = false;
+    let freshReviewReads = 0;
+    f.github.paginate = async (method, args) => {
+      const result = await paginate(method, args);
+      if (
+        dismissed &&
+        method === f.github.rest.pulls.listReviews &&
+        args.pull_number === 1
+      ) {
+        freshReviewReads += 1;
+        return result.map((review) => ({ ...review, state: 'DISMISSED' }));
+      }
+      return result;
+    };
+    f.github.rest.repos.createCommitStatus = async (status) => {
+      const result = await write(status);
+      if (status.state === 'success' && status.context === context)
+        dismissed = true;
+      return result;
+    };
+    const before = f.fixtures.map((fixture) => structuredClone(fixture.pull));
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 2,
+    });
+    assert.ok(dismissed, 'The success must reach GitHub before dismissal');
+    assert.ok(
+      freshReviewReads > 0,
+      'Verify must fetch live reviews after success',
+    );
+    assert.equal(result.allowed, false);
+    assert.equal(guardOutcome(2, result).fail, true);
+    assert.equal(finalState(f.statuses, RUN_HEAD, context), 'failure');
+    assert.ok(f.statuses.every((status) => status.sha === RUN_HEAD));
+    assert.deepEqual(
+      f.fixtures.map((fixture) => fixture.pull),
+      before,
+      'Labels, bases and heads remained unchanged',
+    );
+  });
+}
+
+test('shared SHA: a revoked A and approved B leave failure in both publisher orders', async () => {
+  for (const order of [
+    [1, 2],
+    [2, 1],
+  ]) {
+    const f = sharedHeadApprovals();
+    f.fixtures[0].pull.labels = f.fixtures[0].pull.labels.filter(
+      (label) => label.name !== BUDGET_RAISE_LABEL,
+    );
+    for (const number of order) {
+      const result = await policy({
+        github: f.github,
+        owner: 'o',
+        repo: 'r',
+        number,
+      });
+      assert.equal(result.allowed, false, `order ${order}, PR ${number}`);
+      assert.equal(guardOutcome(number, result).fail, true);
+    }
+    for (const context of ['Lint and Test', 'CI Budget Raise Approval'])
+      assert.notEqual(
+        finalState(f.statuses, RUN_HEAD, context),
+        'success',
+        `${order}: ${context}`,
+      );
+  }
+});
+
+for (const context of ['CI Budget Raise Approval', 'Lint and Test']) {
+  test(`verify of ${context} success rechecks the other PR sharing the SHA`, async () => {
+    const f = sharedHeadApprovals();
+    const write = f.github.rest.repos.createCommitStatus;
+    f.github.rest.repos.createCommitStatus = async (status) => {
+      const response = await write(status);
+      if (status.context === context && status.state === 'success')
+        f.fixtures[0].pull.labels = f.fixtures[0].pull.labels.filter(
+          (label) => label.name !== BUDGET_RAISE_LABEL,
+        );
+      return response;
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 2,
+    });
+    assert.equal(result.allowed, false);
+    assert.equal(guardOutcome(2, result).fail, true);
+    assert.equal(finalState(f.statuses, RUN_HEAD, context), 'failure');
+    assert.ok(
+      result.reads.some((read) => read.number === 1 && read.phase === 'verify'),
+    );
+  });
+}
+
+test('associated approval read failures and superseded peer bindings refuse success', async () => {
+  for (const fault of ['read', 'head', 'association']) {
+    const f = sharedHeadApprovals();
+    const get = f.github.rest.pulls.get;
+    const paginate = f.github.paginate;
+    f.github.rest.pulls.get = async (args) => {
+      if (args.pull_number === 1) {
+        if (fault === 'read') throw new Error('Associated PR read unavailable');
+        const response = await get(args);
+        if (fault === 'head') response.data.head.sha = NEW_HEAD;
+        return response;
+      }
+      return get(args);
+    };
+    f.github.paginate = async (method, args) => {
+      if (
+        fault === 'association' &&
+        method === f.github.rest.repos.listPullRequestsAssociatedWithCommit
+      )
+        throw new Error('Association list unavailable');
+      return paginate(method, args);
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 2,
+    });
+    assert.equal(result.allowed, false, fault);
+    assert.equal(guardOutcome(2, result).fail, true, fault);
+    assert.ok(!f.statuses.some((status) => status.state === 'success'), fault);
+  }
+});
+
+test('only open exact-head PRs into this base repository gate a shared SHA', async () => {
+  for (const excluded of ['closed', 'head', 'repository']) {
+    const f = sharedHeadApprovals();
+    const peer = f.fixtures[0].pull;
+    peer.labels = [];
+    if (excluded === 'closed') peer.state = 'closed';
+    if (excluded === 'head') peer.head.sha = NEW_HEAD;
+    if (excluded === 'repository') peer.base.repo.full_name = 'foreign/repo';
+    const get = f.github.rest.pulls.get;
+    f.github.rest.pulls.get = (args) => {
+      assert.notEqual(
+        args.pull_number,
+        1,
+        'Excluded peer must not be evaluated',
+      );
+      return get(args);
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 2,
+    });
+    assert.equal(result.allowed, true, excluded);
+    assert.equal(
+      finalState(f.statuses, RUN_HEAD, 'Lint and Test'),
+      'success',
+      excluded,
+    );
+  }
+});
+
+test('a closed triggering PR cannot override an open peer revocation on the same SHA', async () => {
+  const f = sharedHeadApprovals();
+  f.fixtures[1].pull.state = 'closed';
+  f.fixtures[0].pull.labels = f.fixtures[0].pull.labels.filter(
+    (label) => label.name !== BUDGET_RAISE_LABEL,
+  );
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 2,
+  });
+  assert.equal(result.allowed, false);
+  assert.equal(guardOutcome(2, result).fail, true);
+  assert.ok(!f.statuses.some((status) => status.state === 'success'));
+});
+
+test('associated snapshots stay in the recording log without conflating different PR labels', async () => {
+  const f = sharedHeadApprovals();
+  f.fixtures[0].pull.labels.push({ name: 'peer-only-label' });
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 2,
+  });
+  assert.equal(result.allowed, true);
+  assert.equal(result.labelsChanged, false);
+  assert.ok(
+    result.reads.some(
+      (read) => read.number === 1 && read.labels.includes('peer-only-label'),
+    ),
+  );
+  assert.ok(
+    result.reads.some((read) => read.number === 1 && read.phase === 'verify'),
+  );
+});
+
+test('a failed post-success read is corrected to failure when the status API is available', async () => {
+  const f = approvedRaise();
+  const get = f.github.rest.pulls.get;
+  const write = f.github.rest.repos.createCommitStatus;
+  let successWritten = false;
+  f.github.rest.pulls.get = (args) => {
+    if (successWritten) throw new Error('PR verification unavailable');
+    return get(args);
+  };
+  f.github.rest.repos.createCommitStatus = async (status) => {
+    const response = await write(status);
+    if (status.state === 'success') successWritten = true;
+    return response;
+  };
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.allowed, false);
+  assert.equal(guardOutcome(1, result).fail, true);
+  assert.equal(
+    finalState(f.statuses, RUN_HEAD, 'CI Budget Raise Approval'),
+    'failure',
+  );
+});
+
+test('interruption after an accepted success leaves it until a later completed evaluation', async () => {
+  const f = approvedRaise();
+  const write = f.github.rest.repos.createCommitStatus;
+  f.github.rest.repos.createCommitStatus = async (status) => {
+    const response = await write(status);
+    if (status.state === 'success' && status.context === 'Lint and Test') {
+      f.pull.labels = f.pull.labels.filter(
+        (label) => label.name !== BUDGET_RAISE_LABEL,
+      );
+      throw new Error('Job interrupted before verify');
+    }
+    return response;
+  };
+  await assert.rejects(
+    policy({ github: f.github, owner: 'o', repo: 'r', number: 1 }),
+    /Job interrupted before verify/,
+  );
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'success');
+  f.github.rest.repos.createCommitStatus = write;
+  await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'failure');
+});
+
+test('seeded interleavings: a quiescent current head with any revoked associated PR has no final success', async () => {
+  const random = lcg(338502);
+  let successWrites = 0;
+  let sharedRevocations = 0;
+  let revokedHeads = 0;
+  let overlappingRuns = 0;
+  for (let ordering = 0; ordering < 2000; ordering += 1) {
+    const pair = ordering % 2 === 0;
+    const f = sharedHeadApprovals(pair ? 2 : 1);
+    // Every head budget raises the cap over either possible base. Thus the
+    // independent oracle needs only the label snapshots served by the stub.
+    const originalContent = f.github.rest.repos.getContent;
+    f.github.rest.repos.getContent = async (args) =>
+      args.path === 'config/ci/budgets.json'
+        ? {
+            data: {
+              encoding: 'base64',
+              content: Buffer.from(
+                JSON.stringify(
+                  ['b'.repeat(40), 'e'.repeat(40)].includes(args.ref)
+                    ? f.fixtures[0].budgets.base
+                    : f.fixtures[0].budgets.head,
+                ),
+              ).toString('base64'),
+            },
+          }
+        : originalContent(args);
+    const source = f.github.rest.actions.listWorkflowRuns;
+    f.github.rest.actions.listWorkflowRuns = async (args) => {
+      const result = await source(args);
+      result.data.workflow_runs[0].head_sha = args.head_sha;
+      return result;
+    };
+    const pending = [];
+    const served = [];
+    const completed = [];
+    const errors = [];
+    let active = 0;
+    let nextRun = 0;
+    let overlapped = false;
+    const start = (number) => {
+      const run = nextRun++;
+      const expectedHead = f.fixtures[number - 1].pull.head.sha;
+      active += 1;
+      if (active > 1) overlapped = true;
+      const gate = (kind, call, args) =>
+        new Promise((resolve, reject) => {
+          pending.push({
+            run,
+            kind,
+            state: args?.state,
+            context: args?.context,
+            serve: async () => {
+              try {
+                const result = await call();
+                if (kind === 'pr')
+                  served.push({
+                    run,
+                    number: result.data.number,
+                    head: result.data.head.sha,
+                    base: result.data.base.sha,
+                    labels: JSON.stringify(
+                      result.data.labels.map((label) => label.name).sort(),
+                    ),
+                  });
+                resolve(result);
+              } catch (error) {
+                reject(error);
+              }
+            },
+          });
+        });
+      const originals = new Map();
+      const client = {
+        rest: {},
+        paginate: (method, args) =>
+          gate('paginate', () =>
+            f.github.paginate(originals.get(method), args),
+          ),
+      };
+      for (const [area, methods] of Object.entries(f.github.rest)) {
+        client.rest[area] = {};
+        for (const [method, call] of Object.entries(methods)) {
+          const kind =
+            area === 'pulls' && method === 'get'
+              ? 'pr'
+              : area === 'repos' && method === 'createCommitStatus'
+                ? 'status'
+                : 'api';
+          const wrapped = (args) => gate(kind, () => call(args), args);
+          originals.set(wrapped, call);
+          client.rest[area][method] = wrapped;
+        }
+      }
+      policy({ github: client, owner: 'o', repo: 'r', number, expectedHead })
+        .then(
+          (result) => completed.push({ run, result }),
+          (error) => errors.push(error),
+        )
+        .finally(() => {
+          active -= 1;
+        });
+    };
+    const label = (number, approved) => {
+      const pull = f.fixtures[number - 1].pull;
+      pull.labels = pull.labels.filter(
+        (label) => label.name !== BUDGET_RAISE_LABEL,
+      );
+      if (approved) pull.labels.push({ name: BUDGET_RAISE_LABEL });
+    };
+    const actions = [
+      () => label(1, false),
+      () => label(1, true),
+      () => {
+        f.fixtures[0].pull.head.sha = NEW_HEAD;
+      },
+      () => {
+        f.fixtures[0].pull.head.sha = RUN_HEAD;
+      },
+      () => {
+        f.fixtures[0].pull.base.sha = 'e'.repeat(40);
+      },
+      () => {
+        f.fixtures[0].pull.base.sha = 'b'.repeat(40);
+      },
+    ];
+    for (let i = actions.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(random() * (i + 1));
+      [actions[i], actions[j]] = [actions[j], actions[i]];
+    }
+    // Final event evaluations cover each current PR. Historical SHAs that no
+    // longer head a PR retain the separately disclosed force-push exposure.
+    actions.push(() => {
+      label(1, false);
+      if (pair) {
+        if (ordering % 4 === 0)
+          f.fixtures[1].pull.head.sha = f.fixtures[0].pull.head.sha;
+        label(2, ordering % 3 !== 0);
+      }
+      start(1);
+      if (pair) start(2);
+    });
+    start(pair ? 2 : 1);
+    let steps = 0;
+    while (active || pending.length || actions.length) {
+      await settleMicrotasks();
+      assert.ok(
+        ++steps < 3000,
+        `ordering ${ordering}: scheduler did not drain`,
+      );
+      // One fifth first completes a real success, ensuring the safety sweep
+      // cannot pass just because every evaluation refuses before publishing.
+      // One eighth delays the first run's final success in the transport until
+      // the final event evaluations finish. This deliberately includes stale
+      // success writes landing after a newer revocation failure, with the
+      // remaining API reads/start times still chosen by the seeded scheduler.
+      const delayed = (item) =>
+        ordering % 8 === 0 &&
+        item.run === 0 &&
+        item.kind === 'status' &&
+        item.state === 'success' &&
+        item.context === 'Lint and Test';
+      const holdSuccess =
+        actions.length > 0 || completed.length < f.fixtures.length;
+      const eligible = pending
+        .map((item, index) => ({ item, index }))
+        .filter(({ item }) => !(holdSuccess && delayed(item)));
+      const allowMutation =
+        (ordering % 5 !== 0 && ordering % 8 !== 0) ||
+        completed.length > 0 ||
+        pending.some(delayed);
+      if (
+        actions.length &&
+        (!eligible.length || (allowMutation && random() < 0.14))
+      ) {
+        actions.shift()();
+      } else if (eligible.length) {
+        const { index } = eligible[Math.floor(random() * eligible.length)];
+        const [item] = pending.splice(index, 1);
+        await item.serve();
+      }
+    }
+    assert.deepEqual(errors, [], `ordering ${ordering}`);
+    for (const { run, result } of completed) {
+      assert.deepEqual(
+        result.reads.map(({ number, head, base, labels }) => ({
+          number,
+          head,
+          base,
+          labels,
+        })),
+        served
+          .filter((read) => read.run === run)
+          .map(({ number, head, base, labels }) => ({
+            number,
+            head,
+            base,
+            labels,
+          })),
+        `ordering ${ordering}, run ${run}: incomplete recording client`,
+      );
+    }
+    // Oracle: only snapshots served by the stub and actual status writes. No
+    // allowed/evidence/guardOutcome field from the implementation decides it.
+    const latest = new Map(served.map((read) => [read.number, read]));
+    const heads = new Set(
+      [...latest.values()]
+        .filter((read) => !JSON.parse(read.labels).includes(BUDGET_RAISE_LABEL))
+        .map((read) => read.head),
+    );
+    for (const head of heads) {
+      revokedHeads += 1;
+      for (const context of ['Lint and Test', 'CI Budget Raise Approval'])
+        assert.notEqual(
+          finalState(f.statuses, head, context),
+          'success',
+          `ordering ${ordering}: revoked ${head}, ${context}`,
+        );
+    }
+    if (
+      pair &&
+      new Set([...latest.values()].map((read) => read.head)).size === 1
+    )
+      sharedRevocations += 1;
+    if (overlapped) overlappingRuns += 1;
+    successWrites += f.statuses.filter(
+      (status) => status.state === 'success',
+    ).length;
+  }
+  assert.ok(successWrites >= 500, `success path floor: ${successWrites}`);
+  assert.ok(sharedRevocations >= 500, `shared-SHA floor: ${sharedRevocations}`);
+  assert.ok(overlappingRuns >= 1000, `overlap floor: ${overlappingRuns}`);
+  assert.ok(revokedHeads >= 2000, `revocation floor: ${revokedHeads}`);
+  process.stdout.write(
+    `Interleave sweep: 2000 orderings, ${successWrites} success writes, ${sharedRevocations} shared-SHA revocations, ${overlappingRuns} overlapping runs, ${revokedHeads} revoked current heads\n`,
+  );
 });

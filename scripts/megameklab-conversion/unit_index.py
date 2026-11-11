@@ -31,18 +31,11 @@ _UNITS_ROOT = _REPO_ROOT / "public" / "data" / "units"
 
 DEFAULT_FAMILIES = ("vehicles", "aerospace", "capital", "infantry", "battlearmor")
 ALLOWED_FAMILIES = (*DEFAULT_FAMILIES, "protomechs")
-# Files in a units tree that are not units. The one owner of this list;
-# run_schema_validation_only.py imports it.
-NON_UNIT_FILES = frozenset({"index.json", "units-manifest.json"})
-# Pre-ingest samples remain at their existing paths for fixture consumers.
-LEGACY_FIXTURES = {
-    "battlearmor": frozenset({
-        "clan-sylph-sqd5.json", "elemental-standard-sqd5.json", "is-cavalier-sqd4.json",
-    }),
-    "infantry": frozenset({
-        "foot-rifle-platoon.json", "jump-srm-platoon.json", "mechanized-tracked-platoon.json",
-    }),
-}
+# Shared with the Node catalog reader so CI identity joins need no Python.
+# Preserve these exports for the generator and schema-validation consumers.
+_INDEX_RULES = json.loads((Path(__file__).parent / "unit-index-rules.json").read_text(encoding="utf-8"))
+NON_UNIT_FILES = frozenset(_INDEX_RULES["nonUnits"])
+LEGACY_FIXTURES = {family: frozenset(files) for family, files in _INDEX_RULES["fixtures"].items()}
 
 # The one owner of the index file shape. mtf_converter.generate_index (the
 # BattleMech index) uses these too; family indexes add `unitType` after `model`.

@@ -549,7 +549,9 @@ describe('POST /api/replay-library/quick', () => {
         createMockResponse(),
       );
       const repaired = JSON.parse(await fs.readFile(indexPath, 'utf8'));
-      expect(repaired).toEqual([{ ...entry, turns: 3, bvTotal: bvTotal ?? 0 }]);
+      expect(repaired).toEqual([
+        { ...entry, turns: 3, bvTotal: bvTotal ?? null },
+      ]);
       expect(await fs.readFile(replayPath, 'utf8')).toBe(originalBytes);
       expect(mockedPersistQuickGame).not.toHaveBeenCalled();
     },

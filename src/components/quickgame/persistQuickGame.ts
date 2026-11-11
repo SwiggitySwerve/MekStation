@@ -29,14 +29,10 @@ import type { IQuickReplayManifestEntry } from '@/replay-library/types';
 import {
   isReplayBvTotal,
   replayBvTotal,
+  stampReplayBvTotal,
   replayTurnCount,
 } from '@/replay-library/eventMetadata';
-import {
-  GameSide,
-  ReplaySource,
-  type IGameCreatedPayload,
-  type IGameEvent,
-} from '@/types/gameplay';
+import { GameSide, ReplaySource, type IGameEvent } from '@/types/gameplay';
 import { serializeEvent } from '@/utils/gameplay/gameEvents/serialization';
 
 /**
@@ -117,13 +113,7 @@ function stampQuickReplaySource(
       event.replaySource === undefined
         ? { ...event, replaySource: ReplaySource.Quick }
         : event;
-    if (event.type !== 'game_created' || !isReplayBvTotal(bvTotal))
-      return stamped;
-    const payload = event.payload as IGameCreatedPayload;
-    return {
-      ...stamped,
-      payload: { ...payload, quickMeta: { ...payload.quickMeta, bvTotal } },
-    };
+    return stampReplayBvTotal(stamped, bvTotal);
   });
 }
 
@@ -156,7 +146,7 @@ export function buildQuickManifestEntry(
   const bvTotal = isReplayBvTotal(input.bvTotal)
     ? input.bvTotal
     : (replayBvTotal(events.find((event) => event.type === 'game_created')) ??
-      0);
+      null);
 
   return {
     id: gameId,

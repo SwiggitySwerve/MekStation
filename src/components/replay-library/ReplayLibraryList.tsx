@@ -66,7 +66,9 @@ export function ReplayRow({
         </div>
         <div>
           <span className="text-text-theme-muted block">BV total</span>
-          <span data-testid="replay-bv-total">{entry.bvTotal}</span>
+          <span data-testid="replay-bv-total">
+            {entry.bvTotal === null ? 'not recorded' : entry.bvTotal}
+          </span>
         </div>
       </div>
 

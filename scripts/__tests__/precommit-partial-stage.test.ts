@@ -4,6 +4,9 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { copyHookScripts } from './support/hook-scripts';
+import { spawnHookShell } from './support/spawn-hook-shell';
+
 // lint-staged (16.2.7, 17.6.0) builds the path of its unstaged-changes patch
 // from path.relative(topLevel, gitDir) (lib/resolveGitRepo.js:56-57). When the
 // worktree and its git dir are on different drives that path is absolute, the
@@ -111,16 +114,7 @@ function fixture(options: {
       },
     }),
   );
-  fs.mkdirSync(path.join(cwd, 'scripts/lib'), { recursive: true });
-  for (const script of [
-    'check-partial-stage.mjs',
-    'check-staged-parents.mjs',
-  ]) {
-    fs.copyFileSync(
-      path.join(repoRoot, 'scripts/lib', script),
-      path.join(cwd, 'scripts/lib', script),
-    );
-  }
+  copyHookScripts(cwd);
   // Only the npx launcher is local; it runs the installed lint-staged CLI.
   fs.mkdirSync(path.join(cwd, 'bin'));
   fs.writeFileSync(
@@ -149,8 +143,7 @@ function runHook(
 ): IHookRun {
   const hook = path.join(tempDir(os.tmpdir(), 'precommit-hook-'), 'pre-commit');
   fs.writeFileSync(hook, hookText);
-  const result = spawnSync(
-    'sh',
+  const result = spawnHookShell(
     [
       '-c',
       `if [ "$2" = 1 ]; then export ${SEAM}=1; fi; ` +

@@ -125,6 +125,14 @@ interface IDeltaReport {
   byFamily: Record<string, IGroupSummary>;
   rows: IDeltaRow[];
 }
+/**
+ * Nightly rule: integer BV totals must match exactly (compareFigures); finite
+ * aggregates/sub-terms use this relative tolerance through aggregateDelta.
+ * Evidence: Mad Cat Mk II 6 armor-map traversal and Vulpes VLP-1DX 'Beast'
+ * critical-location/mount traversal change sub-terms by 1 ulp; both observed
+ * integer totals remain exact.
+ * Preserve catalog/slot order; do not round or reorder inputs to hide the drift.
+ */
 export const AGGREGATE_REL_TOLERANCE = 1e-9;
 /** The Java trace keys each weapon by entity equipment index and internal name
  * ("weapon."+getEquipmentNum+"."+getLocationAbbr+"."+getInternalName). Neither

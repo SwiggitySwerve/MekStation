@@ -119,12 +119,12 @@ function runHook(isolated, childExit = 0) {
       : `#!/bin/sh\nshift\nexec "${process.execPath.replaceAll('\\', '/')}" "${lintStagedCli.replaceAll('\\', '/')}" "$@"\n`,
     { mode: 0o755 },
   );
-  // The hook runs both guard scripts from the fixture's own tree.
+  // The hook runs its scripts (scripts/lib/hook-scripts.json) from the fixture's own tree.
   mkdirSync(resolve(isolated.cwd, 'scripts/lib'), { recursive: true });
-  for (const guard of [
-    'scripts/lib/check-partial-stage.mjs',
-    'scripts/lib/check-staged-parents.mjs',
-  ])
+  const hookScripts = JSON.parse(
+    readFileSync(resolve(root, 'scripts/lib/hook-scripts.json'), 'utf8'),
+  ).scripts;
+  for (const guard of hookScripts.map((script) => `scripts/lib/${script}`))
     writeFileSync(
       resolve(isolated.cwd, guard),
       readFileSync(resolve(root, guard)),

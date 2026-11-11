@@ -122,7 +122,11 @@ test('main validator rejects the live PR count raise despite unchanged side-chec
       number: 42,
       user: { id: 2, login: 'contributor' },
       head: { sha: 'a'.repeat(40) },
-      base: { sha: 'b'.repeat(40) },
+      base: {
+        sha: 'b'.repeat(40),
+        ref: 'main',
+        repo: { full_name: 'owner/repo' },
+      },
       labels: [],
     };
     const reads = [];
