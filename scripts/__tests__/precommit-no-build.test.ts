@@ -56,11 +56,12 @@ describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
   // Fixtures that run the real hook copy the scripts in hook-scripts.json; a
   // hook script missing there breaks every such fixture (#3375 broke main so).
   it('lists every scripts/lib script the hook runs in hook-scripts.json', () => {
-    const used = [
-      ...fs
-        .readFileSync(hookPath, 'utf8')
-        .matchAll(/node scripts\/lib\/([\w.-]+\.mjs)/g),
-    ].map((match) => match[1]);
+    // Any spelling on a command line (quoted, with node flags) counts.
+    const used = hookCommandLines().flatMap((line) =>
+      [...line.matchAll(/scripts\/lib\/([\w.-]+\.mjs)/g)].map(
+        (match) => match[1],
+      ),
+    );
     expect(used.length).toBeGreaterThan(0);
     expect([...new Set(used)].sort()).toEqual([...hookScripts()].sort());
   });
@@ -77,8 +78,8 @@ describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
     const detect = at(
       /^ts_staged=\$\(node scripts\/lib\/staged-typescript\.mjs\) \|\| exit \$\?$/,
     );
-    const gate = at(/^if \[ "\$ts_staged" = yes \]; then$/);
-    const typecheck = at(/^npm run typecheck \|\| exit \$\?$/);
+    const gate = at(/^case "\$ts_staged" in$/);
+    const typecheck = at(/^yes\) npm run typecheck \|\| exit \$\? ;;$/);
     expect(
       [partial, lintStaged, parents, detect, gate, typecheck].every(
         (i) => i >= 0,
@@ -94,7 +95,7 @@ describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
     expect(lines.filter((line) => /npm run typecheck/.test(line))).toHaveLength(
       1,
     );
-    expect(lines.at(-1)).toBe('fi');
+    expect(lines.at(-1)).toBe('esac');
   });
 });
 

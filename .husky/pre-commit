@@ -30,8 +30,14 @@ node scripts/lib/check-staged-parents.mjs || exit $?
 # hunks back, so for a partially staged .ts file it checks the working tree, not
 # the staged-only content; hosted Static Checks typechecks the commit itself.
 # staged-typescript.mjs reads git's NUL-delimited list (quoted names can't hide
-# a .ts file) and exits non-zero if git fails.
+# a .ts file) and exits non-zero if git fails. Only `yes` or `no` is accepted:
+# any other answer, including none, refuses the commit.
 ts_staged=$(node scripts/lib/staged-typescript.mjs) || exit $?
-if [ "$ts_staged" = yes ]; then
-  npm run typecheck || exit $?
-fi
+case "$ts_staged" in
+  yes) npm run typecheck || exit $? ;;
+  no) ;;
+  *)
+    echo "pre-commit: staged-typescript.mjs gave no yes/no answer ('$ts_staged'); refusing the commit." >&2
+    exit 1
+    ;;
+esac

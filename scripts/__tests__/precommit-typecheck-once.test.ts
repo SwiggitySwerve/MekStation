@@ -20,7 +20,7 @@ const lintStagedCli = path.join(
   'node_modules/lint-staged/bin/lint-staged.js',
 );
 const OLD_TASK = "bash -c 'npm run typecheck'";
-const HOOK_TYPECHECK = /\n# Typecheck once per commit[\s\S]*?\nfi\n?$/;
+const HOOK_TYPECHECK = /\n# Typecheck once per commit[\s\S]*?\nesac\n?$/;
 const posixPath = (value: string) => value.replaceAll('\\', '/');
 
 const cleanup: string[] = [];
@@ -157,7 +157,8 @@ describe('pre-commit hook typechecks once per commit', () => {
 const OLD_GATE =
   "if git diff --cached --name-only --diff-filter=ACMR | grep -Eq '\\.(ts|tsx)$'; then";
 const NEW_GATE =
-  /ts_staged=\$\(node scripts\/lib\/staged-typescript\.mjs\) \|\| exit \$\?\nif \[ "\$ts_staged" = yes \]; then/;
+  /ts_staged=\$\(node scripts\/lib\/staged-typescript\.mjs\) \|\| exit \$\?\ncase "\$ts_staged" in\n[\s\S]*?\nesac/;
+const OLD_BLOCK = `${OLD_GATE}\n  npm run typecheck || exit $?\nfi`;
 
 describe('pre-commit hook finds staged TypeScript whatever the file name', () => {
   it('typechecks once when the only staged file has a non-ASCII name', () => {
@@ -169,7 +170,7 @@ describe('pre-commit hook finds staged TypeScript whatever the file name', () =>
   it('would catch the old line-output gate (it skips the non-ASCII name)', () => {
     const hook = hookText();
     expect(hook).toMatch(NEW_GATE);
-    const oldHook = hook.replace(NEW_GATE, () => OLD_GATE);
+    const oldHook = hook.replace(NEW_GATE, () => OLD_BLOCK);
     const { status, runs } = runHook(fixture(['src/café.ts']), oldHook);
     expect(status).toBe(0);
     expect(runs).toBe(0);
@@ -187,6 +188,43 @@ describe('pre-commit hook finds staged TypeScript whatever the file name', () =>
       expect(runs).toBe(1);
     },
   );
+
+  // Sol's re-read: any non-answer (a silent helper, a symlinked launch that
+  // skipped main) must refuse the commit, never read as "no TypeScript".
+  it('refuses the commit when the helper gives no yes/no answer', () => {
+    const cwd = fixture(['src/silent.ts']);
+    fs.writeFileSync(
+      path.join(cwd, 'scripts/lib/staged-typescript.mjs'),
+      'process.exit(0);\n',
+    );
+    const { status, runs, output } = runHook(cwd, hookText());
+    expect(status).toBe(1);
+    expect(runs).toBe(0);
+    expect(output).toMatch(/gave no yes\/no answer/);
+  });
+
+  it('answers yes when launched through a symlinked directory', () => {
+    const cwd = fixture(['src/linked.ts']);
+    const link = path.join(cwd, 'linked-lib');
+    // A junction needs no privilege on Windows; elsewhere it is a symlink.
+    fs.symlinkSync(path.join(repoRoot, 'scripts/lib'), link, 'junction');
+    const result = spawnSync(
+      process.execPath,
+      [path.join(link, 'staged-typescript.mjs')],
+      { cwd, encoding: 'utf8' },
+    );
+    expect(result.status).toBe(0);
+    expect(result.stdout).toBe('yes');
+  });
+
+  it("reads git output with the hook readers' 16 MiB limit, not the 1 MiB default", () => {
+    const source = fs.readFileSync(
+      path.join(repoRoot, 'scripts/lib/staged-typescript.mjs'),
+      'utf8',
+    );
+    expect(source).toMatch(/export const GIT_MAX_BUFFER = 16 \* 1024 \* 1024;/);
+    expect(source).toMatch(/maxBuffer: GIT_MAX_BUFFER/);
+  });
 
   it('stops the hook when git fails instead of reading it as no TypeScript', () => {
     const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'precommit-nogit-'));
