@@ -29,6 +29,9 @@ node scripts/lib/check-staged-parents.mjs || exit $?
 # typechecks at once. It runs after lint-staged has put any hidden unstaged
 # hunks back, so for a partially staged .ts file it checks the working tree, not
 # the staged-only content; hosted Static Checks typechecks the commit itself.
-if git diff --cached --name-only --diff-filter=ACMR | grep -Eq '\.(ts|tsx)$'; then
+# staged-typescript.mjs reads git's NUL-delimited list (quoted names can't hide
+# a .ts file) and exits non-zero if git fails.
+ts_staged=$(node scripts/lib/staged-typescript.mjs) || exit $?
+if [ "$ts_staged" = yes ]; then
   npm run typecheck || exit $?
 fi

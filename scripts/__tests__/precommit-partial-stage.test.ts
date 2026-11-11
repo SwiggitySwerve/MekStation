@@ -4,6 +4,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { copyHookScripts } from './support/hook-scripts';
 import { spawnHookShell } from './support/spawn-hook-shell';
 
 // lint-staged (16.2.7, 17.6.0) builds the path of its unstaged-changes patch
@@ -113,16 +114,7 @@ function fixture(options: {
       },
     }),
   );
-  fs.mkdirSync(path.join(cwd, 'scripts/lib'), { recursive: true });
-  for (const script of [
-    'check-partial-stage.mjs',
-    'check-staged-parents.mjs',
-  ]) {
-    fs.copyFileSync(
-      path.join(repoRoot, 'scripts/lib', script),
-      path.join(cwd, 'scripts/lib', script),
-    );
-  }
+  copyHookScripts(cwd);
   // Only the npx launcher is local; it runs the installed lint-staged CLI.
   fs.mkdirSync(path.join(cwd, 'bin'));
   fs.writeFileSync(

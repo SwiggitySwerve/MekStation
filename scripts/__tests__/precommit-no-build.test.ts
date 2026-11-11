@@ -3,6 +3,7 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
+import { copyHookScripts, hookScripts } from './support/hook-scripts';
 import { spawnHookShell } from './support/spawn-hook-shell';
 
 // Pins owner decision OD-precommit-drop-full-build: .husky/pre-commit runs no
@@ -52,6 +53,18 @@ describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
     ).toEqual([]);
   });
 
+  // Fixtures that run the real hook copy the scripts in hook-scripts.json; a
+  // hook script missing there breaks every such fixture (#3375 broke main so).
+  it('lists every scripts/lib script the hook runs in hook-scripts.json', () => {
+    const used = [
+      ...fs
+        .readFileSync(hookPath, 'utf8')
+        .matchAll(/node scripts\/lib\/([\w.-]+\.mjs)/g),
+    ].map((match) => match[1]);
+    expect(used.length).toBeGreaterThan(0);
+    expect([...new Set(used)].sort()).toEqual([...hookScripts()].sort());
+  });
+
   it('runs its steps in order: partial-stage, lint-staged, staged parents, then one typecheck', () => {
     const lines = hookCommandLines().map((line) => line.replace(/^\d+: /, ''));
     const at = (pattern: RegExp) =>
@@ -61,17 +74,21 @@ describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
     const parents = at(
       /^node scripts\/lib\/check-staged-parents\.mjs \|\| exit \$\?$/,
     );
-    const gate = at(
-      /^if git diff --cached --name-only --diff-filter=ACMR \| grep -Eq '\\\.\(ts\|tsx\)\$'; then$/,
+    const detect = at(
+      /^ts_staged=\$\(node scripts\/lib\/staged-typescript\.mjs\) \|\| exit \$\?$/,
     );
+    const gate = at(/^if \[ "\$ts_staged" = yes \]; then$/);
     const typecheck = at(/^npm run typecheck \|\| exit \$\?$/);
     expect(
-      [partial, lintStaged, parents, gate, typecheck].every((i) => i >= 0),
+      [partial, lintStaged, parents, detect, gate, typecheck].every(
+        (i) => i >= 0,
+      ),
     ).toBe(true);
     expect(
       partial < lintStaged &&
         lintStaged < parents &&
-        parents < gate &&
+        parents < detect &&
+        detect < gate &&
         gate < typecheck,
     ).toBe(true);
     expect(lines.filter((line) => /npm run typecheck/.test(line))).toHaveLength(
@@ -129,13 +146,7 @@ describe('pre-commit hook leaves the shared stash stack alone', () => {
         },
       }),
     );
-    fs.mkdirSync(path.join(cwd, 'scripts/lib'), { recursive: true });
-    for (const guard of [
-      'scripts/lib/check-partial-stage.mjs',
-      'scripts/lib/check-staged-parents.mjs',
-    ]) {
-      fs.copyFileSync(path.join(repoRoot, guard), path.join(cwd, guard));
-    }
+    copyHookScripts(cwd);
     // Only the npx launcher is local; it runs the installed lint-staged CLI.
     const bin = path.join(cwd, 'bin');
     fs.mkdirSync(bin);

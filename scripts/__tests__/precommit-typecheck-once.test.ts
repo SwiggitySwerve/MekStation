@@ -2,7 +2,9 @@ import { spawnSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
+import { copyHookScripts } from './support/hook-scripts';
 import { spawnHookShell } from './support/spawn-hook-shell';
 
 // The pre-commit hook typechecks once per commit, outside lint-staged.
@@ -66,16 +68,7 @@ function fixture(files: string[], typecheckTask = false): string {
       },
     }),
   );
-  fs.mkdirSync(path.join(cwd, 'scripts/lib'), { recursive: true });
-  for (const script of [
-    'check-partial-stage.mjs',
-    'check-staged-parents.mjs',
-  ]) {
-    fs.copyFileSync(
-      path.join(repoRoot, 'scripts/lib', script),
-      path.join(cwd, 'scripts/lib', script),
-    );
-  }
+  copyHookScripts(cwd);
   const bin = path.join(cwd, 'bin');
   fs.mkdirSync(bin);
   // The installed lint-staged CLI, with a small argument limit so the staged
@@ -154,5 +147,84 @@ describe('pre-commit hook typechecks once per commit', () => {
     );
     expect(runs).toBe(1);
     expect(status).toBe(3);
+  });
+});
+
+// Sol's read of #3384: git's line output quotes unusual names, so a staged
+// `src/café.ts` arrived as `"src/caf\303\251.ts"` and a `\.ts$` test missed it.
+// The hook now asks scripts/lib/staged-typescript.mjs, which reads the
+// NUL-delimited list and fails loudly when git fails.
+const OLD_GATE =
+  "if git diff --cached --name-only --diff-filter=ACMR | grep -Eq '\\.(ts|tsx)$'; then";
+const NEW_GATE =
+  /ts_staged=\$\(node scripts\/lib\/staged-typescript\.mjs\) \|\| exit \$\?\nif \[ "\$ts_staged" = yes \]; then/;
+
+describe('pre-commit hook finds staged TypeScript whatever the file name', () => {
+  it('typechecks once when the only staged file has a non-ASCII name', () => {
+    const { status, runs } = runHook(fixture(['src/café.ts']), hookText());
+    expect(status).toBe(0);
+    expect(runs).toBe(1);
+  });
+
+  it('would catch the old line-output gate (it skips the non-ASCII name)', () => {
+    const hook = hookText();
+    expect(hook).toMatch(NEW_GATE);
+    const oldHook = hook.replace(NEW_GATE, () => OLD_GATE);
+    const { status, runs } = runHook(fixture(['src/café.ts']), oldHook);
+    expect(status).toBe(0);
+    expect(runs).toBe(0);
+  });
+
+  // Windows file names can't hold a tab; the row runs where they can.
+  (process.platform === 'win32' ? it.skip : it)(
+    'typechecks once when the staged name holds a tab',
+    () => {
+      const { status, runs } = runHook(
+        fixture(['src/tab\tname.ts']),
+        hookText(),
+      );
+      expect(status).toBe(0);
+      expect(runs).toBe(1);
+    },
+  );
+
+  it('stops the hook when git fails instead of reading it as no TypeScript', () => {
+    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'precommit-nogit-'));
+    cleanup.push(cwd);
+    const result = spawnSync(
+      process.execPath,
+      [path.join(repoRoot, 'scripts/lib/staged-typescript.mjs')],
+      { cwd, encoding: 'utf8' },
+    );
+    expect(result.status).not.toBe(0);
+    expect(result.stdout).toBe('');
+    expect(result.stderr).toMatch(/staged-typescript: git diff failed/);
+  });
+
+  it('reads the NUL-delimited list: .ts and .tsx only, any name', () => {
+    // Root Jest does not load ES modules, so the parser runs in a child node.
+    const module = pathToFileURL(
+      path.join(repoRoot, 'scripts/lib/staged-typescript.mjs'),
+    ).href;
+    const stages = (list: string): boolean => {
+      const result = spawnSync(
+        process.execPath,
+        [
+          '--input-type=module',
+          '-e',
+          `import { stagesTypeScript } from ${JSON.stringify(module)};\n` +
+            `process.stdout.write(JSON.stringify(stagesTypeScript(${JSON.stringify(list)})));`,
+        ],
+        { encoding: 'utf8' },
+      );
+      if (result.status !== 0) throw new Error(result.stderr);
+      return JSON.parse(result.stdout);
+    };
+    expect(stages('src/a.ts\0')).toBe(true);
+    expect(stages('docs/b.md\0src/c.tsx\0')).toBe(true);
+    expect(stages('src/café.ts\0')).toBe(true);
+    expect(stages('src/new\nline.ts\0')).toBe(true);
+    expect(stages('src/a.mts\0src/b.d.ts.map\0data/c.json\0')).toBe(false);
+    expect(stages('')).toBe(false);
   });
 });
