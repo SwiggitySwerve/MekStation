@@ -1,8 +1,12 @@
-import { act, renderHook } from '@testing-library/react';
+import type { NextRouter } from 'next/router';
+
+import { act, renderHook, waitFor } from '@testing-library/react';
 import * as Y from 'yjs';
 
 import type { ILoadout } from '@/types/gameplay/GameLobbyInterfaces';
 
+import { modeAvailability } from '@/lib/multiplayer/modeAvailability';
+import { matchLogStorage } from '@/lib/p2p';
 import {
   LOBBY_MAP_NAME,
   LOBBY_STATE_KEY,
@@ -10,8 +14,13 @@ import {
   readLobbyState,
 } from '@/lib/p2p/lobbyChannel';
 import { useLobbySelector, useLobbyStore } from '@/stores/useLobbyStore';
+import { createInitialLobbyState } from '@/types/gameplay/GameLobbyInterfaces';
 
-import { useReopenClosedHostLobby } from '../gameplayLobbyPage.helpers';
+import {
+  useReopenClosedHostLobby,
+  useLaunchedMatchNavigation,
+  launchLobbyMatch,
+} from '../gameplayLobbyPage.helpers';
 
 const mockPromoteLocalPeerToHost = jest.fn();
 
@@ -159,4 +168,131 @@ describe('useReopenClosedHostLobby', () => {
     expect(readLobbyState({ lobbyMap })?.hostLoadout.units).toHaveLength(1);
     expect(mockPromoteLocalPeerToHost).not.toHaveBeenCalled();
   });
+});
+
+const metadataRecord: Awaited<
+  ReturnType<typeof matchLogStorage.upsertMatchMetadata>
+> = {
+  matchId: 'p2p-abcdef',
+  hostPeerId: 'host',
+  guestPeerId: null,
+  status: 'active',
+  lastActivity: '2026-11-11T00:00:00.000Z',
+};
+
+describe('P2P release launch policy', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  const router: NextRouter = {
+    basePath: '',
+    pathname: '/gameplay/lobby/[roomCode]',
+    route: '/gameplay/lobby/[roomCode]',
+    asPath: '/gameplay/lobby/ABCDEF',
+    query: { roomCode: 'ABCDEF' },
+    push: jest.fn().mockResolvedValue(true),
+    replace: jest.fn().mockResolvedValue(true),
+    reload: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    prefetch: jest.fn().mockResolvedValue(undefined),
+    beforePopState: jest.fn(),
+    events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
+    isFallback: false,
+    isReady: true,
+    isLocaleDomain: false,
+    isPreview: false,
+  };
+
+  it('refuses launch at the helper before any channel or session mutation', async () => {
+    const launch = jest.fn();
+    const setSession = jest.fn();
+    await launchLobbyMatch({
+      launch,
+      setSession,
+      lobbyState: createInitialLobbyState('host'),
+      routeRoomCode: 'ABCDEF',
+    });
+    expect(launch).not.toHaveBeenCalled();
+    expect(setSession).not.toHaveBeenCalled();
+  });
+
+  it('restores the helper channel call when the status becomes available', async () => {
+    jest.replaceProperty(modeAvailability.p2p, 'status', 'available');
+    const launch = jest.fn().mockReturnValue(null);
+    await launchLobbyMatch({
+      launch,
+      setSession: jest.fn(),
+      lobbyState: createInitialLobbyState('host'),
+      routeRoomCode: 'ABCDEF',
+    });
+    expect(launch).toHaveBeenCalledWith('p2p-abcdef');
+  });
+
+  it('refuses a launched room broadcast before navigation or session creation', () => {
+    const metadata = jest
+      .spyOn(matchLogStorage, 'upsertMatchMetadata')
+      .mockResolvedValue(metadataRecord);
+    const setSession = jest.fn();
+    jest.mocked(router.push).mockClear();
+    renderHook(() =>
+      useLaunchedMatchNavigation({
+        lobbyState: {
+          ...createInitialLobbyState('host'),
+          matchId: 'p2p-abcdef',
+        },
+        router,
+        setSession,
+      }),
+    );
+    expect(metadata).not.toHaveBeenCalled();
+    expect(router.push).not.toHaveBeenCalled();
+    expect(setSession).not.toHaveBeenCalled();
+  });
+});
+
+it('restores launched navigation when the mode becomes available', async () => {
+  const status = modeAvailability.p2p.status;
+  const metadata = jest
+    .spyOn(matchLogStorage, 'upsertMatchMetadata')
+    .mockResolvedValue(metadataRecord);
+  try {
+    jest.replaceProperty(modeAvailability.p2p, 'status', 'available');
+    const push = jest.fn().mockResolvedValue(true);
+    const router: NextRouter = {
+      basePath: '',
+      pathname: '',
+      route: '',
+      asPath: '',
+      query: {},
+      push,
+      replace: jest.fn().mockResolvedValue(true),
+      reload: jest.fn(),
+      back: jest.fn(),
+      forward: jest.fn(),
+      prefetch: jest.fn().mockResolvedValue(undefined),
+      beforePopState: jest.fn(),
+      events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
+      isFallback: false,
+      isReady: true,
+      isLocaleDomain: false,
+      isPreview: false,
+    };
+    renderHook(() =>
+      useLaunchedMatchNavigation({
+        lobbyState: {
+          ...createInitialLobbyState('host'),
+          matchId: 'p2p-abcdef',
+        },
+        router,
+        setSession: jest.fn(),
+      }),
+    );
+    await waitFor(() =>
+      expect(push).toHaveBeenCalledWith('/gameplay/games/p2p-abcdef'),
+    );
+    expect(metadata).toHaveBeenCalled();
+  } finally {
+    jest.replaceProperty(modeAvailability.p2p, 'status', status);
+    metadata.mockRestore();
+  }
 });

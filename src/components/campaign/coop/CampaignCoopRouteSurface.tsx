@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react';
 /**
  * CampaignCoopRouteSurface — page-level coordinator for the Wave 6.1
  * conditional-render contract (`wire-coop-campaign-route`, Section 2).
@@ -33,8 +34,6 @@
  * @spec openspec/specs/coop-campaign-sync/spec.md
  */
 
-import React, { useMemo } from 'react';
-
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type {
@@ -46,6 +45,7 @@ import type {
   GuestProposalResult,
 } from '@/types/campaign/CoopCampaign';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import {
   campaignRefusalFromServerErrorCode,
   deriveGmLifecyclePosture,
@@ -170,6 +170,7 @@ function buildActionsForRoute(
 // =============================================================================
 
 export interface CampaignCoopRouteSurfaceProps {
+  readonly compactAvailability?: boolean;
   /** The current campaign — drives the co-op gate. */
   readonly campaign: ICampaign | null;
   /** Identifier of the current sub-route. */
@@ -366,6 +367,10 @@ export function CampaignCoopRouteSurface(
     }
     return (
       <div data-testid="campaign-coop-route-surface-host" className="mb-6">
+        <ModeAvailabilityNotice
+          mode="coop"
+          compact={props.compactAvailability}
+        />
         <HostGmReviewSurface
           pending={pendingProposals}
           onDecide={onDecide}
@@ -394,6 +399,10 @@ export function CampaignCoopRouteSurface(
           data-testid="campaign-coop-route-surface-guest-dashboard-banner"
           className="mb-6 rounded-lg border border-sky-700 bg-sky-900/30 p-4 text-sm text-sky-200"
         >
+          <ModeAvailabilityNotice
+            mode="coop"
+            compact={props.compactAvailability}
+          />
           <p>
             You are joined as a guest. Mutation controls on every sub-route
             submit proposals to the host for review instead of mutating campaign
@@ -458,6 +467,10 @@ export function CampaignCoopRouteSurface(
     }
     return (
       <div data-testid="campaign-coop-route-surface-guest" className="mb-6">
+        <ModeAvailabilityNotice
+          mode="coop"
+          compact={props.compactAvailability}
+        />
         <GuestProposalSurface
           api={proposalsApi}
           actions={guestActions}

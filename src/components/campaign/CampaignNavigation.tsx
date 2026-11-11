@@ -28,6 +28,7 @@ import Link from 'next/link';
 
 import type { ICoopSession } from '@/types/campaign/CoopSession';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { canUseCampaignGmControls } from '@/lib/campaign/campaignAuthority';
 import { getCoopMatchId } from '@/lib/campaign/coop/coopRuntimeSession';
 import { CoopCredentialRenewal } from '@/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel';
@@ -312,6 +313,7 @@ export function CampaignNavigation({
           </span>
         ) : null}
       </nav>
+      {coopSession && <ModeAvailabilityNotice mode="coop" />}
     </div>
   );
 }

@@ -1,11 +1,10 @@
+import type { GetServerSideProps } from 'next';
 /**
  * Games List Page
  * Browse active and completed game sessions.
  *
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
-
-import type { GetServerSideProps } from 'next';
 import type { MouseEvent } from 'react';
 
 import Link from 'next/link';
@@ -14,6 +13,7 @@ import { useCallback, useState } from 'react';
 
 import type { MatchLogSummary } from '@/services/matchLog/MatchLogService';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { PageLayout, Card, Button, EmptyState, Badge } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
@@ -119,6 +119,9 @@ function GameCard({ game, onClick }: GameCardProps): React.ReactElement {
       <div className="mb-3 flex items-start justify-between">
         <h3 className="text-text-theme-primary text-lg font-bold">
           {game.name}
+          {game.id.startsWith('p2p-') && (
+            <ModeAvailabilityNotice mode="p2p" compact />
+          )}
         </h3>
         <Badge variant={statusVariant[game.status]} size="sm">
           {game.status}
@@ -259,12 +262,13 @@ export default function GamesListPage({
             <h2 className="text-text-theme-primary text-lg font-semibold">
               Networked 1v1
             </h2>
+            <ModeAvailabilityNotice mode="p2p" />
             <p className="text-text-theme-secondary mt-1 text-sm">
               Create or join a peer-to-peer lobby.
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Button variant="success" onClick={handleCreateNetworked}>
+            <Button variant="primary" onClick={handleCreateNetworked}>
               Create Lobby
             </Button>
             <div className="flex gap-2">

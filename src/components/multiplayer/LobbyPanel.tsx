@@ -1,3 +1,4 @@
+import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 /**
  * LobbyPanel — full lobby view: seats grouped by side + host controls.
  *
@@ -14,11 +15,10 @@
  *   - Disable Launch when `canLaunch` is false (every seat must be
  *     ai-ready or human+occupant+ready)
  */
-
-import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 import type { ILobbyUpdated } from '@/types/multiplayer/Protocol';
 import type { IIntentPayload } from '@/types/multiplayer/Protocol';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { canLaunch } from '@/lib/multiplayer/server/lobby/lobbyStateMachine';
 
 import { SeatRow } from './SeatRow';
@@ -28,6 +28,7 @@ import { SeatRow } from './SeatRow';
 // =============================================================================
 
 export interface ILobbyPanelProps {
+  readonly compactAvailability?: boolean;
   readonly lobbyState: ILobbyUpdated;
   readonly myPlayerId: string;
   readonly onIntent: (intent: IIntentPayload) => void;
@@ -97,6 +98,10 @@ export function LobbyPanel(props: ILobbyPanelProps): React.ReactElement {
       {/* Match info banner */}
       <div className="border-border-theme bg-surface-deep flex items-center justify-between rounded-lg border p-4">
         <div>
+          <ModeAvailabilityNotice
+            mode="hosted"
+            compact={props.compactAvailability}
+          />
           <h2 className="text-text-theme-primary text-lg font-semibold">
             Lobby — {lobbyState.matchId.slice(0, 8)}
           </h2>

@@ -1,3 +1,4 @@
+import Head from 'next/head';
 /**
  * Game Session Page
  * Main gameplay interface for an active game session.
@@ -5,8 +6,6 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  * @spec openspec/changes/add-movement-phase-ui/specs/tactical-map-interface/spec.md
  */
-
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
 
@@ -24,6 +23,7 @@ import {
   GameLoading,
 } from '@/components/gameplay/pages/GameSessionPage.states';
 import { SpectatorView } from '@/components/gameplay/SpectatorView';
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { usePhaseQueueProjection } from '@/hooks/gameplay';
 import { useP2PCommandGate } from '@/hooks/useP2PCommandGate';
 import {
@@ -329,6 +329,7 @@ export default function GameSessionPage(): React.ReactElement {
         className="flex h-full flex-col overflow-hidden"
         data-testid="game-session"
       >
+        {session.id.startsWith('p2p-') && <ModeAvailabilityNotice mode="p2p" />}
         <div className="flex-1 overflow-hidden">
           <GameplayLayout
             session={session}

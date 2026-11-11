@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import {
   SyncStatusIndicator,
   PeerList,
@@ -52,7 +53,7 @@ export function P2PSyncSettings({
     <SettingsSection
       id="p2p-sync"
       title="P2P Sync"
-      description="Real-time peer-to-peer synchronization for collaborative play"
+      description="Share vault items with peers"
       isExpanded={isExpanded}
       onToggle={onToggle}
       onRef={onRef}
@@ -178,8 +179,10 @@ export function P2PSyncSettings({
       )}
 
       <div className="border-border-theme-subtle border-t pt-4">
+        <h3 className="font-medium">Peer-to-Peer Matches</h3>
+        <ModeAvailabilityNotice mode="p2p" />
         <div className="text-text-theme-primary mb-2 text-sm font-medium">
-          How P2P Sync Works
+          How Vault Sharing Works
         </div>
         <ul className="text-text-theme-secondary space-y-2 text-xs">
           <li className="flex items-start gap-2">

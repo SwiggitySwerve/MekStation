@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { Card } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
 
@@ -134,11 +135,12 @@ export function ModeSelection({
                 </SvgIcon>
               </div>
               <h3 className="text-text-theme-primary mb-1 font-medium">
-                Networked 1v1
+                Networked 1v1 <ModeAvailabilityNotice mode="p2p" compact />
               </h3>
+              <ModeAvailabilityNotice mode="p2p" />
               <p className="text-text-theme-muted text-sm">
                 {networked1v1DisabledReason ??
-                  'Open a peer-to-peer lobby and battle a friend over the network.'}
+                  'Open a peer-to-peer lobby to choose units.'}
               </p>
             </button>
           )}

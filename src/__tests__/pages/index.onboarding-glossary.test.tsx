@@ -1,9 +1,30 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
+import { modeAvailability } from '@/lib/multiplayer/modeAvailability';
 import HomePage from '@/pages/index';
 
 describe('HomePage onboarding entry', () => {
+  afterEach(() => jest.restoreAllMocks());
+  it.each(['preview', 'available'] as const)(
+    'shows dashboard multiplayer availability for %s',
+    async (status) => {
+      for (const entry of Object.values(modeAvailability))
+        jest.replaceProperty(entry, 'status', status);
+      render(<HomePage />);
+      expect(
+        screen.getByText(
+          /Start quick games, campaigns, encounters, and multiplayer/,
+        ).textContent,
+      ).toBe(
+        `Start quick games, campaigns, encounters, and multiplayer${status === 'available' ? '' : ' (Preview)'}`,
+      );
+      await waitFor(() =>
+        expect(screen.getByText('3,025')).toBeInTheDocument(),
+      );
+    },
+  );
+
   beforeEach(() => {
     (globalThis as unknown as { fetch: jest.Mock }).fetch = jest.fn(
       async (url: string) => {

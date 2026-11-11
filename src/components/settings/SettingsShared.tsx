@@ -183,6 +183,7 @@ export function Toggle({
       <button
         type="button"
         role="switch"
+        aria-label={label}
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={`focus:ring-accent focus:ring-offset-surface-base relative h-7 w-12 flex-shrink-0 cursor-pointer rounded-md border-2 transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-offset-2 focus:outline-none ${

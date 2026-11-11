@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 
 import { GameplayLobbyPanel } from '@/components/gameplay/lobby';
 import { useToast } from '@/components/shared/Toast';
+import { isModeLaunchDisabled } from '@/lib/multiplayer/modeAvailability';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { useSyncRoomSelector } from '@/lib/p2p/useSyncRoomStore';
 import {
@@ -143,6 +144,7 @@ export default function GameplayLobbyPage(): React.ReactElement {
         onReadyChange={setLocalReady}
         onHostSideChange={setHostSide}
         onLaunch={() => {
+          if (isModeLaunchDisabled('p2p')) return;
           void launchLobbyMatch({
             launch,
             lobbyState,

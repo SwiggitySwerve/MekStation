@@ -89,8 +89,7 @@ export const SECTIONS: SectionConfig[] = [
   {
     id: 'p2p-sync',
     title: 'P2P Sync',
-    description:
-      'Real-time peer-to-peer synchronization for collaborative play',
+    description: 'Share vault items with peers',
     icon: (
       <SvgIcon
         size="inline"

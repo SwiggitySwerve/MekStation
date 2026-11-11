@@ -17,7 +17,9 @@ import type {
 import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
 import type { ICustomUnitIndexEntry } from '@/types/persistence/UnitPersistence';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { buildSeededGameSessionFromLobbyState } from '@/engine/combatSeedDerivation';
+import { isModeLaunchDisabled } from '@/lib/multiplayer/modeAvailability';
 import {
   createLobbyChannel,
   getGameSessionAwarenessStates,
@@ -47,6 +49,7 @@ export function LobbyShell({
       >
         Back to games
       </Link>
+      <ModeAvailabilityNotice mode="p2p" />
       <p className="border-border-theme-subtle bg-surface-deep mt-6 rounded-lg border p-4">
         {children}
       </p>
@@ -304,7 +307,7 @@ export function useLaunchedMatchNavigation({
   readonly setSession: (session: IGameSession) => void;
 }): void {
   useEffect(() => {
-    if (!lobbyState?.matchId) return;
+    if (!lobbyState?.matchId || isModeLaunchDisabled('p2p')) return;
     const matchId = lobbyState.matchId;
     void matchLogStorage
       .upsertMatchMetadata({
@@ -356,6 +359,7 @@ export async function launchLobbyMatch({
   readonly routeRoomCode: string;
   readonly setSession: (session: IGameSession) => void;
 }): Promise<void> {
+  if (isModeLaunchDisabled('p2p')) return;
   const matchId = lobbyState.matchId ?? `p2p-${routeRoomCode.toLowerCase()}`;
   const result = launch(matchId);
   if (result?.ok && result.state) {

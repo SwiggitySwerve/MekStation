@@ -1,3 +1,4 @@
+import React, { useCallback, useMemo, useState } from 'react';
 /**
  * NetworkedGameSurface — the playable client surface for a launched
  * networked match.
@@ -19,8 +20,6 @@
  * @spec openspec/changes/complete-multiplayer-game-surface/specs/multiplayer-game-surface/spec.md
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
-
 import type {
   IMatchClosedInfo,
   IMatchPausedInfo,
@@ -40,6 +39,7 @@ import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 
 import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay/HexMapDisplay';
 import { PhaseBanner } from '@/components/gameplay/PhaseBanner';
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { deriveHexMapStateFromEvents } from '@/hooks/replay/useHexMapStateFromEvents';
 import {
   buildNetworkedTacticalAuthorityProjection,
@@ -87,6 +87,7 @@ import { TacticalLifecycleStateBanner } from './TacticalLifecycleStateBanner';
 // =============================================================================
 
 export interface INetworkedGameSurfaceProps {
+  readonly compactAvailability?: boolean;
   /** Read-only client mirror session; `null` until the seed event lands. */
   readonly mirrorSession: IGameSession | null;
   /** Ordered `IGameEvent[]` the mirror was built from (animations/effects). */
@@ -174,6 +175,7 @@ export interface INetworkedGameSurfaceProps {
  */
 export function NetworkedGameSurface({
   mirrorSession,
+  compactAvailability,
   mirrorEvents,
   seats,
   playerId,
@@ -347,6 +349,7 @@ export function NetworkedGameSurface({
       data-testid="networked-game-surface"
       className="relative flex flex-col gap-3"
     >
+      <ModeAvailabilityNotice mode="hosted" compact={compactAvailability} />
       <PhaseBanner
         phase={state.phase}
         turn={state.turn}

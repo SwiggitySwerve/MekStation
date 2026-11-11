@@ -1,3 +1,5 @@
+import { render, screen, within } from '@testing-library/react';
+import { axe } from 'jest-axe';
 /**
  * Campaign Navigation — Bays group tests
  *
@@ -7,10 +9,9 @@
  *
  * @spec openspec/changes/add-campaign-bay-ui/specs/campaign-bay-ui/spec.md
  */
-
-import { render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+import { modeAvailability } from '@/lib/multiplayer/modeAvailability';
 import {
   createGuestCoopSession,
   createHostCoopSession,
@@ -186,4 +187,41 @@ describe('CampaignNavigation — Command group', () => {
       within(commandGroup).getByRole('link', { name: 'GM Ledger' }),
     ).toHaveAttribute('aria-current', 'page');
   });
+});
+
+describe('co-op navigation availability', () => {
+  afterEach(() => jest.restoreAllMocks());
+  it.each(['preview', 'available'] as const)(
+    'discloses a %s co-op campaign',
+    (status) => {
+      jest.replaceProperty(modeAvailability.coop, 'status', status);
+      render(
+        <CampaignNavigation
+          campaignId="campaign-1"
+          currentPage="missions"
+          coopSession={createHostCoopSession('ABCDEF', 'match-host')}
+        />,
+      );
+      if (status === 'available')
+        expect(
+          screen.queryByText(modeAvailability.coop.sentence),
+        ).not.toBeInTheDocument();
+      else
+        expect(screen.getByText(modeAvailability.coop.sentence)).toBeVisible();
+      expect(screen.getByTestId('coop-session-badge')).toHaveTextContent(
+        'Host',
+      );
+    },
+  );
+});
+
+it('keeps co-op navigation notices accessible', async () => {
+  const { container } = render(
+    <CampaignNavigation
+      campaignId="campaign-1"
+      currentPage="missions"
+      coopSession={createHostCoopSession('ABCDEF', 'match-host')}
+    />,
+  );
+  expect((await axe(container)).violations).toEqual([]);
 });
