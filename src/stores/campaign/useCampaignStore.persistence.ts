@@ -16,7 +16,10 @@ import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
 import type { IForce } from '@/types/campaign/Force';
 import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
-import type { ILegacyCombatStateFlag } from '@/types/campaign/LegacyCombatStateMigration';
+import type {
+  ILegacyCombatStateFlag,
+  IUnappliedDeltaQuarantineRecord,
+} from '@/types/campaign/LegacyCombatStateMigration';
 import type { ILoan } from '@/types/campaign/Loan';
 import type {
   IPersonnelMarketOffer,
@@ -144,6 +147,8 @@ export interface SerializedCampaignState {
   battleUnitManifests?: Readonly<Record<string, IPendingBattleUnitManifest>>;
   /** Legacy session-keyed combat states awaiting the user's review. */
   legacyCombatStateFlags?: readonly ILegacyCombatStateFlag[];
+  /** Unapplied legacy deltas awaiting a confirmed quarantine write. */
+  pendingQuarantineRecords?: readonly IUnappliedDeltaQuarantineRecord[];
   /**
    * Campaign command-tier loan ledger (`ICampaignCommandExtensions.loans`,
    * CP2b design D4). Before the D-1 fix a reload kept the borrowed cash
@@ -318,6 +323,7 @@ export function serializeCampaign(
     timeCascadeEvents: campaign.timeCascadeEvents,
     battleUnitManifests: campaign.battleUnitManifests,
     legacyCombatStateFlags: campaign.legacyCombatStateFlags,
+    pendingQuarantineRecords: campaign.pendingQuarantineRecords,
     recentlyAppliedOutcomes: campaign.recentlyAppliedOutcomes,
     // D-1 fix: the command-tier loan ledger. The borrowed cash is already
     // persisted as a finances transaction; the debt must travel with it.
@@ -419,6 +425,7 @@ export function deserializeCampaign(
     timeCascadeEvents: serialized.timeCascadeEvents,
     battleUnitManifests: serialized.battleUnitManifests,
     legacyCombatStateFlags: serialized.legacyCombatStateFlags,
+    pendingQuarantineRecords: serialized.pendingQuarantineRecords,
     // Old saves have no `appliedOn` (their `capturedAt` is a wall-clock
     // instant, not a campaign date): stamp the loaded campaign's date.
     recentlyAppliedOutcomes: stampMissingAppliedOn(

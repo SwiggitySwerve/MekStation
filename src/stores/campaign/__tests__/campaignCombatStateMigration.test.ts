@@ -109,41 +109,6 @@ describe('ensureCampaignCombatStateMigration', () => {
     expect(useCampaignStore().getState().activityLog).toEqual([]);
   });
 
-  it('R3: re-quarantines a flagged unapplied delta from the retained outcome on load', async () => {
-    const campaign = seedLegacyCampaign();
-    const outcome = campaign.recentlyAppliedOutcomes![0];
-    const delta = outcome.unitDeltas[0];
-    const flag = {
-      kind: 'unapplied-delta' as const,
-      sessionUnitId: delta.unitId,
-      reason: 'ambiguous-roster-unit' as const,
-      candidateRosterUnitIds: [],
-      matchIds: [outcome.matchId],
-    };
-    useCampaignStore().setState({
-      campaign: {
-        ...campaign,
-        unitCombatStates: {},
-        legacyCombatStateFlags: [flag],
-      },
-    });
-    const quarantine: ILegacyCombatStateQuarantineStore = {
-      get: jest.fn(),
-      put: jest.fn(async () => {}),
-    };
-    await ensureCampaignCombatStateMigration(quarantine);
-    expect(quarantine.put).toHaveBeenCalledWith(campaign.id, [
-      {
-        source: 'unapplied-delta',
-        campaignId: campaign.id,
-        sessionUnitId: delta.unitId,
-        matchId: outcome.matchId,
-        delta,
-        flag,
-      },
-    ]);
-  });
-
   it('leaves a co-op guest replica to its host', async () => {
     const campaign = seedLegacyCampaign();
     useCampaignStore().setState({

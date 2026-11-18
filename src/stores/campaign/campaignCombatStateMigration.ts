@@ -12,7 +12,7 @@ import type { ILegacyCombatStateQuarantineStore } from '@/services/persistence/l
 
 import { campaignDaysBetween } from '@/lib/campaign/campaignCalendar';
 import { migrateSessionKeyedCombatStates } from '@/lib/campaign/migrateSessionKeyedCombatStates';
-import { unappliedDeltaRecordsFor } from '@/lib/campaign/quarantineUnappliedDeltas';
+import { writePendingQuarantineRecords } from '@/lib/campaign/quarantineUnappliedDeltas';
 import { createIndexedDbLegacyCombatStateQuarantineStore } from '@/services/persistence/legacyCombatStateQuarantineStore';
 import { logger } from '@/utils/logger';
 
@@ -42,19 +42,26 @@ async function migrateLiveCampaign(
   // The live campaign through the same seam the persistence store installs
   // it with.
   const store = getCampaignStoreForRoster();
-  const campaign = store?.getState().campaign;
-  if (!store || !campaign) return;
+  const loaded = store?.getState().campaign;
+  if (!store || !loaded) return;
   // A co-op guest holds a replica; its host migrates and the result syncs.
-  if (campaign.coopSession?.mode === 'guest') return;
+  if (loaded.coopSession?.mode === 'guest') return;
+
+  // N3: unapplied deltas whose quarantine write was never confirmed are
+  // still carried by the payload; write them now and release them once
+  // the write resolves (a failure warns and keeps them pending).
+  await writePendingQuarantineRecords(
+    loaded.id,
+    loaded.pendingQuarantineRecords ?? [],
+    quarantine,
+  );
+
+  // Releasing pending records is an edit: migrate the campaign as it is now.
+  const campaign = store.getState().campaign;
+  if (!campaign || campaign.id !== loaded.id) return;
   const roster = useCampaignRosterStore.getState();
   // Mapping needs this campaign's roster; without it nothing is decided.
   if (roster.campaignId !== campaign.id) return;
-
-  // R3: deltas the apply flagged and quarantined fire-and-forget are
-  // re-quarantined from the retained outcomes on every load (deduplicated),
-  // so a failed write at apply time is repaired here.
-  const unapplied = unappliedDeltaRecordsFor(campaign);
-  if (unapplied.length > 0) await quarantine.put(campaign.id, unapplied);
 
   const migratedAt = new Date().toISOString();
   const migration = migrateSessionKeyedCombatStates({

@@ -36,7 +36,10 @@ import type { ICoopSession } from './CoopSession';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
 import type { IForce } from './Force';
 import type { IDailyBattleAuditEntry } from './IDailyBattleAuditEntry';
-import type { ILegacyCombatStateFlag } from './LegacyCombatStateMigration';
+import type {
+  ILegacyCombatStateFlag,
+  IUnappliedDeltaQuarantineRecord,
+} from './LegacyCombatStateMigration';
 import type {
   IPersonnelMarketOffer,
   IUnitMarketOffer,
@@ -207,6 +210,8 @@ export interface SerializedCampaignBody {
   >;
   /** Legacy session-keyed combat states awaiting the user's review. */
   readonly legacyCombatStateFlags?: readonly ILegacyCombatStateFlag[];
+  /** Unapplied legacy deltas awaiting a confirmed quarantine write. */
+  readonly pendingQuarantineRecords?: readonly IUnappliedDeltaQuarantineRecord[];
   readonly gmInterventionEvents?: readonly IGmCampaignProjectedEffect[];
   readonly timeCascadeEvents?: readonly IGmTimeCascadeProjectedEffect[];
   readonly recentlyAppliedOutcomes?: readonly IAppliedCombatOutcome[];

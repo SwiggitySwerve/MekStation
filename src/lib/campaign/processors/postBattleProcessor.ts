@@ -26,8 +26,7 @@ import { DayPhase, type IDayEvent } from '../dayPipeline';
 import { applyOutcomePrestige } from '../prestige/applyOutcomePrestige';
 import {
   quarantineUnappliedDeltas,
-  unappliedDeltaFlags,
-  withLegacyCombatStateFlags,
+  unappliedDeltaEffects,
 } from '../quarantineUnappliedDeltas';
 import { applyContractClosure } from './contractClosure';
 import {
@@ -211,7 +210,8 @@ function applyOutcome(
     useCampaignRosterStore.getState().units,
     outcome,
   );
-  const unappliedFlags = unappliedDeltaFlags(plan.unapplied, outcome.matchId);
+  const unapplied = unappliedDeltaEffects(campaign, outcome.matchId, plan);
+
   const {
     pilotPatches,
     pilotsUpdated,
@@ -297,14 +297,7 @@ function applyOutcome(
     unitCombatStates: unitStates,
     unitPrestige: updatedPrestige,
     recentlyAppliedOutcomes: recentlyApplied,
-    ...(unappliedFlags.length > 0
-      ? {
-          legacyCombatStateFlags: withLegacyCombatStateFlags(
-            campaign.legacyCombatStateFlags,
-            unappliedFlags,
-          ),
-        }
-      : {}),
+    ...unapplied.campaignFields,
     ...(campaign.battleUnitManifests === undefined
       ? {}
       : { battleUnitManifests: pendingManifests }),
@@ -369,12 +362,7 @@ function applyOutcome(
   }
   // R3: an unattributed player delta is written to no unit; it is
   // flagged above and its delta quarantined outside the payload.
-  quarantineUnappliedDeltas(
-    campaign.id,
-    outcome.matchId,
-    plan.unapplied,
-    unappliedFlags,
-  );
+  quarantineUnappliedDeltas(campaign.id, unapplied.records);
   return {
     campaign: updatedCampaign,
     summary: {

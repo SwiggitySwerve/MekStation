@@ -4,24 +4,34 @@
  * tells the player, and the delta itself goes to the device-local
  * quarantine store outside the payload.
  *
- * The apply is a pure day processor, so its write is fire-and-forget at the
- * commit point. It is not the only copy: the delta stays in the applied
- * outcome's `recentlyAppliedOutcomes` record (31 campaign days), and every
- * load re-quarantines flagged deltas from there (`unappliedDeltaRecordsFor`),
- * so a failed write is repaired on the next load. Re-writes deduplicate.
+ * Never lost (review N3): until its quarantine write is CONFIRMED, the
+ * campaign payload carries a pending record holding the delta itself
+ * (`pendingQuarantineRecords`). It does not depend on the retained
+ * outcome (pruned after 31 campaign days) or on the flag (the player may
+ * dismiss it). The apply starts the write at its commit point and releases
+ * the records once it resolves; every load writes whatever is still
+ * pending (`writePendingQuarantineRecords`). Re-writes deduplicate.
  */
 
+import type { ILegacyCombatStateQuarantineStore } from '@/services/persistence/legacyCombatStateQuarantineStore';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type {
   ILegacyCombatStateFlag,
-  ILegacyCombatStateQuarantineRecord,
+  IUnappliedDeltaQuarantineRecord,
 } from '@/types/campaign/LegacyCombatStateMigration';
 
 import { createIndexedDbLegacyCombatStateQuarantineStore } from '@/services/persistence/legacyCombatStateQuarantineStore';
-import { legacyCombatStateFlagKey } from '@/types/campaign/LegacyCombatStateMigration';
+import { getCampaignStoreForRoster } from '@/stores/campaign/campaignStoreAccessor';
+import {
+  legacyCombatStateFlagKey,
+  pendingQuarantineKey,
+} from '@/types/campaign/LegacyCombatStateMigration';
 import { logger } from '@/utils/logger';
 
-import type { IUnappliedLegacyDelta } from './battleUnitManifest';
+import type {
+  IOutcomeUnitWritePlan,
+  IUnappliedLegacyDelta,
+} from './battleUnitManifest';
 
 /** The payload flags for a battle's unapplied deltas. */
 export function unappliedDeltaFlags(
@@ -49,72 +59,135 @@ export function withLegacyCombatStateFlags(
   ];
 }
 
-/** Fire-and-forget: store each unapplied delta outside the payload. */
-export function quarantineUnappliedDeltas(
+/** The quarantine records (each carrying its delta) for a battle's unapplied deltas. */
+export function unappliedDeltaRecords(
   campaignId: string,
   matchId: string,
   unapplied: readonly IUnappliedLegacyDelta[],
   flags: readonly ILegacyCombatStateFlag[],
-): void {
-  if (unapplied.length === 0) return;
-  const records: ILegacyCombatStateQuarantineRecord[] = unapplied.map(
-    ({ delta }, index) => ({
-      source: 'unapplied-delta',
-      campaignId,
-      sessionUnitId: delta.unitId,
-      matchId,
-      delta,
-      flag: flags[index],
-    }),
-  );
-  const failed = (error: unknown): void => {
-    logger.error(
-      '[quarantineUnappliedDeltas] Could not store unapplied deltas now; the next load re-quarantines them from the retained outcomes.',
-      error,
-    );
-  };
-  try {
-    createIndexedDbLegacyCombatStateQuarantineStore()
-      .put(campaignId, records)
-      .catch(failed);
-  } catch (error) {
-    failed(error);
-  }
+): IUnappliedDeltaQuarantineRecord[] {
+  return unapplied.map(({ delta }, index) => ({
+    source: 'unapplied-delta',
+    campaignId,
+    sessionUnitId: delta.unitId,
+    matchId,
+    delta,
+    flag: flags[index],
+  }));
 }
 
-/** Quarantine records for the campaign's flagged unapplied deltas that are still retained. */
-export function unappliedDeltaRecordsFor(
+/** `existing` plus each added record not already pending. */
+export function withPendingQuarantineRecords(
+  existing: readonly IUnappliedDeltaQuarantineRecord[] | undefined,
+  added: readonly IUnappliedDeltaQuarantineRecord[],
+): readonly IUnappliedDeltaQuarantineRecord[] {
+  const known = new Set((existing ?? []).map(pendingQuarantineKey));
+  return [
+    ...(existing ?? []),
+    ...added.filter((record) => !known.has(pendingQuarantineKey(record))),
+  ];
+}
+
+/**
+ * What applying a battle's unapplied deltas adds to the campaign: their
+ * flags and their pending quarantine records (each carrying its delta).
+ */
+export function unappliedDeltaEffects(
   campaign: Pick<
     ICampaign,
-    'id' | 'legacyCombatStateFlags' | 'recentlyAppliedOutcomes'
+    'id' | 'legacyCombatStateFlags' | 'pendingQuarantineRecords'
   >,
-): ILegacyCombatStateQuarantineRecord[] {
-  const outcomes = new Map(
-    (campaign.recentlyAppliedOutcomes ?? []).map((outcome) => [
-      outcome.matchId,
-      outcome,
-    ]),
+  matchId: string,
+  plan: Pick<IOutcomeUnitWritePlan, 'unapplied'>,
+): {
+  readonly records: readonly IUnappliedDeltaQuarantineRecord[];
+  readonly campaignFields: Partial<
+    Pick<ICampaign, 'legacyCombatStateFlags' | 'pendingQuarantineRecords'>
+  >;
+} {
+  if (plan.unapplied.length === 0) return { records: [], campaignFields: {} };
+  const flags = unappliedDeltaFlags(plan.unapplied, matchId);
+  const records = unappliedDeltaRecords(
+    campaign.id,
+    matchId,
+    plan.unapplied,
+    flags,
   );
-  return (campaign.legacyCombatStateFlags ?? []).flatMap((flag) => {
-    if (flag.kind !== 'unapplied-delta') return [];
-    return flag.matchIds.flatMap((matchId) => {
-      const delta = outcomes
-        .get(matchId)
-        ?.unitDeltas.find(
-          (candidate) => candidate.unitId === flag.sessionUnitId,
-        );
-      return delta
-        ? [
-            {
-              source: 'unapplied-delta' as const,
-              campaignId: campaign.id,
-              sessionUnitId: flag.sessionUnitId,
-              matchId,
-              delta,
-              flag,
-            },
-          ]
-        : [];
-    });
-  });
+  return {
+    records,
+    campaignFields: {
+      legacyCombatStateFlags: withLegacyCombatStateFlags(
+        campaign.legacyCombatStateFlags,
+        flags,
+      ),
+      pendingQuarantineRecords: withPendingQuarantineRecords(
+        campaign.pendingQuarantineRecords,
+        records,
+      ),
+    },
+  };
+}
+
+/**
+ * Drop `confirmed` from the live campaign's pending records (the drop is an
+ * ordinary edit, so autosave persists it). A different or absent live
+ * campaign is left alone; the records then stay pending until a load
+ * writes them again.
+ */
+export function releasePendingQuarantineRecords(
+  campaignId: string,
+  confirmed: readonly IUnappliedDeltaQuarantineRecord[],
+): void {
+  const store = getCampaignStoreForRoster();
+  const campaign = store?.getState().campaign;
+  if (!store || !campaign || campaign.id !== campaignId) return;
+  const done = new Set(confirmed.map(pendingQuarantineKey));
+  const pending = campaign.pendingQuarantineRecords ?? [];
+  const remaining = pending.filter(
+    (record) => !done.has(pendingQuarantineKey(record)),
+  );
+  if (remaining.length === pending.length) return;
+  store.getState().updateCampaign({ pendingQuarantineRecords: remaining });
+}
+
+/**
+ * Write `records` and release them once the write resolves. A failure is
+ * logged; the records stay pending in the payload for the next load.
+ */
+export async function writePendingQuarantineRecords(
+  campaignId: string,
+  records: readonly IUnappliedDeltaQuarantineRecord[],
+  quarantine: ILegacyCombatStateQuarantineStore,
+): Promise<boolean> {
+  if (records.length === 0) return true;
+  try {
+    await quarantine.put(campaignId, records);
+  } catch (error) {
+    logger.warn(
+      '[quarantineUnappliedDeltas] Could not store unapplied deltas; they stay pending in the campaign and are written again on the next load.',
+      error,
+    );
+    return false;
+  }
+  releasePendingQuarantineRecords(campaignId, records);
+  return true;
+}
+
+/** Fire-and-forget at the apply's commit point. */
+export function quarantineUnappliedDeltas(
+  campaignId: string,
+  records: readonly IUnappliedDeltaQuarantineRecord[],
+): void {
+  if (records.length === 0) return;
+  let quarantine: ILegacyCombatStateQuarantineStore;
+  try {
+    quarantine = createIndexedDbLegacyCombatStateQuarantineStore();
+  } catch (error) {
+    logger.warn(
+      '[quarantineUnappliedDeltas] No quarantine store; the deltas stay pending in the campaign.',
+      error,
+    );
+    return;
+  }
+  void writePendingQuarantineRecords(campaignId, records, quarantine);
 }

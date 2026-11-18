@@ -90,6 +90,19 @@ export type ILegacyCombatStateRecord = Extract<
   { readonly source: 'combat-state' }
 >;
 
+/** A player delta the apply wrote to no unit (the apply's record). */
+export type IUnappliedDeltaQuarantineRecord = Extract<
+  ILegacyCombatStateQuarantineRecord,
+  { readonly source: 'unapplied-delta' }
+>;
+
+/** One pending record per battle and session unit. */
+export function pendingQuarantineKey(
+  record: IUnappliedDeltaQuarantineRecord,
+): string {
+  return `${record.matchId}|${record.sessionUnitId}`;
+}
+
 /** Flags are one per kind, session unit and battle set. */
 export function legacyCombatStateFlagKey(flag: ILegacyCombatStateFlag): string {
   return [flag.kind, flag.sessionUnitId, ...flag.matchIds].join('|');

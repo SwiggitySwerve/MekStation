@@ -21,7 +21,10 @@ import type { IPendingBattleUnitManifest } from './BattleUnitManifest';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { ICoopSession } from './CoopSession';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
-import type { ILegacyCombatStateFlag } from './LegacyCombatStateMigration';
+import type {
+  ILegacyCombatStateFlag,
+  IUnappliedDeltaQuarantineRecord,
+} from './LegacyCombatStateMigration';
 import type { SalvageRights, CommandRights } from './Mission';
 import type { IPartsInventoryItem } from './PartsInventory';
 import type { IMoraleTransition, IUnitPrestige, MoraleState } from './Prestige';
@@ -194,6 +197,14 @@ export interface ICampaign {
    * user dismisses them; the original states live outside the payload.
    */
   readonly legacyCombatStateFlags?: readonly ILegacyCombatStateFlag[];
+
+  /**
+   * Unapplied legacy deltas (carrying the delta itself) whose device-local
+   * quarantine write is not confirmed yet. Released only once the write
+   * resolved; independent of `recentlyAppliedOutcomes` and of the flags,
+   * so neither pruning nor dismissing can lose a delta.
+   */
+  readonly pendingQuarantineRecords?: readonly IUnappliedDeltaQuarantineRecord[];
 
   /**
    * Approved GM campaign intervention effects retained for audit/replay
