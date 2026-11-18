@@ -491,13 +491,14 @@ function firstReplayDivergence(
   events: readonly IGameEvent[],
   gated: readonly IGameEvent[],
 ): { event: IGameEvent; diff: IDifference } | null {
-  const differs = (count: number): IDifference | null =>
-    findDifference(
-      withoutUndefinedKeys(
-        hydrateGameSessionFromEvents(id, gated.slice(0, count)).currentState,
-      ),
-      withoutUndefinedKeys(deriveState(id, events.slice(0, count))),
-    );
+  const differs = (count: number): IDifference | null => {
+    const replayed = hydrateGameSessionFromEvents(
+      id,
+      gated.slice(0, count),
+    ).currentState;
+    const raw = deriveState(id, events.slice(0, count));
+    return findDifference(replayed, tolerateF3(replayed, raw).state);
+  };
   if (!differs(events.length)) return null;
   let low = 1;
   let high = events.length;
@@ -509,28 +510,48 @@ function firstReplayDivergence(
   return { event: events[low - 1], diff: differs(low) as IDifference };
 }
 
+/** The one R2 difference the tracking asserts tolerate (F3), nowhere else. */
+export const F3_TOLERATED_PATH = 'state.turnEvents[*].actorId';
+
 /**
- * A deep copy without own keys whose value is `undefined`. Stored history is
- * the JSON image of each event (ReplaySurfaceGate), so the live reducer keeps
- * `{ actorId: undefined }` where the replayed one has no key: the known R2
- * difference. That is the only tolerance; non-finite numbers, nulls and every
- * other value still compare strictly.
+ * F3 (R2): stored history is the JSON image of each event (ReplaySurfaceGate),
+ * so a live `turnEvents[i]` keeps `actorId: undefined` where the replayed
+ * entry has no `actorId` key. Returns `live` with exactly those keys removed,
+ * and how many. Any other undefined-vs-absent key (another field, another
+ * path, or the reverse direction) is left in and fails the strict comparison.
  */
-export function withoutUndefinedKeys(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(withoutUndefinedKeys);
-  if (value instanceof Map) {
-    return new Map(
-      [...value.entries()].map(([k, v]) => [k, withoutUndefinedKeys(v)]),
-    );
+export function tolerateF3(
+  replayed: unknown,
+  live: unknown,
+): { state: unknown; count: number } {
+  const replayedEvents = (replayed as { turnEvents?: unknown } | null)
+    ?.turnEvents;
+  const liveEvents = (live as { turnEvents?: unknown } | null)?.turnEvents;
+  if (!Array.isArray(replayedEvents) || !Array.isArray(liveEvents)) {
+    return { state: live, count: 0 };
   }
-  if (value !== null && typeof value === 'object') {
-    const out: Record<string, unknown> = {};
-    for (const [key, entry] of Object.entries(value)) {
-      if (entry !== undefined) out[key] = withoutUndefinedKeys(entry);
+  let count = 0;
+  const turnEvents = liveEvents.map((entry: unknown, index) => {
+    const other: unknown = replayedEvents[index];
+    if (
+      entry !== null &&
+      typeof entry === 'object' &&
+      Object.hasOwn(entry, 'actorId') &&
+      (entry as { actorId?: unknown }).actorId === undefined &&
+      other !== null &&
+      typeof other === 'object' &&
+      !Object.hasOwn(other, 'actorId')
+    ) {
+      count++;
+      const copy: Record<string, unknown> = { ...entry };
+      delete copy.actorId;
+      return copy;
     }
-    return out;
-  }
-  return value;
+    return entry;
+  });
+  return count === 0
+    ? { state: live, count }
+    : { state: { ...(live as object), turnEvents }, count };
 }
 
 export function describeBlocked(
@@ -610,56 +631,13 @@ export function firstDifference(
 }
 
 /**
- * F3 (R2): own keys whose value is `undefined` on one side and that are
- * absent on the other, the one difference assertTracking tolerates. Returns
- * the count and up to five distinct paths (array indices as [*]).
- */
-export function countToleratedUndefinedKeys(
-  a: unknown,
-  b: unknown,
-): { count: number; paths: string[] } {
-  const paths = new Set<string>();
-  let count = 0;
-  const walk = (x: unknown, y: unknown, at: string): void => {
-    if (Array.isArray(x) && Array.isArray(y)) {
-      for (let i = 0; i < Math.min(x.length, y.length); i++) {
-        walk(x[i], y[i], `${at}[*]`);
-      }
-      return;
-    }
-    if (x instanceof Map && y instanceof Map) {
-      for (const [key, value] of x) walk(value, y.get(key), `${at}<*>`);
-      return;
-    }
-    if (!x || !y || typeof x !== 'object' || typeof y !== 'object') return;
-    for (const key of new Set([...Object.keys(x), ...Object.keys(y)])) {
-      const inX = key in x;
-      const inY = key in y;
-      const vx = (x as Record<string, unknown>)[key];
-      const vy = (y as Record<string, unknown>)[key];
-      if (
-        (inX && !inY && vx === undefined) ||
-        (inY && !inX && vy === undefined)
-      ) {
-        count++;
-        if (paths.size < 5) paths.add(`${at}.${key}`);
-      } else if (inX && inY) {
-        walk(vx, vy, `${at}.${key}`);
-      }
-    }
-  };
-  walk(a, b, 'state');
-  return { count, paths: [...paths] };
-}
-
-/**
  * Hard tracking checks, run at the end of every scenario:
  * 1. deriveState over the session's events deep-equals its current state;
  * 2. the recording, through the replay gate, folds to the same state
- *    (undefined-valued keys aside, see withoutUndefinedKeys).
+ *    (only F3 aside: see tolerateF3 and F3_TOLERATED_PATH).
  *
  * Each failure carries its evidence (first failing event, field path). On
- * success it returns the F3 count: undefined-valued keys check 2 tolerated.
+ * success it returns the F3 count: keys check 2 tolerated at F3_TOLERATED_PATH.
  */
 export function assertTracking(
   scenario: string,
@@ -720,16 +698,11 @@ export function assertReplayFold(
   const replayed = hydrateGameSessionFromEvents(id, [
     ...gated.events,
   ]).currentState;
-  if (
-    firstDifference(withoutUndefinedKeys(replayed), withoutUndefinedKeys(state))
-  ) {
+  const tolerated = tolerateF3(replayed, state);
+  const whole = findDifference(replayed, tolerated.state);
+  if (whole) {
     const found = firstReplayDivergence(id, events, gated.events);
-    const diff =
-      found?.diff ??
-      (findDifference(
-        withoutUndefinedKeys(replayed),
-        withoutUndefinedKeys(state),
-      ) as IDifference);
+    const diff = found?.diff ?? whole;
     throw new TrackingAssertError(scenario, {
       check,
       detail: `${diff.path}: ${diff.left} vs ${diff.right}${found ? `; first diverges at #${found.event.sequence} ${found.event.type} id ${found.event.id}` : ''}`,
@@ -739,5 +712,8 @@ export function assertReplayFold(
       storedValue: diff.left,
     });
   }
-  return countToleratedUndefinedKeys(replayed, state);
+  return {
+    count: tolerated.count,
+    paths: tolerated.count > 0 ? [F3_TOLERATED_PATH] : [],
+  };
 }

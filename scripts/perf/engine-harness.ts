@@ -487,7 +487,7 @@ function printFindings(findings: readonly IFinding[]): void {
     const f = group[0];
     const event = f.firstEvent
       ? `#${f.firstEvent.sequence} id ${f.firstEvent.id} type ${f.firstEvent.type}`
-      : 'none (state moved without its log)';
+      : 'none (no event prefix reproduces it; see check)';
     console.error(
       [
         `  [${++n}] ${f.check}`,
