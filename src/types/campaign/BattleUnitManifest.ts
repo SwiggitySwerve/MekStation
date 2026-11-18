@@ -23,8 +23,9 @@ export interface INotOnRosterBattleUnitManifestEntry {
 
 /**
  * A player session unit with no roster link at launch that the legacy
- * match could not attribute either. Its delta takes the legacy path at
- * apply (resolved then, or flagged and written to no unit).
+ * match could not attribute either. Final: at apply its delta is never
+ * re-resolved; it is written to no unit, flagged and quarantined, with the
+ * candidates recorded here.
  */
 export interface IUnresolvedBattleUnitManifestEntry {
   readonly unresolved: true;
@@ -42,15 +43,18 @@ export type BattleUnitManifest = Readonly<
 >;
 
 /**
- * A manifest held on the campaign until its battle is applied. The date
- * and launch key let a battle that never produced an outcome be pruned.
+ * A manifest held on the campaign until its battle is applied. Its date
+ * lets a battle that never produced an outcome be pruned after the
+ * retained-outcome window.
  */
 export interface IPendingBattleUnitManifest {
   readonly units: BattleUnitManifest;
   /**
    * True when every player session unit has a roster or not-on-roster
    * entry: a missing entry is then an error (T3). False when some unit is
-   * unresolved; those take the legacy path at apply.
+   * recorded unresolved: that unit's delta is unapplied (flagged and
+   * quarantined) at apply, and a delta with no entry at all takes the
+   * legacy match.
    */
   readonly complete: boolean;
   /** ISO campaign date (not wall clock) the session was created on. */
