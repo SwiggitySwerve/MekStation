@@ -362,6 +362,9 @@ export class ForceService implements IForceService {
           this.repository.updateAssignment(targetAssignment.id, {
             pilotId: sourceAssignment.pilotId,
             unitId: sourceAssignment.unitId,
+            // The clone keeps the same unit in the slot, so its roster link
+            // (T1) still names the same campaign roster unit.
+            rosterUnitId: sourceAssignment.rosterUnitId,
             position: sourceAssignment.position,
             notes: sourceAssignment.notes,
           });
