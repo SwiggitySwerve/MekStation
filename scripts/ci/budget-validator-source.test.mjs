@@ -72,6 +72,39 @@ test('no-install closure rejects package imports, dynamic imports and require ca
   }
 });
 
+test('the closure walker rejects relative imports that leave the repository root or enter node_modules', () => {
+  const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-closure-'));
+  try {
+    const root = path.join(workspace, 'repo');
+    fs.mkdirSync(path.join(root, 'scripts', 'node_modules', 'pkg'), {
+      recursive: true,
+    });
+    // Both targets exist and parse, so only the containment rule can reject them.
+    fs.writeFileSync(path.join(workspace, 'outside.mjs'), 'export {};');
+    fs.writeFileSync(
+      path.join(root, 'scripts', 'node_modules', 'pkg', 'index.mjs'),
+      'export {};',
+    );
+    for (const [specifier, message] of [
+      ['../../outside.mjs', /outside the repository root/],
+      ['./sub/../../../outside.mjs', /outside the repository root/],
+      ['./node_modules/pkg/index.mjs', /inside node_modules/],
+    ]) {
+      fs.writeFileSync(
+        path.join(root, 'scripts', 'entry.mjs'),
+        `import '${specifier}';`,
+      );
+      assert.throws(
+        () => staticImportClosure('scripts/entry.mjs', { root }),
+        message,
+        specifier,
+      );
+    }
+  } finally {
+    fs.rmSync(workspace, { recursive: true, force: true });
+  }
+});
+
 test('budget validator comes from a literal main side checkout with no credentials', () => {
   assert.ok(checkout, 'missing main validator checkout');
   assert.equal(checkout.uses, 'actions/checkout@v6');

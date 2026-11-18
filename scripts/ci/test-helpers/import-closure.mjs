@@ -10,6 +10,15 @@ export function staticImportClosure(
   const visited = new Set();
   function visit(file) {
     if (visited.has(file)) return;
+    // The closure is repository source only: never a file outside the root or a package.
+    assert.ok(
+      file !== '..' && !file.startsWith('../') && !path.posix.isAbsolute(file),
+      `${file} resolves outside the repository root`,
+    );
+    assert.ok(
+      !file.split('/').includes('node_modules'),
+      `${file} resolves inside node_modules`,
+    );
     visited.add(file);
     const source = ts.createSourceFile(
       file,
