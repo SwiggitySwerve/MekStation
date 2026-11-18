@@ -208,15 +208,17 @@ export function useDialogHandlers(
 
   const handleSaveDialogSave = useCallback(
     async (chassis: string, variant: string, overwriteId?: string) => {
-      if (saveInFlight.current || !saveDialog.isOpen || !saveDialog.tabId) {
-        return;
-      }
-
+      // The disabled Saving... button says why a re-entry does nothing.
+      if (saveInFlight.current) return;
+      // With no open target the reason is "Select a unit before saving...".
       const disabledReason = getLibrarySaveDisabledReason(
-        getTabById(saveDialog.tabId),
+        saveDialog.isOpen && saveDialog.tabId
+          ? getTabById(saveDialog.tabId)
+          : null,
       );
-      if (disabledReason) {
-        showToast({ message: disabledReason, variant: 'error' });
+      if (disabledReason || !saveDialog.tabId) {
+        if (disabledReason)
+          showToast({ message: disabledReason, variant: 'error' });
         return;
       }
 
