@@ -103,6 +103,21 @@
         "additionalProperties": false
       }
     },
+    "captureMode": {
+      "type": "string",
+      "enum": ["concurrent", "sequential"]
+    },
+    "captureOffsetMs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "captureTimeZones": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "deterministic": {
       "type": "boolean"
     },

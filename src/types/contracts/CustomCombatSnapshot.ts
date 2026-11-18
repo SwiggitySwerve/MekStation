@@ -22,7 +22,7 @@ const ARMOR_LOCATION = z.union([
   z.object({ front: ARMOR_POINTS, rear: ARMOR_POINTS }).strict(),
 ]);
 
-const BATTLEMECH_ARMOR_TYPES = [
+export const BATTLEMECH_ARMOR_TYPES = [
   'STANDARD',
   'FERRO_FIBROUS',
   'FERRO_FIBROUS_CLAN',

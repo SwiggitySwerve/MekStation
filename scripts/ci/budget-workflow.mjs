@@ -290,16 +290,24 @@ export function workflowMetrics(root, config, workflow = readWorkflow(root)) {
       '${{ toJSON(github.event.pull_request.labels.*.name) }}'
   )
     throw new Error('Deterministic budget gate disabled or bypassed');
-  for (const command of [
-    'node scripts/ci/budget-artifacts.mjs --kind web --report "$RUNNER_TEMP/budget-output/web.json"',
-    'node scripts/ci/budget-artifacts.mjs --kind installers --report "$RUNNER_TEMP/budget-output/installers.json"',
+  // The installer census runs where the full installer is built: pull
+  // requests that change packaging inputs, and every other event.
+  for (const [command, condition] of [
+    [
+      'node scripts/ci/budget-artifacts.mjs --kind web --report "$RUNNER_TEMP/budget-output/web.json"',
+      '${{ !cancelled() }}',
+    ],
+    [
+      'node scripts/ci/budget-artifacts.mjs --kind installers --report "$RUNNER_TEMP/budget-output/installers.json"',
+      "${{ !cancelled() && needs.detect-changes.outputs.packaging == 'true' }}",
+    ],
   ]) {
     const packageCheck = jobs['simulation-checks']?.steps?.find(
       (step) => step.run?.trim() === command,
     );
     if (
       !packageCheck ||
-      packageCheck.if !== '${{ !cancelled() }}' ||
+      packageCheck.if !== condition ||
       packageCheck['continue-on-error']
     )
       throw new Error('Complete package census disabled or bypassed');
