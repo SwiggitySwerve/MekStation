@@ -144,8 +144,8 @@ export const SCENARIO_PACK_MANIFEST: readonly ManifestEntry[] = [
     payloadPath: 'campaign/maintenance-repairbay.campaign.json',
     provenance: {
       genesisSource: 'fast-forward:maintenance-repairbay',
-      mintedAt: '2026-11-09T23:23:12.381Z',
-      baseCommit: '17f9ed1fc36d0ded3bbd46d18b2141016fa86a4a',
+      mintedAt: '2026-11-18T18:59:53.728Z',
+      baseCommit: '4f028a440ba166b03316f65df025d91416a0f8f5',
     },
     pins: { schemaVersion: 2 },
     // Design D8 — the repair-bay projection is populated only by the
