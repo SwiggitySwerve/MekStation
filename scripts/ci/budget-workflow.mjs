@@ -221,13 +221,18 @@ export function projectTimingLimits(config, workflow) {
   return { jobsMs, ...reportingLimits(config) };
 }
 
+/** A job-level `if:` is null or a conjunction of detect-changes gates. */
 export function jobGate(job) {
   if (job.if === undefined || job.if === 'always()') return null;
-  const match = /^needs\.detect-changes\.outputs\.([\w-]+) == 'true'$/.exec(
-    job.if,
-  );
-  if (!match) throw new Error(`Unknown job condition: ${job.if}`);
-  return match[1];
+  if (typeof job.if !== 'string')
+    throw new Error(`Unknown job condition: ${job.if}`);
+  return job.if.split(' && ').map((term) => {
+    const match = /^needs\.detect-changes\.outputs\.([\w-]+) == 'true'$/.exec(
+      term,
+    );
+    if (!match) throw new Error(`Unknown job condition: ${job.if}`);
+    return match[1];
+  });
 }
 
 export function expandJob(id, job) {
@@ -349,11 +354,18 @@ export function workflowMetrics(root, config, workflow = readWorkflow(root)) {
   const profiles = config.profiles.map((profile) => {
     const gates = decide(root, profile.paths).gates;
     gates['pr-desktop'] = gates.desktop;
+    // Profiles count a ready PR's run: drafts hold jobs, never add them.
+    gates.ready = true;
     const census = expanded.map((entry) => {
       const gate = jobGate(jobs[entry.id]);
-      if (gate && typeof gates[gate] !== 'boolean')
-        throw new Error(`Unknown gate ${gate}`);
-      return { ...entry, gate, active: gate === null || gates[gate] };
+      for (const name of gate ?? [])
+        if (typeof gates[name] !== 'boolean')
+          throw new Error(`Unknown gate ${name}`);
+      return {
+        ...entry,
+        gate,
+        active: gate === null || gate.every((name) => gates[name]),
+      };
     });
     const induced = inducedWorkflowCensus(root, profile.paths);
     return {

@@ -262,7 +262,7 @@ describe('Lint and Test aggregator', () => {
   const assertion = command(aggregator, 'node scripts/ci/budget-aggregate.mjs');
   const gates = JSON.parse(assertion.env?.GATES_JSON ?? 'null') as Record<
     string,
-    string
+    string[]
   >;
   const passedNeeds = () =>
     Object.fromEntries(
@@ -310,8 +310,12 @@ describe('Lint and Test aggregator', () => {
       // skip for, and every such gate is a detect-changes output.
       expect(gates[id]).toBeDefined();
       const gate = gates[id];
-      expect(outputs).toContain(gate);
-      expect(job.if).toBe(`needs.detect-changes.outputs.${gate} == 'true'`);
+      for (const name of gate) expect(outputs).toContain(name);
+      expect(job.if).toBe(
+        gate
+          .map((name) => `needs.detect-changes.outputs.${name} == 'true'`)
+          .join(' && '),
+      );
     }
   });
 
@@ -319,7 +323,7 @@ describe('Lint and Test aggregator', () => {
     expect(status(detect({ code: 'true', combat: 'true' }))).toBe(0);
   });
 
-  it('accepts a skip only when every gate the job names was off', () => {
+  it('accepts a skip only when a gate the job names was off', () => {
     // docs-only PR: the code gate is off, so the simulation/Linux-pack job
     // may skip.
     expect(
