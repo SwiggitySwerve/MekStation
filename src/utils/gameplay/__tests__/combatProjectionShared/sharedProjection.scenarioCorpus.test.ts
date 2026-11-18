@@ -90,6 +90,8 @@ const STATE_VARIANTS: readonly Variant[] = [
       ),
   },
   {
+    // Not ECM-effect coverage: it changes no output on these boards. A real
+    // ECM effect is covered by the curated ECM-protected scenario.
     name: 'ecmSuite',
     apply: (input) => {
       const state = input.combatState;
