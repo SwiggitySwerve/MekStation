@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -199,6 +201,49 @@ test('system-deps action keys on image + Playwright, installs hits without apt, 
   for (const step of action.runs.steps) {
     assert.equal(step['continue-on-error'], undefined, step.name);
     assert.equal(step['timeout-minutes'], undefined, step.name);
+  }
+});
+
+test('system-deps cache key appends -<salt> only when PW_DEPS_CACHE_SALT is non-empty', () => {
+  const action = readYaml('.github/actions/playwright-system-deps/action.yml');
+  const script = action.runs.steps.find((s) => s.id === 'key').run;
+  const playwright = JSON.parse(
+    fs.readFileSync(
+      path.join(root, 'node_modules/@playwright/test/package.json'),
+      'utf8',
+    ),
+  ).version;
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pw-deps-key-'));
+  const runKey = (extraEnv) => {
+    const out = path.join(tmp, `out-${Math.random().toString(36).slice(2)}`);
+    fs.writeFileSync(out, '');
+    const env = { ...process.env, GITHUB_OUTPUT: out, ...extraEnv };
+    for (const [name, value] of Object.entries(env))
+      if (value === undefined) delete env[name];
+    const result = spawnSync('bash', ['-c', script], { cwd: root, env });
+    assert.equal(result.status, 0, String(result.stderr));
+    return Object.fromEntries(
+      fs
+        .readFileSync(out, 'utf8')
+        .trim()
+        .split('\n')
+        .map((line) => line.split(/=(.*)/s).slice(0, 2)),
+    );
+  };
+  const image = { ImageOS: 'ubuntu24', ImageVersion: '20261111.370.1' };
+  const arch = spawnSync('uname', ['-m'], { encoding: 'utf8' }).stdout.trim();
+  const base = `playwright-system-debs-ubuntu24-20261111.370.1-${arch}-playwright${playwright}`;
+  try {
+    const salted = runKey({ ...image, PW_DEPS_CACHE_SALT: 'salt-proof-1' });
+    assert.equal(salted.enabled, 'true');
+    assert.equal(salted.key, `${base}-salt-proof-1`);
+    assert.equal(runKey({ ...image, PW_DEPS_CACHE_SALT: undefined }).key, base);
+    assert.equal(runKey({ ...image, PW_DEPS_CACHE_SALT: '' }).key, base);
+    const noImage = runKey({ ImageOS: undefined, ImageVersion: undefined });
+    assert.equal(noImage.enabled, 'false');
+    assert.equal(noImage.key, undefined);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
   }
 });
 
