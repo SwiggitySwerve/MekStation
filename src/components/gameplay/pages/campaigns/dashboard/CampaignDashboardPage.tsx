@@ -429,9 +429,10 @@ export default function CampaignDashboardPage(): React.ReactElement {
           )
         }
         onDismiss={(dismissed) =>
+          // The store's flags at click time, not this render's snapshot.
           store.getState().updateCampaign({
             legacyCombatStateFlags: (
-              liveCampaign?.legacyCombatStateFlags ?? []
+              store.getState().campaign?.legacyCombatStateFlags ?? []
             ).filter(
               (flag) =>
                 legacyCombatStateFlagKey(flag) !==
