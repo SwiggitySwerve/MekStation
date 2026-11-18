@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Application Routes', () => {
-  test('homepage loads without errors', async ({ page }) => {
+  test('homepage loads without errors', async ({ page }, testInfo) => {
     // Listen for console errors
     const errors: string[] = [];
     page.on('console', (msg) => {
@@ -14,7 +14,8 @@ test.describe('Application Routes', () => {
     await page.waitForLoadState('networkidle');
 
     // Page should load
-    await expect(page).toHaveURL(/localhost:3600/);
+    const baseURL = testInfo.project.use.baseURL ?? 'http://localhost:3600';
+    await expect(page).toHaveURL(new URL('/', baseURL).href);
 
     // Filter out expected/benign errors
     const criticalErrors = errors.filter(

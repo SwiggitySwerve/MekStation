@@ -8,6 +8,7 @@
 
 import { RulesLevel } from '../enums/RulesLevel';
 import { TechBase } from '../enums/TechBase';
+import { armorTagForEnumKey } from '../formats/ArmorIdentity';
 
 // 48fcb2f64 ArmorType.java:487-510: prototype 3056, approximate by five years.
 const HEAVY_FERRO_INTRODUCTION_YEAR = 3051;
@@ -44,8 +45,24 @@ export enum ArmorTypeEnum {
   REFLECTIVE_CLAN = 'Reflective (Clan)',
 }
 
-export const COMMERCIAL_ARMOR_SOURCE_TAG = 'COMMERCIAL';
-export const FERRO_FIBROUS_PROTO_SOURCE_TAG = 'FERRO_FIBROUS_PROTO';
+// Source tags come from the one owner of armor identity: the `armor` section of
+// src/types/formats/mtf-component-vocabulary.json, read through ArmorIdentity.ts.
+export const COMMERCIAL_ARMOR_SOURCE_TAG = armorTagForEnumKey('COMMERCIAL');
+export const FERRO_FIBROUS_PROTO_SOURCE_TAG = armorTagForEnumKey(
+  'FERRO_FIBROUS_PROTO',
+);
+
+/** The enum members that exist only as a name (see NATIVE_ONLY_ARMOR_SOURCE_TAGS). */
+export type NativeOnlyArmorType =
+  | ArmorTypeEnum.INDUSTRIAL
+  | ArmorTypeEnum.HEAVY_INDUSTRIAL
+  | ArmorTypeEnum.PRIMITIVE
+  | ArmorTypeEnum.IMPACT_RESISTANT
+  | ArmorTypeEnum.HEAT_DISSIPATING
+  | ArmorTypeEnum.ANTI_PENETRATIVE_ABLATION
+  | ArmorTypeEnum.PATCHWORK
+  | ArmorTypeEnum.REACTIVE_CLAN
+  | ArmorTypeEnum.REFLECTIVE_CLAN;
 
 /**
  * Armor types that exist only as a name. The unit contract carries these tags
@@ -53,17 +70,21 @@ export const FERRO_FIBROUS_PROTO_SOURCE_TAG = 'FERRO_FIBROUS_PROTO';
  * Standard, the editor offers none of them, and the BLK reader does not decode
  * them. Whoever teaches the loader and serializer about one removes it here.
  */
-export const NATIVE_ONLY_ARMOR_SOURCE_TAGS = {
-  [ArmorTypeEnum.INDUSTRIAL]: 'INDUSTRIAL',
-  [ArmorTypeEnum.HEAVY_INDUSTRIAL]: 'HEAVY_INDUSTRIAL',
-  [ArmorTypeEnum.PRIMITIVE]: 'PRIMITIVE',
-  [ArmorTypeEnum.IMPACT_RESISTANT]: 'IMPACT_RESISTANT',
-  [ArmorTypeEnum.HEAT_DISSIPATING]: 'HEAT_DISSIPATING',
-  [ArmorTypeEnum.ANTI_PENETRATIVE_ABLATION]: 'ANTI_PENETRATIVE_ABLATION',
-  [ArmorTypeEnum.PATCHWORK]: 'PATCHWORK',
-  [ArmorTypeEnum.REACTIVE_CLAN]: 'REACTIVE_CLAN',
-  [ArmorTypeEnum.REFLECTIVE_CLAN]: 'REFLECTIVE_CLAN',
-} as const;
+export const NATIVE_ONLY_ARMOR_SOURCE_TAGS: Readonly<
+  Record<NativeOnlyArmorType, string>
+> = {
+  [ArmorTypeEnum.INDUSTRIAL]: armorTagForEnumKey('INDUSTRIAL'),
+  [ArmorTypeEnum.HEAVY_INDUSTRIAL]: armorTagForEnumKey('HEAVY_INDUSTRIAL'),
+  [ArmorTypeEnum.PRIMITIVE]: armorTagForEnumKey('PRIMITIVE'),
+  [ArmorTypeEnum.IMPACT_RESISTANT]: armorTagForEnumKey('IMPACT_RESISTANT'),
+  [ArmorTypeEnum.HEAT_DISSIPATING]: armorTagForEnumKey('HEAT_DISSIPATING'),
+  [ArmorTypeEnum.ANTI_PENETRATIVE_ABLATION]: armorTagForEnumKey(
+    'ANTI_PENETRATIVE_ABLATION',
+  ),
+  [ArmorTypeEnum.PATCHWORK]: armorTagForEnumKey('PATCHWORK'),
+  [ArmorTypeEnum.REACTIVE_CLAN]: armorTagForEnumKey('REACTIVE_CLAN'),
+  [ArmorTypeEnum.REFLECTIVE_CLAN]: armorTagForEnumKey('REFLECTIVE_CLAN'),
+};
 
 export function isNativeOnlyArmor(type: ArmorTypeEnum): boolean {
   return type in NATIVE_ONLY_ARMOR_SOURCE_TAGS;
