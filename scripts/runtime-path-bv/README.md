@@ -6,7 +6,7 @@ real status-bar hooks and UI. For each unit it records BV, validity, weight, MP 
 (`numericTerms(mechBVTerms(breakdown))`), and counts agreement with the committed Java reference.
 
 ```sh
-node scripts/runtime-path-bv/run.mjs --out <dir> [--sources <dir>] [--mekfiles <dir>] [--units a,b] [--runs 2]
+node scripts/runtime-path-bv/run.mjs --out <dir> [--sources <dir>] [--mekfiles <dir>] [--units a,b] [--runs 2] [--sequential]
 ```
 
 Run from the repository root after `npm ci`. Everything is written under `<dir>`:
@@ -15,7 +15,7 @@ Run from the repository root after `npm ci`. Everything is written under `<dir>`
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `rows.ndjson`             | one schema row per unit (`scripts/lib/runtime-parity/ROW-SCHEMA.md`); identical on every host                                                    |
 | `summary.json`            | counts: units, errors by stage, BV exact/different/missing, validity agree/disagree/missing, `headline`                                          |
-| `receipt.json`            | Node, platform, repo SHA, input hashes, scope, per-run time and `process.resourceUsage()` (never a gate)                                         |
+| `receipt.json`            | Node, platform, repo SHA, input hashes, scope, capture mode, per-run time and `process.resourceUsage()` (never a gate)                           |
 | `java-differences.ndjson` | every unit that is not an exact BV or validity match (observed and Java value), and every unit whose `weightUsed` differs from `allocatedWeight` |
 | `failure.json`            | only when the run did not complete: a named `reason`                                                                                             |
 | `work/`                   | per-run capture logs and raw records                                                                                                             |
@@ -60,6 +60,16 @@ Non-zero only if the census did not complete: `S0A_REFERENCE_MISSING`, `S0B_MANI
 `MISSING_MANIFEST_ROWS`, `ZERO_UNITS_MEASURED`, `UNSUPPORTED_FAMILY`, `CAPTURE_INCOMPLETE`,
 `CAPTURE_INFRASTRUCTURE_FAILURE`, `POPULATION_MISMATCH` (a capture must give exactly one record per planned unit), or
 `NONDETERMINISTIC_ROWS` (two fresh capture processes must give byte-identical rows).
+The `--runs` captures (default 2) are fresh Jest processes, each over the whole plan in its own `work/run-N/`, and by default they
+run **concurrently**, so wall time is about one capture's. Each is a full Jest process, so peak memory is roughly `--runs` times one
+capture's `resources.maxRSS` (recorded per run in `receipt.json`); on a machine that cannot spare that, pass `--sequential` to run
+them one after another as before. Rows, summary and facts are byte-identical either way, and `receipt.captureMode` records which
+was used. Each run's `durationSeconds` is its own wall time, so concurrent runs overlap and do not add up to the invocation's.
+Because concurrent captures share a wall clock, each run after the first starts `CONCURRENT_START_OFFSET_MS` (4 s) after the
+one before it and runs under a different `TZ` (`Pacific/Kiritimati`, or `Pacific/Pago_Pago` when that is already the inherited
+zone), so a row that carries a time- or zone-derived value still fails `NONDETERMINISTIC_ROWS`. `receipt.captureOffsetMs` and
+`receipt.captureTimeZones` record both; `--sequential` changes neither.
+
 Parity differences never fail the run. `--units` narrows the run for local work (ids are sorted and de-duplicated) and is
 recorded in `receipt.scope` with `populationCount`, so a narrowed run can never pass as the whole population.
 

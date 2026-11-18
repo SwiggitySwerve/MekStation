@@ -7,7 +7,7 @@
 // Exit code: non-zero only when the census did not complete (missing/drifted inputs, a capture that
 // did not finish, an infrastructure failure, a short or padded capture, or two runs that are not
 // byte-identical). Parity differences never fail the run; they are the measurement.
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
@@ -46,12 +46,34 @@ export class RunError extends Error {
 }
 
 /**
+ * Concurrent captures share a wall clock and a time zone, so a row that carries a time-derived value would agree between
+ * them where two sequential runs (minutes apart) would not. To keep that detectable, every concurrent run after the first
+ * starts this much later than the one before it and runs under a different time zone (concurrentTimeZone).
+ */
+export const CONCURRENT_START_OFFSET_MS = 4000;
+
+/** The time zone this process (and so a capture that inherits its environment) runs in. */
+export const inheritedTimeZone = () =>
+  Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+/** UTC+14, so its calendar date differs from most zones' for most of the day; UTC-11 if that is already the inherited one. */
+export const concurrentTimeZone = (inherited) =>
+  inherited === 'Pacific/Kiritimati'
+    ? 'Pacific/Pago_Pago'
+    : 'Pacific/Kiritimati';
+
+/**
  * A capture that is one fresh Jest process over the plan. `config` is the Jest config, `contextEnv`
  * the environment variable that carries the context file to the capture, and `extraContext({dir})`
  * adds capture-specific fields (the reopen capture gets its fresh database path this way).
+ *
+ * A capture is `({repoRoot, plan, dir, env}) => {records, durationSeconds, resources}` or a promise of that;
+ * runCensus awaits it, so a synchronous capture (a test's injected one) is just as valid. Everything a
+ * capture writes goes under its own `dir`, which is what lets runCensus run several at once. `env` holds
+ * the variables the capture process gets on top of this process's environment (a concurrent run's `TZ`).
  */
 export function jestCapture({ config, contextEnv, extraContext = () => ({}) }) {
-  return ({ repoRoot, plan, dir }) => {
+  return async ({ repoRoot, plan, dir, env = {} }) => {
     fs.mkdirSync(dir, { recursive: true });
     const planFile = path.join(dir, 'plan.json');
     const contextFile = path.join(dir, 'context.json');
@@ -66,21 +88,25 @@ export function jestCapture({ config, contextEnv, extraContext = () => ({}) }) {
     );
     const log = fs.openSync(path.join(dir, 'jest.log'), 'w');
     const started = process.hrtime.bigint();
-    const result = spawnSync(
-      process.execPath,
-      [
-        path.join(repoRoot, 'node_modules/jest/bin/jest.js'),
-        '--config',
-        path.join(repoRoot, config),
-        '--runInBand',
-        '--ci',
-      ],
-      {
-        cwd: repoRoot,
-        env: { ...process.env, [contextEnv]: contextFile },
-        stdio: ['ignore', log, log],
-      },
-    );
+    const result = await new Promise((resolve) => {
+      const child = spawn(
+        process.execPath,
+        [
+          path.join(repoRoot, 'node_modules/jest/bin/jest.js'),
+          '--config',
+          path.join(repoRoot, config),
+          '--runInBand',
+          '--ci',
+        ],
+        {
+          cwd: repoRoot,
+          env: { ...process.env, ...env, [contextEnv]: contextFile },
+          stdio: ['ignore', log, log],
+        },
+      );
+      child.once('error', (error) => resolve({ error }));
+      child.once('close', (status, signal) => resolve({ status, signal }));
+    });
     fs.closeSync(log);
     const durationSeconds = Number(process.hrtime.bigint() - started) / 1e9;
     const read = (name) =>
@@ -223,6 +249,7 @@ export async function runCensus(argv, deps, spec) {
       family: { type: 'string', default: 'battlemechs' },
       units: { type: 'string' },
       runs: { type: 'string', default: '2' },
+      sequential: { type: 'boolean', default: false },
       'write-baseline': { type: 'boolean', default: false },
       'baseline-dir': { type: 'string' },
       reason: { type: 'string' },
@@ -292,21 +319,51 @@ export async function runCensus(argv, deps, spec) {
         'the join produced no units for the requested families',
       );
 
-    const runs = [];
-    for (let index = 1; index <= runCount; index++) {
-      const result = capture({
+    // Every capture is its own fresh process over the whole plan in its own work/run-<n>, so by default
+    // they run together; --sequential runs them one after another. Either way the runs are kept in index order.
+    // Concurrent runs after the first start later and in another time zone (CONCURRENT_START_OFFSET_MS); sequential
+    // runs all inherit this process's environment, as before.
+    const captureMode = values.sequential ? 'sequential' : 'concurrent';
+    const captureOffsetMs = values.sequential
+      ? 0
+      : (deps.captureOffsetMs ?? CONCURRENT_START_OFFSET_MS);
+    const inherited = inheritedTimeZone();
+    const staggered = (index) => !values.sequential && index > 1;
+    const timeZoneOf = (index) =>
+      staggered(index) ? concurrentTimeZone(inherited) : inherited;
+    const captureRun = async (index) => {
+      if (staggered(index))
+        await new Promise((resolve) =>
+          setTimeout(resolve, (index - 1) * captureOffsetMs),
+        );
+      return capture({
         repoRoot,
         plan,
         dir: path.join(work, `run-${index}`),
+        env: staggered(index) ? { TZ: timeZoneOf(index) } : {},
       });
+    };
+    const toRun = (result) => {
       assertOneRecordPerUnit(result.records, plan);
       const text = serializeRows(result.records.map(spec.toRow));
-      runs.push({
+      return {
         text,
         rowsSha256: sha256(Buffer.from(text)),
         durationSeconds: result.durationSeconds,
         resources: result.resources,
-      });
+      };
+    };
+    const indices = Array.from({ length: runCount }, (_, i) => i + 1);
+    let runs;
+    if (values.sequential) {
+      runs = [];
+      for (const index of indices) runs.push(toRun(await captureRun(index)));
+    } else {
+      // Wait for every capture to settle before reporting a failure, so none outlives the run.
+      const settled = await Promise.allSettled(indices.map(captureRun));
+      const failed = settled.find((outcome) => outcome.status === 'rejected');
+      if (failed) throw failed.reason;
+      runs = settled.map((outcome) => toRun(outcome.value));
     }
     const deterministic = runs.every((run) => run.text === runs[0].text);
     const rows = runs[0].text
@@ -368,6 +425,9 @@ export async function runCensus(argv, deps, spec) {
         durationSeconds,
         resources,
       })),
+      captureMode,
+      captureOffsetMs,
+      captureTimeZones: indices.map(timeZoneOf),
       deterministic,
       scope,
     });

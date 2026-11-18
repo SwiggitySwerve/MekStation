@@ -7,13 +7,23 @@ lost source cells, the notice-residual equality, token changes and the changed, 
 they own (`scripts/lib/runtime-parity/ROW-SCHEMA.md`).
 
 ```sh
-node scripts/runtime-roundtrip/run.mjs --out <dir> [--sources <dir>] [--mekfiles <dir>] [--units a,b] [--runs 2]
+node scripts/runtime-roundtrip/run.mjs --out <dir> [--sources <dir>] [--mekfiles <dir>] [--units a,b] [--runs 2] [--sequential]
 ```
 
 Run from the repository root after `npm ci`. The contract is the load port's (same inputs, same exit code, same files):
 `rows.ndjson`, `summary.json`, `receipt.json`, `reopen-differences.ndjson`, `failure.json` on an incomplete census, and
 `work/run-N/` with each capture's log, raw records and `sqlite-receipt.json`. The orchestration is the shared
 `scripts/lib/runtime-parity/census.mjs`; `run.mjs` is only the reopen measure's spec.
+
+The `--runs` captures (default 2) are fresh Jest processes, each over the whole plan in its own `work/run-N/` (its own `reopen.db` included), and by default they
+run **concurrently**, so wall time is about one capture's. Each is a full Jest process, so peak memory is roughly `--runs` times one
+capture's `resources.maxRSS` (recorded per run in `receipt.json`); on a machine that cannot spare that, pass `--sequential` to run
+them one after another as before. Rows, summary and facts are byte-identical either way, and `receipt.captureMode` records which
+was used. Each run's `durationSeconds` is its own wall time, so concurrent runs overlap and do not add up to the invocation's.
+Because concurrent captures share a wall clock, each run after the first starts `CONCURRENT_START_OFFSET_MS` (4 s) after the
+one before it and runs under a different `TZ` (`Pacific/Kiritimati`, or `Pacific/Pago_Pago` when that is already the inherited
+zone), so a row that carries a time- or zone-derived value still fails `NONDETERMINISTIC_ROWS`. `receipt.captureOffsetMs` and
+`receipt.captureTimeZones` record both; `--sequential` changes neither.
 
 ## What is cold
 

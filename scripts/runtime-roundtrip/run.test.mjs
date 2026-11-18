@@ -585,6 +585,8 @@ function setup({ capture } = {}) {
         durationSeconds: 1,
         resources: { maxRSS: 1 },
       })),
+    // No start stagger between concurrent runs here; the load port's tests cover it.
+    captureOffsetMs: 0,
   };
   const outDir = path.join(root, 'out');
   return {
