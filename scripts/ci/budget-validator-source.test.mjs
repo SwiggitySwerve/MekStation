@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
+import { createRequire, isBuiltin } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import ts from 'typescript';
 
 import { loadBudgets } from './budget-config.mjs';
 import { readWorkflow } from './budget-workflow.mjs';
+import { staticImportClosure } from './test-helpers/import-closure.mjs';
 
 const steps = readWorkflow(process.cwd()).jobs['lint-and-test'].steps;
 const approval = steps.find(
@@ -16,40 +16,94 @@ const approval = steps.find(
 );
 const checkout = steps.find((step) => step.id === 'budget-validator');
 
-function staticImportClosure(entry) {
-  const visited = new Set();
-  function visit(file) {
-    if (visited.has(file)) return;
-    visited.add(file);
-    const source = ts.createSourceFile(
-      file,
-      fs.readFileSync(file, 'utf8'),
-      ts.ScriptTarget.Latest,
-      true,
-      ts.ScriptKind.JS,
-    );
-    assert.deepEqual(source.parseDiagnostics, [], `Cannot parse ${file}`);
-    function inspect(node) {
-      const specifier =
-        ts.isImportDeclaration(node) || ts.isExportDeclaration(node)
-          ? node.moduleSpecifier
-          : ts.isCallExpression(node) &&
-              (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
-                (ts.isIdentifier(node.expression) &&
-                  node.expression.text === 'require'))
-            ? node.arguments[0]
-            : undefined;
-      if (specifier && ts.isStringLiteralLike(specifier)) {
-        if (specifier.text.startsWith('.'))
-          visit(path.posix.join(path.posix.dirname(file), specifier.text));
-      }
-      ts.forEachChild(node, inspect);
-    }
-    inspect(source);
-  }
-  visit(entry);
-  return visited;
+function assertNoInstallClosure(entry, root = process.cwd()) {
+  return staticImportClosure(entry, {
+    root,
+    inspectSpecifier: (specifier, file) => {
+      assert.equal(
+        typeof specifier,
+        'string',
+        `${file}: no-install workflow cannot resolve a computed module specifier`,
+      );
+      if (!specifier.startsWith('.'))
+        assert.ok(
+          specifier.startsWith('node:') && isBuiltin(specifier),
+          `${file}: no-install workflow cannot load ${specifier}`,
+        );
+    },
+  });
 }
+
+test('reconciliation static closure needs no install: only relative modules and node built-ins', () => {
+  const closure = assertNoInstallClosure('scripts/ci/budget-reconcile.mjs');
+  for (const file of [
+    'scripts/ci/budget-approval.mjs',
+    'scripts/ci/budget-config.mjs',
+    'scripts/lib/statistics.mjs',
+    'scripts/ci/garden-approval.mjs',
+  ])
+    assert.ok(closure.has(file), file);
+});
+
+test('no-install closure rejects package imports, dynamic imports and require calls in transitive files', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-no-install-'));
+  try {
+    fs.writeFileSync(path.join(root, 'entry.mjs'), "import './peer.mjs';");
+    for (const source of [
+      "import 'zod';",
+      "await import('zod');",
+      "require('zod');",
+    ]) {
+      fs.writeFileSync(path.join(root, 'peer.mjs'), source);
+      assert.throws(
+        () => assertNoInstallClosure('entry.mjs', root),
+        /peer.mjs: no-install workflow cannot load zod/,
+      );
+    }
+    for (const source of ['await import(name);', 'require(name);']) {
+      fs.writeFileSync(path.join(root, 'peer.mjs'), source);
+      assert.throws(
+        () => assertNoInstallClosure('entry.mjs', root),
+        /computed module specifier/,
+      );
+    }
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('the closure walker rejects relative imports that leave the repository root or enter node_modules', () => {
+  const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-closure-'));
+  try {
+    const root = path.join(workspace, 'repo');
+    fs.mkdirSync(path.join(root, 'scripts', 'node_modules', 'pkg'), {
+      recursive: true,
+    });
+    // Both targets exist and parse, so only the containment rule can reject them.
+    fs.writeFileSync(path.join(workspace, 'outside.mjs'), 'export {};');
+    fs.writeFileSync(
+      path.join(root, 'scripts', 'node_modules', 'pkg', 'index.mjs'),
+      'export {};',
+    );
+    for (const [specifier, message] of [
+      ['../../outside.mjs', /outside the repository root/],
+      ['./sub/../../../outside.mjs', /outside the repository root/],
+      ['./node_modules/pkg/index.mjs', /inside node_modules/],
+    ]) {
+      fs.writeFileSync(
+        path.join(root, 'scripts', 'entry.mjs'),
+        `import '${specifier}';`,
+      );
+      assert.throws(
+        () => staticImportClosure('scripts/entry.mjs', { root }),
+        message,
+        specifier,
+      );
+    }
+  } finally {
+    fs.rmSync(workspace, { recursive: true, force: true });
+  }
+});
 
 test('budget validator comes from a literal main side checkout with no credentials', () => {
   assert.ok(checkout, 'missing main validator checkout');

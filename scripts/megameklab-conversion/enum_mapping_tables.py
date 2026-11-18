@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 
 TECH_BASE_MAP: Dict[str, str] = {
     # Standard variations
@@ -30,7 +30,7 @@ TECH_BASE_MAP: Dict[str, str] = {
 
 # MTF source vocabulary shared with the TypeScript parser. Python keeps its
 # legacy aliases below; see src/types/formats/MTF_COMPONENT_VOCABULARY.md.
-MTF_COMPONENT_VOCABULARY: Dict[str, Dict[str, str]] = json.loads(
+MTF_COMPONENT_VOCABULARY: Dict[str, Any] = json.loads(
     (Path(__file__).resolve().parents[2] / 'src/types/formats/mtf-component-vocabulary.json')
     .read_text(encoding='utf-8-sig')
 )
@@ -148,75 +148,20 @@ STRUCTURE_TYPE_MAP: Dict[str, str] = {
     "Industrial Structure": "INDUSTRIAL",
 }
 
+# MTF armor spelling -> contract tag. Armor identity has one owner, the `armor`
+# section of mtf-component-vocabulary.json (read by the TypeScript parser and
+# exporter too). `spellings` is the exact set Python accepts, moved verbatim from
+# the table that lived here (MegaMek 48fcb2f64 MtfFile.java:414-483;
+# EquipmentType.java:85-111). Python and TypeScript accept different sets today;
+# see the OPEN row in the fold's PR (armor-accepted-names fixture).
+# REACTIVE_CLAN and REFLECTIVE_CLAN have no spelling here: Reactive(Clan) and
+# Reflective(Clan) resolve to REACTIVE and REFLECTIVE (31 pinned mechs are stored
+# as the Inner Sphere types). Open defect, deliberately not fixed by the fold.
 ARMOR_TYPE_MAP: Dict[str, str] = {
-    "Standard": "STANDARD",
-    "Standard Armor": "STANDARD",
-    "Standard(Inner Sphere)": "STANDARD",
-    "Ferro-Fibrous": "FERRO_FIBROUS",
-    "Ferro-Fibrous Armor": "FERRO_FIBROUS",
-    "Ferro-Fibrous(Inner Sphere)": "FERRO_FIBROUS",
-    "IS Ferro-Fibrous": "FERRO_FIBROUS",
-    "Clan Ferro-Fibrous": "FERRO_FIBROUS_CLAN",
-    "Ferro-Fibrous(Clan)": "FERRO_FIBROUS_CLAN",
-    "Ferro-Lamellor(Clan)": "FERRO_LAMELLOR",
-    "Light Ferro-Fibrous": "LIGHT_FERRO_FIBROUS",
-    "Light Ferro-Fibrous Armor": "LIGHT_FERRO_FIBROUS",
-    "Heavy Ferro-Fibrous": "HEAVY_FERRO_FIBROUS",
-    "Heavy Ferro-Fibrous Armor": "HEAVY_FERRO_FIBROUS",
-    "Stealth Armor": "STEALTH",
-    "Stealth": "STEALTH",
-    "Reactive Armor": "REACTIVE",
-    "Reactive": "REACTIVE",
-    "Reflective Armor": "REFLECTIVE",
-    "Reflective": "REFLECTIVE",
-    "Laser-Reflective": "REFLECTIVE",
-    "Hardened Armor": "HARDENED",
-    "Hardened": "HARDENED",
-    "Primitive Armor": "PRIMITIVE",
-    "Primitive": "PRIMITIVE",
-    "Industrial Armor": "INDUSTRIAL",
-    "Industrial": "INDUSTRIAL",
-    "Commercial": "COMMERCIAL",
-    "Commercial Armor": "COMMERCIAL",
-    "Heavy Industrial": "HEAVY_INDUSTRIAL",
-    "Heavy Industrial Armor": "HEAVY_INDUSTRIAL",
-    "Impact-Resistant": "IMPACT_RESISTANT",
-    "Impact-Resistant Armor": "IMPACT_RESISTANT",
-    # MegaMek 48fcb2f64 MtfFile.java:414-483; EquipmentType.java:85-111.
-    # Explicit corpus spellings keep unknown names out of substring fallbacks.
-    "Anti-Penetrative Ablation(Inner Sphere)": "ANTI_PENETRATIVE_ABLATION",
-    "Ballistic-Reinforced(Inner Sphere)": "BALLISTIC_REINFORCED",
-    "Commercial(Inner Sphere)": "COMMERCIAL",
-    "Ferro-Fibrous Prototype(Inner Sphere)": "FERRO_FIBROUS_PROTO",
-    "Hardened(Clan)": "HARDENED",
-    "Hardened(Inner Sphere)": "HARDENED",
-    "Heat-Dissipating(Clan)": "HEAT_DISSIPATING",
-    "Heat-Dissipating(Inner Sphere)": "HEAT_DISSIPATING",
-    "Heavy Ferro-Fibrous(Inner Sphere)": "HEAVY_FERRO_FIBROUS",
-    "Heavy Industrial(Clan)": "HEAVY_INDUSTRIAL",
-    "Heavy Industrial(Inner Sphere)": "HEAVY_INDUSTRIAL",
-    "Impact-Resistant(Inner Sphere)": "IMPACT_RESISTANT",
-    "Industrial(Inner Sphere)": "INDUSTRIAL",
-    "Light Ferro-Fibrous(Inner Sphere)": "LIGHT_FERRO_FIBROUS",
-    "Patchwork": "PATCHWORK",
-    "Primitive(Inner Sphere)": "PRIMITIVE",
-    "Reactive(Clan)": "REACTIVE",
-    "Reactive(Inner Sphere)": "REACTIVE",
-    "Reflective(Clan)": "REFLECTIVE",
-    "Reflective(Inner Sphere)": "REFLECTIVE",
-    "Standard(Clan)": "STANDARD",
-    "Stealth(Inner Sphere)": "STEALTH",
-    "IS Reactive(Inner Sphere)": "REACTIVE",
-    "Clan Standard(Clan)": "STANDARD",
-    "IS Reflective(Inner Sphere)": "REFLECTIVE",
-    "IS Heavy Industrial(Inner Sphere)": "HEAVY_INDUSTRIAL",
-    "IS Hardened(Inner Sphere)": "HARDENED",
-    "IS Standard(Inner Sphere)": "STANDARD",
-    "IS Ferro-Fibrous(Inner Sphere)": "FERRO_FIBROUS",
-    "Ballistic-Reinforced": "BALLISTIC_REINFORCED",
-    "Anti-Penetrative Ablation": "ANTI_PENETRATIVE_ABLATION",
-    "Heat-Dissipating": "HEAT_DISSIPATING",
-    "Ferro-Fibrous Prototype": "FERRO_FIBROUS_PROTO",
+    spelling: row["tag"]
+    for row in MTF_COMPONENT_VOCABULARY["armor"]
+    if "mtf" in row
+    for spelling in row["mtf"]["spellings"]
 }
 
 HEAT_SINK_TYPE_MAP: Dict[str, str] = {

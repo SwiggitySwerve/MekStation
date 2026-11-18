@@ -20,7 +20,7 @@ import {
   encodeBlkArmorType,
 } from '@/services/conversion/BlkArmorCodes';
 import { mapArmorType } from '@/services/units/unitLoaderService/componentMappers';
-import vocabulary from '@/types/formats/mtf-component-vocabulary.json';
+import { ARMOR_IDENTITY_ROWS } from '@/types/formats/ArmorIdentity';
 import { getNativeArmorBVMultiplier } from '@/utils/construction/battleValueDefensive';
 import { getAvailableArmorTypes } from '@/utils/construction/techBaseValidation';
 import { ARMOR_TYPE } from '@/utils/serialization/CustomUnitSerializer.tags';
@@ -320,27 +320,22 @@ describe('names agree with the wire contract and the shared vocabulary', () => {
     expect(contractTags.has(tag)).toBe(true);
   });
 
-  it('agrees with the shared MTF vocabulary armor names once the vocabulary carries them', () => {
-    // mtf-component-vocabulary.json has no `armor` section at this base (the
-    // names are still in MTFVocabulary.ts ARMOR_NAMES and enum_mapping_tables.py
-    // ARMOR_TYPE_MAP). When C3 adds one this compares it instead of passing blind.
-    const armor = (vocabulary as { armor?: Record<string, string> }).armor;
-    if (armor === undefined) return;
-    const tagsInVocabulary = new Set(Object.values(armor));
-    const nativeTags = new Set<string>(
-      ALL_NATIVE_ONLY.map(
-        (t) =>
-          (t === ArmorTypeEnum.PATCHWORK
-            ? PATCHWORK_ARMOR
-            : getArmorDefinition(t)
-          )?.sourceTag as string,
-      ),
-    );
-    for (const tag of nativeTags) expect(tagsInVocabulary.has(tag)).toBe(true);
-    for (const tag of tagsInVocabulary) {
-      if (nativeTags.has(tag)) continue;
-      // every other vocabulary armor tag must be an existing enum identity
-      expect(Object.values(ARMOR_TYPE)).toContain(tag);
-    }
-  });
+  it.each(ALL_NATIVE_ONLY)(
+    '%s has an armor identity owner row with its tag and enum key',
+    (type) => {
+      // The owner is the `armor` row list in mtf-component-vocabulary.json
+      // (one row per unit-contract armor.type; `enum` is the ArmorTypeEnum key).
+      const tag = (
+        type === ArmorTypeEnum.PATCHWORK
+          ? PATCHWORK_ARMOR
+          : getArmorDefinition(type)
+      )?.sourceTag as string;
+      const enumKey = Object.entries(ArmorTypeEnum).find(
+        ([, value]) => value === type,
+      )?.[0];
+      const row = ARMOR_IDENTITY_ROWS.find((r) => r.tag === tag);
+      expect(row).toBeDefined();
+      expect(row?.enum).toBe(enumKey);
+    },
+  );
 });

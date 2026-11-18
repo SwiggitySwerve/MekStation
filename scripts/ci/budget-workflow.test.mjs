@@ -128,6 +128,31 @@ test('label and base edit events stay visible in otherEvents without adding coun
   }
 });
 
+test('hourly reconciliation is visible in every otherEvents census without charging typical PRs', () => {
+  for (const profile of workflowMetrics(root, config).profiles) {
+    assert.deepEqual(
+      profile.otherEvents.find(
+        (entry) => entry.file === 'ci-budget-reconcile.yml',
+      ),
+      {
+        file: 'ci-budget-reconcile.yml',
+        name: 'CI Budget Reconciliation',
+        events: ['schedule', 'workflow_dispatch'],
+        types: { schedule: null, workflow_dispatch: null },
+      },
+      profile.id,
+    );
+    assert.ok(
+      !profile.workflowFiles.includes('ci-budget-reconcile.yml'),
+      profile.id,
+    );
+    assert.ok(
+      !profile.census.some((job) => job.file === 'ci-budget-reconcile.yml'),
+      profile.id,
+    );
+  }
+});
+
 test('the PR Checks budget command rejects a re-added byte cap before collecting metrics', () => {
   const fixture = fs.mkdtempSync(
     path.join(os.tmpdir(), 'budget-tree-command-'),

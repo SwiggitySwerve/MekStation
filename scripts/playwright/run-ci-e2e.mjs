@@ -1,4 +1,5 @@
-// Run one duration-balanced PR shard. The app is built once by its CI job.
+// Run one duration-balanced PR shard, or with `--suite-set nightly` one shard of
+// the full Nightly census. The app is built once by its CI job.
 import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -6,10 +7,21 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 
 import {
+  NIGHTLY_DURATIONS,
   assertSameTests,
+  assertShardNotEmpty,
+  assertShardsCoverCensus,
   collectTests,
+  nightlyCensusArgs,
+  nightlySuites,
+  nightlyTaskArgs,
   parseInvocation,
+  parseNightlyInvocation,
   planShards,
+  planSuiteShards,
+  prCensusArgs,
+  prTaskArgs,
+  shardTestLists,
   suitesForDataSpecs,
 } from './ci-e2e-plan.mjs';
 import { LIMIT } from './unit-spec-refs.mjs';
@@ -20,12 +32,20 @@ const root = path.resolve(
 );
 const cli = path.join(root, 'node_modules/@playwright/test/cli.js');
 const planOnly = process.argv.includes('--plan-only');
-const dataSpecs = JSON.parse(process.env.CI_E2E_DATA_SPECS || '[]');
-const suites = suitesForDataSpecs(dataSpecs);
-const { suite: requestedSuite, shardIndex } = parseInvocation(
-  process.argv.slice(2).filter((arg) => arg !== '--plan-only'),
-  dataSpecs,
-);
+const argv = process.argv.slice(2).filter((arg) => arg !== '--plan-only');
+const nightly = argv.includes('--suite-set');
+const dataSpecs = nightly
+  ? []
+  : JSON.parse(process.env.CI_E2E_DATA_SPECS || '[]');
+// Nightly suites need the census, so they are built after it is listed.
+let suites = nightly ? [] : suitesForDataSpecs(dataSpecs);
+const {
+  suite: requestedSuite,
+  shardIndex,
+  shardCount,
+} = nightly
+  ? parseNightlyInvocation(argv)
+  : { ...parseInvocation(argv, dataSpecs), shardCount: 2 };
 // The data step names what it cannot see: a green data step does not mean no
 // spec depends on the changed data (family/glob selection is not selected).
 if (requestedSuite.name === 'data') console.log(LIMIT);
@@ -86,16 +106,30 @@ function listTests(args, phase) {
 }
 
 const tests = listTests(
-  suites.flatMap(({ files }) => files.map((f) => `e2e/${f}`)),
+  nightly ? nightlyCensusArgs() : prCensusArgs(suites),
   'census',
 );
-const timing = JSON.parse(
-  fs.readFileSync(
-    path.join(root, 'config/playwright/ci-durations.json'),
-    'utf8',
-  ),
-);
-const plan = planShards(tests, timing, 2, dataSpecs);
+if (nightly) suites = nightlySuites(tests);
+const durations = nightly
+  ? path.join(root, NIGHTLY_DURATIONS)
+  : path.join(root, 'config/playwright/ci-durations.json');
+if (nightly && !fs.existsSync(durations))
+  throw new Error(
+    `Missing ${NIGHTLY_DURATIONS}: record it from Nightly reports with record-ci-e2e-durations.mjs --suite-set nightly`,
+  );
+const timing = JSON.parse(fs.readFileSync(durations, 'utf8'));
+const plan = nightly
+  ? planSuiteShards(tests, timing, shardCount, suites)
+  : planShards(tests, timing, 2, dataSpecs);
+if (nightly) {
+  // Every shard process re-derives the same plan: prove it partitions the
+  // census and that this shard has something to run.
+  assertShardsCoverCensus(shardTestLists(plan), tests);
+  assertShardNotEmpty(
+    shardTestLists(plan)[shardIndex - 1],
+    `${shardIndex}/${shardCount}`,
+  );
+}
 fs.writeFileSync(
   path.join(output, `plan-${requestedSuite.name}.json`),
   JSON.stringify(plan, null, 2),
@@ -116,14 +150,7 @@ async function runTask(task) {
   const list = path.join(output, `${suite.name}.txt`);
   const report = path.join(output, `${suite.name}.json`);
   fs.writeFileSync(list, task.tests.map(({ key }) => key).join('\n') + '\n');
-  const args = [
-    ...suite.files.map((f) => `e2e/${f}`),
-    `--test-list=${list}`,
-    '--project=chromium',
-    `--workers=${suite.workers}`,
-    ...suite.options,
-    `--output=test-results/${suite.name}`,
-  ];
+  const args = nightly ? nightlyTaskArgs(suite, list) : prTaskArgs(suite, list);
   assertSameTests(task.tests, listTests(args, 'selection'));
   const started = Date.now();
   if (planOnly) return;
@@ -161,7 +188,8 @@ async function runTask(task) {
   process.once('SIGTERM', interrupted);
   process.once('SIGINT', interrupted);
   // A stuck browser/server must fail this gate and release its process tree.
-  const timeout = setTimeout(kill, 600_000);
+  // A Nightly shard runs a third of the whole suite, inside a 180-minute job.
+  const timeout = setTimeout(kill, nightly ? 9_000_000 : 600_000);
   let code;
   try {
     code = await new Promise((resolve, reject) => {
@@ -175,6 +203,7 @@ async function runTask(task) {
   }
   if (code !== 0) throw new Error(`${suite.name} failed with exit ${code}`);
   const observed = collectTests(JSON.parse(fs.readFileSync(report, 'utf8')));
+  assertShardNotEmpty(observed, `${suite.name} execution`);
   assertSameTests(task.tests, observed);
   if (observed.some(({ results }) => results.length === 0))
     throw new Error(`${suite.name} reported unexecuted tests`);
