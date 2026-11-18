@@ -22,7 +22,7 @@ export function MekStationIcon({
 }): React.ReactElement {
   return (
     <Image
-      src="/mekstation-logo.png"
+      src="/mekstation-logo-40.png"
       alt="MekStation"
       width={20}
       height={20}

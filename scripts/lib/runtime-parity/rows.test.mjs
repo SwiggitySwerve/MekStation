@@ -619,6 +619,18 @@ const receipt = () => ({
   scope: { families: ['battlemechs'], populationCount: 4263, unitIds: null },
 });
 
+test('a receipt names one capture time zone per run, when it names any', () => {
+  validateReceipt({
+    ...receipt(),
+    captureTimeZones: ['UTC', 'Pacific/Kiritimati'],
+  });
+  assert.throws(
+    () => validateReceipt({ ...receipt(), captureTimeZones: ['UTC'] }),
+    /names 1 zone\(s\) for 2 run\(s\)/,
+  );
+  assert.throws(() => validateReceipt({ ...receipt(), captureOffsetMs: -1 }));
+});
+
 test('the receipt proves the population instead of inferring it', () => {
   validateReceipt(receipt());
   const withRows = (count, scope) => ({
