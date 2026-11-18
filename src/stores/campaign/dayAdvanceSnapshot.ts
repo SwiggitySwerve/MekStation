@@ -134,10 +134,6 @@ export function rollbackDayAdvance(
   snapshot: IDayAdvanceSnapshot,
 ): string | null {
   const live = get().campaign;
-  // The player switched campaigns: the one now live is not this attempt's.
-  if (live?.id !== snapshot.campaign.id) {
-    return null;
-  }
   let failure: string | null = null;
   const attempt = (restore: () => void): void => {
     try {
@@ -146,6 +142,15 @@ export function rollbackDayAdvance(
       failure ??= error instanceof Error ? error.message : String(error);
     }
   };
+  // The player switched campaigns: the campaign store now holds another
+  // campaign's state, which is not this attempt's to restore. The day
+  // pipeline's own writes are still taken back - each restore applies only
+  // where nothing has written since - so a retry does not apply them twice.
+  if (live?.id !== snapshot.campaign.id) {
+    attempt(() => restoreRoster(snapshot));
+    attempt(() => restoreVault(snapshot));
+    return failure;
+  }
   // The persistence wiring marks the campaign dirty on every campaign change,
   // restoring included. After a co-op rejection the persistence layer has
   // just cleared it, and the restored campaign is the saved one, so it is

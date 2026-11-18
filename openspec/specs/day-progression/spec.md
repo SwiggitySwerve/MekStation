@@ -347,6 +347,7 @@ The system SHALL pass the updated campaign state from each processor to the next
 - **GIVEN** processors A, B, C where B throws an error
 - **WHEN** processDay is called
 - **THEN** processor A executes, processor B's error is reported with its processor id, processor C does not run, the returned campaign is the input campaign unchanged, the date does not advance, and the caller does not save the day
+- **AND** on a co-op host the day is computed before the host is asked to commit it, so the host is not told the day advanced
 
 ### Requirement: Built-in Processors
 

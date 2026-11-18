@@ -341,7 +341,9 @@ describe('K13 host intent deadline', () => {
     host.commit();
     await jest.advanceTimersByTimeAsync(50);
 
-    expect(processDay).not.toHaveBeenCalled();
+    // T6 (C8): the day is computed once before the intent is sent, and the
+    // timeout discards it; the late answer runs nothing more.
+    expect(processDay).toHaveBeenCalledTimes(1);
     expect(dayMs()).toBe(start);
   });
 
@@ -358,7 +360,8 @@ describe('K13 host intent deadline', () => {
     expect(await pending).toBeNull();
     expect(store.getState().campaign?.id).toBe('other-campaign');
     expect(store.getState().campaign?.currentDate).toBe(original.currentDate);
-    expect(processDay).not.toHaveBeenCalled();
+    // T6 (C8): computed once before the send, then discarded.
+    expect(processDay).toHaveBeenCalledTimes(1);
   });
 
   it('(T7b) switching campaigns while the committed record is being read, and the read failing, leaves the new campaign alone', async () => {
@@ -388,7 +391,8 @@ describe('K13 host intent deadline', () => {
 
     expect(await pending).toBeNull();
     expect(store.getState().campaign?.id).toBe('other-campaign');
-    expect(processDay).not.toHaveBeenCalled();
+    // T6 (C8): computed once before the send, then discarded.
+    expect(processDay).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -50,6 +50,10 @@ import type {
   MaybePromise,
 } from './useCampaignStore.types';
 
+import {
+  mergeBattleOutcomeState,
+  restoreBattleOutcomeState,
+} from './campaignBattleOutcomeState';
 import { appendContractPaymentActivityEntries } from './contractPaymentActivity';
 import {
   captureDayAdvanceSnapshot,
@@ -58,6 +62,7 @@ import {
   rollbackDayAdvance,
 } from './dayAdvanceSnapshot';
 import { useCampaignPersistenceStore } from './useCampaignPersistenceStore';
+import { useCampaignRosterStore } from './useCampaignRosterStore';
 import {
   snapshotRosterPilots,
   withBattleQueueAttached,
@@ -331,6 +336,22 @@ interface IAppliedDay {
   readonly events: readonly IDayEvent[];
 }
 
+/** A day the pipeline ran, not yet written to the campaign store. */
+interface IComputedDay {
+  /** The battle queue the day started from. */
+  readonly queuedOutcomes: readonly ICombatOutcome[];
+  readonly report: DayReport;
+  /** The day's campaign, with its battle audit entry. */
+  readonly campaign: ICampaign;
+  readonly events: readonly IDayEvent[];
+  readonly pendingBattleOutcomes: ICombatOutcome[];
+  readonly processedBattleIds: string[];
+  readonly outcomeApplyErrors: Record<string, string>;
+  /** Outcome-apply errors that are new this day; toasted once it is saved. */
+  readonly outcomeErrorToasts: readonly string[];
+  readonly dayNumber?: number;
+}
+
 /**
  * Run one day of `campaign` through the day pipeline, store the result
  * (campaign, battle queue, outcome errors, missions, activity entries) and
@@ -348,6 +369,22 @@ function advanceDayLocally(
   campaign: ICampaign,
 ): MaybePromise<DayReport | null> {
   const snapshot = captureDayAdvanceSnapshot(get, campaign);
+  return commitDay(set, get, snapshot, () =>
+    installDay(set, get, computeDay(get, campaign, snapshot), snapshot),
+  );
+}
+
+/**
+ * Write a day to the stores (`install`) and save it. Returns the day report
+ * once the save committed, or null; a day that is not saved is rolled back
+ * to `snapshot` and reported with a toast.
+ */
+function commitDay(
+  set: CampaignSet,
+  get: CampaignGet,
+  snapshot: IDayAdvanceSnapshot,
+  install: () => IAppliedDay,
+): MaybePromise<DayReport | null> {
   const fail = (reason: string): null => {
     toastNotSaved(
       'day advance',
@@ -359,7 +396,7 @@ function advanceDayLocally(
   let day: IAppliedDay;
   let saveResult: MaybePromise<CampaignCommitResult>;
   try {
-    day = applyDayToStores(set, get, campaign, snapshot);
+    day = install();
     try {
       saveResult = get().saveCampaign();
     } finally {
@@ -387,13 +424,17 @@ function advanceDayLocally(
     : settle(saveResult);
 }
 
-/** Run the pipeline and write its result to the stores, up to the save. */
-function applyDayToStores(
-  set: CampaignSet,
+/**
+ * Run the day pipeline over `campaign` and the store's battle queue. Writes
+ * nothing to the campaign store; the processors' own roster and vault writes
+ * are noted on `snapshot` so a rollback takes them back. Throws when a day
+ * processor threw.
+ */
+function computeDay(
   get: CampaignGet,
   campaign: ICampaign,
   snapshot: IDayAdvanceSnapshot,
-): IAppliedDay {
+): IComputedDay {
   const { pendingBattleOutcomes, processedBattleIds } = get();
   registerBuiltinProcessors();
   const campaignWithOutcomes = withBattleQueueAttached(
@@ -430,10 +471,6 @@ function applyDayToStores(
     events: pipelineResult.events,
     date: pipelineResult.date,
   });
-  const campaignWithAudit = appendDailyBattleAuditEntry(
-    report.campaign,
-    auditEntry,
-  );
   const pendingOutcomes = [...(postPipeline.pendingBattleOutcomes ?? [])];
   const previousErrors = get().outcomeApplyErrors;
   const outcomeApplyErrors = collectOutcomeErrors(
@@ -441,24 +478,69 @@ function applyDayToStores(
     previousErrors,
     pendingOutcomes,
   );
-  set({
-    campaign: campaignWithAudit,
+  return {
+    queuedOutcomes: pendingBattleOutcomes,
+    report,
+    campaign: appendDailyBattleAuditEntry(report.campaign, auditEntry),
+    events: pipelineResult.events,
     pendingBattleOutcomes: pendingOutcomes,
     processedBattleIds: [
       ...(postPipeline.processedBattleIds ?? processedBattleIds),
     ],
     outcomeApplyErrors,
+    outcomeErrorToasts: Object.entries(outcomeApplyErrors)
+      .filter(([matchId, error]) => error !== previousErrors[matchId])
+      .map(([matchId, error]) => `Battle ${matchId}: ${error}`),
+    dayNumber: postPipeline.dayNumber,
+  };
+}
+
+/**
+ * Write a computed day to the stores, up to the save. An outcome queued
+ * since the day was computed (in the store, or in `laterQueued`) is not the
+ * day's: it stays queued for the next day, by the rule a rollback keeps such
+ * an outcome (restoreBattleOutcomeState).
+ */
+function installDay(
+  set: CampaignSet,
+  get: CampaignGet,
+  day: IComputedDay,
+  snapshot: IDayAdvanceSnapshot,
+  laterQueued: readonly ICombatOutcome[] = [],
+): IAppliedDay {
+  const state = get();
+  const ledgers = restoreBattleOutcomeState(
+    {
+      pendingBattleOutcomes: day.pendingBattleOutcomes,
+      processedBattleIds: day.processedBattleIds,
+      reviewedBattleIds: state.reviewedBattleIds,
+    },
+    { pendingBattleOutcomes: day.queuedOutcomes },
+    {
+      pendingBattleOutcomes: [...state.pendingBattleOutcomes, ...laterQueued],
+    },
+  );
+  const campaign =
+    ledgers.pendingBattleOutcomes === day.pendingBattleOutcomes
+      ? day.campaign
+      : {
+          ...day.campaign,
+          pendingBattleOutcomes: ledgers.pendingBattleOutcomes,
+          processedBattleIds: ledgers.processedBattleIds,
+        };
+  set({
+    campaign,
+    pendingBattleOutcomes: ledgers.pendingBattleOutcomes,
+    processedBattleIds: ledgers.processedBattleIds,
+    outcomeApplyErrors: day.outcomeApplyErrors,
   });
-  recordStoredCampaign(snapshot, campaignWithAudit);
-  const outcomeErrorToasts = Object.entries(outcomeApplyErrors)
-    .filter(([matchId, error]) => error !== previousErrors[matchId])
-    .map(([matchId, error]) => `Battle ${matchId}: ${error}`);
-  syncReportMissions(get, report.campaign);
-  emitDailyActivityEntries(get, report, postPipeline, pipelineResult.events);
+  recordStoredCampaign(snapshot, campaign);
+  syncReportMissions(get, day.report.campaign);
+  emitDailyActivityEntries(get, day.report, day, day.events);
   return {
-    committedReport: { ...report, campaign: campaignWithAudit },
-    outcomeErrorToasts,
-    events: pipelineResult.events,
+    committedReport: { ...day.report, campaign },
+    outcomeErrorToasts: day.outcomeErrorToasts,
+    events: day.events,
   };
 }
 
@@ -540,14 +622,25 @@ function coopHostTransport(campaign: ICampaign): ICampaignSyncTransport | null {
 }
 
 /**
- * The co-op host's day advance (roadmap unit U96): AdvanceDay goes to the
- * live host first. A refusal toasts its reason and returns null with
- * nothing computed or saved. On commit the command has rewritten the saved
- * record at the next version (U35e): the record is re-read
- * (refreshAfterCommittedCommand, which replaces the live campaign and roster
- * with it), the campaign the day was advanced from is put back, and the day
- * runs locally and is saved at that version, carrying the day the host
- * already holds, so the host's adoption of the save does not re-advance it.
+ * The co-op host's day advance (roadmap unit U96). The day is computed BEFORE
+ * the host is asked to commit it, so a day processor that throws never
+ * leaves the host at D+1 with no processor run (T6):
+ *
+ * 1. A dirty campaign is saved first (the 6.2a contract: the command is sent
+ *    from an acknowledged save). A save that fails refuses the day; nothing
+ *    is computed or sent.
+ * 2. The day is computed (computeDay). A throw is rolled back and reported,
+ *    and AdvanceDay is never sent.
+ * 3. AdvanceDay goes to the live host. A refusal, a timeout or a campaign
+ *    switch rolls the computed day back (the processors' roster and vault
+ *    writes included) and installs nothing.
+ * 4. On commit the record is re-read (refreshAfterCommittedCommand), and
+ *    the computed day is installed over it and saved at the version the
+ *    host's commit produced, carrying the day the host already holds, so the
+ *    host's adoption of the save does not re-advance it. When the record
+ *    moved further than the AdvanceDay commit alone moves it, something else
+ *    committed in between: the computed day is rolled back and the day is
+ *    recomputed on the refreshed campaign, then saved.
  */
 async function advanceCoopDayThroughHost(
   set: CampaignSet,
@@ -555,8 +648,38 @@ async function advanceCoopDayThroughHost(
   transport: ICampaignSyncTransport,
   campaign: ICampaign,
 ): Promise<DayReport | null> {
-  const answer = await sendAdvanceDay(transport, campaign);
+  // Awaited only when there is something to save, so a clean campaign's
+  // intent goes out in the same tick as the call.
+  if (
+    useCampaignPersistenceStore.getState().dirty &&
+    !(await saveBeforeComputingDay(get))
+  ) {
+    return null;
+  }
+  // The awaits here and below are windows in which the player can switch
+  // campaigns; the day belongs to the campaign it was started on.
+  const base = get().campaign;
+  if (!base || base.id !== campaign.id) {
+    return null;
+  }
+  const savedVersion = useCampaignPersistenceStore.getState().baseVersion;
+  const snapshot = captureDayAdvanceSnapshot(get, base);
+  let day: IComputedDay;
+  try {
+    day = computeDay(get, base, snapshot);
+  } catch (error) {
+    toastNotSaved(
+      'day advance',
+      errorMessage(error),
+      rollbackDayAdvance(set, get, snapshot),
+    );
+    return null;
+  }
+  const discard = (): void =>
+    toastIfRestoreFailed(rollbackDayAdvance(set, get, snapshot));
+  const answer = await sendAdvanceDay(transport, base);
   if (answer.kind === 'timeout') {
+    discard();
     toast({
       message:
         "The host didn't answer the day advance in time. Nothing was saved. Retrying is safe.",
@@ -566,6 +689,7 @@ async function advanceCoopDayThroughHost(
     return null;
   }
   if (answer.kind === 'refused') {
+    discard();
     toast({
       message: `Co-op day advance was refused by the host: ${answer.reason}. Nothing was saved.`,
       variant: 'error',
@@ -573,20 +697,106 @@ async function advanceCoopDayThroughHost(
     });
     return null;
   }
-  // The awaits above and below are windows in which the player can switch
-  // campaigns; the day belongs to the campaign it was started on.
   if (get().campaign?.id !== campaign.id) {
+    discard();
     return null;
   }
+  // The refresh installs the server's battle queue; an outcome queued while
+  // the host answered is carried over to the next day from here.
+  const queuedBeforeRefresh = get().pendingBattleOutcomes;
   await useCampaignPersistenceStore.getState().refreshAfterCommittedCommand({
     kind: 'committed',
     state: { campaignId: campaign.id },
   });
   if (get().campaign?.id !== campaign.id) {
+    discard();
     return null;
   }
-  set({ campaign });
-  return advanceDayLocally(set, get, campaign);
+  if (!isOnlyAdvanceDayCommitted(savedVersion)) {
+    discard();
+    // The recomputed day runs after every outcome queued so far, the ones
+    // the refresh replaced included, so it applies them.
+    const state = get();
+    const ledgers = mergeBattleOutcomeState(state.campaign, {
+      pendingBattleOutcomes: [
+        ...state.pendingBattleOutcomes,
+        ...queuedBeforeRefresh,
+      ],
+      processedBattleIds: state.processedBattleIds,
+      reviewedBattleIds: state.reviewedBattleIds,
+    });
+    const recomputeFrom = {
+      ...(state.campaign as ICampaign),
+      ...ledgers,
+      currentDate: base.currentDate,
+    };
+    set({ ...ledgers, campaign: recomputeFrom });
+    return advanceDayLocally(set, get, recomputeFrom);
+  }
+  // Taken after the refresh, as the day's starting point if its save fails;
+  // the vault's starting point is the one from before the compute.
+  const installSnapshot: IDayAdvanceSnapshot = {
+    ...captureDayAdvanceSnapshot(get, base),
+    vaultPilots: snapshot.vaultPilots,
+  };
+  return commitDay(set, get, installSnapshot, () => {
+    // The refresh adopted the record the day was computed from (the save
+    // above made it the live state), so the computed roster replaces it.
+    useCampaignRosterStore
+      .getState()
+      .replacePilotsForCampaign(
+        snapshot.rosterCampaignId,
+        snapshot.appliedRosterPilots,
+      );
+    recordPipelineWrites(installSnapshot, day.report.campaign.missions);
+    return installDay(set, get, day, installSnapshot, queuedBeforeRefresh);
+  });
+}
+
+/**
+ * Whether the record the refresh read is the one the AdvanceDay commit alone
+ * produced from `savedVersion`: a journal-native campaign's commit rewrites
+ * the record at the next version (campaignRecordJournalState
+ * rewriteCampaignRecordAfterCommand), a snapshot-authority campaign's leaves
+ * it where it was. Any other version means another command committed (a
+ * guest proposal), so a day computed before it is stale.
+ */
+function isOnlyAdvanceDayCommitted(savedVersion: number): boolean {
+  const version = useCampaignPersistenceStore.getState().baseVersion;
+  return version === savedVersion || version === savedVersion + 1;
+}
+
+/**
+ * Save a dirty campaign before its day is computed and sent to the host, so
+ * the host commits on the record the day is computed from. Toasts and
+ * resolves false when the save did not commit.
+ */
+async function saveBeforeComputingDay(get: CampaignGet): Promise<boolean> {
+  let result: CampaignCommitResult;
+  try {
+    result = await get().saveCampaign();
+  } catch (error) {
+    result = { committed: false, reason: errorMessage(error) };
+  }
+  if (result.committed) {
+    return true;
+  }
+  toast({
+    message: `The day was not advanced: the campaign could not be saved before asking the host (${result.reason ?? 'the save was refused'}). Nothing was sent to the host; try again.`,
+    variant: 'error',
+    duration: 7000,
+  });
+  return false;
+}
+
+/** Tell the player when putting a discarded day back failed. */
+function toastIfRestoreFailed(restoreFailure: string | null): void {
+  if (!restoreFailure) return;
+  toast({
+    message: `Restoring the campaign after the day advance failed (${restoreFailure}). Reload the campaign before you go on.`,
+    variant: 'error',
+    duration: 7000,
+  });
 }
 
 /** The host's answer to an AdvanceDay intent, or its absence. */
