@@ -342,11 +342,11 @@ The system SHALL pass the updated campaign state from each processor to the next
 - **WHEN** processDay is called with initial campaign state S0
 - **THEN** processor A receives S0 and returns S1, processor B receives S1 and returns S2, processor C receives S2 and returns S3, and final result contains S3
 
-#### Scenario: Processor failure does not break chain
+#### Scenario: Processor failure fails the day
 
 - **GIVEN** processors A, B, C where B throws an error
 - **WHEN** processDay is called
-- **THEN** processor A executes, processor B is skipped with error logged, processor C receives state from A, and pipeline completes
+- **THEN** processor A executes, processor B's error is reported with its processor id, processor C does not run, the returned campaign is the input campaign unchanged, the date does not advance, and the caller does not save the day
 
 ### Requirement: Built-in Processors
 
