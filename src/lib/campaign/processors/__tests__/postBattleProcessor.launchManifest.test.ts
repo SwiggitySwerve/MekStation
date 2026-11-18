@@ -26,8 +26,10 @@ import {
 } from '@/types/combat/CombatOutcome';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import { PilotType, PilotStatus } from '@/types/pilot/PilotInterfaces';
+import { logger } from '@/utils/logger';
 
 import {
+  applyPostBattle,
   postBattleProcessor,
   type ICampaignWithBattleState,
 } from '../postBattleProcessor';
@@ -310,6 +312,55 @@ describe('postBattleProcessor launch manifest (T1)', () => {
         ...Object.values(state?.currentStructurePerLocation ?? {}),
       ].some((value) => Number.isNaN(value)),
     ).toBe(false);
+  });
+
+  it('warns about and counts each skipped non-finite location, and still writes 0 as 0', () => {
+    const warn = jest.spyOn(logger, 'warn').mockImplementation(() => {});
+    const battle = outcome([
+      delta(PLAYER_SESSION_ID, GameSide.Player, {
+        armorRemaining: { CT: 11, RT: 0, LA: Number.NaN },
+        internalsRemaining: {
+          CT: 0,
+          RL: undefined as unknown as number,
+        },
+      }),
+    ]);
+    const { campaign, summary, events } = applyPostBattle(
+      battle,
+      campaignWith({ battleUnitManifests: { [MATCH]: fullManifest } }),
+    );
+    const state = campaign.unitCombatStates[ROSTER_ID];
+    expect(state.currentArmorPerLocation.RT).toBe(0);
+    expect(state.currentStructurePerLocation.CT).toBe(0);
+    expect(Number.isNaN(state.currentArmorPerLocation.LA)).toBe(false);
+
+    const skipped = [
+      {
+        unitId: ROSTER_ID,
+        matchId: MATCH,
+        kind: 'armor',
+        location: 'LA',
+        value: 'NaN',
+      },
+      {
+        unitId: ROSTER_ID,
+        matchId: MATCH,
+        kind: 'structure',
+        location: 'RL',
+        value: 'undefined',
+      },
+    ];
+    expect(summary.skippedNonFiniteLocations).toEqual(skipped);
+    expect(
+      events.find((event) => event.type === 'post_battle_applied')?.data
+        ?.skippedNonFiniteLocations,
+    ).toEqual(skipped);
+    const nonFiniteWarnings = warn.mock.calls.filter(
+      ([message]) =>
+        typeof message === 'string' && message.includes('non-finite'),
+    );
+    expect(nonFiniteWarnings.map(([, detail]) => detail)).toEqual(skipped);
+    warn.mockRestore();
   });
 
   it('an outcome with only opponent deltas needs no manifest', () => {

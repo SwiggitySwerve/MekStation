@@ -31,6 +31,7 @@ import {
   applyUnitDelta,
   isLostOnField,
   playerWon,
+  type ISkippedNonFiniteLocation,
 } from './postBattleProcessor.helpers';
 export interface IPostBattleCampaignExtensions {
   readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
@@ -47,6 +48,17 @@ export interface IPostBattleApplied {
   readonly contractUpdated: string | null;
   readonly skippedDuplicate: boolean;
   readonly errors: readonly string[];
+  /**
+   * Delta locations not written because their value was not a finite
+   * number (an engine-side gap; see `applyUnitDelta`). Empty when clean.
+   */
+  readonly skippedNonFiniteLocations: readonly ISkippedNonFiniteUnitLocation[];
+}
+
+/** A skipped location, attributed to the roster unit and battle. */
+export interface ISkippedNonFiniteUnitLocation extends ISkippedNonFiniteLocation {
+  readonly unitId: string;
+  readonly matchId: string;
 }
 
 interface IOutcomeDeltaApplicationContext {
@@ -63,6 +75,7 @@ interface IOutcomeDeltaApplicationResult {
   readonly pilotsUpdated: string[];
   readonly unitsUpdated: string[];
   readonly errors: string[];
+  readonly skippedNonFiniteLocations: ISkippedNonFiniteUnitLocation[];
 }
 
 function applyOutcomeDeltas({
@@ -86,6 +99,7 @@ function applyOutcomeDeltas({
   const pilotsUpdated: string[] = [];
   const unitsUpdated: string[] = [];
   const errors: string[] = [];
+  const skippedNonFiniteLocations: ISkippedNonFiniteUnitLocation[] = [];
 
   for (const delta of outcome.unitDeltas) {
     // Design D9 (`add-campaign-fast-forward-api`, `campaign-combat-loop`
@@ -134,6 +148,18 @@ function applyOutcomeDeltas({
         outcome.matchId,
         nowIso,
         isLostOnField(outcome, delta, wonByPlayer),
+        (skip) => {
+          const skipped = {
+            unitId: rosterUnitId,
+            matchId: outcome.matchId,
+            ...skip,
+          };
+          skippedNonFiniteLocations.push(skipped);
+          logger.warn(
+            '[postBattleProcessor] Skipped a non-finite combat-state value (not written):',
+            skipped,
+          );
+        },
       );
       unitStates[rosterUnitId] = next;
       unitsUpdated.push(rosterUnitId);
@@ -147,7 +173,13 @@ function applyOutcomeDeltas({
     }
   }
 
-  return { pilotPatches, pilotsUpdated, unitsUpdated, errors };
+  return {
+    pilotPatches,
+    pilotsUpdated,
+    unitsUpdated,
+    errors,
+    skippedNonFiniteLocations,
+  };
 }
 
 function applyOutcome(
@@ -169,6 +201,7 @@ function applyOutcome(
         contractUpdated: null,
         skippedDuplicate: true,
         errors: [],
+        skippedNonFiniteLocations: [],
       },
       events: [],
     };
@@ -180,15 +213,20 @@ function applyOutcome(
   const wonByPlayer = playerWon(outcome);
   const nowIso = new Date().toISOString();
   const manifest = battleUnitManifestFor(campaign, outcome);
-  const { pilotPatches, pilotsUpdated, unitsUpdated, errors } =
-    applyOutcomeDeltas({
-      campaign,
-      outcome,
-      manifest,
-      wonByPlayer,
-      unitStates,
-      nowIso,
-    });
+  const {
+    pilotPatches,
+    pilotsUpdated,
+    unitsUpdated,
+    errors,
+    skippedNonFiniteLocations,
+  } = applyOutcomeDeltas({
+    campaign,
+    outcome,
+    manifest,
+    wonByPlayer,
+    unitStates,
+    nowIso,
+  });
   // T3: a per-unit failure fails the whole outcome. Throwing here, before
   // the commit point, keeps it queued and out of `processedBattleIds`
   // with no state, pilot or finance side effects (D-5 ordering below);
@@ -280,6 +318,7 @@ function applyOutcome(
         pilotsUpdated,
         unitsUpdated,
         contractUpdated: updatedContract?.id ?? null,
+        skippedNonFiniteLocations,
       },
     },
   ];
@@ -330,6 +369,7 @@ function applyOutcome(
       contractUpdated: updatedContract?.id ?? null,
       skippedDuplicate: false,
       errors,
+      skippedNonFiniteLocations,
     },
     events,
   };
