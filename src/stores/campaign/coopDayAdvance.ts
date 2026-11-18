@@ -20,7 +20,6 @@ import type { CampaignCommitResult } from './useCampaignStore.types';
 
 import { mergeBattleOutcomeState } from './campaignBattleOutcomeState';
 import {
-  advanceDayLocally,
   commitDay,
   computeDay,
   errorMessage,
@@ -77,8 +76,7 @@ export function coopHostTransport(
  *    host's commit produced, carrying the day the host already holds, so the
  *    host's adoption of the save does not re-advance it. When the record
  *    moved further than the AdvanceDay commit alone moves it, something else
- *    committed in between: the computed day is rolled back and the day is
- *    recomputed on the refreshed campaign, then saved.
+ *    committed in between: the computed day is rolled back and refused.
  *
  * An AdvanceDay the host may hold without its day saved here (it timed out,
  * its answer was a transport error, its committed record could not be read,
@@ -96,12 +94,18 @@ export function coopHostTransport(
  *   Without a held campaign the day is not advanced, and the player is told
  *   the host advanced it.
  *
- * Accepted residuals (C8 T6 r6; atomicity is C4's OPEN):
+ * A commit that went stale - the record moved further than the AdvanceDay
+ * commit alone moves it, because another command committed after the day
+ * was computed - is refused (C4 ruling (b)); the day is not recomputed from
+ * the host's record.
+ *
+ * Accepted residuals (C8 T6 r7; atomicity is C4's OPEN):
  * - Reload and fold (S1/F3): the unsettled intent and the held D campaign
  *   live in memory only, so after a reload a late commit the host surface
  *   folded in cannot be finished here, and the next advance starts D+1.
- * - A throw in the recompute after a stale-version commit leaves the host at
- *   D+1 with no processor result saved (pinned by R-RECOMPUTE-THROW).
+ * - Stale path: the host is at D+1 with the other command; day D's
+ *   processors do not run (refused, the status quo on main; pinned by
+ *   R-STALE-REFUSED).
  * - A snapshot-authority campaign's row does not move on a commit, so the
  *   stale-compute check has no version signal there.
  * - C4's open question: whether the saved record and the journal can
@@ -251,20 +255,15 @@ export async function advanceCoopDayThroughHost(
   // committed after the day was computed, including a guest command one
   // version past a commit this client already adopted - is stale.
   if (!isOnlyAdvanceDayCommitted(savedVersion)) {
+    // Stale: another command committed after the day was computed. The day
+    // is not recomputed from the host's record (C4 ruling (b)): it is
+    // refused. The computed day is rolled back, nothing is installed or
+    // saved, and the intent stays unsettled, so a retry replays it and is
+    // refused again rather than starting D+1. The live campaign is the
+    // host's record the refresh installed.
     discard();
-    if (unsavedEditsCarried) {
-      // The refresh replaced the live campaign with the host's record, and
-      // the recompute starts from that record: say so rather than lose the
-      // unsaved edits quietly.
-      toast({
-        message:
-          'Unsaved changes made before this day advance could not be kept: the campaign changed on the host meanwhile.',
-        variant: 'warning',
-        duration: 7000,
-      });
-    }
-    // The recomputed day runs after every outcome queued so far, the ones
-    // the refresh replaced included, so it applies them.
+    // The refresh installed the server's battle queue; an outcome queued
+    // before it stays queued.
     const state = get();
     const ledgers = mergeBattleOutcomeState(state.campaign, {
       pendingBattleOutcomes: [
@@ -274,17 +273,18 @@ export async function advanceCoopDayThroughHost(
       processedBattleIds: state.processedBattleIds,
       reviewedBattleIds: state.reviewedBattleIds,
     });
-    const recomputeFrom = {
-      ...(state.campaign as ICampaign),
+    set({
       ...ledgers,
-      currentDate: base.currentDate,
-    };
-    set({ ...ledgers, campaign: recomputeFrom });
-    return settleAdvanceIntent(
-      campaign.id,
-      intentId,
-      await advanceDayLocally(set, get, recomputeFrom, hostMayHoldDay),
-    );
+      campaign: { ...(state.campaign as ICampaign), ...ledgers },
+    });
+    toast({
+      message: `Another player changed the campaign while the day advanced, so the day wasn't applied here.${
+        unsavedEditsCarried ? ' Unsaved changes could not be kept.' : ''
+      } Reload the campaign to see the host's state.`,
+      variant: 'error',
+      duration: 7000,
+    });
+    return null;
   }
   // What a failed save puts back. Its campaign is `base`, the D campaign the
   // day was computed from (the persistence layer's own rollback usually
@@ -378,7 +378,7 @@ function settleAdvanceIntent(
  * the record at the next version (campaignRecordJournalState
  * rewriteCampaignRecordAfterCommand), a snapshot-authority campaign's leaves
  * it where it was. Any other version means another command committed (a
- * guest proposal), so a day computed before it is stale.
+ * guest proposal), so a day computed before it is stale and is refused.
  */
 function isOnlyAdvanceDayCommitted(savedVersion: number): boolean {
   const version = useCampaignPersistenceStore.getState().baseVersion;

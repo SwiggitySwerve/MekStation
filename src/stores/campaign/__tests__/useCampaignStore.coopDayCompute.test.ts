@@ -735,11 +735,11 @@ describe('T6 co-op: save first, then compute (Q1)', () => {
   });
 });
 
-describe('T6 co-op: a stale compute is recomputed (cond 9)', () => {
+describe('T6 co-op: a stale compute is refused (cond 9, C4 ruling (b))', () => {
   beforeEach(resetWorld);
   afterEach(resetWorld);
 
-  it('(S1) a guest proposal committed between compute and commit forces a recompute, and the saved day includes it', async () => {
+  it('(S1) a guest proposal committed between compute and commit makes the day stale: it is refused, nothing is saved here', async () => {
     const { store, server, host, startVersion, startDate } = await buildWorld();
     const processDay = jest.spyOn(getDayPipeline(), 'processDay');
     host.onIntent = () => {
@@ -750,17 +750,20 @@ describe('T6 co-op: a stale compute is recomputed (cond 9)', () => {
     const report = await store.getState().advanceDay();
     await settle();
 
-    expect(report).not.toBeNull();
-    expect(processDay).toHaveBeenCalledTimes(2);
-    expect(server.record!.version).toBe(startVersion + 3);
+    expect(report).toBeNull();
+    expect(processDay).toHaveBeenCalledTimes(1);
+    expect(campaignPuts(server)).toEqual([]);
+    expect(server.record!.version).toBe(startVersion + 2);
     expect(server.record!.body.name).toBe('Renamed by guest');
-    expect(recordDayMs(server)).toBe(startDate + DAY_MS);
+    // The live campaign is the host's record; the computed day was taken back.
     expect(store.getState().campaign!.name).toBe('Renamed by guest');
     expect(dayMs()).toBe(startDate + DAY_MS);
-    // The discarded compute's writes were taken back: one patch, one award.
-    expect(currentPilot().xp).toBe(10);
-    expect(vaultAwards()).toBe(1);
-    expect(pilotPuts(server)).toHaveLength(1);
+    expect(currentPilot().xp).toBe(0);
+    expect(vaultAwards()).toBe(0);
+    expect(pilotPuts(server)).toEqual([]);
+    expect(toastMessages().join('\n')).toMatch(
+      /Another player changed the campaign while the day advanced/,
+    );
   });
 });
 
@@ -797,7 +800,7 @@ describe('T6 co-op: outcomes that arrive during the host wait (Q2)', () => {
     expect(currentPilot().campaignMissions).toBe(2);
   });
 
-  it('(Q2b) when the late outcome is itself committed before the day, the day is recomputed and applies it once, dropping nothing', async () => {
+  it('(Q2b) when the late outcome is itself committed before the day, the day is refused as stale and no outcome is dropped', async () => {
     const { store, server, host, startVersion, startDate } = await buildWorld([
       outcome('m-1'),
     ]);
@@ -813,15 +816,24 @@ describe('T6 co-op: outcomes that arrive during the host wait (Q2)', () => {
       host.commit();
     };
 
-    expect(await store.getState().advanceDay()).not.toBeNull();
+    expect(await store.getState().advanceDay()).toBeNull();
 
-    expect(processDay).toHaveBeenCalledTimes(2);
+    expect(processDay).toHaveBeenCalledTimes(1);
     expect(dayMs()).toBe(startDate + DAY_MS);
-    expect(store.getState().processedBattleIds).toEqual(['m-1', 'm-late']);
-    expect(store.getState().pendingBattleOutcomes).toEqual([]);
-    expect(currentPilot().campaignMissions).toBe(2);
-    expect(currentPilot().xp).toBe(10);
-    expect(server.record!.version).toBe(startVersion + 3);
+    // Neither outcome was applied, and neither was dropped.
+    expect(store.getState().processedBattleIds).toEqual([]);
+    expect(
+      store
+        .getState()
+        .pendingBattleOutcomes.map((o) => o.matchId)
+        .sort(),
+    ).toEqual(['m-1', 'm-late']);
+    expect(currentPilot().campaignMissions).toBe(0);
+    expect(currentPilot().xp).toBe(0);
+    expect(server.record!.version).toBe(startVersion + 2);
+    expect(toastMessages().join('\n')).toMatch(
+      /Another player changed the campaign while the day advanced/,
+    );
   });
 });
 
@@ -930,33 +942,33 @@ describe('T6 co-op: a retry after the host committed late (r4)', () => {
   });
 });
 
-describe('T6 co-op: residuals pinned (r4)', () => {
+describe('T6 co-op: residuals pinned', () => {
   beforeEach(resetWorld);
   afterEach(resetWorld);
 
-  it('(R-RECOMPUTE-THROW) residual: a throw in the recompute after a stale-version commit leaves the host at D+1', async () => {
+  it('(R-STALE-REFUSED) residual: a stale commit is refused; the host is at D+1 with the other command and day D\u2019s processors do not run', async () => {
     const { store, server, host, startDate } = await buildWorld();
     host.onIntent = () => {
       host.commitGuestRename('Renamed by guest');
       host.commit();
-      // The first compute ran clean; the recompute after the commit throws.
-      throwMode = 'always';
     };
 
-    const report = await store.getState().advanceDay();
+    expect(await store.getState().advanceDay()).toBeNull();
 
-    expect(report).toBeNull();
-    // The host committed D+1 and no processor result was saved with it.
+    // The host holds D+1 and the guest's command; no processor result was
+    // saved with it (the status quo on main).
     expect(recordDayMs(server)).toBe(startDate + DAY_MS);
+    expect(server.record!.body.name).toBe('Renamed by guest');
     expect(
       server.record!.body.rosterProjection?.pilots.find(
         (p) => p.pilotId === PILOT_ID,
       )?.xp,
     ).toBe(0);
-    // Locally the failed recompute was rolled back: no patch, no award.
     expect(currentPilot().xp).toBe(0);
     expect(vaultAwards()).toBe(0);
-    expect(toastMessages().join('\n')).toMatch(/not saved/i);
+    expect(toastMessages().join('\n')).toMatch(
+      /Another player changed the campaign while the day advanced/,
+    );
   });
 });
 
@@ -1169,7 +1181,7 @@ describe('T6 co-op: a day the host committed is finished from the held D campaig
     expect(pilotPuts(server)).toEqual([`PUT /api/pilots/${VAULT_ID}`]);
   });
 
-  it('(C8F1-409) a guest command lands between the refresh and the save, the save is refused 409, a retry replays D: day D runs once, with the guest change', async () => {
+  it('(C8F1-409) a guest command lands between the refresh and the save, the save is refused 409, a retry replays D and is refused as stale: day D does not run here', async () => {
     const world = await buildWorld();
     const { store, server, host, startDate, startVersion } = world;
     host.onIntent = (intent) => {
@@ -1185,7 +1197,8 @@ describe('T6 co-op: a day the host committed is finished from the held D campaig
     expect(vaultAwards()).toBe(0);
 
     host.onIntent = commitAdvanceOnly(host);
-    expect(await store.getState().advanceDay()).not.toBeNull();
+    toast.mockClear();
+    expect(await store.getState().advanceDay()).toBeNull();
     await settle();
 
     const ids = advanceIds(host);
@@ -1193,10 +1206,14 @@ describe('T6 co-op: a day the host committed is finished from the held D campaig
     expect(ids[1]).toBe(ids[0]);
     expect(dayMs()).toBe(startDate + DAY_MS);
     expect(recordDayMs(server)).toBe(startDate + DAY_MS);
-    expect(server.record!.version).toBe(startVersion + 3);
+    expect(server.record!.version).toBe(startVersion + 2);
     expect(server.record!.body.name).toBe('Renamed by guest');
-    expect(currentPilot().xp).toBe(10);
-    expect(vaultAwards()).toBe(1);
+    expect(currentPilot().xp).toBe(0);
+    expect(vaultAwards()).toBe(0);
+    expect(pilotPuts(server)).toEqual([]);
+    expect(toastMessages().join('\n')).toMatch(
+      /Another player changed the campaign while the day advanced/,
+    );
   });
 
   it('(S1-PIN) with the host surface mounted, a late commit it takes in is finished by replaying D from the held campaign', async () => {
@@ -1221,7 +1238,7 @@ describe('T6 co-op: a day the host committed is finished from the held D campaig
     expect(currentPilot().campaignMissions).toBe(1);
   });
 
-  it('(GUEST+1) a guest command landing at exactly +1 over the adopted commit during a replay takes the stale path', async () => {
+  it('(GUEST+1) a guest command landing at exactly +1 over the adopted commit during a replay takes the stale path and is refused', async () => {
     const world = await buildWorld();
     const { store, server, host, startDate, startVersion } = world;
     await lateCommitFoldedBySurface(world);
@@ -1236,17 +1253,60 @@ describe('T6 co-op: a day the host committed is finished from the held D campaig
       host.commit();
     };
 
-    expect(await store.getState().advanceDay()).not.toBeNull();
+    expect(await store.getState().advanceDay()).toBeNull();
     await settle();
 
-    expect(processDay).toHaveBeenCalledTimes(2);
+    expect(processDay).toHaveBeenCalledTimes(1);
     const ids = advanceIds(host);
     expect(ids[1]).toBe(ids[0]);
     expect(recordDayMs(server)).toBe(startDate + DAY_MS);
-    expect(server.record!.version).toBe(startVersion + 3);
+    expect(server.record!.version).toBe(startVersion + 2);
     expect(server.record!.body.name).toBe('Renamed by guest');
-    expect(currentPilot().xp).toBe(10);
-    expect(vaultAwards()).toBe(1);
+    expect(campaignPuts(server)).toEqual([]);
+    expect(currentPilot().xp).toBe(0);
+    expect(vaultAwards()).toBe(0);
+    expect(toastMessages().join('\n')).toMatch(
+      /Another player changed the campaign while the day advanced/,
+    );
+  });
+
+  it('(NO-LOOP) a second retry of a stale day replays D again and is refused again: no double patch, award or outcome, no hang', async () => {
+    const world = await buildWorld();
+    const { store, server, host, startVersion } = world;
+    await lateCommitFoldedBySurface(world);
+    // Queued after the fold, as the outcome bus queues it.
+    store.getState().enqueueOutcome(outcome('m-1'));
+    host.onIntent = (intent) => {
+      if (intent.kind !== 'AdvanceDay') return;
+      host.commitGuestRename('Renamed by guest');
+      host.commit();
+    };
+    expect(await store.getState().advanceDay()).toBeNull();
+
+    // The host replays its receipt; the record stays where the guest left it.
+    host.onIntent = commitAdvanceOnly(host);
+    toast.mockClear();
+    expect(await store.getState().advanceDay()).toBeNull();
+    await settle();
+
+    const ids = advanceIds(host);
+    expect(ids).toHaveLength(3);
+    expect(new Set(ids).size).toBe(1);
+    expect(server.record!.version).toBe(startVersion + 2);
+    expect(campaignPuts(server)).toEqual([]);
+    expect(pilotPuts(server)).toEqual([]);
+    expect(currentPilot().xp).toBe(0);
+    expect(currentPilot().campaignMissions).toBe(0);
+    expect(vaultAwards()).toBe(0);
+    expect(store.getState().processedBattleIds).toEqual([]);
+    expect(
+      store.getState().pendingBattleOutcomes.map((o) => o.matchId),
+    ).toEqual(['m-1']);
+    expect(
+      toastMessages().filter((m) =>
+        /Another player changed the campaign while the day advanced/.test(m),
+      ),
+    ).toHaveLength(1);
   });
 
   it('(HELD-GONE) without the held D campaign, a retry at D+1 does not advance and says the host advanced the day', async () => {
