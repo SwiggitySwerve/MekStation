@@ -36,6 +36,8 @@ import {
 import {
   FACTS_FILE,
   FACT_DEFS,
+  REPORTED_DEFS,
+  isFactValue,
   parseFacts,
   setFactNames,
   unitKey,
@@ -85,13 +87,6 @@ export const populationHash = (keys) =>
 export const setHash = (members) =>
   sha256([...members].join('\n')).slice(0, 16);
 
-const factValue = z.union([
-  z.boolean(),
-  z.number().min(0),
-  z.array(z.string()),
-  z.null(),
-]);
-
 /** The logical baseline: every fact in full, sets as arrays. */
 export const BaselineSchema = z.strictObject({
   schemaVersion: z.literal(BASELINE_SCHEMA_VERSION),
@@ -103,7 +98,7 @@ export const BaselineSchema = z.strictObject({
   /** sha256 of the sorted unit keys, newline-terminated: proves the unit list was not edited by hand. */
   populationHash: hex(64, 64),
   notes: z.array(NoteSchema).min(1),
-  units: z.record(z.string(), z.record(z.string(), factValue)),
+  units: z.record(z.string(), z.record(z.string(), z.unknown())),
 });
 
 /** Throws `GateError('BASELINE_MALFORMED', ...)` on anything that is not a well-formed baseline of `measure`. */
@@ -130,13 +125,7 @@ export function validateBaseline(measure, baseline) {
           'BASELINE_MALFORMED',
           `${key} has no baseline entry for gated fact ${name}`,
         );
-      const v = facts[name];
-      const ok =
-        v === null ||
-        (kind === 'bool' && typeof v === 'boolean') ||
-        (kind === 'distance' && typeof v === 'number') ||
-        (kind === 'set' && Array.isArray(v));
-      if (!ok)
+      if (!isFactValue(kind, facts[name]))
         throw new GateError(
           'BASELINE_MALFORMED',
           `${key}.${name} is not a ${kind} or unknown`,
@@ -161,6 +150,33 @@ export function validateBaseline(measure, baseline) {
       'populationHash does not match the units listed',
     );
   return value;
+}
+
+/** Optional input: return the first bad path rather than failing the night. */
+function lastGreenProblem(measure, artifact) {
+  const parsed = z
+    .strictObject({
+      schemaVersion: z.literal(1),
+      measure: z.literal(measure),
+      runSha: hex(40, 40),
+      baselineSha256: z.string(),
+      units: z.record(z.string(), z.record(z.string(), z.unknown())),
+    })
+    .safeParse(artifact);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    return `${issue.path.join('.') || '(root)'}: ${issue.message}`;
+  }
+  const defs = FACT_DEFS[measure];
+  for (const [unit, facts] of Object.entries(parsed.data.units)) {
+    for (const name of Object.keys(facts))
+      if (!Object.hasOwn(defs, name))
+        return `units.${unit}.${name}: unknown fact`;
+    for (const [name, kind] of Object.entries(defs))
+      if (!isFactValue(kind, facts[name]))
+        return `units.${unit}.${name}: invalid ${kind} fact or missing value`;
+  }
+  return null;
 }
 
 // --- the two committed files ----------------------------------------------------------------------------
@@ -316,8 +332,39 @@ export function parseBaseline(
 }
 
 /**
+ * The notes of an existing committed baseline, and nothing else. A rebaseline replaces every unit and fact from the new run, so it
+ * must be able to read the file it replaces even when that file no longer conforms to the current fact list (the very rebaseline
+ * that adds a fact, or changes the facts schema, reads a baseline without it). Only the notes carry over, so only they and the
+ * measure (a file for another measure is refused) are checked.
+ */
+export function readBaselineNotes(mainText, measure) {
+  let main;
+  try {
+    main = JSON.parse(mainText);
+  } catch (error) {
+    throw new GateError(
+      'BASELINE_MALFORMED',
+      `not valid JSON: ${error.message}`,
+    );
+  }
+  // A misplaced file (another measure's baseline) must not lend its notes.
+  if (main?.measure !== measure)
+    throw new GateError(
+      'BASELINE_MALFORMED',
+      `existing baseline is for ${main?.measure}, not ${measure}`,
+    );
+  const notes = z.array(NoteSchema).min(1).safeParse(main?.notes);
+  if (!notes.success)
+    throw new GateError(
+      'BASELINE_MALFORMED',
+      `the existing baseline's notes are malformed: ${notes.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')}`,
+    );
+  return notes.data;
+}
+
+/**
  * Build a baseline from a complete run's facts. Refuses a run with any failed, incomplete or unknown unit, so
- * a baseline can never record a hole. `existing` (a parsed baseline) keeps its notes; `note` is required.
+ * a baseline can never record a hole. `existingNotes` (from readBaselineNotes) carry over; `note` is required.
  */
 export function buildBaseline({
   measure,
@@ -325,7 +372,7 @@ export function buildBaseline({
   sha,
   note,
   provenance,
-  existing = null,
+  existingNotes = [],
 }) {
   if (!facts.length)
     throw new GateError('BASELINE_REFUSED', 'the run has no units');
@@ -353,7 +400,7 @@ export function buildBaseline({
     ...checkedProvenance,
     populationCount: facts.length,
     populationHash: populationHash(Object.keys(units)),
-    notes: [...(existing?.notes ?? []), checkedNote],
+    notes: [...existingNotes, checkedNote],
     units,
   });
 }
@@ -423,6 +470,28 @@ export const defaultRules = {
   verifySidecar: true,
 };
 
+// --- reported facts (not gated) -----------------------------------------------------------------------
+
+/** For each reported fact: how many units it is known for, how many are non-zero, the largest value. */
+function reportedSummary(measure, facts) {
+  return Object.fromEntries(
+    Object.keys(REPORTED_DEFS[measure]).map((name) => {
+      const values = facts.map((f) => f.reported?.[name] ?? null);
+      const known = values.filter((v) => v !== null);
+      return [
+        name,
+        {
+          gated: false,
+          known: known.length,
+          unknown: values.length - known.length,
+          nonZero: known.filter((v) => v !== 0).length,
+          max: known.length ? Math.max(...known) : null,
+        },
+      ];
+    }),
+  );
+}
+
 // --- the evaluation -------------------------------------------------------------------------------------
 
 /**
@@ -458,6 +527,8 @@ export function evaluate(
     removed: [],
     population: { baseline: null, tonight: facts.length, overlap: 0 },
     provenance: { deriverChanged: false, referenceChanged: false },
+    // Measured per unit and shown here, never gated: no baseline entry, no comparison (see REPORTED_DEFS).
+    reported: reportedSummary(measure, facts),
     lastGreen: { status: 'not-used', detail: '' },
     headline: '',
   };
@@ -565,7 +636,9 @@ export function evaluate(
 
   // Last-green: tighten only while the committed baseline is byte-unchanged since that green run.
   let tightening = null;
-  if (!lastGreen) {
+  const lastGreenIssue =
+    lastGreen == null ? null : lastGreenProblem(measure, lastGreen);
+  if (lastGreen == null) {
     report.lastGreen = {
       status: 'missing',
       detail:
@@ -576,6 +649,11 @@ export function evaluate(
       report.headline = 'FAIL CLOSED: LAST_GREEN_MISSING';
       return report;
     }
+  } else if (lastGreenIssue) {
+    report.lastGreen = {
+      status: 'malformed',
+      detail: `malformed: ${lastGreenIssue}; the committed baseline alone was used`,
+    };
   } else if (
     lastGreen.measure !== measure ||
     (rules.requireSameBaselineBlob &&

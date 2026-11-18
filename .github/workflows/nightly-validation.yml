@@ -421,6 +421,23 @@ jobs:
           retention-days: 7
 
   # ---------------------------------------------------------------
+  # Per-unit runtime parity, independent measures so one failure cannot hide
+  # the other's report. Counts and the previous-nightly SHA range are
+  # informational. The called gate owns enforcement: the committed baseline,
+  # tightened by the last green main Nightly while that baseline is unchanged.
+  parity-runtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        measure: [load, reopen]
+    uses: ./.github/workflows/parity-runtime.yml
+    with:
+      measure: ${{ matrix.measure }}
+    permissions:
+      contents: read
+      actions: read
+
+  # ---------------------------------------------------------------
   # Failure notification: a red nightly run must not scroll away
   # unseen in the Actions tab (that silence is exactly how the
   # 2026-06-09 audit findings accumulated). Opens a tracking issue on
@@ -439,6 +456,7 @@ jobs:
         coverage,
         scenario-pack-recapture,
         subsystem-lanes,
+        parity-runtime,
       ]
     if: failure() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -461,6 +479,6 @@ jobs:
             gh issue comment "$existing" --body "Nightly validation failed again: $RUN_URL"
             echo "Commented on existing issue #$existing"
           else
-            gh issue create --title "$title" --body "$(printf 'The scheduled nightly validation run failed.\n\nRun: %s\n\nLanes: full statistical/perf proofs, full Playwright e2e (chromium), coverage thresholds. See docs/audits/2026-06-09-remediation-tracker.md (W4.4) for what each lane enforces.' "$RUN_URL")"
+            gh issue create --title "$title" --body "$(printf 'The scheduled nightly validation run failed.\n\nRun: %s\n\nLanes: full statistical/perf proofs, full Playwright e2e (chromium), coverage thresholds, scenario-pack recapture, subsystem lanes, runtime parity (load and reopen). See docs/audits/2026-06-09-remediation-tracker.md (W4.4) for what each lane enforces.' "$RUN_URL")"
             echo "Opened new failure issue"
           fi

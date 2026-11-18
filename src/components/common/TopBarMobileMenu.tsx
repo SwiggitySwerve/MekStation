@@ -69,6 +69,7 @@ export function MobileMenu({
         >
           <span className="h-5 w-5 flex-shrink-0">{item.icon}</span>
           <span>{item.label}</span>
+          {item.badge}
         </Link>
       ))}
     </div>
@@ -87,6 +88,8 @@ export function MobileMenu({
         // The old `locator('aside')` selector matched the now-removed desktop
         // secondary-sidebar element; this menu is a `<div><nav>` overlay.
         data-testid="mobile-menu"
+        role="region"
+        aria-label="Mobile menu"
         className="bg-surface-deep fixed inset-0 z-50 flex flex-col md:hidden"
       >
         <div className="border-border-theme-subtle bg-surface-base flex h-14 items-center justify-between border-b px-4">
@@ -160,6 +163,7 @@ export function MobileMenu({
             <span>{APP_VERSION_LABEL}</span>
             <a
               href="https://github.com"
+              aria-label="GitHub"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-accent transition-colors"

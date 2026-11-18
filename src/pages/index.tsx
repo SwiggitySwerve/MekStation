@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import { SvgIcon } from '@/components/ui/SvgIcon';
+import { multiplayerPreviewLabel } from '@/lib/multiplayer/modeAvailability';
 
 interface SystemStats {
   unitCount: number;
@@ -163,6 +164,7 @@ const navigationCards: NavigationCard[] = [
 ];
 
 export default function HomePage(): React.ReactElement {
+  const multiplayerLabel = multiplayerPreviewLabel();
   const [stats, setStats] = useState<SystemStats>({
     unitCount: 0,
     equipmentCount: 0,
@@ -279,6 +281,9 @@ export default function HomePage(): React.ReactElement {
                         </h3>
                         <p className="text-text-theme-secondary mt-1 text-sm leading-relaxed">
                           {card.description}
+                          {card.href === '/gameplay' && multiplayerLabel
+                            ? ` (${multiplayerLabel})`
+                            : null}
                         </p>
                       </div>
                     </div>

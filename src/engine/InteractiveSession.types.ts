@@ -1,3 +1,4 @@
+import type { IGameCreatedPayload } from '@/types/gameplay';
 import type { IEncounterMeta } from '@/types/gameplay/GameSessionInterfaces';
 
 /**
@@ -8,5 +9,6 @@ export interface IInteractiveSessionLinkage {
   readonly contractId?: string | null;
   readonly scenarioId?: string | null;
   readonly encounterId?: string | null;
+  readonly quickMeta?: IGameCreatedPayload['quickMeta'];
   readonly encounterMeta?: IEncounterMeta;
 }

@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
  */
 import React, { ReactElement } from 'react';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { useMobileSidebarSelector } from '@/stores/useNavigationStore';
 
 import {
@@ -102,8 +103,11 @@ export function MobileBottomNav(): ReactElement {
                 <div className="bg-accent absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full" />
               )}
               <div className="mb-1 h-6 w-6">{item.icon}</div>
-              <span className="max-w-full truncate text-[10px] leading-tight font-medium">
+              <span className="max-w-full text-center text-[10px] leading-tight font-medium whitespace-normal">
                 {item.label}
+                {item.href === '/multiplayer' && (
+                  <ModeAvailabilityNotice mode="hosted" compact />
+                )}
               </span>
             </Link>
           );

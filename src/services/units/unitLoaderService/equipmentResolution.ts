@@ -45,6 +45,20 @@ export function getMountedAmmoSourceToken(
 ): string | undefined {
   if (mount.category !== EquipmentCategory.AMMUNITION || !token)
     return undefined;
+  return getMountedEquipmentSourceToken(mount, token, techBase, mode);
+}
+
+/** A native qualifier belongs only to the mount named by that particular cell. */
+export function getMountedEquipmentSourceToken(
+  mount: Pick<
+    IMountedEquipmentInstance,
+    'equipmentId' | 'category' | 'techBase'
+  >,
+  token: string | null | undefined,
+  techBase: TechBase,
+  mode: TechBaseMode,
+): string | undefined {
+  if (!token) return undefined;
   // Use the placed-identity path with exactly this cell, including category and
   // technology. A changed bin cannot inherit the previous bin's native token.
   const original = resolveEquipmentId(
@@ -91,13 +105,15 @@ export function parseCriticalSlotToken(token: string): {
   readonly lookupToken: string;
   readonly isRearMounted: boolean;
   readonly isOmniPodMounted: boolean;
+  readonly isArmored: boolean;
   readonly parameters: ICriticalSlotTokenParameters;
 } {
   const rearSuffix = / *[(](?:R|Rear)[)] *$/i;
   const podSuffix = /\s*\(OMNIPOD\)\s*$/i;
   let isOmniPodMounted = false;
   // MtfFile.java:952-956,1010-1021: armor, pod, Mek turret, then rear markers.
-  const unarmored = token.replace(/\s*\(ARMORED\)\s*$/i, '');
+  const armoredSuffix = /\s*\(ARMORED\)\s*$/i;
+  const unarmored = token.replace(armoredSuffix, '');
   const mountName = unarmored
     .replace(podSuffix, () => {
       isOmniPodMounted = true;
@@ -117,6 +133,7 @@ export function parseCriticalSlotToken(token: string): {
     lookupToken: mountName.replace(rearSuffix, '').trim(),
     isRearMounted: rearSuffix.test(mountName),
     isOmniPodMounted,
+    isArmored: armoredSuffix.test(token),
     parameters: {
       ...(sizeRaw !== undefined
         ? {

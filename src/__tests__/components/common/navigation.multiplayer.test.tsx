@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
+import { modeAvailability } from '@/lib/multiplayer/modeAvailability';
+
 const mockRouterEvents = { on: jest.fn(), off: jest.fn() };
 let mockPathname = '/';
 
@@ -20,6 +22,18 @@ import { MobileBottomNav } from '@/components/common/MobileBottomNav';
 import TopBar from '@/components/common/TopBar';
 
 describe('Gameplay navigation multiplayer entry', () => {
+  afterEach(() => jest.restoreAllMocks());
+  it.each(['preview', 'available'] as const)(
+    'shows mobile navigation availability for %s',
+    (status) => {
+      jest.replaceProperty(modeAvailability.hosted, 'status', status);
+      render(<MobileBottomNav />);
+      const link = screen.getByRole('link', { name: /multiplayer/i });
+      expect(link).toHaveTextContent(
+        status === 'available' ? /^Multiplayer$/ : /Preview/,
+      );
+    },
+  );
   beforeEach(() => {
     mockPathname = '/';
     mockRouterEvents.on.mockClear();

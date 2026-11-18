@@ -1,3 +1,4 @@
+import { useState } from 'react';
 /**
  * CreateMatchForm — render the create-match form on the multiplayer hub.
  *
@@ -10,8 +11,6 @@
  * upstream automatically widens the dropdown.
  */
 
-import { useState } from 'react';
-
 import type {
   IMatchCustomRosterSeatInput,
   MatchRosterPresetId,
@@ -19,6 +18,7 @@ import type {
 import type { IMatchUnitBootstrapEntry } from '@/lib/multiplayer/server/IMatchStore';
 import type { TeamLayout } from '@/types/multiplayer/Lobby';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import {
   buildCustomRosterSeatRows,
   buildMatchUnitBootstrapForCustomRoster,
@@ -46,6 +46,7 @@ export interface ICreateMatchFormValue {
 export interface ICreateMatchFormProps {
   readonly onSubmit: (value: ICreateMatchFormValue) => void | Promise<void>;
   readonly busy?: boolean;
+  readonly compactAvailability?: boolean;
 }
 
 // =============================================================================
@@ -140,6 +141,10 @@ export function CreateMatchForm(
       }}
       className="space-y-4"
     >
+      <ModeAvailabilityNotice
+        mode="hosted"
+        compact={props.compactAvailability}
+      />
       <div>
         <label
           htmlFor="cm-displayName"
@@ -399,10 +404,10 @@ export function CreateMatchForm(
       <button
         type="submit"
         disabled={props.busy}
-        className={`w-full rounded px-4 py-2 text-sm font-medium text-white ${
+        className={`w-full rounded px-4 py-2 text-sm font-medium ${
           props.busy
-            ? 'bg-surface-raised cursor-not-allowed'
-            : 'bg-emerald-600 hover:bg-emerald-500'
+            ? 'bg-surface-raised text-text-theme-secondary cursor-not-allowed'
+            : 'bg-accent text-on-accent hover:bg-accent-hover'
         }`}
       >
         {props.busy ? 'Creating…' : 'Create match'}
