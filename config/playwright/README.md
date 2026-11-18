@@ -40,6 +40,21 @@ The wrapper overrides step-level `PLAYWRIGHT_HTML_OUTPUT_DIR` and
 total wall time, so after-run samples count the listing overhead (up to six
 collections per shard) as well as browser/server time and job setup.
 
+## Nightly suite set
+
+`ci-e2e-plan.mjs` also owns the Nightly suite (`nightlySuites`): one single-worker
+suite over every spec file in the Chromium census with `@E2E-19|@E2E-25`
+excluded. `node scripts/playwright/run-ci-e2e.mjs --suite-set nightly --shard=I/N`
+(N is required) plans that census with the same planner, using
+`nightly-durations.json`, then runs shard I. Each shard re-derives the plan and
+fails if the N shard plans do not partition the census, if its own shard plans
+zero tests, or if it executes zero tests or a different set than planned.
+Only the recorder writes the weights, from Nightly JSON reports of all shards:
+
+```sh
+node scripts/playwright/record-ci-e2e-durations.mjs --suite-set nightly RUN_ID path/to/shard1.json path/to/shard2.json path/to/shard3.json > config/playwright/nightly-durations.json
+```
+
 ## Shared-flow map schema
 
 `shared-flows.json` records the C3/C4-reviewed flow inventory. It does not feed
