@@ -77,6 +77,34 @@ alone never proves that the source cell is occupied. Export armor-family names
 remain owned by the export vocabulary; no second slot-marker names table is
 introduced in the loader or notice.
 
+`criticalSlotEquipment` lists the crit-only equipment the loader may recover
+into real mounts (PR-D). Each row is one **resolved equipment id** with the
+native spellings that resolve to it and their pinned `MiscType.java` /
+`Sensor.java` citation. A row carries no kind and no effect: the recovery kind
+comes from `criticalSlotNoticeEffects.ts`, and token-to-id resolution stays with
+`resolveEquipmentId`. Admission needs both the exact resolved id and an exact
+listed spelling, never a name or substring match: a spelling the resolver merely
+maps onto a row id is not admitted (`CLCASE`, Java's 0 t Clan CASE, resolves to
+IS `case` at 0.5 t because the catalog has no Clan CASE identity; it stays in the
+residual).
+
+`mountAs` is identity only, never a kind or effect. **A row carries `mountAs`
+if and only if its resolved id is a registry stub** (`isRegistryEquipment`, the
+imported Java registry records in `equipmentBVCatalogData.ts`): a stub has no
+mountable mass or criticals of its own, so `mountAs` names the real, mountable
+catalog item the recovered mount becomes, sized by that item's existing owner.
+The targeting-computer crit cells resolve to `istargeting-computer-registry` /
+`cltargeting-computer-registry` (0 t, 0 criticals); their rows name
+`targeting-computer` / `clan-targeting-computer`, sized from the recovered
+weapons. Any later section user (for example stub-resolving mobility tokens)
+follows the same rule. `criticalSlotEquipmentVocabulary.test.ts` enforces both
+directions and that every `mountAs` target is a mountable, non-registry item.
+
+The first rows are CASE and
+the electronics whose definitions carry their own mass and criticals; spread
+systems (Chameleon, Null/Void Signature, Blue Shield), sized communications and
+the Drone OS have no row yet and stay in the unrecovered residual.
+
 ## Tripod and the other late cockpit types
 
 Java's table has 19 cockpits (`Mek.java:214-230`). `Tripod Cockpit` / `Tripod`
