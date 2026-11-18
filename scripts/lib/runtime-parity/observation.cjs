@@ -49,4 +49,27 @@ function checkSheetCalculation(header, calculation) {
   return { bv: header.battleValue, cost: header.cost };
 }
 
-module.exports = { ObservationError, previewFailure, checkSheetCalculation };
+/**
+ * The canvas mock holds no recorded call before the next preview render.
+ *
+ * jest.setup.js makes HTMLCanvasElement.prototype.getContext one module-level jest.fn. Its mock state (calls, contexts,
+ * results) keeps every canvas the sheet drew on and, through it, that unit's whole unmounted PreviewTab tree. Setup
+ * clears mocks per test, but the load capture is one test over every unit, so the preview observer clears this mock
+ * after each unit (measured: 0.4 MB of heap per unit otherwise, about 2.9 GB per full capture). A recorded call here
+ * means that clear did not run: a harness failure, never silent retention. A getContext that is not a mock records
+ * nothing and passes.
+ */
+function checkCanvasMockCleared(getContext) {
+  const recorded = getContext?.mock?.calls?.length ?? 0;
+  if (recorded)
+    throw previewFailure(
+      `The canvas getContext mock still records ${recorded} call(s) from an earlier unit (the per-unit mockClear did not run), so their PreviewTab trees stay in memory`,
+    );
+}
+
+module.exports = {
+  ObservationError,
+  previewFailure,
+  checkSheetCalculation,
+  checkCanvasMockCleared,
+};

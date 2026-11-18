@@ -6,7 +6,8 @@
  * `useGameMovementPlanning` overlays on the legacy movement projection:
  *
  *  - `envelopeHexes` (3.1) — simultaneous affordable-mode envelopes vs remaining MP,
- *  - `hoverPreview` (3.2) — hover path re-anchored at the last waypoint,
+ *  - `resolveHoverPreview` (3.2) — hover path re-anchored at the last waypoint,
+ *    resolved for a hovered hex by the layout that owns hover (perf P2),
  *  - `handleComposerHexClick` (3.3) — click-adds-waypoint / pop-on-last,
  *  - `composedLegs` + `lastWaypointHex` (3.4) — Waypoint Layer inputs,
  *  - `handleFacingSelect` (3.5) — final facing at the last waypoint,
@@ -47,14 +48,15 @@ export interface IntentComposerMapParams {
   readonly unit: IUnitGameState | null;
   readonly capability: IMovementCapability | null;
   readonly grid: IHexGrid | null;
-  readonly hoveredHex: IHexCoordinate | null;
   readonly environmentalConditions: IEnvironmentalConditions | undefined;
   readonly optionalRules: readonly string[];
 }
 
 export interface IntentComposerMap {
   readonly envelopeHexes: readonly IMovementRangeHex[];
-  readonly hoverPreview: IIntentHoverPreview | null;
+  readonly resolveHoverPreview: (
+    hoveredHex: IHexCoordinate | null,
+  ) => IIntentHoverPreview | null;
   readonly composedLegs: readonly ILocomotionLeg[];
   readonly lastWaypointHex: IHexCoordinate | null;
   readonly handleFacingSelect: (facing: Facing) => void;
@@ -73,7 +75,6 @@ export function useIntentComposerMap({
   unit,
   capability,
   grid,
-  hoveredHex,
   environmentalConditions,
   optionalRules,
 }: IntentComposerMapParams): IntentComposerMap {
@@ -124,30 +125,31 @@ export function useIntentComposerMap({
     optionalRules,
   ]);
 
-  const hoverPreview = useMemo((): IIntentHoverPreview | null => {
-    if (!ready || !unit || !capability || !grid || !budgetContext || !unitId) {
-      return null;
-    }
-    return resolveIntentHoverPreview({
-      intent: movementIntent,
-      unit,
-      capability,
-      grid,
-      budgetContext,
-      hoveredHex,
-      routeCache: routeCacheRef.current,
-      unitId,
-    });
-  }, [
-    ready,
-    unit,
-    capability,
-    grid,
-    budgetContext,
-    unitId,
-    movementIntent,
-    hoveredHex,
-  ]);
+  const resolveHoverPreview = useCallback(
+    (hoveredHex: IHexCoordinate | null): IIntentHoverPreview | null => {
+      if (
+        !ready ||
+        !unit ||
+        !capability ||
+        !grid ||
+        !budgetContext ||
+        !unitId
+      ) {
+        return null;
+      }
+      return resolveIntentHoverPreview({
+        intent: movementIntent,
+        unit,
+        capability,
+        grid,
+        budgetContext,
+        hoveredHex,
+        routeCache: routeCacheRef.current,
+        unitId,
+      });
+    },
+    [ready, unit, capability, grid, budgetContext, unitId, movementIntent],
+  );
 
   const composedLegs = useMemo(() => {
     const locomotion = movementIntent.items.find(
@@ -244,7 +246,7 @@ export function useIntentComposerMap({
 
   return {
     envelopeHexes,
-    hoverPreview,
+    resolveHoverPreview,
     composedLegs,
     lastWaypointHex,
     handleFacingSelect,

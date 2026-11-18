@@ -30,6 +30,7 @@ import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
 import { buildTacticalActionContext } from './GameplayLayout.actionContext';
 import { buildCommandPreviewInputs } from './GameplayLayout.commandPreview';
 import { useGameplayLayoutControls } from './GameplayLayout.controls';
+import { useGameplayLayoutHover } from './GameplayLayout.hover';
 import { useGameplayLayoutPanelState } from './GameplayLayout.layoutState';
 import { useGameplayLayoutLensState } from './GameplayLayout.lens';
 import { buildPhaseAdvanceControl } from './GameplayLayout.phaseAdvance';
@@ -68,7 +69,7 @@ export function GameplayLayout({
   onUnitSelect,
   onAction,
   onHexClick,
-  onHexHover,
+  onHexHover: onHexHoverProp,
   canUndo = false,
   isPlayerTurn = true,
   unitWeapons = {},
@@ -80,12 +81,13 @@ export function GameplayLayout({
   interactivePhase,
   hitChance,
   validTargetIds = [],
-  movementRange = [],
-  hoveredHex,
-  hoverMovementInfo,
-  highlightPath = [],
-  hoverMpCost,
-  hoverUnreachable = false,
+  movementRange: movementRangeProp = [],
+  hoveredHex: hoveredHexProp,
+  hoverMovementInfo: hoverMovementInfoProp,
+  highlightPath: highlightPathProp = [],
+  hoverMpCost: hoverMpCostProp,
+  hoverUnreachable: hoverUnreachableProp = false,
+  resolveMovementHover,
   mpLegend,
   onMovementModeSelect,
   intentComposer,
@@ -98,6 +100,24 @@ export function GameplayLayout({
   className = '',
 }: GameplayLayoutProps): React.ReactElement {
   const { currentState, events, config, units } = session;
+  const {
+    hoveredHex,
+    onHexHover,
+    movementRange,
+    hoverMovementInfo,
+    highlightPath,
+    hoverMpCost,
+    hoverUnreachable,
+  } = useGameplayLayoutHover({
+    resolveMovementHover,
+    hoveredHex: hoveredHexProp,
+    onHexHover: onHexHoverProp,
+    movementRange: movementRangeProp,
+    hoverMovementInfo: hoverMovementInfoProp,
+    highlightPath: highlightPathProp,
+    hoverMpCost: hoverMpCostProp,
+    hoverUnreachable: hoverUnreachableProp,
+  });
   const activeAnimations = useAnimationQueue((state) => state.active);
   const queuedAnimations = useAnimationQueue((state) => state.queue);
   const activeTargetId = useGameplaySelector(

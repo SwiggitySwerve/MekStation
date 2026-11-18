@@ -4,7 +4,7 @@
  * The library writer that produces receipt fingerprints. Bump it in the same PR
  * as any change that makes the loader or writer recover or keep more facts.
  */
-export const LIBRARY_WRITER_VERSION = 1;
+export const LIBRARY_WRITER_VERSION = 2;
 
 export interface ILibrarySaveReceipt {
   readonly id: string;

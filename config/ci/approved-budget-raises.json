@@ -1,0 +1,15 @@
+{
+  "schema": "mekstation/ci-budget-raise-approvals/v1",
+  "approvals": [
+    {
+      "pr": 3418,
+      "key": "limits.repoWideKeys",
+      "from": 93,
+      "to": 94,
+      "ruling": {
+        "section": "PARITY-PLAN §185",
+        "quote": "Repo-wide Jest cache keys: raise the limit to 94 for PR-O (its whole-repo caller-scan test). The PR carries the limits.repoWideKeys 93 to 94 change, citing this ruling."
+      }
+    }
+  ]
+}
