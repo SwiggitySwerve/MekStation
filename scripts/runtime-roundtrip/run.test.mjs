@@ -587,6 +587,8 @@ function setup({ capture } = {}) {
       })),
     // No start stagger between concurrent runs here; the load port's tests cover it.
     captureOffsetMs: 0,
+    // CI set: the hosted default (concurrent). The load port's tests cover the local default.
+    env: { CI: 'true' },
   };
   const outDir = path.join(root, 'out');
   return {

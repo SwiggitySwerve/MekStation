@@ -10,6 +10,7 @@ import {
   concurrentTimeZone,
   inheritedTimeZone,
   jestCapture,
+  selectCaptureMode,
 } from '../lib/runtime-parity/census.mjs';
 import {
   factsDeriverBlob,
@@ -578,7 +579,13 @@ test('weight owners are compared exactly per unit and a difference is reported, 
 // --- main(): the whole flow with an injected capture ---------------------------------------
 const ids = ['alpha', 'beta', 'gamma'];
 // offsetMs: the start stagger between concurrent runs; 0 keeps these tests fast, null uses the real CONCURRENT_START_OFFSET_MS.
-function setup({ capture, join: out = emitterOutput(ids), offsetMs = 0 } = {}) {
+// env: what the census reads for its default capture mode; CI set means concurrent, as on the hosted runner.
+function setup({
+  capture,
+  join: out = emitterOutput(ids),
+  offsetMs = 0,
+  env = { CI: 'true' },
+} = {}) {
   const root = tmp();
   const sources = path.join(root, 'sources');
   writeJoin(sources, out);
@@ -599,6 +606,7 @@ function setup({ capture, join: out = emitterOutput(ids), offsetMs = 0 } = {}) {
         resources: { maxRSS: 100 },
       })),
     captureOffsetMs: offsetMs,
+    env,
   };
   const outDir = path.join(root, 'out');
   const run = (...extra) =>
@@ -829,6 +837,34 @@ test('by default the captures start together: each waits for the other before fi
     ],
   );
   assert.equal(receipt.deterministic, true);
+});
+
+test('the capture mode defaults to concurrent only on CI; --sequential and --concurrent override it', async () => {
+  // The rule itself.
+  assert.equal(selectCaptureMode({}, {}), 'sequential');
+  assert.equal(selectCaptureMode({}, { CI: 'true' }), 'concurrent');
+  assert.equal(selectCaptureMode({ concurrent: true }, {}), 'concurrent');
+  assert.equal(
+    selectCaptureMode({ sequential: true }, { CI: 'true' }),
+    'sequential',
+  );
+  assert.throws(
+    () => selectCaptureMode({ sequential: true, concurrent: true }, {}),
+    /cannot both be given/,
+  );
+  // Through main(): what a local census without flags does, and the opt-in.
+  const local = setup({ env: {} });
+  assert.equal(await quietly(() => local.run()), 0);
+  assert.equal(
+    validateReceipt(JSON.parse(local.read('receipt.json'))).captureMode,
+    'sequential',
+  );
+  const optIn = setup({ env: {} });
+  assert.equal(await quietly(() => optIn.run('--concurrent')), 0);
+  assert.equal(
+    validateReceipt(JSON.parse(optIn.read('receipt.json'))).captureMode,
+    'concurrent',
+  );
 });
 
 test('--sequential finishes each capture before starting the next, as before', async () => {

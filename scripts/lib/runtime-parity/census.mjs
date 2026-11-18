@@ -56,6 +56,20 @@ export const CONCURRENT_START_OFFSET_MS = 4000;
 export const inheritedTimeZone = () =>
   Intl.DateTimeFormat().resolvedOptions().timeZone;
 
+/**
+ * Concurrent captures roughly double peak memory (a local load capture peaks at about 2.9 GB). On CI the
+ * runner has the headroom, so the default there is concurrent. Locally the default stays sequential, so a
+ * census under the shared machine's two census slots keeps its old footprint unless asked:
+ * `--concurrent` opts in, `--sequential` opts out, and the two together are an error.
+ */
+export function selectCaptureMode(values, env) {
+  if (values.sequential && values.concurrent)
+    throw new Error('--sequential and --concurrent cannot both be given');
+  if (values.sequential) return 'sequential';
+  if (values.concurrent) return 'concurrent';
+  return env.CI ? 'concurrent' : 'sequential';
+}
+
 /** UTC+14, so its calendar date differs from most zones' for most of the day; UTC-11 if that is already the inherited one. */
 export const concurrentTimeZone = (inherited) =>
   inherited === 'Pacific/Kiritimati'
@@ -250,6 +264,7 @@ export async function runCensus(argv, deps, spec) {
       units: { type: 'string' },
       runs: { type: 'string', default: '2' },
       sequential: { type: 'boolean', default: false },
+      concurrent: { type: 'boolean', default: false },
       'write-baseline': { type: 'boolean', default: false },
       'baseline-dir': { type: 'string' },
       reason: { type: 'string' },
@@ -319,16 +334,17 @@ export async function runCensus(argv, deps, spec) {
         'the join produced no units for the requested families',
       );
 
-    // Every capture is its own fresh process over the whole plan in its own work/run-<n>, so by default
-    // they run together; --sequential runs them one after another. Either way the runs are kept in index order.
-    // Concurrent runs after the first start later and in another time zone (CONCURRENT_START_OFFSET_MS); sequential
-    // runs all inherit this process's environment, as before.
-    const captureMode = values.sequential ? 'sequential' : 'concurrent';
-    const captureOffsetMs = values.sequential
+    // Every capture is its own fresh process over the whole plan in its own work/run-<n>, so they can run
+    // together. Either way the runs are kept in index order. Concurrent runs after the first start later and
+    // in another time zone (CONCURRENT_START_OFFSET_MS); sequential runs all inherit this process's
+    // environment, as before.
+    const captureMode = selectCaptureMode(values, deps.env ?? process.env);
+    const sequential = captureMode === 'sequential';
+    const captureOffsetMs = sequential
       ? 0
       : (deps.captureOffsetMs ?? CONCURRENT_START_OFFSET_MS);
     const inherited = inheritedTimeZone();
-    const staggered = (index) => !values.sequential && index > 1;
+    const staggered = (index) => !sequential && index > 1;
     const timeZoneOf = (index) =>
       staggered(index) ? concurrentTimeZone(inherited) : inherited;
     const captureRun = async (index) => {
@@ -355,7 +371,7 @@ export async function runCensus(argv, deps, spec) {
     };
     const indices = Array.from({ length: runCount }, (_, i) => i + 1);
     let runs;
-    if (values.sequential) {
+    if (sequential) {
       runs = [];
       for (const index of indices) runs.push(toRun(await captureRun(index)));
     } else {
