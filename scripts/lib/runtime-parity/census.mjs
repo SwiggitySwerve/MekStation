@@ -408,7 +408,7 @@ export async function runCensus(argv, deps, spec) {
         // Only the notes carry over: the units and facts are replaced by this run, so a baseline that predates a new fact
         // (the very rebaseline that adds it) must still be readable.
         const existingNotes = fs.existsSync(target)
-          ? readBaselineNotes(fs.readFileSync(target, 'utf8'))
+          ? readBaselineNotes(fs.readFileSync(target, 'utf8'), spec.measure)
           : [];
         const baseline = buildBaseline({
           measure: spec.measure,

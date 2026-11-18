@@ -334,9 +334,10 @@ export function parseBaseline(
 /**
  * The notes of an existing committed baseline, and nothing else. A rebaseline replaces every unit and fact from the new run, so it
  * must be able to read the file it replaces even when that file no longer conforms to the current fact list (the very rebaseline
- * that adds a fact, or changes the facts schema, reads a baseline without it). Only the notes carry over, so only they are checked.
+ * that adds a fact, or changes the facts schema, reads a baseline without it). Only the notes carry over, so only they and the
+ * measure (a file for another measure is refused) are checked.
  */
-export function readBaselineNotes(mainText) {
+export function readBaselineNotes(mainText, measure) {
   let main;
   try {
     main = JSON.parse(mainText);
@@ -346,6 +347,12 @@ export function readBaselineNotes(mainText) {
       `not valid JSON: ${error.message}`,
     );
   }
+  // A misplaced file (another measure's baseline) must not lend its notes.
+  if (main?.measure !== measure)
+    throw new GateError(
+      'BASELINE_MALFORMED',
+      `existing baseline is for ${main?.measure}, not ${measure}`,
+    );
   const notes = z.array(NoteSchema).min(1).safeParse(main?.notes);
   if (!notes.success)
     throw new GateError(

@@ -1068,7 +1068,7 @@ test('a rebaseline reads the notes of a baseline that predates a new fact; a mal
     () => parseBaseline('load', text, null),
     /no baseline entry for gated fact previewEqualsStatus/,
   );
-  const notes = readBaselineNotes(text);
+  const notes = readBaselineNotes(text, 'load');
   assert.deepEqual(
     notes.map((n) => n.reason),
     ['seed'],
@@ -1088,10 +1088,22 @@ test('a rebaseline reads the notes of a baseline that predates a new fact; a mal
   );
   assert.ok(Object.values(next.units).every((u) => 'previewEqualsStatus' in u));
   // What carries over is still checked.
-  assert.throws(() => readBaselineNotes('{nope'), /not valid JSON/);
+  assert.throws(() => readBaselineNotes('{nope', 'load'), /not valid JSON/);
   assert.throws(
-    () => readBaselineNotes(JSON.stringify({ ...old, notes: [] })),
+    () => readBaselineNotes(JSON.stringify({ ...old, notes: [] }), 'load'),
     /notes are malformed/,
+  );
+  // A misplaced file (the reopen baseline where the load one belongs) cannot lend its notes, even with valid notes.
+  assert.throws(
+    () => readBaselineNotes(text, 'reopen'),
+    (e) =>
+      e instanceof GateError &&
+      e.reason === 'BASELINE_MALFORMED' &&
+      /existing baseline is for load, not reopen/.test(e.message),
+  );
+  assert.throws(
+    () => readBaselineNotes(JSON.stringify({ notes: old.notes }), 'load'),
+    /existing baseline is for undefined, not load/,
   );
   assert.throws(
     () =>
@@ -1100,6 +1112,7 @@ test('a rebaseline reads the notes of a baseline that predates a new fact; a mal
           ...old,
           notes: [{ sha: 'x', pr: 1, reason: '', units: [] }],
         }),
+        'load',
       ),
     /notes are malformed/,
   );
