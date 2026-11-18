@@ -38,6 +38,15 @@ export interface IntentComposerMapProps {
   readonly onFacingSelect: (facing: Facing) => void;
 }
 
+/** What one hovered hex adds to the map and the dock (perf P2). */
+export interface IGameplayMovementHover {
+  readonly movementRange: readonly IMovementRangeHex[];
+  readonly hoverMovementInfo: IMovementRangeHex | undefined;
+  readonly highlightPath: readonly IHexCoordinate[];
+  readonly hoverMpCost: number | undefined;
+  readonly hoverUnreachable: boolean;
+}
+
 export interface GameplayLayoutProps {
   /** Game session data */
   session: IGameSession;
@@ -85,6 +94,16 @@ export interface GameplayLayoutProps {
   mpLegend?: MapMovementPointLegendState;
   onMovementModeSelect?: (mode: MapMovementKind) => void;
   onHexHover?: (hex: IHexCoordinate | null) => void;
+  /**
+   * Hover-derived movement outputs for a hovered hex (perf P2). When given,
+   * the layout owns the hovered hex and derives `movementRange`,
+   * `hoverMovementInfo`, `highlightPath`, `hoverMpCost` and
+   * `hoverUnreachable` from it, so a hover never re-renders the page; the
+   * matching props and `onHexHover` are then ignored.
+   */
+  resolveMovementHover?: (
+    hoveredHex: IHexCoordinate | null,
+  ) => IGameplayMovementHover;
   /** Intent-first composer map surface (tactical-movement-intent-composer). */
   intentComposer?: IntentComposerMapProps;
   interactiveSession?: InteractiveSession;
