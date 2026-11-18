@@ -125,7 +125,7 @@ const CREW: ReadonlyArray<readonly [string, string]> = [
 
 /** Jumpship.java:89-93 DRIVE_CORE_* at the pinned MegaMek commit. */
 const DRIVE_CORES = ['Standard', 'Compact', 'Subcompact', 'None', 'Primitive'];
-const ARMOR_CODES: Readonly<Record<string, number>> = {
+export const ARMOR_CODES: Readonly<Record<string, number>> = {
   STANDARD: 0,
   FERRO_ALUMINUM: 19,
   PRIMITIVE_AERO: 40,

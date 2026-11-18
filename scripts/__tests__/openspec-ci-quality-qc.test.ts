@@ -611,6 +611,26 @@ describe('OpenSpec CI quality QC validator', () => {
         'workflow-job-condition-invalid',
       ],
       [
+        'system deps back to raw install-deps',
+        GATE_JOB,
+        (block: string) =>
+          block.replace(
+            '        uses: ./.github/actions/playwright-system-deps',
+            '        run: npx playwright install-deps chromium',
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
+        'system deps cached-action condition',
+        GATE_JOB,
+        (block: string) =>
+          block.replace(
+            /(Install Playwright system dependencies \(browser cached\)\n {8})if: [^\n]*/,
+            '$1if: always()',
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
         'smoke suite condition',
         GATE_JOB,
         (block: string) =>
