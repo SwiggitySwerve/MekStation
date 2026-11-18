@@ -1,4 +1,4 @@
-﻿import type { IGameEvent } from '@/types/gameplay';
+import type { IGameEvent } from '@/types/gameplay';
 
 import { prepareEventForSerialization } from '@/utils/gameplay/gameEvents/serialization';
 

@@ -1,4 +1,4 @@
-﻿import type { IPSRResolutionTarget } from '@/types/gameplay/GameSessionAttackEvents';
+import type { IPSRResolutionTarget } from '@/types/gameplay/GameSessionAttackEvents';
 import type { IPSRTriggerTarget } from '@/types/gameplay/GameSessionStateTypes';
 
 /** Event projection of the pending rule, without an impossible numeric target. */

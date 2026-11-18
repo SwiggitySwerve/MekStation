@@ -1,4 +1,4 @@
-﻿import type { IGameEvent } from '@/types/gameplay';
+import type { IGameEvent } from '@/types/gameplay';
 
 import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 

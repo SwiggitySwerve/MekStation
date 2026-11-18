@@ -1,4 +1,4 @@
-﻿import { GameEventType, GamePhase, type IGameEvent } from '@/types/gameplay';
+import { GameEventType, GamePhase, type IGameEvent } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
 
 import { commitThenPublish } from '../ServerMatchHostPublication';

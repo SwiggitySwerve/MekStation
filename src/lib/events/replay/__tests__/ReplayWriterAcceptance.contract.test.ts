@@ -1,4 +1,4 @@
-﻿import { GameSide } from '@/types/gameplay';
+import { GameSide } from '@/types/gameplay';
 import { createGameCreatedEvent } from '@/utils/gameplay/gameEvents/lifecycle';
 import {
   prepareEventForSerialization,

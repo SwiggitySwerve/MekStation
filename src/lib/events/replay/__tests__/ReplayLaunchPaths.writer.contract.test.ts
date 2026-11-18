@@ -1,4 +1,4 @@
-﻿import 'fake-indexeddb/auto';
+import 'fake-indexeddb/auto';
 import type { NextRouter } from 'next/router';
 
 import { act, renderHook } from '@testing-library/react';
