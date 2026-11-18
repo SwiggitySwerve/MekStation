@@ -37,6 +37,12 @@ import type { ICampaignWithBridgeState } from './processors/scenarioEncounterBri
 
 const SESSION_UNIT_ID = /^(player|opponent)-\d+-(.+)$/;
 
+/**
+ * The campaign session builder stamps unassigned units with this pilotRef
+ * (`buildGameUnits` in `preBattleSessionBuilder.ts`); it is not evidence.
+ */
+const UNASSIGNED_PILOT_REF = 'Unknown';
+
 export function isSessionKeyedUnitId(key: string): boolean {
   return SESSION_UNIT_ID.test(key);
 }
@@ -105,7 +111,10 @@ function matchUnit(
   fromForce: boolean,
 ): Match {
   const candidates = pool.map((rosterUnit) => rosterUnit.unitId);
-  const pilotRef = unit.pilotRef || undefined;
+  const pilotRef =
+    unit.pilotRef && unit.pilotRef !== UNASSIGNED_PILOT_REF
+      ? unit.pilotRef
+      : undefined;
   const byPilot = pilotRef
     ? pool.filter((rosterUnit) => rosterUnit.pilotId === pilotRef)
     : [];

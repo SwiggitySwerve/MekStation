@@ -7,24 +7,40 @@
 
 import type { BattleUnitManifest } from '@/types/campaign/BattleUnitManifest';
 
-import { prunePendingBattleUnitManifests } from '@/lib/campaign/battleUnitManifest';
+import {
+  completeLaunchManifest,
+  prunePendingBattleUnitManifests,
+  type ILaunchPlayerUnit,
+} from '@/lib/campaign/battleUnitManifest';
 import { logger } from '@/utils/logger';
 
+import { useCampaignRosterStore } from './useCampaignRosterStore';
 import { useCampaignStore } from './useCampaignStore';
 
 /**
- * Records `units` for `matchId`, stamped with the campaign date and the
- * launch key, and prunes manifests that aged out without their battle
- * producing an outcome. Returns false (and
- * logs) when the live campaign is not `campaignId`: the outcome then has no
- * recorded manifest, and the apply falls back to the legacy match.
+ * Records the launch manifest for `matchId`, stamped with the campaign
+ * date. Player units with no roster link are resolved now against the
+ * current force and roster (`completeLaunchManifest`); the manifest is
+ * marked complete or incomplete. Also prunes manifests that aged out
+ * without their battle producing an outcome. Returns false (and logs) when
+ * the live campaign is not `campaignId`: the outcome then has no recorded
+ * manifest and the apply takes the legacy path.
  */
-export function recordCampaignBattleUnitManifest(
-  campaignId: string | null | undefined,
-  matchId: string,
-  units: BattleUnitManifest,
-  launchKey: string | null,
-): boolean {
+export function recordCampaignBattleUnitManifest({
+  campaignId,
+  matchId,
+  units,
+  playerUnits,
+  scenarioId,
+}: {
+  readonly campaignId: string | null | undefined;
+  readonly matchId: string;
+  /** The session builder's manifest (roster-linked units only). */
+  readonly units: BattleUnitManifest;
+  /** Every player session unit of the battle. */
+  readonly playerUnits: readonly ILaunchPlayerUnit[];
+  readonly scenarioId: string | null;
+}): boolean {
   // `useCampaignStore` is Zustand's lazy store accessor, not a React hook.
   // oxlint-disable-next-line react-hooks/rules-of-hooks
   const store = useCampaignStore();
@@ -58,9 +74,12 @@ export function recordCampaignBattleUnitManifest(
     battleUnitManifests: {
       ...kept,
       [matchId]: {
-        units,
+        ...completeLaunchManifest(
+          campaign,
+          useCampaignRosterStore.getState().units,
+          { units, playerUnits, scenarioId },
+        ),
         recordedOn: campaign.currentDate.toISOString(),
-        launchKey,
       },
     },
   });

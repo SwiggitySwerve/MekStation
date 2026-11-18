@@ -8,6 +8,7 @@
  * what it could not explain.
  */
 
+import type { IUnitCombatDelta } from '../combat/CombatOutcome';
 import type { IUnitCombatState } from './UnitCombatState';
 
 /** Why a player session-keyed entry was left for the user instead of migrated. */
@@ -28,6 +29,12 @@ export type LegacyCombatStateFlagReason =
  * state lives in the quarantine store). Kept until the user dismisses it.
  */
 export interface ILegacyCombatStateFlag {
+  /**
+   * `combat-state`: a stored session-keyed state the load migration could
+   * not attribute. `unapplied-delta`: a battle's player delta the apply
+   * could not attribute, so it was written to no unit.
+   */
+  readonly kind: 'combat-state' | 'unapplied-delta';
   readonly sessionUnitId: string;
   readonly reason: LegacyCombatStateFlagReason;
   /** Roster units the entry could belong to, when known. */
@@ -55,12 +62,35 @@ export type LegacyCombatStateResolution =
       readonly flag: ILegacyCombatStateFlag;
     };
 
-/** One original entry, stored outside the campaign payload. */
-export interface ILegacyCombatStateQuarantineRecord {
-  readonly campaignId: string;
-  readonly sessionUnitId: string;
-  readonly original: IUnitCombatState;
-  readonly resolution: LegacyCombatStateResolution;
-  /** Wall-clock instant the migration ran. */
-  readonly migratedAt: string;
+/** One original, stored outside the campaign payload. */
+export type ILegacyCombatStateQuarantineRecord =
+  | {
+      /** A stored session-keyed combat state, migrated or flagged. */
+      readonly source: 'combat-state';
+      readonly campaignId: string;
+      readonly sessionUnitId: string;
+      readonly original: IUnitCombatState;
+      readonly resolution: LegacyCombatStateResolution;
+      /** Wall-clock instant the migration ran. */
+      readonly migratedAt: string;
+    }
+  | {
+      /** A battle's player delta that was written to no unit. */
+      readonly source: 'unapplied-delta';
+      readonly campaignId: string;
+      readonly sessionUnitId: string;
+      readonly matchId: string;
+      readonly delta: IUnitCombatDelta;
+      readonly flag: ILegacyCombatStateFlag;
+    };
+
+/** A quarantined session-keyed combat state (the load migration's record). */
+export type ILegacyCombatStateRecord = Extract<
+  ILegacyCombatStateQuarantineRecord,
+  { readonly source: 'combat-state' }
+>;
+
+/** Flags are one per kind, session unit and battle set. */
+export function legacyCombatStateFlagKey(flag: ILegacyCombatStateFlag): string {
+  return [flag.kind, flag.sessionUnitId, ...flag.matchIds].join('|');
 }

@@ -22,7 +22,9 @@ export interface ILegacyCombatStateQuarantineStore {
 }
 
 function recordIdentity(record: ILegacyCombatStateQuarantineRecord): string {
-  return JSON.stringify([record.sessionUnitId, record.original]);
+  return record.source === 'combat-state'
+    ? JSON.stringify([record.source, record.sessionUnitId, record.original])
+    : JSON.stringify([record.source, record.sessionUnitId, record.matchId]);
 }
 
 export function createIndexedDbLegacyCombatStateQuarantineStore(

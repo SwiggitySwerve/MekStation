@@ -28,6 +28,7 @@ import {
   completeEncounterSession,
 } from '@/services/encounter/encounterLifecycleClient';
 import { recordCampaignBattleUnitManifest } from '@/stores/campaign/campaignBattleUnitManifests';
+import { GameSide } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
 
 export type BattleMode = 'auto' | 'interactive' | 'spectator';
@@ -104,12 +105,19 @@ function recordCampaignLaunchManifest(
   unitManifest: BattleUnitManifest,
 ): void {
   if (!hasCampaignOutcomeLinkage(linkage)) return;
-  recordCampaignBattleUnitManifest(
-    nonEmpty(linkage.campaignId),
-    session.id,
-    unitManifest,
-    nonEmpty(linkage.scenarioId) ?? nonEmpty(linkage.missionId),
-  );
+  recordCampaignBattleUnitManifest({
+    campaignId: nonEmpty(linkage.campaignId),
+    matchId: session.id,
+    units: unitManifest,
+    playerUnits: session.units
+      .filter((unit) => unit.side === GameSide.Player)
+      .map((unit) => ({
+        unitId: unit.id,
+        unitRef: unit.unitRef,
+        pilotRef: unit.pilotRef,
+      })),
+    scenarioId: nonEmpty(linkage.scenarioId),
+  });
 }
 
 export function publishAutoResolvedCampaignOutcome(

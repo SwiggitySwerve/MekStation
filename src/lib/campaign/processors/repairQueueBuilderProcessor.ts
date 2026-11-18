@@ -178,7 +178,7 @@ export const repairQueueBuilderProcessor: IDayProcessor = {
       const outcomeAny = outcome as IPendingBattleOutcome &
         Partial<Pick<ICombatOutcome, 'unitDeltas'>>;
       const manifest = outcomeAny.unitDeltas
-        ? battleUnitManifestFor(extended, outcome as ICombatOutcome)
+        ? battleUnitManifestFor(extended, outcome as ICombatOutcome)?.units
         : undefined;
       const unitIds: readonly string[] =
         outcomeAny.unitDeltas?.flatMap((delta) => {

@@ -106,6 +106,7 @@ describe('migrateSessionKeyedCombatStates on a save from main 3dcb06123', () => 
 
     expect(result.quarantine).toEqual([
       {
+        source: 'combat-state',
         campaignId: campaign.id,
         sessionUnitId: PLAYER_KEY,
         original: campaign.unitCombatStates[PLAYER_KEY],
@@ -278,6 +279,7 @@ describe('migrateSessionKeyedCombatStates leaves and flags what it cannot prove'
     expect(result.campaign.unitCombatStates).toEqual({});
     expect(result.flags).toEqual([
       {
+        kind: 'combat-state',
         sessionUnitId: PLAYER_KEY,
         reason: 'not-fully-explained',
         candidateRosterUnitIds: ['roster-a'],

@@ -18,6 +18,8 @@ import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { createContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 import {
   CombatEndReason,
@@ -34,6 +36,14 @@ import {
   postBattleProcessor,
   type ICampaignWithBattleState,
 } from '../postBattleProcessor';
+
+const mockQuarantinePut = jest.fn(async () => {});
+jest.mock('@/services/persistence/legacyCombatStateQuarantineStore', () => ({
+  createIndexedDbLegacyCombatStateQuarantineStore: () => ({
+    put: mockQuarantinePut,
+    get: async () => [],
+  }),
+}));
 
 const MATCH = 'match-manifest';
 const PLAYER_SESSION_ID = 'player-1-atlas-as7-d';
@@ -186,8 +196,8 @@ const fullDeltas = [
 ];
 
 /** A manifest as the campaign holds it until the battle is applied. */
-function pending(units: BattleUnitManifest) {
-  return { units, recordedOn: '3025-06-15T00:00:00.000Z', launchKey: null };
+function pending(units: BattleUnitManifest, complete = true) {
+  return { units, complete, recordedOn: '3025-06-15T00:00:00.000Z' };
 }
 
 const fullManifest = {
@@ -276,16 +286,39 @@ describe('postBattleProcessor launch manifest (T1)', () => {
     expect(livePilot().campaignMissions).toBe(1);
   });
 
-  it('an outcome with no manifest and no roster match is an error and stays queued', () => {
+  it('R3: an outcome with no manifest and no roster match applies, writes no unit, and flags and quarantines each player delta', () => {
     const battle = outcome(fullDeltas);
     const result = postBattleProcessor.process(
       campaignWith({ pendingBattleOutcomes: [battle] }),
       new Date('3025-06-15T00:00:00Z'),
     );
-    const failed = result.campaign as ICampaignWithBattleState;
-    expect(failed.pendingBattleOutcomes).toEqual([battle]);
-    expect(failed.processedBattleIds ?? []).not.toContain(MATCH);
-    expect(failed.unitCombatStates).toEqual({});
+    const applied = result.campaign as ICampaignWithBattleState;
+    expect(applied.processedBattleIds).toContain(MATCH);
+    expect(applied.unitCombatStates).toEqual({});
+    expect(
+      (applied.legacyCombatStateFlags ?? []).map((flag) => [
+        flag.kind,
+        flag.sessionUnitId,
+        flag.matchIds,
+      ]),
+    ).toEqual([
+      ['unapplied-delta', PLAYER_SESSION_ID, [MATCH]],
+      ['unapplied-delta', ALLY_SESSION_ID, [MATCH]],
+    ]);
+    expect(mockQuarantinePut).toHaveBeenCalledWith('camp-1', [
+      expect.objectContaining({
+        source: 'unapplied-delta',
+        sessionUnitId: PLAYER_SESSION_ID,
+        matchId: MATCH,
+        delta: fullDeltas[0],
+      }),
+      expect.objectContaining({
+        source: 'unapplied-delta',
+        sessionUnitId: ALLY_SESSION_ID,
+        matchId: MATCH,
+        delta: fullDeltas[1],
+      }),
+    ]);
   });
 
   it('never writes NaN for a delta location with no numeric value', () => {
@@ -456,7 +489,7 @@ describe('postBattleProcessor legacy battles without a launch manifest (T1)', ()
     });
   });
 
-  it('keeps an ambiguous legacy outcome queued, naming the candidates', () => {
+  it('R3: applies an ambiguous legacy outcome, writing no unit and flagging the delta with its candidates', () => {
     seedRosterUnits([
       { unitId: 'roster-a', unitRef: 'atlas-as7-d', pilotId: 'pilot-a' },
       { unitId: 'roster-b', unitRef: 'atlas-as7-d', pilotId: 'pilot-b' },
@@ -469,17 +502,106 @@ describe('postBattleProcessor legacy battles without a launch manifest (T1)', ()
       },
       new Date('3025-06-15T00:00:00Z'),
     );
+    const applied = result.campaign as ICampaignWithBattleState;
+    expect(applied.processedBattleIds).toContain(MATCH);
+    expect(applied.unitCombatStates).toEqual({});
+    expect(applied.legacyCombatStateFlags).toEqual([
+      {
+        kind: 'unapplied-delta',
+        sessionUnitId: PLAYER_SESSION_ID,
+        reason: 'ambiguous-roster-unit',
+        candidateRosterUnitIds: ['roster-a', 'roster-b'],
+        matchIds: [MATCH],
+      },
+    ]);
+  });
+
+  it('R3: applies the resolvable unit, pilot XP and contract while the ambiguous delta is flagged, not written', () => {
+    seedPilot();
+    seedRosterUnits([
+      { unitId: ROSTER_ID, unitRef: 'atlas-as7-d', pilotId: PILOT_ID },
+      { unitId: 'locust-a', unitRef: 'locust-lct-1v' },
+      { unitId: 'locust-b', unitRef: 'locust-lct-1v' },
+    ]);
+    const contract = createContract({
+      id: 'contract-r3',
+      name: 'R3 Contract',
+      employerId: 'davion',
+      targetId: 'liao',
+      status: MissionStatus.ACTIVE,
+    });
+    const battle: ICombatOutcome = {
+      ...outcome([
+        delta(PLAYER_SESSION_ID, GameSide.Player, {
+          unitRef: 'atlas-as7-d',
+          pilotRef: PILOT_ID,
+        }),
+        delta(ALLY_SESSION_ID, GameSide.Player, { unitRef: 'locust-lct-1v' }),
+        delta(OPPONENT_SESSION_ID, GameSide.Opponent),
+      ]),
+      scenarioId: LEGACY_SCENARIO,
+      contractId: contract.id,
+    };
+    const { campaign, summary } = applyPostBattle(battle, {
+      ...teamCampaign([ROSTER_ID]),
+      missions: new Map([[contract.id, contract]]),
+    });
+
+    expect(Object.keys(campaign.unitCombatStates)).toEqual([ROSTER_ID]);
+    expect(campaign.processedBattleIds).toContain(MATCH);
+    expect(summary.contractUpdated).toBe(contract.id);
+    expect(livePilot().campaignMissions).toBe(1);
+    expect(campaign.legacyCombatStateFlags).toEqual([
+      {
+        kind: 'unapplied-delta',
+        sessionUnitId: ALLY_SESSION_ID,
+        reason: 'ambiguous-roster-unit',
+        candidateRosterUnitIds: ['locust-a', 'locust-b'],
+        matchIds: [MATCH],
+      },
+    ]);
+  });
+
+  it('R4: an incomplete manifest sends its unresolved unit through the legacy path instead of blocking', () => {
+    const battle = outcome(fullDeltas);
+    const result = postBattleProcessor.process(
+      campaignWith({
+        pendingBattleOutcomes: [battle],
+        battleUnitManifests: {
+          [MATCH]: pending(
+            {
+              [PLAYER_SESSION_ID]: { rosterUnitId: ROSTER_ID },
+              [ALLY_SESSION_ID]: { unresolved: true, candidates: [] },
+            },
+            false,
+          ),
+        },
+      }),
+      new Date('3025-06-15T00:00:00Z'),
+    );
+    const applied = result.campaign as ICampaignWithBattleState;
+    expect(applied.processedBattleIds).toContain(MATCH);
+    expect(Object.keys(applied.unitCombatStates)).toEqual([ROSTER_ID]);
+    expect(
+      (applied.legacyCombatStateFlags ?? []).map((flag) => flag.sessionUnitId),
+    ).toEqual([ALLY_SESSION_ID]);
+  });
+
+  it('T3 still holds for a complete manifest missing a player unit', () => {
+    const battle = outcome(fullDeltas);
+    const result = postBattleProcessor.process(
+      campaignWith({
+        pendingBattleOutcomes: [battle],
+        battleUnitManifests: {
+          [MATCH]: pending({ [ALLY_SESSION_ID]: { notOnRoster: true } }, true),
+        },
+      }),
+      new Date('3025-06-15T00:00:00Z'),
+    );
     const failed = result.campaign as ICampaignWithBattleState;
     expect(failed.pendingBattleOutcomes).toEqual([battle]);
     expect(failed.processedBattleIds ?? []).not.toContain(MATCH);
-    expect(failed.unitCombatStates).toEqual({});
-    const error = String(
-      result.events.find((e) => e.type === 'post_battle_apply_failed')?.data
-        ?.error,
-    );
-    expect(error).toContain(PLAYER_SESSION_ID);
-    expect(error).toContain('roster-a');
-    expect(error).toContain('roster-b');
+    expect(failed.legacyCombatStateFlags).toBeUndefined();
   });
 });
 
@@ -487,8 +609,8 @@ describe('postBattleProcessor prunes abandoned launch manifests (T1)', () => {
   it('drops a non-pending manifest older than 31 campaign days, even with an empty queue', () => {
     const stale = {
       units: fullManifest,
+      complete: true,
       recordedOn: '3025-05-01T00:00:00.000Z',
-      launchKey: 'scn-a',
     };
     const fresh = { ...stale, recordedOn: '3025-06-10T00:00:00.000Z' };
     const result = postBattleProcessor.process(
@@ -505,8 +627,8 @@ describe('postBattleProcessor prunes abandoned launch manifests (T1)', () => {
       battleUnitManifests: {
         fresh: {
           units: fullManifest,
+          complete: true,
           recordedOn: '3025-06-10T00:00:00.000Z',
-          launchKey: null,
         },
       },
     });

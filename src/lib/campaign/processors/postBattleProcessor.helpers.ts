@@ -179,6 +179,31 @@ export interface ISkippedNonFiniteLocation {
   readonly value: string;
 }
 
+/** A skipped location, attributed to the roster unit and battle. */
+export interface ISkippedNonFiniteUnitLocation extends ISkippedNonFiniteLocation {
+  readonly unitId: string;
+  readonly matchId: string;
+}
+
+/**
+ * The `onSkippedLocation` callback for one roster unit's apply: collects
+ * the skip into `into` and warns, so the engine-side gap is never silent.
+ */
+export function recordSkippedLocation(
+  into: ISkippedNonFiniteUnitLocation[],
+  unitId: string,
+  matchId: string,
+): (skip: ISkippedNonFiniteLocation) => void {
+  return (skip) => {
+    const skipped = { unitId, matchId, ...skip };
+    into.push(skipped);
+    logger.warn(
+      '[postBattleProcessor] Skipped a non-finite combat-state value (not written):',
+      skipped,
+    );
+  };
+}
+
 /**
  * Drop entries that are not finite numbers, reporting each one. A location
  * with no numeric value carries no reading: it is never written as NaN

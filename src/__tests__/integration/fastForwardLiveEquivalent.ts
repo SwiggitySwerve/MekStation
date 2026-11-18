@@ -64,6 +64,7 @@ import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { usePilotStore } from '@/stores/usePilotStore';
 import { createMission } from '@/types/campaign/Mission';
+import { GameSide } from '@/types/gameplay';
 import { PilotType } from '@/types/pilot';
 
 import type { CapturedBattleOutcome } from './fastForwardTestSupport';
@@ -281,12 +282,19 @@ export async function fightBridgedScenarioLiveEquivalent(
   // The live launch records the battle's launch manifest on the campaign
   // before its outcome is published (`usePreBattleLaunch`, T1).
   if (
-    !recordCampaignBattleUnitManifest(
-      linkage.campaignId,
-      outcome.matchId,
-      prepared.unitManifest,
-      handoff.scenarioId,
-    )
+    !recordCampaignBattleUnitManifest({
+      campaignId: linkage.campaignId,
+      matchId: outcome.matchId,
+      units: prepared.unitManifest,
+      playerUnits: prepared.gameUnits
+        .filter((unit) => unit.side === GameSide.Player)
+        .map((unit) => ({
+          unitId: unit.id,
+          unitRef: unit.unitRef,
+          pilotRef: unit.pilotRef,
+        })),
+      scenarioId: handoff.scenarioId,
+    })
   ) {
     throw new Error(
       `live-equivalent: could not record the launch manifest for match ${outcome.matchId}`,

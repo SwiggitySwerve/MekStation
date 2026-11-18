@@ -15,6 +15,7 @@ import type {
 } from '@/types/campaign/LegacyCombatStateMigration';
 
 import { Button } from '@/components/ui';
+import { legacyCombatStateFlagKey } from '@/types/campaign/LegacyCombatStateMigration';
 
 const REASON_TEXT: Record<LegacyCombatStateFlagReason, string> = {
   'not-fully-explained':
@@ -52,10 +53,17 @@ export function LegacyCombatStateFlagsBanner({
           <ul className="text-text-theme-secondary mt-1 text-xs">
             {flags.map((flag) => (
               <li
-                key={flag.sessionUnitId}
-                data-testid={`legacy-combat-state-flag-${flag.sessionUnitId}`}
+                key={legacyCombatStateFlagKey(flag)}
+                data-testid={`legacy-combat-state-flag-${
+                  flag.kind === 'combat-state'
+                    ? flag.sessionUnitId
+                    : legacyCombatStateFlagKey(flag)
+                }`}
               >
-                <span className="font-mono">{flag.sessionUnitId}</span>:{' '}
+                <span className="font-mono">{flag.sessionUnitId}</span>
+                {flag.kind === 'unapplied-delta'
+                  ? ` (battle ${flag.matchIds.join(', ')}): damage not applied to any unit, because `
+                  : ': '}
                 {REASON_TEXT[flag.reason]}
                 {flag.candidateRosterUnitIds.length > 0 &&
                   ` (possible units: ${flag.candidateRosterUnitIds.join(', ')})`}

@@ -9,8 +9,8 @@ import { prunePendingBattleUnitManifests } from '../battleUnitManifest';
 
 const units = { 'player-1-atlas-as7-d': { rosterUnitId: 'roster-1' } };
 
-function entry(recordedOn: string, launchKey: string | null) {
-  return { units, recordedOn, launchKey };
+function entry(recordedOn: string) {
+  return { units, complete: true, recordedOn };
 }
 
 const ASOF = new Date('3025-06-15T00:00:00.000Z');
@@ -22,8 +22,8 @@ describe('prunePendingBattleUnitManifests', () => {
 
   it('prunes a non-pending entry older than the window and keeps one at the edge', () => {
     const manifests = {
-      old: entry('3025-05-14T00:00:00.000Z', 'scn-a'), // 32 days
-      edge: entry('3025-05-15T00:00:00.000Z', 'scn-b'), // 31 days
+      old: entry('3025-05-14T00:00:00.000Z'), // 32 days
+      edge: entry('3025-05-15T00:00:00.000Z'), // 31 days
     };
     expect(
       prunePendingBattleUnitManifests(manifests, {
@@ -34,7 +34,7 @@ describe('prunePendingBattleUnitManifests', () => {
   });
 
   it('never prunes a pending match, however old', () => {
-    const manifests = { pending: entry('3024-01-01T00:00:00.000Z', 'scn-a') };
+    const manifests = { pending: entry('3024-01-01T00:00:00.000Z') };
     expect(
       prunePendingBattleUnitManifests(manifests, {
         pendingMatchIds: new Set(['pending']),
@@ -44,7 +44,7 @@ describe('prunePendingBattleUnitManifests', () => {
   });
 
   it('returns the same object when nothing is pruned', () => {
-    const manifests = { fresh: entry('3025-06-14T00:00:00.000Z', 'scn-a') };
+    const manifests = { fresh: entry('3025-06-14T00:00:00.000Z') };
     expect(
       prunePendingBattleUnitManifests(manifests, {
         pendingMatchIds: new Set(),

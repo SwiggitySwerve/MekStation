@@ -149,8 +149,8 @@ function buildStart(): Record<string, string> {
     battleUnitManifests: {
       'crash-window-win': {
         units: { a: { rosterUnitId: 'a' } },
+        complete: true,
         recordedOn: START.toISOString(),
-        launchKey: null,
       },
     },
   });

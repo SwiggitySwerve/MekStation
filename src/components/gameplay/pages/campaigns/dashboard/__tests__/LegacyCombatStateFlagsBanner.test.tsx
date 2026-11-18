@@ -16,6 +16,7 @@ describe('LegacyCombatStateFlagsBanner (T1)', () => {
       <LegacyCombatStateFlagsBanner
         flags={[
           {
+            kind: 'combat-state',
             sessionUnitId: 'player-1-atlas-as7-d',
             reason: 'ambiguous-roster-unit',
             candidateRosterUnitIds: ['roster-a', 'roster-b'],
@@ -32,5 +33,29 @@ describe('LegacyCombatStateFlagsBanner (T1)', () => {
     );
     fireEvent.click(screen.getByTestId('legacy-combat-state-flags-dismiss'));
     expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('R3: says a battle delta it could not attribute was not applied to any unit', () => {
+    render(
+      <LegacyCombatStateFlagsBanner
+        flags={[
+          {
+            kind: 'unapplied-delta',
+            sessionUnitId: 'player-2-locust-lct-1v',
+            reason: 'ambiguous-roster-unit',
+            candidateRosterUnitIds: ['locust-a', 'locust-b'],
+            matchIds: ['match-7'],
+          },
+        ]}
+        onDismiss={jest.fn()}
+      />,
+    );
+    expect(
+      screen.getByTestId(
+        'legacy-combat-state-flag-unapplied-delta|player-2-locust-lct-1v|match-7',
+      ),
+    ).toHaveTextContent(
+      'player-2-locust-lct-1v (battle match-7): damage not applied to any unit, because it could belong to more than one roster unit (possible units: locust-a, locust-b)',
+    );
   });
 });

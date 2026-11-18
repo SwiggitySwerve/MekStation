@@ -328,7 +328,7 @@ async function runMaintenanceFastForward(): Promise<MaintenanceMintResult> {
     throw new Error('runMaintenanceFastForward: no live campaign');
   }
   for (const c of captured) {
-    const manifest = battleUnitManifestFor(liveCampaign, c.outcome);
+    const manifest = battleUnitManifestFor(liveCampaign, c.outcome)?.units;
     for (const delta of c.outcome.unitDeltas) {
       const resolution = resolveDeltaRosterUnit(delta, manifest);
       if (resolution.kind !== 'roster') continue;

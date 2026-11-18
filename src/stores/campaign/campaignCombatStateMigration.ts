@@ -12,6 +12,7 @@ import type { ILegacyCombatStateQuarantineStore } from '@/services/persistence/l
 
 import { campaignDaysBetween } from '@/lib/campaign/campaignCalendar';
 import { migrateSessionKeyedCombatStates } from '@/lib/campaign/migrateSessionKeyedCombatStates';
+import { unappliedDeltaRecordsFor } from '@/lib/campaign/quarantineUnappliedDeltas';
 import { createIndexedDbLegacyCombatStateQuarantineStore } from '@/services/persistence/legacyCombatStateQuarantineStore';
 import { logger } from '@/utils/logger';
 
@@ -48,6 +49,12 @@ async function migrateLiveCampaign(
   const roster = useCampaignRosterStore.getState();
   // Mapping needs this campaign's roster; without it nothing is decided.
   if (roster.campaignId !== campaign.id) return;
+
+  // R3: deltas the apply flagged and quarantined fire-and-forget are
+  // re-quarantined from the retained outcomes on every load (deduplicated),
+  // so a failed write at apply time is repaired here.
+  const unapplied = unappliedDeltaRecordsFor(campaign);
+  if (unapplied.length > 0) await quarantine.put(campaign.id, unapplied);
 
   const migratedAt = new Date().toISOString();
   const migration = migrateSessionKeyedCombatStates({

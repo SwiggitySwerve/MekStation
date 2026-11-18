@@ -21,9 +21,20 @@ export interface INotOnRosterBattleUnitManifestEntry {
   readonly notOnRoster: true;
 }
 
+/**
+ * A player session unit with no roster link at launch that the legacy
+ * match could not attribute either. Its delta takes the legacy path at
+ * apply (resolved then, or flagged and written to no unit).
+ */
+export interface IUnresolvedBattleUnitManifestEntry {
+  readonly unresolved: true;
+  readonly candidates: readonly string[];
+}
+
 export type BattleUnitManifestEntry =
   | IRosterBattleUnitManifestEntry
-  | INotOnRosterBattleUnitManifestEntry;
+  | INotOnRosterBattleUnitManifestEntry
+  | IUnresolvedBattleUnitManifestEntry;
 
 /** Keyed by the exact session unit id the session builder produced. */
 export type BattleUnitManifest = Readonly<
@@ -36,8 +47,12 @@ export type BattleUnitManifest = Readonly<
  */
 export interface IPendingBattleUnitManifest {
   readonly units: BattleUnitManifest;
+  /**
+   * True when every player session unit has a roster or not-on-roster
+   * entry: a missing entry is then an error (T3). False when some unit is
+   * unresolved; those take the legacy path at apply.
+   */
+  readonly complete: boolean;
   /** ISO campaign date (not wall clock) the session was created on. */
   readonly recordedOn: string;
-  /** Scenario (else mission) the battle launched for; null when unknown. */
-  readonly launchKey: string | null;
 }

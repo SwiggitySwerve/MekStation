@@ -23,7 +23,7 @@ import type { BattleUnitManifest } from '@/types/campaign/BattleUnitManifest';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type {
   ILegacyCombatStateFlag,
-  ILegacyCombatStateQuarantineRecord,
+  ILegacyCombatStateRecord,
   ILegacyCombatStateTarget,
   LegacyCombatStateFlagReason,
   LegacyRosterEvidence,
@@ -35,6 +35,7 @@ import type {
   IUnitCombatDelta,
 } from '@/types/combat/CombatOutcome';
 
+import { legacyCombatStateFlagKey } from '@/types/campaign/LegacyCombatStateMigration';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
@@ -55,7 +56,7 @@ export interface ISessionKeyedCombatStateMigration {
   /** Campaign with roster-keyed rebuilds, no session-keyed entries, and flags. */
   readonly campaign: ICampaign;
   /** Every player original; must be stored before `campaign` is adopted. */
-  readonly quarantine: readonly ILegacyCombatStateQuarantineRecord[];
+  readonly quarantine: readonly ILegacyCombatStateRecord[];
   readonly flags: readonly ILegacyCombatStateFlag[];
   readonly prunedOpponentKeys: readonly string[];
 }
@@ -215,6 +216,7 @@ function taintSharedRosterUnits(analyses: readonly IEntryAnalysis[]): void {
 
 function flagOf(analysis: IEntryAnalysis): ILegacyCombatStateFlag {
   return {
+    kind: 'combat-state',
     sessionUnitId: analysis.key,
     reason: analysis.reason as LegacyCombatStateFlagReason,
     candidateRosterUnitIds: [...candidatesOf(analysis)],
@@ -293,35 +295,34 @@ export function migrateSessionKeyedCombatStates({
   const flags = analyses
     .filter((analysis) => analysis.reason !== null)
     .map(flagOf);
-  const flaggedIds = new Set(flags.map((flag) => flag.sessionUnitId));
+  const flagKeys = new Set(flags.map(legacyCombatStateFlagKey));
   const legacyCombatStateFlags = [
     ...(campaign.legacyCombatStateFlags ?? []).filter(
-      (flag) => !flaggedIds.has(flag.sessionUnitId),
+      (flag) => !flagKeys.has(legacyCombatStateFlagKey(flag)),
     ),
     ...flags,
   ];
 
-  const quarantine: ILegacyCombatStateQuarantineRecord[] = analyses.map(
-    (analysis) => ({
-      campaignId: campaign.id,
-      sessionUnitId: analysis.key,
-      original: analysis.original,
-      resolution:
-        analysis.reason === null
-          ? {
-              kind: 'migrated',
-              targets: analysis.mappings.map(
-                (mapping): ILegacyCombatStateTarget => ({
-                  matchId: mapping.retained.outcome.matchId,
-                  rosterUnitId: mapping.rosterUnitId as string,
-                  evidence: mapping.evidence as LegacyRosterEvidence,
-                }),
-              ),
-            }
-          : { kind: 'flagged', flag: flagOf(analysis) },
-      migratedAt,
-    }),
-  );
+  const quarantine: ILegacyCombatStateRecord[] = analyses.map((analysis) => ({
+    source: 'combat-state',
+    campaignId: campaign.id,
+    sessionUnitId: analysis.key,
+    original: analysis.original,
+    resolution:
+      analysis.reason === null
+        ? {
+            kind: 'migrated',
+            targets: analysis.mappings.map(
+              (mapping): ILegacyCombatStateTarget => ({
+                matchId: mapping.retained.outcome.matchId,
+                rosterUnitId: mapping.rosterUnitId as string,
+                evidence: mapping.evidence as LegacyRosterEvidence,
+              }),
+            ),
+          }
+        : { kind: 'flagged', flag: flagOf(analysis) },
+    migratedAt,
+  }));
 
   return {
     campaign: {

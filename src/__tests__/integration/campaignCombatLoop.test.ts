@@ -236,8 +236,8 @@ describe('Campaign combat loop — end-to-end round trip', () => {
         battleUnitManifests: {
           [outcome.matchId]: {
             units: { 'unit-A': { rosterUnitId: 'unit-A' } },
+            complete: true,
             recordedOn: '3025-06-15T00:00:00.000Z',
-            launchKey: null,
           },
         },
         unitMaxStates: { 'unit-A': seedUnitMaxState('unit-A') },
@@ -299,8 +299,8 @@ describe('Campaign combat loop — end-to-end round trip', () => {
         battleUnitManifests: {
           [outcome.matchId]: {
             units: { 'unit-A': { rosterUnitId: 'unit-A' } },
+            complete: true,
             recordedOn: '3025-06-15T00:00:00.000Z',
-            launchKey: null,
           },
         },
         unitMaxStates: { 'unit-A': seedUnitMaxState('unit-A') },
