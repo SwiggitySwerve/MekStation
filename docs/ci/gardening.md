@@ -142,11 +142,26 @@ refusal stays `self-approval`. All matched passes as `owner-ruling-record`.
 
 The record never approves itself: `checkBudgetRaise` reads it at the PR's base
 commit (`pr.base.sha`), never its head, so an entry a PR adds for itself is
-invisible to that PR. An entry reaches main only through its own separate,
-reviewed PR, and that PR must cite an owner ruling in the parity plan
-(section and quote); an entry without one is not added. A non-owner author
-still needs the label and the owner's exact-head `APPROVED` review; the record
-plays no part there.
+invisible to that PR. The base commit is main's tip as of the PR's last head
+push or retarget, not the live tip of main. So once an entry PR has merged, the
+raise PR must merge main and push before its approval check can pass. Likewise,
+removing an entry from main stops it approving an open PR only after that PR's
+next push.
+
+An entry reaches main only through its own separate, reviewed PR, and that PR
+must cite an owner ruling in the parity plan (section and quote); an entry
+without one is not added. The code checks only the citation's form
+(`PARITY-PLAN §N` or `§N.M` and a non-blank quote); the plan is not in this
+repo. The reviewer of an entry PR must therefore check the cited section and
+quote against PARITY-PLAN. The same actor must never both author and merge an
+entry and its raise without that review.
+
+The record cannot approve a raise whose before or after value is `null`: a
+removed key, a newly capped key or a dropped typical profile. Entries hold
+numbers only, so these always refuse as `approval-record-mismatch` (or
+`missing-approval-record`). They need the non-record path: the label and the
+owner's exact-head `APPROVED` review. A non-owner author always uses that path;
+the record plays no part there.
 
 The adapter writes `CI Budget Raise Approval` only to the head it evaluated,
 which `checkBudgetPolicy` binds to the head its run is for (it never writes to

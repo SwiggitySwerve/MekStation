@@ -2,7 +2,8 @@
 export const BUDGET_RAISE_LABEL = 'ci-budget-raise';
 // Owner rulings that approve owner-authored raises (PARITY-PLAN §186.2). The
 // caller reads it at the PR's base commit, never its head, so a PR cannot
-// approve itself by adding an entry: the entry must already be on main.
+// approve itself by adding an entry: the entry must already be in the PR's
+// base commit (main as of the PR's last push), not just on main's live tip.
 export const BUDGET_RAISE_RECORD_PATH = 'config/ci/approved-budget-raises.json';
 const RECORD_SCHEMA = 'mekstation/ci-budget-raise-approvals/v1';
 const RULING_SECTION = /^PARITY-PLAN §\d+(\.\d+)?$/;
