@@ -50,10 +50,21 @@ describe('safeParseIssues zod pin', () => {
       const actual = safeParseIssues(schema, input);
       expect(expected.success).toBe(false);
       expect(actual.success).toBe(false);
+      if (actual.success) throw new Error('expected a failed parse');
       expect(actual.error).not.toBeInstanceOf(Error);
-      expect(actual.error?.issues).toStrictEqual(expected.error?.issues);
+      expect(actual.error.issues).toStrictEqual(expected.error?.issues);
     },
   );
+
+  it('declares a failure as issues only, so Error fields do not compile', () => {
+    const result = safeParseIssues(z.number(), 'not a number');
+    if (result.success) throw new Error('expected a failed parse');
+    // @ts-expect-error the issues-only error has no message (it is not an Error)
+    expect(result.error.message).toBeUndefined();
+    // @ts-expect-error nor a stack
+    expect(result.error.stack).toBeUndefined();
+    expect(result.error.issues).toHaveLength(1);
+  });
 
   it('returns the same data on success', () => {
     const schema = z.object({ n: z.string().transform((s) => s.length) });

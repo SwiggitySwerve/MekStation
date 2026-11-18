@@ -21,6 +21,23 @@ class ContractIssues {
   }
 }
 
-export const safeParseIssues = z.core._safeParse(
+/**
+ * The declared result is honest about the wrapper: a failure carries only
+ * `issues`, so `.message`, `.name` and `.stack` do not compile. The one cast
+ * onto zod's error-class factory stays inside this file.
+ */
+export type SafeParseIssuesResult<T extends z.ZodType> =
+  // `error?: undefined` matches zod's own success branch, so readers that test
+  // `result.error` (as the generated oneOf blocks do) still type-check.
+  | { success: true; data: z.output<T>; error?: undefined }
+  | { success: false; error: { readonly issues: z.core.$ZodIssue[] } };
+
+const parseWithIssuesOnly = z.core._safeParse(
   ContractIssues as unknown as z.core.$ZodErrorClass,
 );
+
+export const safeParseIssues = <T extends z.ZodType>(
+  schema: T,
+  value: unknown,
+): SafeParseIssuesResult<T> =>
+  parseWithIssuesOnly(schema, value) as SafeParseIssuesResult<T>;
