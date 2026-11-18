@@ -121,8 +121,12 @@ export const requiredWorkflowTokens = [
       'name: Build Test / ${{ matrix.platform }}',
       'platform: win',
       'platform: mac',
+      'name: Build unpacked Linux application',
+      'npx electron-builder --linux dir --publish never',
       'name: Build complete Linux installer and unpacked application',
       'npx electron-builder --linux tar.gz --publish never',
+      'name: Restore native module cache',
+      'path: desktop/.electron-native-cache',
     ],
   },
 ];
