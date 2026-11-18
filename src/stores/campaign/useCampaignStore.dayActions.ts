@@ -21,7 +21,11 @@ import {
   convertToLegacyDayReport,
   DayReport,
 } from '@/lib/campaign/dayAdvancement';
-import { getDayPipeline, type IDayEvent } from '@/lib/campaign/dayPipeline';
+import {
+  describeDayProcessorFailure,
+  getDayPipeline,
+  type IDayEvent,
+} from '@/lib/campaign/dayPipeline';
 import { registerBuiltinProcessors } from '@/lib/campaign/processors';
 import {
   logTravelCommitSucceeded,
@@ -325,9 +329,10 @@ interface IAppliedDay {
  * save it. Returns the day report once the save committed, or null when it
  * did not; a promise when the save is asynchronous (a co-op campaign).
  *
- * A day that is not saved - the save refused, or a throw anywhere after the
- * stores were first written - is rolled back (dayAdvanceSnapshot) and
- * reported with a toast, so the player can retry it.
+ * A day that is not saved - a day processor threw, the save refused, or a
+ * throw anywhere after the stores were first written - is rolled back
+ * (dayAdvanceSnapshot) and reported with a toast, so the player can retry it.
+ * A failed day is never saved.
  */
 function advanceDayLocally(
   set: CampaignSet,
@@ -389,6 +394,12 @@ function applyDayToStores(
   );
   const beforeRosterPilots = snapshotRosterPilots();
   const pipelineResult = getDayPipeline().processDay(campaignWithOutcomes);
+  if (pipelineResult.failure) {
+    // The processors that ran before the failure may have written the roster
+    // or the vault; note it so the rollback takes those writes back.
+    recordPipelineWrites(snapshot, new Map());
+    throw new Error(describeDayProcessorFailure(pipelineResult.failure));
+  }
   const report = convertToLegacyDayReport(pipelineResult);
   recordPipelineWrites(snapshot, report.campaign.missions);
   const postPipeline = report.campaign as ICampaign & {
