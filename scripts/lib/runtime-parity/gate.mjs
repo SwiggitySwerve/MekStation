@@ -332,8 +332,32 @@ export function parseBaseline(
 }
 
 /**
+ * The notes of an existing committed baseline, and nothing else. A rebaseline replaces every unit and fact from the new run, so it
+ * must be able to read the file it replaces even when that file no longer conforms to the current fact list (the very rebaseline
+ * that adds a fact, or changes the facts schema, reads a baseline without it). Only the notes carry over, so only they are checked.
+ */
+export function readBaselineNotes(mainText) {
+  let main;
+  try {
+    main = JSON.parse(mainText);
+  } catch (error) {
+    throw new GateError(
+      'BASELINE_MALFORMED',
+      `not valid JSON: ${error.message}`,
+    );
+  }
+  const notes = z.array(NoteSchema).min(1).safeParse(main?.notes);
+  if (!notes.success)
+    throw new GateError(
+      'BASELINE_MALFORMED',
+      `the existing baseline's notes are malformed: ${notes.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')}`,
+    );
+  return notes.data;
+}
+
+/**
  * Build a baseline from a complete run's facts. Refuses a run with any failed, incomplete or unknown unit, so
- * a baseline can never record a hole. `existing` (a parsed baseline) keeps its notes; `note` is required.
+ * a baseline can never record a hole. `existingNotes` (from readBaselineNotes) carry over; `note` is required.
  */
 export function buildBaseline({
   measure,
@@ -341,7 +365,7 @@ export function buildBaseline({
   sha,
   note,
   provenance,
-  existing = null,
+  existingNotes = [],
 }) {
   if (!facts.length)
     throw new GateError('BASELINE_REFUSED', 'the run has no units');
@@ -369,7 +393,7 @@ export function buildBaseline({
     ...checkedProvenance,
     populationCount: facts.length,
     populationHash: populationHash(Object.keys(units)),
-    notes: [...(existing?.notes ?? []), checkedNote],
+    notes: [...existingNotes, checkedNote],
     units,
   });
 }

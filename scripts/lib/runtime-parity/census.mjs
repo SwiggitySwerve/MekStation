@@ -25,7 +25,7 @@ import {
   baselinePath,
   baselineSetsPath,
   buildBaseline,
-  parseBaseline,
+  readBaselineNotes,
   serializeBaseline,
 } from './gate.mjs';
 import {
@@ -405,15 +405,11 @@ export async function runCensus(argv, deps, spec) {
           dir,
           path.basename(baselineSetsPath(spec.measure)),
         );
-        let existing = null;
-        if (fs.existsSync(target))
-          existing = parseBaseline(
-            spec.measure,
-            fs.readFileSync(target, 'utf8'),
-            fs.existsSync(setsTarget)
-              ? fs.readFileSync(setsTarget, 'utf8')
-              : null,
-          );
+        // Only the notes carry over: the units and facts are replaced by this run, so a baseline that predates a new fact
+        // (the very rebaseline that adds it) must still be readable.
+        const existingNotes = fs.existsSync(target)
+          ? readBaselineNotes(fs.readFileSync(target, 'utf8'))
+          : [];
         const baseline = buildBaseline({
           measure: spec.measure,
           facts,
@@ -427,7 +423,7 @@ export async function runCensus(argv, deps, spec) {
           provenance: factsProvenance({
             referenceSha256: reference.gzipSha256,
           }),
-          existing,
+          existingNotes,
         });
         // Both files come from the one serializer, so they share the one member-set hash function.
         const { main, sets } = serializeBaseline(baseline);

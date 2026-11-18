@@ -23,6 +23,7 @@ import {
   main,
   parseBaseline,
   populationHash,
+  readBaselineNotes,
   serializeBaseline,
   setHash,
 } from './gate.mjs';
@@ -1049,11 +1050,58 @@ test('buildBaseline records a complete run with its SHA, provenance, population 
       units: [U1],
     },
     provenance: PROV,
-    existing: first,
+    existingNotes: first.notes,
   });
   assert.deepEqual(
     second.notes.map((n) => n.reason),
     ['seed', 'A2 locks in the Mad Cats'],
+  );
+});
+
+test('a rebaseline reads the notes of a baseline that predates a new fact; a malformed note or file is refused', () => {
+  // The very rebaseline that adds a fact reads a baseline without it: parseBaseline would call that malformed.
+  const files = baselineFiles(two(loadFacts(), loadFacts()));
+  const old = JSON.parse(files.main);
+  for (const unit of Object.values(old.units)) delete unit.previewEqualsStatus;
+  const text = JSON.stringify(old);
+  assert.throws(
+    () => parseBaseline('load', text, null),
+    /no baseline entry for gated fact previewEqualsStatus/,
+  );
+  const notes = readBaselineNotes(text);
+  assert.deepEqual(
+    notes.map((n) => n.reason),
+    ['seed'],
+  );
+  // And the notes carry into the new baseline, which has every current fact.
+  const next = buildBaseline({
+    measure: 'load',
+    facts: entries(two(loadFacts(), loadFacts())),
+    sha: RUN_SHA,
+    note: { sha: RUN_SHA, pr: null, reason: 'adds a fact', units: [] },
+    provenance: PROV,
+    existingNotes: notes,
+  });
+  assert.deepEqual(
+    next.notes.map((n) => n.reason),
+    ['seed', 'adds a fact'],
+  );
+  assert.ok(Object.values(next.units).every((u) => 'previewEqualsStatus' in u));
+  // What carries over is still checked.
+  assert.throws(() => readBaselineNotes('{nope'), /not valid JSON/);
+  assert.throws(
+    () => readBaselineNotes(JSON.stringify({ ...old, notes: [] })),
+    /notes are malformed/,
+  );
+  assert.throws(
+    () =>
+      readBaselineNotes(
+        JSON.stringify({
+          ...old,
+          notes: [{ sha: 'x', pr: 1, reason: '', units: [] }],
+        }),
+      ),
+    /notes are malformed/,
   );
 });
 
