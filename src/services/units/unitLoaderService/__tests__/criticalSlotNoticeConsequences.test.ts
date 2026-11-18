@@ -17,6 +17,7 @@ import { scanCrits } from '../../../../../scripts/validate-bv-crit-scan';
 import { deriveBvHeatAndMovement } from '../../../../../scripts/validate-bv-movement-derived';
 import { mapArmorType } from '../../../../../scripts/validate-bv-unit-derived';
 import { getCriticalSlotsForLocation } from '../criticalSlotEquipment';
+import { groupCriticalSlotNoticeEntries } from '../criticalSlotNoticeGroups';
 import { parseUnit } from '../unitContractAdapter';
 import { UnitLoaderService } from '../unitLoader';
 
@@ -92,6 +93,78 @@ it('CASE protection and BV survive save/reopen: King Crab KGC-000', () => {
   expect(state.unrecoveredCriticalSlots?.map((e) => e.text)).not.toContain(
     'ISCASE',
   );
+});
+
+// A listed ISCASE is always recovered, so the state a loader would produce when
+// it leaves both CASE cells unrecovered is constructed from the real load: same
+// unit, CASE mounts absent, their cells in the residual. It then goes through
+// the real notice grouping and the real save/reopen path.
+it('CASE protection and BV are lost when CASE stays unrecovered: King Crab KGC-000', () => {
+  const source = parseUnit(
+    JSON.parse(
+      readFileSync(
+        join(
+          process.cwd(),
+          'public/data/units/battlemechs',
+          '2-star-league/advanced/King Crab KGC-000.json',
+        ),
+        'utf8',
+      ),
+    ),
+  );
+  const loader = new UnitLoaderService();
+  const loaded = loader.mapToUnitState(source, true);
+  const caseMounts = loaded.equipment.filter((e) => e.equipmentId === 'case');
+  expect(caseMounts).toHaveLength(2);
+  const unrecovered = caseMounts.map((e) => ({
+    text: 'ISCASE',
+    location: e.location!,
+    slot: e.slots![0],
+  }));
+  const state: UnitState = {
+    ...loaded,
+    equipment: loaded.equipment.filter((e) => e.equipmentId !== 'case'),
+    unrecoveredCriticalSlots: [
+      ...(loaded.unrecoveredCriticalSlots ?? []),
+      ...unrecovered,
+    ],
+  };
+
+  const caseKind = groupCriticalSlotNoticeEntries(
+    state.unrecoveredCriticalSlots ?? [],
+    source,
+  )
+    .flatMap((group) => group.kinds)
+    .find((kind) => kind.kind === 'case');
+  expect(caseKind?.entries).toEqual(unrecovered);
+  expect(caseKind?.effects.map((e) => e.effect.consequence)).toEqual([
+    'Ammo explosion protection is lost; BV changes.',
+  ]);
+
+  const saved = serializeCustomUnitState(state, {
+    id: 'notice-evidence',
+    chassis: state.chassis,
+    variant: state.model,
+    era: Era.LATE_SUCCESSION_WARS,
+  });
+  for (const { location, slot } of unrecovered)
+    expect(
+      getCriticalSlotsForLocation(saved.criticalSlots, location)?.[slot] ??
+        null,
+    ).toBeNull();
+  const reopened = loader.mapToUnitState(
+    parseUnit(JSON.parse(JSON.stringify(saved))),
+    false,
+  );
+  expect(reopened.equipment.some((e) => e.equipmentId === 'case')).toBe(false);
+  const before = metrics(loaded),
+    after = metrics(reopened);
+  expect(before.scan.caseLocs).toEqual(expect.arrayContaining(['LT', 'RT']));
+  expect(after.scan.caseLocs).toEqual([]);
+  expect(after.bv.breakdown.totalExplosivePenalty).toBeGreaterThan(
+    before.bv.breakdown.totalExplosivePenalty ?? 0,
+  );
+  expect(after.bv.bv).not.toBe(before.bv.bv);
 });
 
 it.each([

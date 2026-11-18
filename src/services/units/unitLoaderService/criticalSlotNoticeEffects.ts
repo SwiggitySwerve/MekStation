@@ -96,7 +96,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
         CriticalSlotRecoveryResponsibility.PR_D,
         'Ammo explosion protection is lost; BV changes.',
         'King Crab KGC-000',
-        'CASE protection and BV survive save/reopen: King Crab KGC-000',
+        'CASE protection and BV are lost when CASE stays unrecovered: King Crab KGC-000',
       ),
     ],
   },
