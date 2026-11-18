@@ -146,10 +146,69 @@ test('browser caches consume the same release-scoped namespace as native modules
       cold.if.includes("steps.playwright-cache.outputs.cache-hit != 'true'"),
     );
     const warm = job.steps.find(
-      (step) => step.run === 'npx playwright install-deps chromium',
+      (step) => step.uses === './.github/actions/playwright-system-deps',
     );
     assert.ok(
       warm.if.includes("steps.playwright-cache.outputs.cache-hit == 'true'"),
+    );
+    assert.equal(
+      job.steps.filter((step) => /playwright install-deps/.test(step.run))
+        .length,
+      0,
+      `${workflow}/${id} must install system packages through the cached action`,
+    );
+  }
+});
+
+test('system-deps action keys on image + Playwright, installs hits without apt, and falls back visibly', () => {
+  const action = readYaml('.github/actions/playwright-system-deps/action.yml');
+  const steps = Object.fromEntries(
+    action.runs.steps.map((s) => [s.id ?? s.name, s]),
+  );
+  const key = steps.key.run;
+  for (const part of [
+    'ImageOS',
+    'ImageVersion',
+    'playwright${playwright}',
+    'PW_DEPS_CACHE_SALT',
+  ])
+    assert.ok(key.includes(part), `cache key must include ${part}`);
+  assert.equal(steps.restore.uses, 'actions/cache/restore@v5');
+  assert.ok(steps.cached.run.includes('sudo dpkg -i'));
+  assert.ok(
+    !/\bapt(-get)? (update|install)|npx playwright/.test(
+      steps.cached.run
+        .split('\n')
+        .filter((line) => !line.trim().startsWith('echo'))
+        .join('\n'),
+    ),
+  );
+  assert.ok(steps.cached.run.includes('::warning::'));
+  assert.equal(
+    steps.full.run.trimEnd().split('\n').at(-1),
+    'npx playwright install-deps chromium',
+  );
+  assert.equal(steps.full.if, "steps.cached.outputs.installed != 'true'");
+  assert.ok(steps.full.run.includes('Keep-Downloaded-Packages'));
+  // Stage the whole archive, filtered to installed versions, not a diff.
+  assert.ok(steps.stage.run.includes('/var/cache/apt/archives/*.deb'));
+  assert.ok(
+    steps.stage.run.includes('grep -Fxq "$id" "$RUNNER_TEMP/dpkg-ii.txt"'),
+  );
+  assert.ok(!/debs-before|comm -13/.test(steps.stage.run + steps.full.run));
+  for (const step of action.runs.steps) {
+    assert.equal(step['continue-on-error'], undefined, step.name);
+    assert.equal(step['timeout-minutes'], undefined, step.name);
+  }
+});
+
+test('no workflow leaves the forced-miss cache salt set', () => {
+  for (const file of fs.readdirSync(path.join(root, '.github/workflows'))) {
+    assert.ok(
+      !fs
+        .readFileSync(path.join(root, '.github/workflows', file), 'utf8')
+        .includes('PW_DEPS_CACHE_SALT'),
+      `${file} sets PW_DEPS_CACHE_SALT`,
     );
   }
 });
