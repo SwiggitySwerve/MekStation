@@ -20,10 +20,11 @@ import {
   movementCostContextForCapability,
 } from './calculations';
 import { pendingConversionMovementCost } from './conversionAccounting';
+import { GroundSearchCache } from './groundSearchCache';
 import { getHullDownExitCost } from './hullDownExit';
 import { movementModeForRange } from './mode';
 import { compareRangeHexes } from './rangeHexProjection';
-import { deriveMovementRangeHexForDestination } from './reachableDestination';
+import { projectMovementRangeHexForDestination } from './reachableDestination';
 import { resolveRuntimeMovementCapability } from './runtimeCapability';
 import { getStandingCost } from './validation';
 
@@ -59,15 +60,11 @@ export function deriveReachableHexes(
     }),
   );
   const results: IMovementRangeHex[] = [];
+  const groundSearches = new GroundSearchCache(grid);
   const projectCandidate = (hex: IHexCoordinate): IMovementRangeHex | null =>
-    deriveMovementRangeHexForDestination(
-      unit,
-      mpType,
-      grid,
-      resolvedCapability,
-      hex,
-      standUpMode,
-      ruleOptions,
+    projectMovementRangeHexForDestination(
+      [unit, mpType, grid, resolvedCapability, hex, standUpMode, ruleOptions],
+      groundSearches,
     );
 
   for (const hex of candidates) {

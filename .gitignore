@@ -90,6 +90,8 @@ scripts/**
 !scripts/qc/**
 !scripts/ci/
 !scripts/ci/**
+!scripts/perf/
+!scripts/perf/**
 !scripts/megameklab-conversion/
 !scripts/megameklab-conversion/catalog-families.json
 !scripts/megameklab-conversion/unit-index-rules.json

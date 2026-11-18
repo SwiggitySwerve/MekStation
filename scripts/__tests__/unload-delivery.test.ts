@@ -13,6 +13,7 @@ import {
   type CapturedCampaignPut,
 } from '../../e2e/helpers/unloadFlushEvidence';
 import { startCampaignPoll } from '../../e2e/helpers/unloadObservation';
+import { judgeReloadTiming } from '../../e2e/helpers/unloadTiming';
 
 const before: CampaignRecord = {
   version: 1,
@@ -492,4 +493,16 @@ test('ordinary save transient receipt cannot absorb a later lost edit', () => {
   expect(
     classifyUnloadDelivery({ ...ordinaryInput(), valuesPresent: false }).class,
   ).toBe('undelivered');
+});
+
+test('reload timing miss gates measured trials and is only recorded for warm-ups', () => {
+  const late = { reloadCallMs: 40 + 100, pagehideMs: 40 };
+  const slowPagehide = { reloadCallMs: 40, pagehideMs: 40 + 150 };
+  const onTime = { reloadCallMs: 40 + 99, pagehideMs: 40 + 149 };
+  expect(judgeReloadTiming(late, 40, true)).toBe('gating');
+  expect(judgeReloadTiming(slowPagehide, 40, true)).toBe('gating');
+  expect(judgeReloadTiming(late, 40, false)).toBe('recorded');
+  expect(judgeReloadTiming(slowPagehide, 40, false)).toBe('recorded');
+  expect(judgeReloadTiming(onTime, 40, true)).toBe('ok');
+  expect(judgeReloadTiming(onTime, 40, false)).toBe('ok');
 });
