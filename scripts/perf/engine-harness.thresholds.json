@@ -1,0 +1,62 @@
+{
+  "status": "PROPOSED by the C6 harness worker on 2026-11-18; C6 and Root set the final values",
+  "basis": "DATA-ENGINE-REVIEW.md section 5 targets where it gives one; otherwise about 1.25x the cost that would grow linearly with the axis. Ratios only: never heap, state size or milliseconds (AGENTS.md invariant 6).",
+  "ratios": {
+    "append-10000-over-500": {
+      "max": 1.5,
+      "why": "section 5: append at 10,000 events within 1.5x append at 500 (P1)"
+    },
+    "append-2000-over-500": {
+      "max": 1.5,
+      "why": "quick-mode form of the P1 target"
+    },
+    "move-commit-p95-10000-over-500": {
+      "max": 1.5,
+      "why": "commands append events, so P1 sets their shape"
+    },
+    "move-commit-p95-2000-over-500": { "max": 1.5, "why": "quick-mode form" },
+    "weapon-attack-p95-10000-over-500": {
+      "max": 1.5,
+      "why": "P1 plus the whole-log scans of P8"
+    },
+    "weapon-attack-p95-2000-over-500": { "max": 1.5, "why": "quick-mode form" },
+    "phase-advance-p95-10000-over-500": { "max": 1.5, "why": "P1 plus P8" },
+    "phase-advance-p95-2000-over-500": { "max": 1.5, "why": "quick-mode form" },
+    "reachable-walk8-over-walk4-clear": {
+      "max": 4.5,
+      "why": "hexes within 8 over within 4 is 217/61 = 3.56 (P3)"
+    },
+    "reachable-walk8-over-walk4-wooded": {
+      "max": 4.5,
+      "why": "same area bound in heavy woods (P3)"
+    },
+    "path-30-over-5-clear": {
+      "max": 12,
+      "why": "2x linear in path length on an open map (P4)"
+    },
+    "replay-load-10000-over-2000": {
+      "max": 6,
+      "why": "section 5: linear in events (5x), plus 20%"
+    },
+    "replay-load-2000-over-500": {
+      "max": 4.8,
+      "why": "quick-mode form: linear (4x) plus 20%"
+    },
+    "los-projection-48x51-over-16x17": {
+      "max": 11,
+      "why": "linear in map hexes (2437/271 = 9) plus 20% (P5)"
+    },
+    "bot-decision-p95-48x51-over-16x17": {
+      "max": 1.5,
+      "why": "a decision should depend on movement points, not map size (P6)"
+    },
+    "bot-decision-p95-48u-over-4u": {
+      "max": 2,
+      "why": "more units add occupancy and targets, not a new search per hex (P6)"
+    },
+    "sim-12v12-over-4v4": {
+      "max": 4,
+      "why": "linear in units (3x) plus a third"
+    }
+  }
+}
