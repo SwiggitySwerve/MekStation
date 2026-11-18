@@ -106,10 +106,31 @@ jobs:
           test -d desktop/dist || { echo "Missing desktop/dist"; exit 1; }
           test -f .next/standalone/.next/BUILD_ID || { echo "Missing .next/standalone/.next/BUILD_ID"; exit 1; }
 
+      # Same native module cache as pr-checks.yml simulation-checks (see the
+      # comment there); main writes the shared key that pull requests read.
+      - name: Identify runner image
+        id: runner-image
+        shell: bash
+        run: echo "id=${ImageOS:-unknown}-${ImageVersion:-unknown}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore native module cache
+        id: native-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: desktop/.electron-native-cache
+          key: electron-native-${{ runner.os }}-${{ steps.runner-image.outputs.id }}-${{ hashFiles('desktop/package-lock.json', 'package-lock.json') }}-${{ hashFiles('desktop/scripts/electron-native-cache.js', 'desktop/scripts/electron-native-modules.js') }}
+
       - name: Rebuild native modules for platform
         working-directory: desktop
         shell: bash
         run: npm run rebuild:next-standalone
+
+      - name: Save native module cache
+        if: ${{ steps.native-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: desktop/.electron-native-cache
+          key: ${{ steps.native-cache.outputs.cache-primary-key }}
 
       - name: Test Electron build (pack mode)
         working-directory: desktop
