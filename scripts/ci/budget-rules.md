@@ -1,9 +1,10 @@
 # Deterministic CI budgets
 
 Count gates are report-only (PARITY-PLAN §193.2). `budget-check.mjs` still
-computes and prints every count on every run: typical PR jobs, the Jest cache
-census (`Cache: … files, N unkeyable, M repo-wide`) and the root/desktop
-dependency counts. A count over its configured value prints
+computes every count on every run and prints typical PR jobs and the Jest cache
+census (`Cache: … files, N unkeyable, M repo-wide`); the root/desktop dependency
+counts are printed only when over, and every count is in the
+`ci-budget-repository` artifact. A count over its configured value prints
 `<key> over budget (report-only, +delta): …` and a `::warning` annotation on
 GitHub Actions, keeps the PR and changed-test attribution, and the run passes.
 The values are kept in the `overBudget` list of the `ci-budget-repository`

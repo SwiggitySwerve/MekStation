@@ -9,6 +9,7 @@ import { parse, parseDocument } from 'yaml';
 import { assertJobResults } from './budget-aggregate.mjs';
 import {
   checkRepositoryMetrics,
+  exitCodeFor,
   run as runBudgetCheck,
 } from './budget-check.mjs';
 import { loadBudgets } from './budget-config.mjs';
@@ -619,6 +620,18 @@ test('cache and dependency counts are report-only; timeout drift is red', () => 
   metrics.cache.files = [];
   assert.throws(() => checkRepositoryMetrics(config, metrics, []));
   assert.throws(() => checkRepositoryMetrics(config, repository(), null));
+});
+
+test('the CLI exits 0 when only counts are over and 1 on any violation', () => {
+  const metrics = repository();
+  metrics.dependencies.root.lockEntries++;
+  const counts = checkRepositoryMetrics(config, metrics, []);
+  assert.equal(counts.overBudget.length, 1);
+  assert.equal(exitCodeFor(counts), 0);
+  metrics.workflow.timeouts.e2e++;
+  const drifted = checkRepositoryMetrics(config, metrics, []);
+  assert.equal(drifted.overBudget.length, 1);
+  assert.equal(exitCodeFor(drifted), 1);
 });
 
 test('the CLI fails closed on a malformed budgets.json before any census', () => {

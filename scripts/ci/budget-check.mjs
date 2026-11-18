@@ -238,6 +238,11 @@ export function run(argv, root = process.cwd()) {
   );
   reportOverBudget(result.overBudget);
   reportViolations(result.violations);
+  return exitCodeFor(result);
+}
+
+// PARITY-PLAN §193.2: only violations fail the step; overBudget counts never do.
+export function exitCodeFor(result) {
   return result.violations.length ? 1 : 0;
 }
 
