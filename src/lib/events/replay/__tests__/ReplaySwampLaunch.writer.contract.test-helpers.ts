@@ -3,10 +3,10 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import 'fake-indexeddb/auto';
 import path from 'node:path';
-import { isDeepStrictEqual } from 'node:util';
 import { deserialize, serialize } from 'node:v8';
 
 import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
+import type { IMatchJournalEnvelope } from '@/lib/multiplayer/server/MatchStreamJournalMirror';
 import type { IIntent } from '@/types/multiplayer/Protocol';
 
 import { buildEncounterPersistBody } from '@/components/encounter/persistEncounterFromSession';
@@ -14,9 +14,14 @@ import { persistEncounterGame } from '@/components/encounter/persistEncounterGam
 import { GameEngine } from '@/engine/GameEngine';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { persistInteractiveLaunchRecoveryLog } from '@/engine/InteractiveSession.persistence';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { createPersistedHost } from '@/lib/multiplayer/server/__tests__/matchHostPersistence.test-helpers';
 import { DurableMatchStore } from '@/lib/multiplayer/server/DurableMatchStore';
-import { _setCombatJournalAuthorityModeForTests } from '@/lib/multiplayer/server/matchJournalAuthority';
+import { matchJournalBranchSegmentReader } from '@/lib/multiplayer/server/history/matchJournalBranchSegmentReader';
+import {
+  _resetProcessShadowStatsForTests,
+  _setCombatJournalAuthorityModeForTests,
+} from '@/lib/multiplayer/server/matchJournalAuthority';
 import {
   buildDefaultMatchUnitBootstrap,
   buildMatchHostBootstrapFromMeta,
@@ -24,6 +29,10 @@ import {
 import { ServerMatchHost } from '@/lib/multiplayer/server/ServerMatchHost';
 import { dispatchToEngine } from '@/lib/multiplayer/server/ServerMatchHostEngineDispatch';
 import { matchLogStorage } from '@/lib/p2p/matchLogStorage';
+import {
+  getSQLiteService,
+  resetSQLiteService,
+} from '@/services/persistence/SQLiteService';
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { getNodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
 import {
@@ -41,6 +50,7 @@ import { deployPlacementsFor } from '@/utils/gameplay/gameState/initialization';
 
 import { loadReplayLibraryNdjson } from '../ReplayLibraryLoadPipeline';
 import { gateReplaySurfaceHistory } from '../ReplaySurfaceGate';
+import { expectHostedStateWithIntentStamps } from './hostedIntentStampAllowance';
 import { replayFidelityState as boundaryState } from './replayFidelityTestState';
 import { expectLibraryRecordingSourceAtEveryBoundary } from './replayLibraryStateAllowance';
 
@@ -82,28 +92,8 @@ afterEach(async () => {
   jest.restoreAllMocks();
 });
 
-function differencePaths(a: unknown, b: unknown, prefix = '$'): string[] {
-  if (isDeepStrictEqual(a, b)) return [];
-  if (
-    a === null ||
-    b === null ||
-    typeof a !== 'object' ||
-    typeof b !== 'object'
-  )
-    return [prefix];
-  if (Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)) return [prefix];
-  const keys = new Set([...Reflect.ownKeys(a), ...Reflect.ownKeys(b)]);
-  const paths = Array.from(keys).flatMap((key) => {
-    const next = `${prefix}.${String(key)}`;
-    return !Object.hasOwn(a, key) || !Object.hasOwn(b, key)
-      ? [next]
-      : differencePaths(Reflect.get(a, key), Reflect.get(b, key), next);
-  });
-  return paths.length ? paths : [prefix];
-}
-
 export async function runSwampLaunchContract(
-  mode: 'single-player' | 'hosted-off',
+  mode: 'single-player' | 'hosted-off' | 'hosted-enabled',
 ): Promise<void> {
   const directory = await mkdtemp(path.join(tmpdir(), 'replay-swamp-launch-'));
   const meta: IMatchMeta = {
@@ -141,7 +131,15 @@ export async function runSwampLaunchContract(
   let host: ServerMatchHost | undefined;
   let store: DurableMatchStore | undefined;
   try {
-    _setCombatJournalAuthorityModeForTests('off');
+    const authority = mode === 'hosted-enabled';
+    if (authority) {
+      resetSQLiteService();
+      getSQLiteService({
+        path: path.join(directory, 'journal.db'),
+      }).initialize();
+      _resetProcessShadowStatsForTests();
+    }
+    _setCombatJournalAuthorityModeForTests(authority ? 'enabled' : 'off');
     const single =
       mode === 'single-player'
         ? new GameEngine({
@@ -159,12 +157,15 @@ export async function runSwampLaunchContract(
     if (!single) {
       store = new DurableMatchStore({
         path: path.join(directory, 'matches.db'),
+        ...(authority
+          ? { capabilityDb: () => getSQLiteService().getDatabase() }
+          : {}),
       });
       await store.createMatch(meta);
       host = await createPersistedHost(() =>
         ServerMatchHost.create(meta.matchId, store!, bootstrap),
       );
-      expect(host.isJournalAuthorityEnabled()).toBe(false);
+      expect(host.isJournalAuthorityEnabled()).toBe(authority);
     }
     const session = (): IGameSession => {
       if (single) return single.getSession();
@@ -173,19 +174,22 @@ export async function runSwampLaunchContract(
     };
     let commands = 0;
     let boundaries = 0;
-    const knownHostedResidues: Array<{ command: number; paths: string[] }> = [];
+    const intentIdByFirstSequence = new Map<number, string>();
+    const hostedStampCounts: number[] = [];
     async function send(
       intent: IIntent['intent'],
       side: GameSide = GameSide.Player,
     ): Promise<void> {
       commands += 1;
+      const intentId = `swamp-${commands}`;
+      const before = session().events.length;
       if (single) dispatchToEngine(single, intent);
       else if (host) {
         const frames = await host.handleIntent({
           kind: 'Intent',
           matchId: meta.matchId,
           playerId: side === GameSide.Player ? 'p1' : 'p2',
-          intentId: `swamp-${commands}`,
+          intentId,
           ts: AT,
           intent,
         });
@@ -197,6 +201,20 @@ export async function runSwampLaunchContract(
         ? await store.getEvents(meta.matchId)
         : await matchLogStorage.getEventsForMatch(live.id);
       expect(events).toHaveLength(live.events.length);
+      if (store) {
+        // The host stamps each command's intentId on exactly one stored
+        // event: the first event of that command's batch.
+        const added = events.slice(before);
+        expect(added.length).toBeGreaterThan(0);
+        expect(
+          added.flatMap((event, index) =>
+            Object.hasOwn(event.payload as object, 'intentId')
+              ? [[index, (event.payload as { intentId?: unknown }).intentId]]
+              : [],
+          ),
+        ).toEqual([[0, intentId]]);
+        intentIdByFirstSequence.set(added[0].sequence, intentId);
+      }
       const gate = gateReplaySurfaceHistory(events, {
         surfaceId: 'swamp-launch',
         streamId: live.id,
@@ -208,20 +226,56 @@ export async function runSwampLaunchContract(
         throw new Error('Swamp launch reader refused a production event');
       expect(gate.events).toHaveLength(events.length);
       const replay = hydrateGameSessionFromEvents(live.id, gate.events);
-      const liveImage = boundaryState(live.currentState);
-      const replayImage = boundaryState(replay.currentState);
-      if (mode === 'hosted-off' && !isDeepStrictEqual(liveImage, replayImage)) {
-        // Root's separate hosted D-8 OPEN: keep the raw difference visible.
-        // Do not remove a stamp or call these states equal. Any other path
-        // remains a failing contract. Reproduced on main 7cafe65f6.
-        const paths = differencePaths(liveImage, replayImage);
-        expect(
-          paths.every((p) =>
-            /^\$\.turnEvents\.\d+\.payload\.intentId$/.test(p),
+      // With journal authority the live session applies the committed,
+      // stamped batch, so live and replay must be strictly equal.
+      if (store && !authority) {
+        hostedStampCounts.push(
+          expectHostedStateWithIntentStamps(
+            live.currentState,
+            replay.currentState,
+            intentIdByFirstSequence,
           ),
-        ).toBe(true);
-        knownHostedResidues.push({ command: commands, paths });
-      } else expect(replayImage).toStrictEqual(liveImage);
+        );
+      } else
+        expect(boundaryState(replay.currentState)).toStrictEqual(
+          boundaryState(live.currentState),
+        );
+      if (authority) {
+        // The journal is the authority record: fold its rows too.
+        const rows = await matchJournalBranchSegmentReader(
+          new SQLiteEventJournal<IMatchJournalEnvelope>(
+            getSQLiteService().getDatabase(),
+          ),
+        ).read(
+          { streamType: 'match', streamId: meta.matchId },
+          {
+            kind: 'prefix',
+            branchId: 'main',
+            fromRevision: 0,
+            throughRevision: events.length,
+            baseEventId: null,
+            baseDigest: '0'.repeat(64),
+          },
+        );
+        expect(rows).toHaveLength(events.length);
+        const journalGate = gateReplaySurfaceHistory(
+          rows.map((row) => row.payload),
+          {
+            surfaceId: 'swamp-launch-journal',
+            streamId: live.id,
+            formatId: 'match-broadcast',
+            formatVersion: 1,
+          },
+        );
+        if (journalGate.kind !== 'accepted')
+          throw new Error('Swamp journal reader refused a production event');
+        expect(
+          boundaryState(
+            hydrateGameSessionFromEvents(live.id, journalGate.events)
+              .currentState,
+          ),
+        ).toStrictEqual(boundaryState(live.currentState));
+      }
       boundaries += 1;
     }
     await send({ kind: 'AdvancePhase' });
@@ -354,13 +408,17 @@ export async function runSwampLaunchContract(
         automaticTriggers: trigger.length,
         automaticResolutions: resolved.length,
         marked: 0,
-        knownHostedResidues,
+        hostedStampCounts,
       }),
     );
   } finally {
     await host?.closeMatch();
     store?.close();
     _setCombatJournalAuthorityModeForTests(null);
+    if (mode === 'hosted-enabled') {
+      _resetProcessShadowStatsForTests();
+      resetSQLiteService();
+    }
     await rm(directory, { recursive: true, force: true });
   }
 }

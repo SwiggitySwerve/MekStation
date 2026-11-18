@@ -7,7 +7,10 @@ import { replayFidelityState } from './replayFidelityTestState';
 /** OPEN: Replayed state retains recording-envelope fields in turnEvents.
  * Hydration fix (a) deletes this allowance; host fix (b) deletes the separate
  * payload.intentId allowance. Source evidence and transport stamps stay intact.
- * Only the exact writer-added key/value/count is allowed, at every boundary. */
+ * Only the exact writer-added key/value/count is allowed, at every boundary.
+ * Both comparisons also use replayFidelityState's normalisation
+ * (D8_DIAG_UNDEFINED_OWN_PROPERTY_AS_ABSENT): an own property whose value is
+ * undefined counts as absent, on either side, matching JSON semantics. */
 export function expectLibraryStateWithRecordingSource(
   live: IGameState,
   replayed: IGameState,
