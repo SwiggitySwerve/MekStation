@@ -50,7 +50,12 @@ function writePackage(
 }
 
 function runHydrator(root: string) {
-  return spawnSync(NODE, [SCRIPT_PATH], { cwd: root, encoding: 'utf8' });
+  // Fixtures carry fake `.node` files; native-bindings.test.ts owns the load check.
+  return spawnSync(NODE, [SCRIPT_PATH], {
+    cwd: root,
+    encoding: 'utf8',
+    env: { ...process.env, MEKSTATION_FIXTURE_SKIP_NATIVE_LOAD_CHECK: '1' },
+  });
 }
 
 function addRuntimeImport(root: string, source: string): void {

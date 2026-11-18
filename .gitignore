@@ -50,6 +50,7 @@ scripts/**
 !scripts/expand-source-provenance-variants.mjs
 !scripts/hoist-union-branches.js
 !scripts/refine-conditional-clauses.mjs
+!scripts/route-safe-parse-issues.mjs
 !scripts/print-combat-validation-gaps.ts
 !scripts/vehicle-aero-bv-delta.ts
 !scripts/unit-bv-parity.ts

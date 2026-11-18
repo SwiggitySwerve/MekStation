@@ -7,6 +7,8 @@
 // these files match the JSON Schema source via `--check` mode.
 
 import { z } from 'zod';
+
+import { safeParseIssues } from '../safeParseIssues';
 export const CURRENT_UNIT_SCHEMA_VERSION = '1.0.0';
 const unitVersionError = (issue: { input?: unknown }) =>
   'Invalid schemaVersion ' +
@@ -143,9 +145,10 @@ const schemaClauses1 = once((): [z.ZodType, string][] => [
           .any()
           .refine(
             (value) =>
-              !z
-                .object({ HEAD: z.enum(['INNER_SPHERE', 'CLAN']) })
-                .safeParse(value).success,
+              !safeParseIssues(
+                z.object({ HEAD: z.enum(['INNER_SPHERE', 'CLAN']) }),
+                value,
+              ).success,
             'Invalid input: Should NOT be valid against schema',
           )
           .optional(),
@@ -161,9 +164,10 @@ const schemaClauses1 = once((): [z.ZodType, string][] => [
           .any()
           .refine(
             (value) =>
-              !z
-                .object({ CENTER_TORSO: z.enum(['INNER_SPHERE', 'CLAN']) })
-                .safeParse(value).success,
+              !safeParseIssues(
+                z.object({ CENTER_TORSO: z.enum(['INNER_SPHERE', 'CLAN']) }),
+                value,
+              ).success,
             'Invalid input: Should NOT be valid against schema',
           )
           .optional(),
@@ -181,9 +185,10 @@ const schemaClauses1 = once((): [z.ZodType, string][] => [
           .any()
           .refine(
             (value) =>
-              !z
-                .object({ LEFT_TORSO: z.enum(['INNER_SPHERE', 'CLAN']) })
-                .safeParse(value).success,
+              !safeParseIssues(
+                z.object({ LEFT_TORSO: z.enum(['INNER_SPHERE', 'CLAN']) }),
+                value,
+              ).success,
             'Invalid input: Should NOT be valid against schema',
           )
           .optional(),
@@ -199,9 +204,10 @@ const schemaClauses1 = once((): [z.ZodType, string][] => [
           .any()
           .refine(
             (value) =>
-              !z
-                .object({ RIGHT_TORSO: z.enum(['INNER_SPHERE', 'CLAN']) })
-                .safeParse(value).success,
+              !safeParseIssues(
+                z.object({ RIGHT_TORSO: z.enum(['INNER_SPHERE', 'CLAN']) }),
+                value,
+              ).success,
             'Invalid input: Should NOT be valid against schema',
           )
           .optional(),
@@ -217,9 +223,10 @@ const schemaClauses1 = once((): [z.ZodType, string][] => [
           .any()
           .refine(
             (value) =>
-              !z
-                .object({ LEFT_ARM: z.enum(['INNER_SPHERE', 'CLAN']) })
-                .safeParse(value).success,
+              !safeParseIssues(
+                z.object({ LEFT_ARM: z.enum(['INNER_SPHERE', 'CLAN']) }),
+                value,
+              ).success,
             'Invalid input: Should NOT be valid against schema',
           )
           .optional(),
@@ -235,9 +242,10 @@ const schemaClauses1 = once((): [z.ZodType, string][] => [
           .any()
           .refine(
             (value) =>
-              !z
-                .object({ RIGHT_ARM: z.enum(['INNER_SPHERE', 'CLAN']) })
-                .safeParse(value).success,
+              !safeParseIssues(
+                z.object({ RIGHT_ARM: z.enum(['INNER_SPHERE', 'CLAN']) }),
+                value,
+              ).success,
             'Invalid input: Should NOT be valid against schema',
           )
           .optional(),
@@ -253,9 +261,10 @@ const schemaClauses1 = once((): [z.ZodType, string][] => [
           .any()
           .refine(
             (value) =>
-              !z
-                .object({ LEFT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
-                .safeParse(value).success,
+              !safeParseIssues(
+                z.object({ LEFT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) }),
+                value,
+              ).success,
             'Invalid input: Should NOT be valid against schema',
           )
           .optional(),
@@ -271,9 +280,10 @@ const schemaClauses1 = once((): [z.ZodType, string][] => [
           .any()
           .refine(
             (value) =>
-              !z
-                .object({ RIGHT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
-                .safeParse(value).success,
+              !safeParseIssues(
+                z.object({ RIGHT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) }),
+                value,
+              ).success,
             'Invalid input: Should NOT be valid against schema',
           )
           .optional(),
@@ -289,9 +299,10 @@ const schemaClauses1 = once((): [z.ZodType, string][] => [
           .any()
           .refine(
             (value) =>
-              !z
-                .object({ FRONT_LEFT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
-                .safeParse(value).success,
+              !safeParseIssues(
+                z.object({ FRONT_LEFT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) }),
+                value,
+              ).success,
             'Invalid input: Should NOT be valid against schema',
           )
           .optional(),
@@ -309,9 +320,10 @@ const schemaClauses1 = once((): [z.ZodType, string][] => [
           .any()
           .refine(
             (value) =>
-              !z
-                .object({ FRONT_RIGHT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
-                .safeParse(value).success,
+              !safeParseIssues(
+                z.object({ FRONT_RIGHT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) }),
+                value,
+              ).success,
             'Invalid input: Should NOT be valid against schema',
           )
           .optional(),
@@ -329,9 +341,10 @@ const schemaClauses1 = once((): [z.ZodType, string][] => [
           .any()
           .refine(
             (value) =>
-              !z
-                .object({ REAR_LEFT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
-                .safeParse(value).success,
+              !safeParseIssues(
+                z.object({ REAR_LEFT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) }),
+                value,
+              ).success,
             'Invalid input: Should NOT be valid against schema',
           )
           .optional(),
@@ -349,9 +362,10 @@ const schemaClauses1 = once((): [z.ZodType, string][] => [
           .any()
           .refine(
             (value) =>
-              !z
-                .object({ REAR_RIGHT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
-                .safeParse(value).success,
+              !safeParseIssues(
+                z.object({ REAR_RIGHT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) }),
+                value,
+              ).success,
             'Invalid input: Should NOT be valid against schema',
           )
           .optional(),
@@ -369,9 +383,10 @@ const schemaClauses1 = once((): [z.ZodType, string][] => [
           .any()
           .refine(
             (value) =>
-              !z
-                .object({ CENTER_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
-                .safeParse(value).success,
+              !safeParseIssues(
+                z.object({ CENTER_LEG: z.enum(['INNER_SPHERE', 'CLAN']) }),
+                value,
+              ).success,
             'Invalid input: Should NOT be valid against schema',
           )
           .optional(),
@@ -542,7 +557,7 @@ export const UnitContract = z
                               errors: [...errors, ...result.error.issues],
                               failed: failed + 1,
                             }
-                          : { errors, failed })(schema.safeParse(x)),
+                          : { errors, failed })(safeParseIssues(schema, x)),
                     { errors: [], failed: 0 },
                   );
                   const passed = schemas.length - failed;
@@ -623,7 +638,7 @@ export const UnitContract = z
                                 errors: [...errors, ...result.error.issues],
                                 failed: failed + 1,
                               }
-                            : { errors, failed })(schema.safeParse(x)),
+                            : { errors, failed })(safeParseIssues(schema, x)),
                       { errors: [], failed: 0 },
                     );
                     const passed = schemas.length - failed;
@@ -662,7 +677,7 @@ export const UnitContract = z
           )
           .superRefine((value, ctx) => {
             for (const [clause, message] of schemaClauses1())
-              if (!clause.safeParse(value).success)
+              if (!safeParseIssues(clause, value).success)
                 ctx.addIssue({ code: 'custom', message });
           }),
         heatSinks: z
@@ -756,7 +771,7 @@ export const UnitContract = z
                             errors: [...errors, ...result.error.issues],
                             failed: failed + 1,
                           }
-                        : { errors, failed })(schema.safeParse(x)),
+                        : { errors, failed })(safeParseIssues(schema, x)),
                   { errors: [], failed: 0 },
                 );
                 const passed = schemas.length - failed;
@@ -1097,7 +1112,7 @@ export const UnitContract = z
                               errors: [...errors, ...result.error.issues],
                               failed: failed + 1,
                             }
-                          : { errors, failed })(schema.safeParse(x)),
+                          : { errors, failed })(safeParseIssues(schema, x)),
                     { errors: [], failed: 0 },
                   );
                   const passed = schemas.length - failed;
@@ -1183,7 +1198,7 @@ export const UnitContract = z
                                 errors: [...errors, ...result.error.issues],
                                 failed: failed + 1,
                               }
-                            : { errors, failed })(schema.safeParse(x)),
+                            : { errors, failed })(safeParseIssues(schema, x)),
                       { errors: [], failed: 0 },
                     );
                     const passed = schemas.length - failed;
@@ -1222,7 +1237,7 @@ export const UnitContract = z
           )
           .superRefine((value, ctx) => {
             for (const [clause, message] of schemaClauses1())
-              if (!clause.safeParse(value).success)
+              if (!safeParseIssues(clause, value).success)
                 ctx.addIssue({ code: 'custom', message });
           })
           .optional(),
@@ -1320,7 +1335,7 @@ export const UnitContract = z
                             errors: [...errors, ...result.error.issues],
                             failed: failed + 1,
                           }
-                        : { errors, failed })(schema.safeParse(x)),
+                        : { errors, failed })(safeParseIssues(schema, x)),
                   { errors: [], failed: 0 },
                 );
                 const passed = schemas.length - failed;
@@ -1468,14 +1483,16 @@ export const UnitContract = z
                     .unknown()
                     .refine(
                       (value) =>
-                        !SchemaDef_capitalUnitType.safeParse(value).success,
+                        !safeParseIssues(SchemaDef_capitalUnitType, value)
+                          .success,
                       'Invalid input: Should NOT be valid against schema',
                     ),
                   z
                     .unknown()
                     .refine(
                       (value) =>
-                        !SchemaDef_battleArmorUnitType.safeParse(value).success,
+                        !safeParseIssues(SchemaDef_battleArmorUnitType, value)
+                          .success,
                       'Invalid input: Should NOT be valid against schema',
                     ),
                 ),
@@ -1484,14 +1501,16 @@ export const UnitContract = z
                     .unknown()
                     .refine(
                       (value) =>
-                        !SchemaDef_infantryUnitType.safeParse(value).success,
+                        !safeParseIssues(SchemaDef_infantryUnitType, value)
+                          .success,
                       'Invalid input: Should NOT be valid against schema',
                     ),
                   z
                     .unknown()
                     .refine(
                       (value) =>
-                        !SchemaDef_protoMechUnitType.safeParse(value).success,
+                        !safeParseIssues(SchemaDef_protoMechUnitType, value)
+                          .success,
                       'Invalid input: Should NOT be valid against schema',
                     ),
                 ),
