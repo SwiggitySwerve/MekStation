@@ -31,7 +31,18 @@ function created(name: string) {
   });
 }
 
-afterEach(() => jest.restoreAllMocks());
+const originalNodeEnv = process.env.NODE_ENV;
+
+afterEach(() => {
+  jest.restoreAllMocks();
+  if (originalNodeEnv === undefined) {
+    // @ts-expect-error Next types NODE_ENV as a required readonly key; restore its absence.
+    delete process.env.NODE_ENV;
+  } else {
+    // @ts-expect-error Next types NODE_ENV as readonly; restore the saved value.
+    process.env.NODE_ENV = originalNodeEnv;
+  }
+});
 
 describe('writer calls the same acceptance owner as both readers', () => {
   it.each(['truncated emoji \ud83d', 'truncated low surrogate \ude00'])(
@@ -62,10 +73,8 @@ describe('writer calls the same acceptance owner as both readers', () => {
   );
 
   it('marks unreadable Unicode in the production single-player recording only', () => {
-    jest.replaceProperty(process, 'env', {
-      ...process.env,
-      NODE_ENV: 'production',
-    });
+    // @ts-expect-error Next types NODE_ENV as readonly; this test needs the production path.
+    process.env.NODE_ENV = 'production';
     const event = created('pilot \ud83d');
     const stored = prepareEventForSerialization(event, 'match-log-idb');
     expect(stored.replayIntegrity?.status).toBe('unverifiable');

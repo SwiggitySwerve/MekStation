@@ -34,8 +34,17 @@ class Socket implements IMatchSocket {
   }
 }
 
+const originalNodeEnv = process.env.NODE_ENV;
+
 afterEach(() => {
   jest.restoreAllMocks();
+  if (originalNodeEnv === undefined) {
+    // @ts-expect-error Next types NODE_ENV as a required readonly key; restore its absence.
+    delete process.env.NODE_ENV;
+  } else {
+    // @ts-expect-error Next types NODE_ENV as readonly; restore the saved value.
+    process.env.NODE_ENV = originalNodeEnv;
+  }
   _setCombatJournalAuthorityModeForTests(null);
 });
 
@@ -135,10 +144,8 @@ describe('unreadable accepted engine command is refused by the host', () => {
               },
             });
           });
-        jest.replaceProperty(process, 'env', {
-          ...process.env,
-          NODE_ENV: 'production',
-        });
+        // @ts-expect-error Next types NODE_ENV as readonly; this test needs the production path.
+        process.env.NODE_ENV = 'production';
         const envelope: IIntent = {
           kind: 'Intent',
           matchId,

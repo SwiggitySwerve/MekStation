@@ -32,7 +32,18 @@ function deps(events: readonly IGameEvent[]) {
     closeMatch: jest.fn(async () => undefined),
   };
 }
-afterEach(() => jest.restoreAllMocks());
+const originalNodeEnv = process.env.NODE_ENV;
+
+afterEach(() => {
+  jest.restoreAllMocks();
+  if (originalNodeEnv === undefined) {
+    // @ts-expect-error Next types NODE_ENV as a required readonly key; restore its absence.
+    delete process.env.NODE_ENV;
+  } else {
+    // @ts-expect-error Next types NODE_ENV as readonly; restore the saved value.
+    process.env.NODE_ENV = originalNodeEnv;
+  }
+});
 
 describe('host commit/publication stored-image reader guard', () => {
   it('checks initial history before any store append', async () => {
@@ -79,10 +90,8 @@ describe('host commit/publication stored-image reader guard', () => {
   );
 
   it('refuses unreadable production output without appending, publishing or closing', async () => {
-    jest.replaceProperty(process, 'env', {
-      ...process.env,
-      NODE_ENV: 'production',
-    });
+    // @ts-expect-error Next types NODE_ENV as readonly; this test needs the production path.
+    process.env.NODE_ENV = 'production';
     const invalid = {
       ...finite,
       payload: { ...finite.payload, targetNumber: Infinity },

@@ -29,7 +29,18 @@ const event: IGameEvent = {
   },
 };
 
-afterEach(() => jest.restoreAllMocks());
+const originalNodeEnv = process.env.NODE_ENV;
+
+afterEach(() => {
+  jest.restoreAllMocks();
+  if (originalNodeEnv === undefined) {
+    // @ts-expect-error Next types NODE_ENV as a required readonly key; restore its absence.
+    delete process.env.NODE_ENV;
+  } else {
+    // @ts-expect-error Next types NODE_ENV as readonly; restore the saved value.
+    process.env.NODE_ENV = originalNodeEnv;
+  }
+});
 
 describe('game event stored-image reader guard', () => {
   it('keeps valid event bytes and identity unchanged', () => {
@@ -134,10 +145,8 @@ describe('game event stored-image reader guard', () => {
   });
 
   it('marks the storage copy in production, preserves the live event, and blocks the recording', () => {
-    jest.replaceProperty(process, 'env', {
-      ...process.env,
-      NODE_ENV: 'production',
-    });
+    // @ts-expect-error Next types NODE_ENV as readonly; this test needs the production path.
+    process.env.NODE_ENV = 'production';
     const invalid = {
       ...event,
       payload: { ...event.payload, rolls: [Infinity, NaN, -Infinity] },
