@@ -33,6 +33,8 @@ import type {
   IUnappliedLegacyDelta,
 } from './battleUnitManifest';
 
+import { getDeviceId } from './persistence/deviceId';
+
 /** The payload flags for a battle's unapplied deltas. */
 export function unappliedDeltaFlags(
   unapplied: readonly IUnappliedLegacyDelta[],
@@ -146,8 +148,27 @@ export function releasePendingQuarantineRecords(
   const remaining = pending.filter(
     (record) => !done.has(pendingQuarantineKey(record)),
   );
-  if (remaining.length === pending.length) return;
-  store.getState().updateCampaign({ pendingQuarantineRecords: remaining });
+  // F3: the flags of confirmed deltas name the device holding the copy.
+  const deviceId = getDeviceId();
+  let flagsChanged = false;
+  const flags = (campaign.legacyCombatStateFlags ?? []).map((flag) => {
+    if (
+      flag.kind !== 'unapplied-delta' ||
+      flag.quarantinedOnDeviceId === deviceId ||
+      !flag.matchIds.some((matchId) =>
+        done.has(`${matchId}|${flag.sessionUnitId}`),
+      )
+    ) {
+      return flag;
+    }
+    flagsChanged = true;
+    return { ...flag, quarantinedOnDeviceId: deviceId };
+  });
+  if (remaining.length === pending.length && !flagsChanged) return;
+  store.getState().updateCampaign({
+    pendingQuarantineRecords: remaining,
+    ...(flagsChanged ? { legacyCombatStateFlags: flags } : {}),
+  });
 }
 
 /**

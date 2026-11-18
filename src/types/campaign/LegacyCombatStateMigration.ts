@@ -35,6 +35,11 @@ export interface ILegacyCombatStateFlag {
    * could not attribute, so it was written to no unit.
    */
   readonly kind: 'combat-state' | 'unapplied-delta';
+  /**
+   * The device (`getDeviceId()`) holding the CONFIRMED quarantine copy.
+   * Absent while the copy is pending, and on flags recorded before it.
+   */
+  readonly quarantinedOnDeviceId?: string;
   readonly sessionUnitId: string;
   readonly reason: LegacyCombatStateFlagReason;
   /** Roster units the entry could belong to, when known. */

@@ -6,10 +6,10 @@
  *   that the load migration could not match to a roster unit;
  * - `unapplied-delta`: damage from a battle that was not applied to any
  *   unit because no evidence names the unit.
- * A copy is claimed to be kept on this device only once it is confirmed:
- * older-save records are stored before the migration is adopted, and an
- * unapplied delta once its pending quarantine write has resolved. Each
- * entry is dismissed on its own.
+ * Where the copy is: nothing is claimed while an unapplied delta's
+ * quarantine write is pending; once confirmed, "this device" only when the
+ * flag's recorded device (`quarantinedOnDeviceId`) is this one, otherwise
+ * "the device where this was found". Each entry is dismissed on its own.
  *
  * Pure presentational — the dashboard wires the live campaign to it.
  */
@@ -35,6 +35,8 @@ const REASON_TEXT: Record<LegacyCombatStateFlagReason, string> = {
 
 export interface LegacyCombatStateFlagsBannerProps {
   readonly flags: readonly ILegacyCombatStateFlag[] | undefined;
+  /** This device's id (`getDeviceId()`). */
+  readonly currentDeviceId: string;
   /** `matchId|sessionUnitId` of unapplied deltas whose copy is not confirmed yet. */
   readonly pendingQuarantineKeys: ReadonlySet<string>;
   readonly onDismiss: (flag: ILegacyCombatStateFlag) => void;
@@ -43,6 +45,7 @@ export interface LegacyCombatStateFlagsBannerProps {
 function describeFlag(
   flag: ILegacyCombatStateFlag,
   pendingQuarantineKeys: ReadonlySet<string>,
+  currentDeviceId: string,
 ): string {
   const lead =
     flag.kind === 'combat-state'
@@ -52,19 +55,22 @@ function describeFlag(
     flag.candidateRosterUnitIds.length > 0
       ? ` (possible units: ${flag.candidateRosterUnitIds.join(', ')})`
       : '';
-  const confirmed =
-    flag.kind === 'combat-state' ||
-    flag.matchIds.every(
-      (matchId) =>
-        !pendingQuarantineKeys.has(`${matchId}|${flag.sessionUnitId}`),
+  const pending =
+    flag.kind === 'unapplied-delta' &&
+    flag.matchIds.some((matchId) =>
+      pendingQuarantineKeys.has(`${matchId}|${flag.sessionUnitId}`),
     );
-  return `${lead}: ${REASON_TEXT[flag.reason]}${candidates}.${
-    confirmed ? ' A copy is kept on this device.' : ''
-  }`;
+  const copy = pending
+    ? ''
+    : flag.quarantinedOnDeviceId === currentDeviceId
+      ? ' A copy is kept on this device.'
+      : ' A copy is kept on the device where this was found.';
+  return `${lead}: ${REASON_TEXT[flag.reason]}${candidates}.${copy}`;
 }
 
 export function LegacyCombatStateFlagsBanner({
   flags,
+  currentDeviceId,
   pendingQuarantineKeys,
   onDismiss,
 }: LegacyCombatStateFlagsBannerProps): React.ReactElement | null {
@@ -90,7 +96,7 @@ export function LegacyCombatStateFlagsBanner({
                   flag.kind === 'combat-state' ? flag.sessionUnitId : key
                 }`}
               >
-                {describeFlag(flag, pendingQuarantineKeys)}
+                {describeFlag(flag, pendingQuarantineKeys, currentDeviceId)}
               </p>
               <Button
                 variant="secondary"

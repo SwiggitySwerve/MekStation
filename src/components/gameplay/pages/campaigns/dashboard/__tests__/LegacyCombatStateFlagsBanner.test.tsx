@@ -6,6 +6,7 @@ import { LegacyCombatStateFlagsBanner } from '../LegacyCombatStateFlagsBanner';
 
 const olderSave: ILegacyCombatStateFlag = {
   kind: 'combat-state',
+  quarantinedOnDeviceId: 'device-a',
   sessionUnitId: 'player-1-atlas-as7-d',
   reason: 'ambiguous-roster-unit',
   candidateRosterUnitIds: ['roster-a', 'roster-b'],
@@ -14,6 +15,7 @@ const olderSave: ILegacyCombatStateFlag = {
 
 const unapplied: ILegacyCombatStateFlag = {
   kind: 'unapplied-delta',
+  quarantinedOnDeviceId: 'device-a',
   sessionUnitId: 'player-2-locust-lct-1v',
   reason: 'ambiguous-roster-unit',
   candidateRosterUnitIds: ['locust-a', 'locust-b'],
@@ -28,6 +30,7 @@ describe('LegacyCombatStateFlagsBanner (T1)', () => {
     const { container } = render(
       <LegacyCombatStateFlagsBanner
         flags={[]}
+        currentDeviceId="device-a"
         pendingQuarantineKeys={new Set()}
         onDismiss={jest.fn()}
       />,
@@ -39,6 +42,7 @@ describe('LegacyCombatStateFlagsBanner (T1)', () => {
     render(
       <LegacyCombatStateFlagsBanner
         flags={[olderSave]}
+        currentDeviceId="device-a"
         pendingQuarantineKeys={new Set()}
         onDismiss={jest.fn()}
       />,
@@ -54,6 +58,7 @@ describe('LegacyCombatStateFlagsBanner (T1)', () => {
     const { rerender } = render(
       <LegacyCombatStateFlagsBanner
         flags={[unapplied]}
+        currentDeviceId="device-a"
         pendingQuarantineKeys={new Set(['match-7|player-2-locust-lct-1v'])}
         onDismiss={jest.fn()}
       />,
@@ -68,6 +73,7 @@ describe('LegacyCombatStateFlagsBanner (T1)', () => {
     rerender(
       <LegacyCombatStateFlagsBanner
         flags={[unapplied]}
+        currentDeviceId="device-a"
         pendingQuarantineKeys={new Set()}
         onDismiss={jest.fn()}
       />,
@@ -82,6 +88,7 @@ describe('LegacyCombatStateFlagsBanner (T1)', () => {
     render(
       <LegacyCombatStateFlagsBanner
         flags={[olderSave, unapplied]}
+        currentDeviceId="device-a"
         pendingQuarantineKeys={new Set()}
         onDismiss={onDismiss}
       />,
@@ -93,5 +100,23 @@ describe('LegacyCombatStateFlagsBanner (T1)', () => {
     );
     expect(onDismiss).toHaveBeenCalledTimes(1);
     expect(onDismiss).toHaveBeenCalledWith(unapplied);
+  });
+
+  it('F3: a copy confirmed on another device is said to be kept where it was found', () => {
+    render(
+      <LegacyCombatStateFlagsBanner
+        flags={[{ ...olderSave, quarantinedOnDeviceId: 'device-b' }]}
+        currentDeviceId="device-a"
+        pendingQuarantineKeys={new Set()}
+        onDismiss={jest.fn()}
+      />,
+    );
+    const text =
+      screen.getByTestId('legacy-combat-state-flag-player-1-atlas-as7-d')
+        .textContent ?? '';
+    expect(text).toContain(
+      'A copy is kept on the device where this was found.',
+    );
+    expect(text).not.toContain('A copy is kept on this device.');
   });
 });

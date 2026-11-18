@@ -276,12 +276,14 @@ describe('migrateSessionKeyedCombatStates leaves and flags what it cannot prove'
       campaign,
       rosterUnits: [rosterUnit('roster-a')],
       migratedAt: MIGRATED_AT,
+      deviceId: 'device-a',
     });
     if (!result) throw new Error('expected a migration');
     expect(result.campaign.unitCombatStates).toEqual({});
     expect(result.flags).toEqual([
       {
         kind: 'combat-state',
+        quarantinedOnDeviceId: 'device-a',
         sessionUnitId: PLAYER_KEY,
         reason: 'not-fully-explained',
         candidateRosterUnitIds: ['roster-a'],

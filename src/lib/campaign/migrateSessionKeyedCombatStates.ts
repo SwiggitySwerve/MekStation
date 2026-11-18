@@ -214,9 +214,13 @@ function taintSharedRosterUnits(analyses: readonly IEntryAnalysis[]): void {
   }
 }
 
-function flagOf(analysis: IEntryAnalysis): ILegacyCombatStateFlag {
+function flagOf(
+  analysis: IEntryAnalysis,
+  deviceId: string | undefined,
+): ILegacyCombatStateFlag {
   return {
     kind: 'combat-state',
+    ...(deviceId === undefined ? {} : { quarantinedOnDeviceId: deviceId }),
     sessionUnitId: analysis.key,
     reason: analysis.reason as LegacyCombatStateFlagReason,
     candidateRosterUnitIds: [...candidatesOf(analysis)],
@@ -232,10 +236,16 @@ export function migrateSessionKeyedCombatStates({
   campaign,
   rosterUnits,
   migratedAt,
+  deviceId,
 }: {
   readonly campaign: ICampaign;
   readonly rosterUnits: readonly IRosterUnitProjection[];
   readonly migratedAt: string;
+  /**
+   * The device the quarantine is written on. The caller adopts the result
+   * only after that write succeeds, so the flags may name it as confirmed.
+   */
+  readonly deviceId?: string;
 }): ISessionKeyedCombatStateMigration | null {
   const states = campaign.unitCombatStates ?? {};
   const sessionKeys = Object.keys(states).filter(isSessionKeyedUnitId);
@@ -294,7 +304,7 @@ export function migrateSessionKeyedCombatStates({
 
   const flags = analyses
     .filter((analysis) => analysis.reason !== null)
-    .map(flagOf);
+    .map((analysis) => flagOf(analysis, deviceId));
   const flagKeys = new Set(flags.map(legacyCombatStateFlagKey));
   const legacyCombatStateFlags = [
     ...(campaign.legacyCombatStateFlags ?? []).filter(
@@ -320,7 +330,7 @@ export function migrateSessionKeyedCombatStates({
               }),
             ),
           }
-        : { kind: 'flagged', flag: flagOf(analysis) },
+        : { kind: 'flagged', flag: flagOf(analysis, deviceId) },
     migratedAt,
   }));
 

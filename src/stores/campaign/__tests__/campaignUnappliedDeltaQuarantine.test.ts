@@ -8,6 +8,7 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
+import { getDeviceId } from '@/lib/campaign/persistence/deviceId';
 import { applyPostBattle } from '@/lib/campaign/processors/postBattleProcessor';
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
@@ -199,5 +200,14 @@ describe('unapplied legacy deltas survive until their quarantine is confirmed (N
     expect(
       useCampaignStore().getState().campaign?.pendingQuarantineRecords ?? [],
     ).toEqual([]);
+    // F3: the flag records the device that holds the confirmed copy.
+    expect(
+      useCampaignStore().getState().campaign?.legacyCombatStateFlags,
+    ).toEqual([
+      expect.objectContaining({
+        sessionUnitId: SESSION_ID,
+        quarantinedOnDeviceId: getDeviceId(),
+      }),
+    ]);
   });
 });

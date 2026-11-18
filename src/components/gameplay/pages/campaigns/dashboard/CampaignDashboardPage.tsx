@@ -15,6 +15,7 @@ import { Button, PageLayout } from '@/components/ui';
 import { getCoopMatchId } from '@/lib/campaign/coop/coopRuntimeSession';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
 import { useDayAdvanceInFlight } from '@/lib/campaign/hooks/useDayAdvanceInFlight';
+import { getDeviceId } from '@/lib/campaign/persistence/deviceId';
 import {
   type CanonicalCombatCatalogSnapshot,
   admitCampaignLaunch,
@@ -419,6 +420,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
 
       <LegacyCombatStateFlagsBanner
         flags={liveCampaign?.legacyCombatStateFlags}
+        currentDeviceId={getDeviceId()}
         pendingQuarantineKeys={
           new Set(
             (liveCampaign?.pendingQuarantineRecords ?? []).map(

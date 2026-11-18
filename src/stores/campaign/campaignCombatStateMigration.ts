@@ -12,6 +12,7 @@ import type { ILegacyCombatStateQuarantineStore } from '@/services/persistence/l
 
 import { campaignDaysBetween } from '@/lib/campaign/campaignCalendar';
 import { migrateSessionKeyedCombatStates } from '@/lib/campaign/migrateSessionKeyedCombatStates';
+import { getDeviceId } from '@/lib/campaign/persistence/deviceId';
 import { writePendingQuarantineRecords } from '@/lib/campaign/quarantineUnappliedDeltas';
 import { createIndexedDbLegacyCombatStateQuarantineStore } from '@/services/persistence/legacyCombatStateQuarantineStore';
 import { logger } from '@/utils/logger';
@@ -68,6 +69,7 @@ async function migrateLiveCampaign(
     campaign,
     rosterUnits: roster.units,
     migratedAt,
+    deviceId: getDeviceId(),
   });
   if (!migration) return;
 
