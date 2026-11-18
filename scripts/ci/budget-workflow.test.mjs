@@ -552,6 +552,10 @@ test('actual aggregator boundary rejects failures, unexpected skips, unknown/mis
   assert.match(run.stderr, /Missing or unknown/);
 });
 
+// The live workflow's typical job counts are over their limit too (four PR E2E
+// shards); the expanded-count test pins those rows, these pin the others.
+const notJobCount = ({ code }) => code !== 'typicalPrJobs';
+
 test('cache and dependency counts are report-only; timeout drift is red', () => {
   const metrics = repository();
   metrics.cache.files = Array.from(
@@ -571,12 +575,9 @@ test('cache and dependency counts are report-only; timeout drift is red', () => 
   const counts = checkRepositoryMetrics(config, metrics, []);
   assert.deepEqual(counts.violations, []);
   assert.deepEqual(
-    counts.overBudget.map(({ key, value, limit, delta }) => [
-      key,
-      value,
-      limit,
-      delta,
-    ]),
+    counts.overBudget
+      .filter(notJobCount)
+      .map(({ key, value, limit, delta }) => [key, value, limit, delta]),
     [
       [
         'limits.unkeyableTests',
@@ -626,11 +627,11 @@ test('the CLI exits 0 when only counts are over and 1 on any violation', () => {
   const metrics = repository();
   metrics.dependencies.root.lockEntries++;
   const counts = checkRepositoryMetrics(config, metrics, []);
-  assert.equal(counts.overBudget.length, 1);
+  assert.equal(counts.overBudget.filter(notJobCount).length, 1);
   assert.equal(exitCodeFor(counts), 0);
   metrics.workflow.timeouts.e2e++;
   const drifted = checkRepositoryMetrics(config, metrics, []);
-  assert.equal(drifted.overBudget.length, 1);
+  assert.equal(drifted.overBudget.filter(notJobCount).length, 1);
   assert.equal(exitCodeFor(drifted), 1);
 });
 
