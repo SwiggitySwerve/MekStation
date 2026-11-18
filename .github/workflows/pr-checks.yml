@@ -853,7 +853,7 @@ jobs:
 
       - name: Install Playwright system dependencies (browser cached)
         if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
+        uses: ./.github/actions/playwright-system-deps
 
       - name: Run seam anchor, customizer and GM ledger regression gates
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
