@@ -1,5 +1,7 @@
-// Owns the PR browser-test inventory, retry policies and duration allocation.
-// A timing miss changes a weight only: selection always comes from live tests.
+// Owns the PR and Nightly browser-test inventories, retry policies and duration
+// allocation. A timing miss changes a weight only: selection always comes from
+// live tests. A suite may set `split: 'test'` (allocate per test instead of per
+// file) and `fileWeights: true` (weigh by timing.fileMilliseconds).
 import crypto from 'node:crypto';
 
 import { median } from '../lib/statistics.mjs';
@@ -26,6 +28,7 @@ export const CI_SUITES = [
     name: 'library',
     workers: 1,
     options: [],
+    split: 'test',
     files: ['customizer-library-open.spec.ts'],
   },
   {
@@ -54,8 +57,74 @@ export function suitesForDataSpecs(dataSpecs = []) {
     .filter((file) => !fixed.has(file))
     .sort(compare);
   return files.length
-    ? [...CI_SUITES, { name: 'data', workers: 1, options: [], files }]
+    ? [
+        ...CI_SUITES,
+        { name: 'data', workers: 1, options: [], fileWeights: true, files },
+      ]
     : CI_SUITES;
+}
+
+// The Nightly suite set: one single-worker suite over every spec file the live
+// census contains. The census is the Chromium listing with these rows excluded
+// (they run armed in their own step); the runner passes both below to Playwright.
+export const NIGHTLY_SUITE_NAME = 'nightly';
+export const NIGHTLY_GREP_INVERT = '@E2E-19|@E2E-25';
+export const NIGHTLY_DURATIONS = 'config/playwright/nightly-durations.json';
+
+export function nightlySuites(tests) {
+  return [
+    {
+      name: NIGHTLY_SUITE_NAME,
+      workers: 1,
+      options: [],
+      split: 'file',
+      files: [...new Set(tests.map(({ file }) => file))].sort(compare),
+    },
+  ];
+}
+
+// Playwright arguments, owned here so a runner change cannot drift from the
+// invocation the contract tests pin. PR selection names its spec files; Nightly
+// selects by the generated --test-list inside the grep-filtered census.
+export const prCensusArgs = (suites) =>
+  suites.flatMap(({ files }) => files.map((f) => `e2e/${f}`));
+
+export const prTaskArgs = (suite, list) => [
+  ...suite.files.map((f) => `e2e/${f}`),
+  `--test-list=${list}`,
+  '--project=chromium',
+  `--workers=${suite.workers}`,
+  ...suite.options,
+  `--output=test-results/${suite.name}`,
+];
+
+export const nightlyCensusArgs = () => [
+  '--ignore-snapshots',
+  '--grep-invert',
+  NIGHTLY_GREP_INVERT,
+];
+
+export const nightlyTaskArgs = (suite, list) => [
+  `--test-list=${list}`,
+  '--project=chromium',
+  `--workers=${suite.workers}`,
+  ...suite.options,
+  ...nightlyCensusArgs(),
+  `--output=test-results/${suite.name}`,
+];
+
+/** Nightly mode: `--suite-set nightly --shard=<i>[/<n>]` and nothing else. */
+export function parseNightlyInvocation(argv) {
+  const [flag, name, shard, ...rest] = argv;
+  const match = /^--shard=(\d+)(?:\/(\d+))?$/.exec(shard ?? '');
+  if (flag !== '--suite-set' || name !== 'nightly' || !match || rest.length)
+    throw new Error('Expected --suite-set nightly --shard=<i>[/<n>]');
+  const shardIndex = Number(match[1]);
+  const shardCount = match[2] === undefined ? 3 : Number(match[2]);
+  if (!(shardCount >= 1 && shardIndex >= 1 && shardIndex <= shardCount))
+    throw new Error(`Invalid Nightly shard ${shardIndex}/${shardCount}`);
+  // The full suite needs the census, so the runner builds it after listing.
+  return { suite: { name: NIGHTLY_SUITE_NAME }, shardIndex, shardCount };
 }
 
 export function parseInvocation(argv, dataSpecs = []) {
@@ -142,11 +211,11 @@ function suiteFor(test, suites = CI_SUITES) {
   return suite;
 }
 
-export function recordDurations(reports, sourceRunIds) {
+export function recordDurations(reports, sourceRunIds, suites = CI_SUITES) {
   const observations = new Map();
   for (const report of reports) {
     for (const test of collectTests(report)) {
-      suiteFor(test);
+      suiteFor(test, suites);
       const passed = test.results.filter(
         ({ status, retry, duration }) =>
           status === 'passed' && retry === 0 && duration > 0,
@@ -171,7 +240,15 @@ export function recordDurations(reports, sourceRunIds) {
 }
 
 export function planShards(tests, timing, shardCount = 2, dataSpecs = []) {
-  const suites = suitesForDataSpecs(dataSpecs);
+  return planSuiteShards(
+    tests,
+    timing,
+    shardCount,
+    suitesForDataSpecs(dataSpecs),
+  );
+}
+
+export function planSuiteShards(tests, timing, shardCount, suites) {
   if (!Number.isInteger(shardCount) || shardCount < 1)
     throw new Error('Invalid E2E shard count');
   if (timing.version !== 1 || !timing.milliseconds)
@@ -201,15 +278,16 @@ export function planShards(tests, timing, shardCount = 2, dataSpecs = []) {
     // Keep gate files and the smoke spec intact, including its serial describe.
     // The library is already split at test boundaries by native sharding; its
     // independent tests remain single-worker within each server invocation.
-    const groupKey = suite.name === 'library' ? test.key : test.file;
+    const groupKey = suite.split === 'test' ? test.key : test.file;
     const group = groups.get(groupKey) ?? {
       key: groupKey,
       suite: suite.name,
       tests: [],
       milliseconds: 0,
     };
-    const fileWeight =
-      suite.name === 'data' ? timing.fileMilliseconds?.[test.file] : undefined;
+    const fileWeight = suite.fileWeights
+      ? timing.fileMilliseconds?.[test.file]
+      : undefined;
     if (
       fileWeight !== undefined &&
       (!Number.isFinite(fileWeight) || fileWeight <= 0)
@@ -263,4 +341,24 @@ export function assertSameTests(expected, observed) {
   const actual = observed.map(({ key }) => key).sort(compare);
   if (JSON.stringify(wanted) !== JSON.stringify(actual))
     throw new Error('Executed E2E census differs from the planned test set');
+}
+
+/** One test list per shard, from a full plan. */
+export const shardTestLists = (plan) =>
+  plan.shards.map(({ tasks }) => tasks.flatMap(({ tests }) => tests));
+
+/** A shard that runs nothing would pass vacuously: fail it instead. */
+export function assertShardNotEmpty(tests, label) {
+  if (!tests.length) throw new Error(`E2E shard ${label} has zero tests`);
+}
+
+/** The N shard test lists partition the census: none missing, none duplicated. */
+export function assertShardsCoverCensus(shardLists, census) {
+  const all = shardLists.flat();
+  const seen = new Set();
+  for (const { key } of all) {
+    if (seen.has(key)) throw new Error(`E2E test planned twice: ${key}`);
+    seen.add(key);
+  }
+  assertSameTests(census, all);
 }
