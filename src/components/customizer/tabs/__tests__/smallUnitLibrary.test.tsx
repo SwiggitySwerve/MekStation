@@ -284,12 +284,17 @@ it.each([
     // Values the Chassis Name field holds in each committed render of the
     // parent, before any effect of that commit runs (a fill lands here).
     const painted: string[] = [];
+    // Text typed into the first open commit, before that commit's effects run.
+    let typeBeforeEffects: string | undefined;
     function Host({ open }: { open: boolean }) {
       useLayoutEffect(() => {
-        if (open)
-          painted.push(
-            (screen.getByLabelText('Chassis Name') as HTMLInputElement).value,
-          );
+        if (!open) return;
+        const field = screen.getByLabelText('Chassis Name') as HTMLInputElement;
+        painted.push(field.value);
+        if (typeBeforeEffects) {
+          fireEvent.change(field, { target: { value: typeBeforeEffects } });
+          typeBeforeEffects = undefined;
+        }
       });
       // The real controller keeps the dialog mounted while closed, with no tab.
       return (
@@ -315,5 +320,14 @@ it.each([
     painted.length = 0;
     view.rerender(<Host open />);
     expect(painted[0]).toBe(chassis);
+    // Input that lands before the opening commit's effects is kept: the open
+    // effect never replaces the user's text with the initial name.
+    view.rerender(<Host open={false} />);
+    typeBeforeEffects = 'Typed Before Effect';
+    view.rerender(<Host open />);
+    expect(
+      (screen.getByLabelText('Chassis Name') as HTMLInputElement).value,
+    ).toBe('Typed Before Effect');
   },
+  180000,
 );
