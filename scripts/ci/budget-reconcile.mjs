@@ -156,6 +156,11 @@ export async function reconcileBudgetStatuses({
           pull_number: number,
         });
         if (live.state !== 'open' || live.draft || live.base.ref !== 'main') {
+          evaluated.push({
+            number,
+            head: live.head.sha,
+            outcome: `skipped: ${live.state !== 'open' ? live.state : live.draft ? 'draft' : `base ${live.base.ref}`} since listed; no policy evaluated or statuses written`,
+          });
           visited.push(number);
           continue;
         }

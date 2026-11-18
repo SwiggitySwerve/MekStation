@@ -493,3 +493,34 @@ test('reconciliation caches metadata and immutable SHA blobs but never live PR r
   assert.equal(f.requests.filter((name) => name === 'blob').length, 1);
   assert.equal(f.requests.filter((name) => name === 'pull').length, 8);
 });
+
+test('a PR open in the list but closed in the live read is not evaluated or written and the summary says why', async () => {
+  const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
+  const f = apiFixture(1);
+  const get = f.github.rest.pulls.get;
+  f.github.rest.pulls.get = async (args) => {
+    const response = await get(args);
+    response.data.state = 'closed';
+    return response;
+  };
+  const evaluatedNumbers = [];
+  const result = await reconcileBudgetStatuses({
+    ...f,
+    owner: 'o',
+    repo: 'r',
+    runNumber: 1,
+    checkPolicy: async ({ number }) => {
+      evaluatedNumbers.push(number);
+      throw new Error('a closed PR must not be evaluated');
+    },
+  });
+  assert.deepEqual(evaluatedNumbers, []);
+  assert.equal(f.requests.includes('write'), false);
+  assert.deepEqual(result.writes, []);
+  assert.deepEqual(f.failures, []);
+  assert.deepEqual(result.unreached, []);
+  assert.match(
+    f.core.summary.text,
+    /\| #1 \| [0-9a-f]{40} \| skipped: closed since listed/,
+  );
+});
