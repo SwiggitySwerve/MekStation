@@ -315,10 +315,15 @@ describe('K13 host intent deadline', () => {
         (call) => call[1]?.method === 'PUT',
       ),
     ).toHaveLength(putsBefore);
-    const expiry = toastMessages().find((m) => /didn't answer/i.test(m));
+    // T6 (C8 r8): the host replays a resent committed intent from its
+    // receipt without answering, so the toast no longer promises a safe
+    // retry; it says the host may have advanced and to reload first.
+    const expiry = toastMessages().find((m) =>
+      /didn't confirm the day advance/i.test(m),
+    );
     expect(expiry).toBeDefined();
-    expect(expiry).toMatch(/retry/i);
-    expect(expiry).toMatch(/safe/i);
+    expect(expiry).toMatch(/may already have advanced/i);
+    expect(expiry).toMatch(/reload the campaign before trying again/i);
 
     jest.useRealTimers();
     const retry = store.getState().advanceDay();
@@ -333,6 +338,12 @@ describe('K13 host intent deadline', () => {
     const { store, host } = await coopHostCampaign();
     const processDay = jest.spyOn(getDayPipeline(), 'processDay');
     const start = dayMs();
+    const before = store.getState().campaign;
+    const puts = (): number =>
+      (global.fetch as jest.Mock).mock.calls.filter(
+        (call) => call[1]?.method === 'PUT',
+      ).length;
+    const putsBefore = puts();
     jest.useFakeTimers();
 
     const pending = store.getState().advanceDay();
@@ -341,24 +352,41 @@ describe('K13 host intent deadline', () => {
     host.commit();
     await jest.advanceTimersByTimeAsync(50);
 
-    expect(processDay).not.toHaveBeenCalled();
+    // T6 (C8): the day is computed once before the intent is sent, and the
+    // timeout discards it; the late answer runs nothing more. Nothing is
+    // installed, saved or sent again.
+    expect(processDay).toHaveBeenCalledTimes(1);
     expect(dayMs()).toBe(start);
+    expect(store.getState().campaign).toBe(before);
+    expect(puts()).toBe(putsBefore);
+    expect(host.sent).toHaveLength(1);
   });
 
   it('(T7) switching campaigns while the host answers leaves the new campaign alone', async () => {
     const { store, host } = await coopHostCampaign();
     const processDay = jest.spyOn(getDayPipeline(), 'processDay');
     const original = store.getState().campaign!;
+    const puts = (): number =>
+      (global.fetch as jest.Mock).mock.calls.filter(
+        (call) => call[1]?.method === 'PUT',
+      ).length;
+    const putsBefore = puts();
 
     const pending = store.getState().advanceDay();
     const other = { ...original, id: 'other-campaign', coopSession: undefined };
     store.getState().switchCampaign(other);
+    const switched = store.getState().campaign;
     host.commit();
 
     expect(await pending).toBeNull();
     expect(store.getState().campaign?.id).toBe('other-campaign');
     expect(store.getState().campaign?.currentDate).toBe(original.currentDate);
-    expect(processDay).not.toHaveBeenCalled();
+    // T6 (C8): computed once before the send, then discarded: nothing is
+    // installed on the new campaign, saved, or sent again.
+    expect(processDay).toHaveBeenCalledTimes(1);
+    expect(store.getState().campaign).toBe(switched);
+    expect(puts()).toBe(putsBefore);
+    expect(host.sent).toHaveLength(1);
   });
 
   it('(T7b) switching campaigns while the committed record is being read, and the read failing, leaves the new campaign alone', async () => {
@@ -384,11 +412,21 @@ describe('K13 host intent deadline', () => {
     while (!reading) await new Promise((resolve) => setTimeout(resolve, 0));
     const other = { ...original, id: 'other-campaign', coopSession: undefined };
     store.getState().switchCampaign(other);
+    const switched = store.getState().campaign;
     releaseRead();
 
     expect(await pending).toBeNull();
     expect(store.getState().campaign?.id).toBe('other-campaign');
-    expect(processDay).not.toHaveBeenCalled();
+    // T6 (C8): computed once before the send, then discarded: nothing is
+    // installed on the new campaign, saved, or sent again.
+    expect(processDay).toHaveBeenCalledTimes(1);
+    expect(store.getState().campaign).toBe(switched);
+    expect(
+      (global.fetch as jest.Mock).mock.calls.filter(
+        (call) => call[1]?.method === 'PUT',
+      ),
+    ).toHaveLength(0);
+    expect(host.sent).toHaveLength(1);
   });
 });
 

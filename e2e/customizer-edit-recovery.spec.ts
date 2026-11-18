@@ -154,15 +154,25 @@ async function saveLibrary(
     await dialog
       .getByLabel('Variant Designation', { exact: true })
       .fill(variant);
-  const response = page.waitForResponse(
-    (r) =>
-      /\/api\/units\/custom(?:\/[^/]+)?$/.test(new URL(r.url()).pathname) &&
-      ['POST', 'PUT'].includes(r.request().method()),
-  );
-  await dialog
-    .getByRole('button', { name: variant ? 'Save' : 'Overwrite', exact: true })
-    .click();
-  if (acknowledgeMissingCriticalSlots) {
+  // Start listening only immediately before the click that sends the request,
+  // so a stall in an earlier step fails there, not as a response timeout.
+  const waitForSaveResponse = () =>
+    page.waitForResponse(
+      (r) =>
+        /\/api\/units\/custom(?:\/[^/]+)?$/.test(new URL(r.url()).pathname) &&
+        ['POST', 'PUT'].includes(r.request().method()),
+    );
+  let response: ReturnType<typeof waitForSaveResponse>;
+  const submit = dialog.getByRole('button', {
+    name: variant ? 'Save' : 'Overwrite',
+    exact: true,
+  });
+  if (!acknowledgeMissingCriticalSlots) {
+    response = waitForSaveResponse();
+    await submit.click();
+  } else {
+    // This click only opens the confirmation; it sends nothing.
+    await submit.click();
     // The Mad Cat fixture has existing BV-neutral heat-sink placement losses.
     // Acknowledge only that named confirmation, after checking every entry.
     const confirmation = page.getByRole('dialog', {
@@ -189,9 +199,12 @@ async function saveLibrary(
       'CLDoubleHeatSink (OMNIPOD) — Center Torso [10]',
       'CLDoubleHeatSink (OMNIPOD) — Center Torso [11]',
     ]);
-    await confirmation
-      .getByRole('button', { name: 'Save anyway', exact: true })
-      .click();
+    const saveAnyway = confirmation.getByRole('button', {
+      name: 'Save anyway',
+      exact: true,
+    });
+    response = waitForSaveResponse();
+    await saveAnyway.click();
   }
   const result = await response;
   expect(result.ok()).toBe(true);

@@ -42,16 +42,12 @@ export interface EquipmentPlacementRule {
 
 /**
  * Standard placement rules
+ *
+ * Mek location rules follow MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587
+ * `TestMek.isValidMekLocation` (TestMek.java:1658-1810). It has no location
+ * rule for ECM suites, so Guardian ECM has no entry here.
  */
 export const PLACEMENT_RULES: readonly EquipmentPlacementRule[] = [
-  // ECM must be in torso
-  {
-    equipmentId: 'guardian-ecm',
-    restriction: LocationRestriction.TORSO_ONLY,
-    mustBeContiguous: true,
-    canSplit: false,
-    maxPerLocation: 1,
-  },
   // C3 Master can't be in head
   {
     equipmentId: 'c3-master',
@@ -68,10 +64,19 @@ export const PLACEMENT_RULES: readonly EquipmentPlacementRule[] = [
     canSplit: false,
     maxPerLocation: 1,
   },
-  // CASE goes in torso with ammo
+  // IS CASE and CASE-P: any torso location, centre torso included
+  // (TestMek.java:1752-1760, IS_CASE / IS_CASE_P, `mek.locationIsTorso`).
+  // CASE II (IS and Clan) and Clan CASE are deliberately unrestricted, as in Java.
   {
     equipmentId: 'case',
-    restriction: LocationRestriction.SIDE_TORSO,
+    restriction: LocationRestriction.TORSO_ONLY,
+    mustBeContiguous: false,
+    canSplit: false,
+    maxPerLocation: 1,
+  },
+  {
+    equipmentId: 'case-p-prototype',
+    restriction: LocationRestriction.TORSO_ONLY,
     mustBeContiguous: false,
     canSplit: false,
     maxPerLocation: 1,

@@ -110,3 +110,29 @@ identify their owning BLK family through the exhaustive armor classification.
 - **THEN** it SHALL refuse with the specific Patchwork location-context diagnostic and no content until the required representation and writer are supported
 - **AND** that support SHALL depend in order on C2's allocation splice `76095cfeb`, preservation of `armor.techBaseByLocation`, and the Patchwork location writer from pinned `Mek.java:5385-5403`
 - **AND** restoring allocation alone SHALL NOT enable an export that loses the per-location armor identity or technology
+
+### Requirement: Armor identity has one owner read by TypeScript and Python
+
+The `armor` section of `src/types/formats/mtf-component-vocabulary.json` SHALL
+be the one owner of armor identity: one row per unit-contract `armor.type` tag,
+with its `ArmorTypeEnum` member key (or none), its export family, and for mech
+MTF rows its written name, its TypeScript parse key and the exact spellings the
+Python converter accepts. The TypeScript MTF vocabulary, the export-family
+classification, the armor source tags and the Python `ARMOR_TYPE_MAP` SHALL be
+derived from it, and every table that must stay a literal SHALL be proven equal
+to it by a test.
+
+#### Scenario: A tag added to the contract without an owner row fails in both languages
+
+- **WHEN** a tag is added to or removed from `standardArmorType` in the unit schema without the matching owner row
+- **THEN** the TypeScript identity test and the Python identity test SHALL each fail
+- **AND** both run in the pull-request checks (the Jest unit shards and the `python-conversion` step)
+
+#### Scenario: Folding the owner changes no accepted name
+
+- **WHEN** armor identity moved into the shared owner
+- **THEN** the set of armor names TypeScript accepts and the set Python accepts SHALL each be exactly what it was before, pinned by one shared fixture
+- **AND** the differences between the two sets SHALL stay listed as an open item rather than being unified by the fold
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`Mek.java:5385-5403`; `MtfFile.java:414-471`; `EquipmentType.java:950-971,1081-1089`.

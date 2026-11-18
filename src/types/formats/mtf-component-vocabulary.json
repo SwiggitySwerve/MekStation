@@ -231,5 +231,425 @@
       "techBase": "CLAN",
       "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:9896"
     }
-  }
+  },
+  "armor": [
+    {
+      "tag": "STANDARD",
+      "enum": "STANDARD",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Standard(Inner Sphere)",
+        "parse": "standard",
+        "spellings": [
+          "Standard",
+          "Standard Armor",
+          "Standard(Inner Sphere)",
+          "Standard(Clan)",
+          "Clan Standard(Clan)",
+          "IS Standard(Inner Sphere)"
+        ]
+      }
+    },
+    {
+      "tag": "FERRO_FIBROUS",
+      "enum": "FERRO_FIBROUS_IS",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Ferro-Fibrous",
+        "parse": "ferro-fibrous",
+        "spellings": [
+          "Ferro-Fibrous",
+          "Ferro-Fibrous Armor",
+          "Ferro-Fibrous(Inner Sphere)",
+          "IS Ferro-Fibrous",
+          "IS Ferro-Fibrous(Inner Sphere)"
+        ]
+      }
+    },
+    {
+      "tag": "LIGHT_FERRO_FIBROUS",
+      "enum": "LIGHT_FERRO",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Light Ferro-Fibrous",
+        "parse": "light ferro-fibrous",
+        "spellings": [
+          "Light Ferro-Fibrous",
+          "Light Ferro-Fibrous Armor",
+          "Light Ferro-Fibrous(Inner Sphere)"
+        ]
+      }
+    },
+    {
+      "tag": "HEAVY_FERRO_FIBROUS",
+      "enum": "HEAVY_FERRO",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Heavy Ferro-Fibrous",
+        "parse": "heavy ferro-fibrous",
+        "spellings": [
+          "Heavy Ferro-Fibrous",
+          "Heavy Ferro-Fibrous Armor",
+          "Heavy Ferro-Fibrous(Inner Sphere)"
+        ]
+      }
+    },
+    {
+      "tag": "STEALTH",
+      "enum": "STEALTH",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Stealth",
+        "parse": "stealth",
+        "spellings": ["Stealth Armor", "Stealth", "Stealth(Inner Sphere)"]
+      }
+    },
+    {
+      "tag": "REACTIVE",
+      "enum": "REACTIVE",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Reactive",
+        "parse": "reactive",
+        "spellings": [
+          "Reactive Armor",
+          "Reactive",
+          "Reactive(Clan)",
+          "Reactive(Inner Sphere)",
+          "IS Reactive(Inner Sphere)"
+        ]
+      }
+    },
+    {
+      "tag": "REFLECTIVE",
+      "enum": "REFLECTIVE",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Reflective",
+        "parse": "reflective",
+        "spellings": [
+          "Reflective Armor",
+          "Reflective",
+          "Laser-Reflective",
+          "Reflective(Clan)",
+          "Reflective(Inner Sphere)",
+          "IS Reflective(Inner Sphere)"
+        ]
+      }
+    },
+    {
+      "tag": "HARDENED",
+      "enum": "HARDENED",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Hardened",
+        "parse": "hardened",
+        "spellings": [
+          "Hardened Armor",
+          "Hardened",
+          "Hardened(Clan)",
+          "Hardened(Inner Sphere)",
+          "IS Hardened(Inner Sphere)"
+        ]
+      }
+    },
+    {
+      "tag": "PRIMITIVE",
+      "enum": "PRIMITIVE",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Primitive",
+        "parse": "primitive",
+        "spellings": ["Primitive Armor", "Primitive", "Primitive(Inner Sphere)"]
+      }
+    },
+    {
+      "tag": "INDUSTRIAL",
+      "enum": "INDUSTRIAL",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Industrial",
+        "parse": "industrial",
+        "spellings": [
+          "Industrial Armor",
+          "Industrial",
+          "Industrial(Inner Sphere)"
+        ]
+      }
+    },
+    {
+      "tag": "HEAVY_INDUSTRIAL",
+      "enum": "HEAVY_INDUSTRIAL",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Heavy Industrial",
+        "parse": "heavy industrial",
+        "spellings": [
+          "Heavy Industrial",
+          "Heavy Industrial Armor",
+          "Heavy Industrial(Clan)",
+          "Heavy Industrial(Inner Sphere)",
+          "IS Heavy Industrial(Inner Sphere)"
+        ]
+      }
+    },
+    {
+      "tag": "COMMERCIAL",
+      "enum": "COMMERCIAL",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Commercial",
+        "parse": "commercial",
+        "spellings": [
+          "Commercial",
+          "Commercial Armor",
+          "Commercial(Inner Sphere)"
+        ]
+      }
+    },
+    {
+      "tag": "IMPACT_RESISTANT",
+      "enum": "IMPACT_RESISTANT",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Impact-Resistant",
+        "parse": "impact-resistant",
+        "spellings": [
+          "Impact-Resistant",
+          "Impact-Resistant Armor",
+          "Impact-Resistant(Inner Sphere)"
+        ]
+      }
+    },
+    {
+      "tag": "FERRO_LAMELLOR",
+      "enum": "FERRO_LAMELLOR",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Ferro-Lamellor",
+        "parse": "ferro-lamellor",
+        "spellings": ["Ferro-Lamellor(Clan)"]
+      }
+    },
+    {
+      "tag": "FERRO_FIBROUS_PROTO",
+      "enum": "FERRO_FIBROUS_PROTO",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Ferro-Fibrous Prototype",
+        "parse": "ferro-fibrous prototype",
+        "spellings": [
+          "Ferro-Fibrous Prototype(Inner Sphere)",
+          "Ferro-Fibrous Prototype"
+        ]
+      }
+    },
+    {
+      "tag": "BALLISTIC_REINFORCED",
+      "enum": "BALLISTIC_REINFORCED",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Ballistic-Reinforced",
+        "parse": "ballistic-reinforced",
+        "spellings": [
+          "Ballistic-Reinforced(Inner Sphere)",
+          "Ballistic-Reinforced"
+        ]
+      }
+    },
+    {
+      "tag": "HEAT_DISSIPATING",
+      "enum": "HEAT_DISSIPATING",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Heat-Dissipating",
+        "parse": "heat-dissipating",
+        "spellings": [
+          "Heat-Dissipating(Clan)",
+          "Heat-Dissipating(Inner Sphere)",
+          "Heat-Dissipating"
+        ]
+      }
+    },
+    {
+      "tag": "ANTI_PENETRATIVE_ABLATION",
+      "enum": "ANTI_PENETRATIVE_ABLATION",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Anti-Penetrative Ablation",
+        "parse": "anti-penetrative ablation",
+        "spellings": [
+          "Anti-Penetrative Ablation(Inner Sphere)",
+          "Anti-Penetrative Ablation"
+        ]
+      }
+    },
+    {
+      "tag": "PATCHWORK",
+      "enum": "PATCHWORK",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Patchwork",
+        "parse": "patchwork",
+        "spellings": ["Patchwork"]
+      }
+    },
+    {
+      "tag": "FERRO_FIBROUS_CLAN",
+      "enum": "FERRO_FIBROUS_CLAN",
+      "family": "MTF:mech",
+      "mtf": {
+        "write": "Ferro-Fibrous(Clan)",
+        "parse": null,
+        "spellings": ["Clan Ferro-Fibrous", "Ferro-Fibrous(Clan)"]
+      }
+    },
+    {
+      "tag": "REACTIVE_CLAN",
+      "enum": "REACTIVE_CLAN",
+      "family": "MTF:mech",
+      "note": "No Python spelling on purpose: the converter reads Reactive(Clan) as REACTIVE, so it never produces this tag. Open defect, see the armor-names OPEN row in the fold PR (31 pinned mechs).",
+      "mtf": {
+        "write": "Reactive(Clan)",
+        "parse": null,
+        "spellings": []
+      }
+    },
+    {
+      "tag": "REFLECTIVE_CLAN",
+      "enum": "REFLECTIVE_CLAN",
+      "family": "MTF:mech",
+      "note": "No Python spelling on purpose: the converter reads Reflective(Clan) as REFLECTIVE, so it never produces this tag. Open defect, see the armor-names OPEN row in the fold PR (31 pinned mechs).",
+      "mtf": {
+        "write": "Reflective(Clan)",
+        "parse": null,
+        "spellings": []
+      }
+    },
+    {
+      "tag": "FIRE_RESISTANT",
+      "enum": null,
+      "family": "BLK:battle-armor"
+    },
+    {
+      "tag": "MIMETIC",
+      "enum": null,
+      "family": "BLK:battle-armor"
+    },
+    {
+      "tag": "STEALTH_IMPROVED",
+      "enum": null,
+      "family": "BLK:battle-armor"
+    },
+    {
+      "tag": "STEALTH_PROTOTYPE",
+      "enum": null,
+      "family": "BLK:battle-armor"
+    },
+    {
+      "tag": "BAR_2",
+      "enum": null,
+      "family": "BLK:support-vehicle-BAR"
+    },
+    {
+      "tag": "BAR_4",
+      "enum": null,
+      "family": "BLK:support-vehicle-BAR"
+    },
+    {
+      "tag": "BAR_5",
+      "enum": null,
+      "family": "BLK:support-vehicle-BAR"
+    },
+    {
+      "tag": "BAR_6",
+      "enum": null,
+      "family": "BLK:support-vehicle-BAR"
+    },
+    {
+      "tag": "BAR_7",
+      "enum": null,
+      "family": "BLK:support-vehicle-BAR"
+    },
+    {
+      "tag": "BAR_9",
+      "enum": null,
+      "family": "BLK:support-vehicle-BAR"
+    },
+    {
+      "tag": "BAR",
+      "enum": null,
+      "family": "BLK:support-vehicle-BAR"
+    },
+    {
+      "tag": "AEROSPACE",
+      "enum": null,
+      "family": "BLK:aerospace"
+    },
+    {
+      "tag": "FERRO_ALUMINUM",
+      "enum": null,
+      "family": "BLK:aerospace"
+    },
+    {
+      "tag": "HEAVY_FERRO_ALUMINUM",
+      "enum": null,
+      "family": "BLK:aerospace"
+    },
+    {
+      "tag": "PRIMITIVE_AERO",
+      "enum": null,
+      "family": "BLK:aerospace"
+    },
+    {
+      "tag": "BA_STANDARD_ADVANCED",
+      "enum": null,
+      "family": "BLK:battle-armor"
+    },
+    {
+      "tag": "BA_STANDARD_PROTOTYPE",
+      "enum": null,
+      "family": "BLK:battle-armor"
+    },
+    {
+      "tag": "BA_STEALTH_BASIC",
+      "enum": null,
+      "family": "BLK:battle-armor"
+    },
+    {
+      "tag": "ELECTRIC_DISCHARGE",
+      "enum": null,
+      "family": "BLK:protomech"
+    },
+    {
+      "tag": "FERRO_ALUMINUM_PROTO",
+      "enum": null,
+      "family": "BLK:aerospace"
+    },
+    {
+      "tag": "FERRO_CARBIDE",
+      "enum": null,
+      "family": "BLK:aerospace"
+    },
+    {
+      "tag": "IMPROVED_FERRO_ALUMINUM",
+      "enum": null,
+      "family": "BLK:aerospace"
+    },
+    {
+      "tag": "LAMELLOR_FERRO_CARBIDE",
+      "enum": null,
+      "family": "BLK:aerospace"
+    },
+    {
+      "tag": "LIGHT_FERRO_ALUMINUM",
+      "enum": null,
+      "family": "BLK:aerospace"
+    },
+    {
+      "tag": "STANDARD_PROTOMEK",
+      "enum": null,
+      "family": "BLK:protomech"
+    }
+  ]
 }

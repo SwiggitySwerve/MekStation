@@ -16,11 +16,24 @@ not import a store, browser storage, serializers, routing, or UI.
   carry the last confirmed receipt. Original source provenance is not a receipt
   and a receipt does not assert that its version is the latest server version.
 
-The library comparison has one owner, `libraryState`. A receipt without a draft
-fingerprint is unknown even when its library bytes match. With a saved draft
-baseline, equal library bytes mean matched; different library bytes with equal
-draft content mean saved-older-writer; otherwise the design changed. No stored
-receipt, fingerprint algorithm or schema version is rewritten. The adapters pass
+The library comparison has one owner, `libraryState`. It decides in this order:
+
+1. No receipt: none.
+2. A receipt without a draft fingerprint: unknown, even when its library bytes
+   match. Because this check runs first, an unknown receipt is deliberately not
+   upgraded to saved-older-writer by rule 4.
+3. Equal library bytes: matched.
+4. Different library bytes on a receipt from an older writer (`writerVersion`
+   below `LIBRARY_WRITER_VERSION`) with an unedited draft
+   (`isModified === false`): saved-older-writer.
+5. Different library bytes with equal draft content: saved-older-writer.
+6. Anything else: the design changed.
+
+Rule 4 relies on every path that changes editor state going through actions
+that set `isModified`. A new path that changes state without setting it would
+let a version-0 receipt read as saved-older-writer and hide the user's change.
+
+No stored receipt, fingerprint algorithm or schema version is rewritten. The adapters pass
 both current fingerprints to this owner. Renderers share the wording and Save
 affordance from UnitSaveStatus; older-writer and unknown states never fall through
 to Changed Since. The pinned canonical editable snapshot guards the mechanism's
@@ -42,9 +55,22 @@ and presented as a confirmed saved baseline.
 
 ## Compatibility boundary
 
-The persisted receipt remains `{ id, version, fingerprint, draftFingerprint? }`.
-`isModified`, existing storage keys, and Zustand envelopes remain readable.
-`SaveState` is an aggregate over those facts, not a new persisted field.
+The persisted receipt is
+`{ id, version, fingerprint, draftFingerprint?, writerVersion? }`.
+`createUnitLibrarySaveReceipt`, the one receipt constructor (library saves and
+versioned custom loads both use it), writes `writerVersion` from
+`LIBRARY_WRITER_VERSION`. A receipt without it was written before versioning
+and counts as 0; it is read as is and never rewritten. `isModified`, existing
+storage keys, and Zustand envelopes remain readable. `SaveState` is an
+aggregate over those facts, not a new persisted field.
+
+### Writer version bump policy
+
+Any change that makes the loader or the library writer recover or keep more
+facts moves library fingerprints for units the user never edited. Such a
+change bumps `LIBRARY_WRITER_VERSION` in the same PR, so those receipts read
+as saved-older-writer, not changed. Version 1 (S1) keeps the loaded BattleMech
+quirks, weapon quirks and publication source.
 
 `unitSaveFingerprints.ts` owns canonical JSON and temporary equipment-ID
 normalization. Its field-extension instructions are part of the persisted
