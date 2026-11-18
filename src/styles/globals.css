@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-/* Print styles for unit cards */
+/* Print styles for unit cards (canary: exercises PR Checks --linux dir; not for merge) */
 @import '../components/unit-card/UnitCard.print.css';
 
 @custom-variant dark (&:where([data-color-scheme='dark'], [data-color-scheme='dark'] *));
