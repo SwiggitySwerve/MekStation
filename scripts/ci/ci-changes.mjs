@@ -2,7 +2,8 @@
 // Decides which PR Checks gates a change needs. Detect Changes runs it and
 // passes each gate to the jobs as an output ('true' or 'false').
 //
-// - code, desktop, e2e: path globs.
+// - code, desktop, e2e, packaging: path globs (packaging also reads the
+//   committed list of files server.js imports outside src/ and public/).
 // - equipment, combat, storybook: a changed file triggers the gate when it is
 //   in the import closure of that check's entry files, or matches one of the
 //   check's data rules (files the check reads at runtime, not by import).
@@ -13,6 +14,7 @@
 // change every check (dependencies, compiler and test config, CI itself).
 //
 // Usage: node scripts/ci/ci-changes.mjs [<base> [<head>]]
+//        node scripts/ci/ci-changes.mjs --write-packaging-server-inputs
 // Defaults: base HEAD^1, head HEAD. On a pull_request run actions/checkout
 // checks out the merge commit, so HEAD^1 is the base branch tip.
 
@@ -36,6 +38,7 @@ export const GATES = [
   'desktop',
   'e2e',
   'equipment',
+  'packaging',
   'roadmap',
   'storybook',
 ];
@@ -71,6 +74,27 @@ const DESKTOP = [
   /^scripts\/hydrate-next-standalone-multiplayer-server\.mjs$/,
   /^\.github\/workflows\/pr-checks\.yml$/,
   /^\.github\/actions\//,
+];
+
+// Inputs of the Linux installer step that PR Checks runs only for them: the
+// tar.gz archive, its artifact name and the installer byte census. Every PR
+// still builds `electron-builder --linux dir` (config, asar, afterPack, native
+// modules, server closure), so `src/` and `public/` are left out on purpose:
+// the unpacked build already proves them. The files `server.js` imports
+// outside `src/` and `public/` come from PACKAGING_SERVER_INPUTS in decide().
+const PACKAGING = [
+  /^desktop\/(package(-lock)?\.json|tsconfig[^/]*\.json)$/,
+  /^desktop\/(electron|scripts|assets)\//,
+  /^(electron-builder\.yml|LICENSE|server\.js)$/,
+  /^package(-lock)?\.json$/,
+  /^next\.config\.[^/]+$/,
+  /^scripts\/next\//,
+  /^scripts\/hydrate-next-standalone-multiplayer-server\.mjs$/,
+  /^scripts\/mm-data\/sync-browser-config\.mjs$/,
+  /^config\/mm-data-assets\.json$/,
+  /^scripts\/ci\/budget-(artifacts\.mjs|installer\.py|config\.mjs)$/,
+  /^\.github\/actions\/setup-node-and-install\//,
+  /^\.github\/workflows\/pr-checks\.yml$/,
 ];
 
 const E2E = [/^e2e\//, /^playwright\.config\.[^/]+$/];
@@ -348,6 +372,42 @@ function allGates(value, reason) {
 
 const matchesAny = (file, rules) => rules.some((rule) => rule.test(file));
 
+// Files server.js imports outside src/ and public/ (hydrate copies them into
+// the packed server). Walking that closure on every PR would add seconds to
+// Detect Changes, so Detect reads a committed list and ci-changes.test.mjs
+// fails when the list no longer matches the real closure.
+export const PACKAGING_SERVER_INPUTS =
+  'scripts/ci/packaging-server-inputs.json';
+export const REGENERATE_PACKAGING_SERVER_INPUTS =
+  'node scripts/ci/ci-changes.mjs --write-packaging-server-inputs';
+
+export function packagingServerInputs(root) {
+  return [...importClosure(root, ['server.js'])]
+    .filter((file) => !/^(src|public)\//.test(file))
+    .sort();
+}
+
+/** A message naming the drift between `committed` and the real list, or null. */
+export function packagingServerInputsDrift(root, committed) {
+  const actual = packagingServerInputs(root);
+  const missing = actual.filter((file) => !committed.includes(file));
+  const extra = committed.filter((file) => !actual.includes(file));
+  if (missing.length === 0 && extra.length === 0) return null;
+  return (
+    `${PACKAGING_SERVER_INPUTS} does not match the server.js import closure ` +
+    `(missing: ${missing.join(', ') || 'none'}; extra: ${extra.join(', ') || 'none'}). ` +
+    `Regenerate with ${REGENERATE_PACKAGING_SERVER_INPUTS}`
+  );
+}
+
+function readPackagingServerInputs(root) {
+  return new Set(
+    JSON.parse(
+      fs.readFileSync(path.join(root, PACKAGING_SERVER_INPUTS), 'utf8'),
+    ),
+  );
+}
+
 /** Gate decisions for a list of changed repo-relative paths. */
 export function decide(root, changed) {
   const global = changed.filter((file) => matchesAny(file, GLOBAL));
@@ -358,10 +418,14 @@ export function decide(root, changed) {
     );
   }
   const code = changed.some((file) => matchesAny(file, CODE));
+  const serverInputs = readPackagingServerInputs(root);
   const gates = {
     code,
     desktop: code && changed.some((file) => matchesAny(file, DESKTOP)),
     e2e: changed.some((file) => matchesAny(file, E2E)),
+    packaging: changed.some(
+      (file) => matchesAny(file, PACKAGING) || serverInputs.has(file),
+    ),
   };
   for (const [name, gate] of Object.entries(CLOSURE_GATES)) {
     // Runtime data rules apply whether or not code changed (an OpenSpec-only
@@ -417,7 +481,17 @@ export function dataSpecsForDiff(root, base = 'HEAD^1', head = 'HEAD') {
   }).specs;
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (
+  process.argv[1] === fileURLToPath(import.meta.url) &&
+  process.argv[2] === '--write-packaging-server-inputs'
+) {
+  const root = process.cwd();
+  fs.writeFileSync(
+    path.join(root, PACKAGING_SERVER_INPUTS),
+    `${JSON.stringify(packagingServerInputs(root), null, 2)}\n`,
+  );
+  console.log(`ci-changes: wrote ${PACKAGING_SERVER_INPUTS}`);
+} else if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const root = process.cwd();
   const [base, head] = process.argv.slice(2);
   const { gates, reason } = detect(root, process.env, base, head);

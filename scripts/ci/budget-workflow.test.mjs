@@ -485,6 +485,17 @@ test('dynamic/unknown matrices, conditions and aggregator bypasses fail closed',
         s.run?.includes('--kind installers'),
       ).run += ' || true';
     },
+    (w) => {
+      w.jobs['simulation-checks'].steps.find((s) =>
+        s.run?.includes('--kind installers'),
+      ).if =
+        "${{ !cancelled() && needs.detect-changes.outputs.packaging == 'false' }}";
+    },
+    (w) => {
+      w.jobs['simulation-checks'].steps.find((s) =>
+        s.run?.includes('--kind installers'),
+      ).if = '${{ !cancelled() }}';
+    },
   ]) {
     const next = structuredClone(workflow);
     mutate(next);
