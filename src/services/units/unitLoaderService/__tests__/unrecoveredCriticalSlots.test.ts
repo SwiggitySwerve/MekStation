@@ -75,11 +75,9 @@ const SCARECROW_LOSS = [
   ...expectedCells('IS Endo-Composite', L.RIGHT_ARM, 9, 10),
   ...expectedCells('Chameleon Light Polarization Shield', L.RIGHT_ARM, 11),
   ...expectedCells('Jump Jet', L.LEFT_TORSO, 6),
-  ...expectedCells('BloodhoundActiveProbe', L.LEFT_TORSO, 7, 8, 9),
   ...expectedCells('IS Endo-Composite', L.LEFT_TORSO, 10),
   ...expectedCells('Chameleon Light Polarization Shield', L.LEFT_TORSO, 11),
   ...expectedCells('Jump Jet', L.RIGHT_TORSO, 6),
-  ...expectedCells('ISCASEII', L.RIGHT_TORSO, 8),
   ...expectedCells('IS Endo-Composite', L.RIGHT_TORSO, 9, 10),
   ...expectedCells('Chameleon Light Polarization Shield', L.RIGHT_TORSO, 11),
   ...expectedCells('Jump Jet', L.CENTER_TORSO, 8),
@@ -93,7 +91,6 @@ const CELERITY_LOSS = [
   ...expectedCells('IS Endo Steel', L.LEFT_TORSO, 10, 11),
   ...expectedCells('ISDroneOperatingSystem', L.RIGHT_TORSO, 6),
   ...expectedCells('IS Endo Steel', L.RIGHT_TORSO, 7, 8, 9, 10),
-  ...expectedCells('ISC3SlaveUnit (OMNIPOD)', L.HEAD, 5),
   ...expectedCells('IS Endo Steel', L.REAR_LEFT_LEG, 4, 5),
   ...expectedCells('IS Endo Steel', L.REAR_RIGHT_LEG, 4, 5),
 ];
@@ -119,8 +116,8 @@ function lostCells(source: IRawSerializedUnit, reopened: IRawSerializedUnit) {
 }
 
 it.each([
-  [scarecrow, SCARECROW_LOSS, 20],
-  [celerity, CELERITY_LOSS, 17],
+  [scarecrow, SCARECROW_LOSS, 16],
+  [celerity, CELERITY_LOSS, 16],
   [uni, UNI_LOSS, 21],
   [crab, [], 0],
 ] as const)(
@@ -203,7 +200,7 @@ const SCARECROW_LIBRARY_LITERAL =
 
 it('keeps pinned draft and source-cell save fingerprints independent of residual entries', () => {
   const state = loader.mapToUnitState(parseUnit(scarecrow), true);
-  expect(state.unrecoveredCriticalSlots).toHaveLength(20);
+  expect(state.unrecoveredCriticalSlots).toHaveLength(16);
   expect(getUnitDraftFingerprint(state)).toBe(SCARECROW_DRAFT_LITERAL);
   // The A2 fixture differs from the retained pre-A2 library literal only in
   // twelve native engine cells. Keep the old literal for receipt compatibility.

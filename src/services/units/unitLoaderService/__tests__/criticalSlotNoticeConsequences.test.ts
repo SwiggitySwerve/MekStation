@@ -82,12 +82,16 @@ it('CASE protection and BV: King Crab KGC-000', () => {
   );
   const before = metrics(state),
     after = metrics(reopened);
+  // PR-D1 recovers crit-only CASE: protection and BV now survive save/reopen.
   expect(before.scan.caseLocs).toEqual(expect.arrayContaining(['LT', 'RT']));
-  expect(after.scan.caseLocs).toEqual([]);
-  expect(after.bv.breakdown.totalExplosivePenalty).toBeGreaterThan(
-    before.bv.breakdown.totalExplosivePenalty ?? 0,
+  expect(after.scan.caseLocs).toEqual(before.scan.caseLocs);
+  expect(after.bv.breakdown.totalExplosivePenalty).toBe(
+    before.bv.breakdown.totalExplosivePenalty,
   );
-  expect(after.bv.bv).not.toBe(before.bv.bv);
+  expect(after.bv.bv).toBe(before.bv.bv);
+  expect(state.unrecoveredCriticalSlots?.map((e) => e.text)).not.toContain(
+    'ISCASE',
+  );
 });
 
 it.each([
@@ -236,7 +240,8 @@ it.each([
   [
     'unestablished electronics: Scarecrow UCU-F4',
     '6-dark-age/standard/Scarecrow UCU-F4',
-    'BloodhoundActiveProbe',
+    // Bloodhound is recovered since PR-D1; Chameleon (spread) still is not.
+    'Chameleon Light Polarization Shield',
   ],
   [
     'unestablished cargo: Uni ATAE-70 ArtilleryMech',
