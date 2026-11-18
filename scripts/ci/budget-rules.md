@@ -42,7 +42,10 @@ The first enforced count baseline is 10 induced jobs, 57 unkeyable files and
 93 repo-wide keys. Root authorized this bootstrap before any cap existed on
 main. `targets` retains 9/55/80 as tracked goals, displayed through
 `budgetTargetGaps`; missing observations remain unknown. Future relaxations
-require G3's label and exact-head owner approval. Automated ratchets only lower.
+require G3's label and exact-head owner approval; an owner-authored raise
+instead needs the label and a matching owner-ruling entry in
+`config/ci/approved-budget-raises.json` at the PR base (`docs/ci/gardening.md`,
+Budget raises). Automated ratchets only lower.
 The extra trusted Guard entered main in #2666 (597976eb3); including it corrects
 9-to-10 job accounting. The 55-to-57 and 80-to-93 gaps use the full actual-keyer
 census; no individual introducing merge has been established by cheap history.
