@@ -6,7 +6,6 @@
  *
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.2
  */
-import { getTankMaxTonnage } from '@/services/construction/constructionConstants';
 import {
   blkEngineName,
   decodeBlkVehicleEngine,
@@ -40,19 +39,13 @@ import { getTankMaxTotalArmor } from '@/utils/construction/vehicle/armor';
 import {
   computeEngineRating,
   computeFlankMP,
-  validateVehicleEngine,
 } from '@/utils/construction/vehicle/engine';
 import {
   getPrimaryVehicleTurretConfiguration,
   getSecondaryVehicleTurretConfiguration,
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
-import {
-  vehicleArmorIntroYearErrors,
-  vehicleEngineIntroYearErrors,
-  vehicleEquipmentIntroYearErrors,
-} from '@/utils/construction/vehicle/introYear';
-import { validateCombatVehicleEquipment } from '@/utils/construction/vehicle/vehicleValidation';
+import { validateVehicleSourceRules } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
   AbstractUnitTypeHandler,
@@ -63,11 +56,9 @@ import {
   UnitValidationMessages,
   combineCommonUnitFields,
   createParseMessages,
-  createValidationMessages,
   getRawTagString,
   getVehicleWeightClass,
   mapLocationEquipment,
-  pushTonnageRangeErrors,
   withConstructionDiagnostics,
 } from './unitHandlerShared';
 import {
@@ -405,66 +396,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    * Validate vehicle-specific rules
    */
   protected validateTypeSpecificRules(unit: IVehicle): UnitValidationMessages {
-    const { errors, warnings, infos } = createValidationMessages();
-    errors.push(...validateCombatVehicleEquipment(unit));
-
-    // Tonnage limits
-    pushTonnageRangeErrors(errors, unit.tonnage, {
-      label: 'Vehicle',
-      min: 1,
-      max: getTankMaxTonnage(unit.motionType, unit.isSuperheavy),
-      minText: '1',
-    });
-
-    // Movement validation
-    if (unit.movement.cruiseMP < 1 && !unit.isTrailer) {
-      errors.push('Non-trailer vehicles must have at least 1 cruise MP');
-    }
-
-    if (blkEngineName(unit.engineType) === 'NONE') {
-      errors.push(
-        ...validateVehicleEngine(
-          unit.tonnage,
-          unit.movement.cruiseMP,
-          null,
-          unit.motionType,
-        ).errors.map(({ message }) => message),
-      );
-    }
-
-    // Armor validation
-    if (unit.armorLayoutError) errors.push(unit.armorLayoutError);
-    if (unit.totalArmorPoints > unit.maxArmorPoints) {
-      errors.push(
-        `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`,
-      );
-    }
-
-    errors.push(
-      ...vehicleEquipmentIntroYearErrors(unit),
-      ...vehicleArmorIntroYearErrors({
-        year: unit.metadata.year,
-        armorCode: unit.armorType,
-        armorTechLevel: unit.armorTechLevel,
-        clan: /clan/i.test(String(unit.techBase)),
-        mixed: /mixed/i.test(String(unit.techBase)),
-      }),
-      ...vehicleEngineIntroYearErrors({
-        year: unit.metadata.year,
-        engineCode: unit.engineType,
-        engineRating: unit.engineRating,
-        clanEngine: unit.clanEngine === true,
-        clan: /clan/i.test(String(unit.techBase)),
-        mixed: /mixed/i.test(String(unit.techBase)),
-      }),
-    );
-
-    // Motion type specific validations
-    if (unit.motionType === GroundMotionType.HOVER && unit.tonnage > 50) {
-      warnings.push('Hover vehicles over 50 tons are rare');
-    }
-
-    return { errors, warnings, infos };
+    return validateVehicleSourceRules(unit);
   }
 
   /**

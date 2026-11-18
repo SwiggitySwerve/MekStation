@@ -1,4 +1,3 @@
-import { getSupportVehicleMaxTonnage } from '@/services/construction/constructionConstants';
 /**
  * Support Vehicle Unit Handler
  *
@@ -32,10 +31,7 @@ import {
   IVehicleMountedEquipment,
   SupportVehicleSizeClass,
 } from '@/types/unit/VehicleInterfaces';
-import {
-  getSupportVehicleBarArmorPoints,
-  getSupportVehicleMaxTotalArmor,
-} from '@/utils/construction/vehicle/armor';
+import { getSupportVehicleMaxTotalArmor } from '@/utils/construction/vehicle/armor';
 import {
   computeFlankMP,
   computeStoredVehicleEngineRating,
@@ -44,9 +40,8 @@ import {
   getPrimaryVehicleTurretConfiguration,
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
-import { vehicleEquipmentIntroYearErrors } from '@/utils/construction/vehicle/introYear';
 import { computeSupportVehicleWeight } from '@/utils/construction/vehicle/supportWeight';
-import { validateSupportVehicleEquipment } from '@/utils/construction/vehicle/vehicleValidation';
+import { validateVehicleSourceRules } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
   AbstractUnitTypeHandler,
@@ -58,7 +53,6 @@ import {
   UnitValidationMessages,
   combineCommonUnitFields,
   createParseMessages,
-  createValidationMessages,
   getRawTagNumber,
   getRawTagString,
   getVehicleWeightClass,
@@ -441,61 +435,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
   protected validateTypeSpecificRules(
     unit: ISupportVehicle,
   ): UnitValidationMessages {
-    const { errors, warnings, infos } = createValidationMessages();
-    errors.push(...validateSupportVehicleEquipment(unit));
-    errors.push(...vehicleEquipmentIntroYearErrors(unit));
-
-    // Tonnage validation by size class
-    if (unit.sizeClass === SupportVehicleSizeClass.SMALL && unit.tonnage > 5) {
-      errors.push('Small support vehicles cannot exceed 5 tons');
-    }
-    if (
-      unit.sizeClass === SupportVehicleSizeClass.MEDIUM &&
-      unit.tonnage > 80
-    ) {
-      errors.push('Medium support vehicles cannot exceed 80 tons');
-    }
-    const maxTonnage = getSupportVehicleMaxTonnage(unit.motionType);
-    if (unit.tonnage > maxTonnage) {
-      errors.push(
-        `${unit.motionType} support vehicles cannot exceed ${maxTonnage} tons`,
-      );
-    }
-
-    // BAR rating validation
-    if (unit.barRating < 1 || unit.barRating > 10) {
-      errors.push('BAR rating must be between 1 and 10');
-    }
-
-    // Armor validation
-    if (unit.armorLayoutError) errors.push(unit.armorLayoutError);
-    if (unit.totalArmorPoints > unit.maxArmorPoints) {
-      errors.push(
-        `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`,
-      );
-    }
-    // TestEntity.correctArmorOverAllocation: the points must fit the armor
-    // tonnage they weigh (BAR armor types 43-51 are BAR 2-10); points over the
-    // limit are already reported above
-    if (
-      unit.armorType >= 43 &&
-      unit.armorType <= 51 &&
-      unit.totalArmorPoints <= unit.maxArmorPoints
-    ) {
-      const available = getSupportVehicleBarArmorPoints(
-        unit.totalArmorPoints,
-        unit.barRating,
-        unit.armorTechRating,
-        unit.tonnage < 5, // RoundWeight.usesKilogramStandard: Small support
-        unit.maxArmorPoints,
-      );
-      if (unit.totalArmorPoints > available) {
-        errors.push(
-          `Armor allocated (${unit.totalArmorPoints}) exceeds the ${available} points its armor tonnage provides`,
-        );
-      }
-    }
-
+    const { errors, warnings, infos } = validateVehicleSourceRules(unit);
     const unresolved = computeSupportVehicleWeight(
       unit,
       createSupportRegistryMass(unit.techBase),
