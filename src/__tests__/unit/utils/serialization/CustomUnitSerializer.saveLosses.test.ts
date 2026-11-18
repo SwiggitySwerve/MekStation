@@ -478,3 +478,51 @@ it('does not rebuild missing engine cells or armored state when opening an old s
     unarmoredLegacy.criticalSlots,
   );
 });
+
+// Catalog files omit the Omni declaration an MTF import supplies
+// (MTFParserService.ts `isOmni: header.isOmni`), so declare it as an import would.
+const NAGA = '3-succession-wars/advanced/Naga II A.json';
+
+it('cold saves and reopens Naga II A quirks, weapon quirks and publication source', () => {
+  const original: IRawSerializedUnit = { ...source(NAGA), isOmni: true };
+  const facts = {
+    quirks: original.quirks,
+    weaponQuirks: original.weaponQuirks,
+    source: original.source,
+  };
+  expect(facts).toEqual({
+    quirks: ['ext_twist', 'bad_rep_clan'],
+    weaponQuirks: expect.objectContaining({
+      'LA:2:CLLBXAC20': ['stable_weapon'],
+    }),
+    source: expect.any(String),
+  });
+  const podMounts = (unit: UnitState) =>
+    unit.equipment
+      .filter((mount) => mount.isOmniPodMounted)
+      .map(({ equipmentId, location, slots }) => ({
+        equipmentId,
+        location,
+        slots,
+      }));
+  const state = new UnitLoaderService().mapToUnitState(original, true);
+  expect(podMounts(state)).toHaveLength(9);
+
+  const saved = save(state);
+  expect(saved).toMatchObject(facts);
+  const reopened = coldReopen(saved);
+  expect(reopened.bvContext?.source).toMatchObject(facts);
+  expect(reopened.isOmni).toBe(true);
+  expect(podMounts(reopened)).toEqual(podMounts(state));
+
+  // A later edit and a second save keep the reopened facts.
+  const edited = save({
+    ...reopened,
+    heatSinkCount: reopened.heatSinkCount + 1,
+  });
+  expect(edited).toMatchObject({
+    ...facts,
+    heatSinks: { count: state.heatSinkCount + 1 },
+  });
+  expect(coldReopen(edited).bvContext?.source).toMatchObject(facts);
+});
