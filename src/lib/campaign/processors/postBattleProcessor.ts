@@ -1,4 +1,5 @@
-﻿import type { ICampaign } from '@/types/campaign/Campaign';
+﻿import type { BattleUnitManifest } from '@/types/campaign/BattleUnitManifest';
+import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IUnitPrestige } from '@/types/campaign/Prestige';
 import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
@@ -15,6 +16,10 @@ import { logger } from '@/utils/logger';
 import type { IDayProcessor, IDayProcessorResult } from '../dayPipeline';
 
 import { withAppliedOn } from '../appliedOutcomes';
+import {
+  battleUnitManifestFor,
+  resolveDeltaRosterUnit,
+} from '../battleUnitManifest';
 import { publishContractFulfilled } from '../contractFulfillmentBus';
 import { getDayPipeline } from '../dayPipeline';
 import { DayPhase, type IDayEvent } from '../dayPipeline';
@@ -47,6 +52,7 @@ export interface IPostBattleApplied {
 interface IOutcomeDeltaApplicationContext {
   readonly campaign: ICampaignWithBattleState;
   readonly outcome: ICombatOutcome;
+  readonly manifest: BattleUnitManifest | undefined;
   readonly wonByPlayer: boolean;
   readonly unitStates: Record<string, IUnitCombatState>;
   readonly nowIso: string;
@@ -62,6 +68,7 @@ interface IOutcomeDeltaApplicationResult {
 function applyOutcomeDeltas({
   campaign,
   outcome,
+  manifest,
   wonByPlayer,
   unitStates,
   nowIso,
@@ -110,16 +117,26 @@ function applyOutcomeDeltas({
       pilotPatches.set(resolvedPilotId, pilotResult.patch);
       pilotsUpdated.push(resolvedPilotId);
     }
+    // T1: campaign unit state is keyed by the ROSTER unit, resolved
+    // through the launch manifest. Opponent and not-on-roster player
+    // units are not written; an unmapped player unit is an error.
+    const resolution = resolveDeltaRosterUnit(delta, manifest);
+    if (resolution.kind === 'skip') continue;
+    if (resolution.kind === 'unmapped') {
+      errors.push(`unit ${delta.unitId}: ${resolution.message}`);
+      continue;
+    }
+    const rosterUnitId = resolution.rosterUnitId;
     try {
       const next = applyUnitDelta(
-        unitStates[delta.unitId],
-        delta,
+        unitStates[rosterUnitId],
+        { ...delta, unitId: rosterUnitId },
         outcome.matchId,
         nowIso,
         isLostOnField(outcome, delta, wonByPlayer),
       );
-      unitStates[delta.unitId] = next;
-      unitsUpdated.push(delta.unitId);
+      unitStates[rosterUnitId] = next;
+      unitsUpdated.push(rosterUnitId);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       errors.push(`unit ${delta.unitId}: ${message}`);
@@ -162,10 +179,12 @@ function applyOutcome(
   };
   const wonByPlayer = playerWon(outcome);
   const nowIso = new Date().toISOString();
+  const manifest = battleUnitManifestFor(campaign, outcome);
   const { pilotPatches, pilotsUpdated, unitsUpdated, errors } =
     applyOutcomeDeltas({
       campaign,
       outcome,
+      manifest,
       wonByPlayer,
       unitStates,
       nowIso,
@@ -192,10 +211,18 @@ function applyOutcome(
   // `appliedOn` is the campaign's own time for this outcome (the in-game
   // date it is applied on). `capturedAt` is a wall-clock instant and is not
   // a campaign date, so nothing downstream compares it with one.
+  // T1: the manifest moves onto the applied record, so later readers of
+  // `recentlyAppliedOutcomes` (repair queue) map deltas the same way.
+  const appliedRecord: IAppliedCombatOutcome = withAppliedOn(
+    manifest ? { ...outcome, unitManifest: manifest } : outcome,
+    campaign.currentDate,
+  );
   const recentlyApplied: readonly IAppliedCombatOutcome[] = [
     ...(campaign.recentlyAppliedOutcomes ?? []),
-    withAppliedOn(outcome, campaign.currentDate),
+    appliedRecord,
   ];
+  const { [outcome.matchId]: _appliedManifest, ...pendingManifests } =
+    campaign.battleUnitManifests ?? {};
   const pendingFulfilled = campaign.pendingFulfilledContractIds ?? [];
   const processedFulfilled = campaign.processedFulfilledContractIds ?? [];
   const terminalContract = contractDelta?.flippedToTerminal
@@ -209,6 +236,7 @@ function applyOutcome(
     outcome,
     campaign.unitPrestige ?? [],
     nowIso,
+    manifest,
   );
   const contractClosure = terminalContract
     ? applyContractClosure(campaign, terminalContract, nowIso)
@@ -232,6 +260,9 @@ function applyOutcome(
     unitCombatStates: unitStates,
     unitPrestige: updatedPrestige,
     recentlyAppliedOutcomes: recentlyApplied,
+    ...(campaign.battleUnitManifests === undefined
+      ? {}
+      : { battleUnitManifests: pendingManifests }),
     pendingFulfilledContractIds: pendingFulfilled,
     processedFulfilledContractIds: terminalContract
       ? [...processedFulfilled, terminalContract.id]

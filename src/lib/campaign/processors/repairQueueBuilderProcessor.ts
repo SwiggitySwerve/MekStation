@@ -24,6 +24,10 @@ import type { IUnitMaxState } from '@/types/campaign/UnitCombatState';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
 import {
+  battleUnitManifestFor,
+  resolveDeltaRosterUnit,
+} from '../battleUnitManifest';
+import {
   DayPhase,
   type IDayEvent,
   type IDayProcessor,
@@ -166,14 +170,23 @@ export const repairQueueBuilderProcessor: IDayProcessor = {
 
     for (const outcome of outcomes) {
       let perOutcomeCount = 0;
-      // Real `ICombatOutcome` (Wave 1) carries `unitDeltas` — derive
-      // unitIds from there. Fall back to the stripped-down
+      // Real `ICombatOutcome` (Wave 1) carries `unitDeltas` — derive the
+      // ROSTER unit ids from there through the launch manifest (T1);
+      // opponent, not-on-roster and unmapped deltas have no roster unit
+      // to repair. Fall back to the stripped-down
       // `IPendingBattleOutcome.unitIds` when present (legacy callers).
-      const outcomeAny = outcome as IPendingBattleOutcome & {
-        readonly unitDeltas?: readonly { readonly unitId: string }[];
-      };
+      const outcomeAny = outcome as IPendingBattleOutcome &
+        Partial<Pick<ICombatOutcome, 'unitDeltas'>>;
+      const manifest = outcomeAny.unitDeltas
+        ? battleUnitManifestFor(extended, outcome as ICombatOutcome)
+        : undefined;
       const unitIds: readonly string[] =
-        outcomeAny.unitDeltas?.map((d) => d.unitId) ?? outcomeAny.unitIds ?? [];
+        outcomeAny.unitDeltas?.flatMap((delta) => {
+          const resolution = resolveDeltaRosterUnit(delta, manifest);
+          return resolution.kind === 'roster' ? [resolution.rosterUnitId] : [];
+        }) ??
+        outcomeAny.unitIds ??
+        [];
       for (const unitId of unitIds) {
         const ticketsForUnit = processOutcomeUnit(
           extended,

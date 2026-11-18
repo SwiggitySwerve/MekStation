@@ -1,4 +1,8 @@
 import type { IAdaptedUnit } from '@/engine/types';
+import type {
+  BattleUnitManifest,
+  BattleUnitManifestEntry,
+} from '@/types/campaign/BattleUnitManifest';
 import type { IForce } from '@/types/force';
 import type { IPilot } from '@/types/pilot';
 
@@ -24,6 +28,11 @@ export interface IPreparedBattleData {
   playerAdapted: IAdaptedUnit[];
   opponentAdapted: IAdaptedUnit[];
   gameUnits: IGameUnit[];
+  /**
+   * T1: roster unit per player session unit, keyed by the exact session id
+   * built here. Campaign-side only; never part of `gameUnits`.
+   */
+  unitManifest: BattleUnitManifest;
 }
 
 function hasAssignedUnit(
@@ -169,6 +178,22 @@ function buildGameUnits(
   ];
 }
 
+// Same assignments, same order, same id builder as `buildGameUnits`, so
+// every key is the exact session id string that unit carries. A player
+// assignment with no roster link gets no entry (unknown, never guessed).
+function buildPlayerUnitManifest(
+  playerAssignments: readonly AssignedForceUnit[],
+): BattleUnitManifest {
+  const manifest: Record<string, BattleUnitManifestEntry> = {};
+  playerAssignments.forEach((assignment, index) => {
+    if (!assignment.rosterUnitId) return;
+    manifest[buildSessionUnitId(GameSide.Player, index, assignment.unitId)] = {
+      rosterUnitId: assignment.rosterUnitId,
+    };
+  });
+  return manifest;
+}
+
 export function getAssignedUnitIds(force: IForce | undefined): string[] {
   const unitIds: string[] = [];
 
@@ -228,5 +253,6 @@ export async function buildPreparedBattleData({
     playerAdapted: playerSessionAdapted,
     opponentAdapted: opponentSessionAdapted,
     gameUnits,
+    unitManifest: buildPlayerUnitManifest(playerAssignments),
   };
 }

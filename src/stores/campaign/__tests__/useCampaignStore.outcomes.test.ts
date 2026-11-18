@@ -1,4 +1,5 @@
 import { toast } from '@/components/shared/Toast';
+import { withIdentityManifest } from '@/lib/campaign/__tests__/identityBattleUnitManifest';
 import {
   serializeCampaign,
   deserializeCampaignBody,
@@ -64,7 +65,7 @@ function makeOutcome(
   matchId: string,
   overrides: Partial<ICombatOutcome> = {},
 ): ICombatOutcome {
-  return {
+  return withIdentityManifest({
     version: COMBAT_OUTCOME_VERSION,
     matchId,
     contractId: 'contract-1',
@@ -83,7 +84,7 @@ function makeOutcome(
     },
     unitDeltas: [],
     ...overrides,
-  };
+  });
 }
 
 function makePlayerDelta(unitId: string): IUnitCombatDelta {

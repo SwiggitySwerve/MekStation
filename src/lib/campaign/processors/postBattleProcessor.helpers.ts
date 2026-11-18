@@ -197,8 +197,11 @@ export function applyUnitDelta(
   // Armor: take the delta's snapshot directly (clamped ≥ 0). The delta
   // is the *remaining* armor at end of battle, so it already reflects
   // damage dealt during this match.
+  // A location with no numeric value carries no reading: it is skipped,
+  // never written as NaN (which persists as null) and never invented.
   const nextArmor: Record<string, number> = { ...base.currentArmorPerLocation };
   for (const [loc, value] of Object.entries(delta.armorRemaining)) {
+    if (!Number.isFinite(value)) continue;
     nextArmor[loc] = Math.max(0, value);
   }
 
@@ -206,6 +209,7 @@ export function applyUnitDelta(
     ...base.currentStructurePerLocation,
   };
   for (const [loc, value] of Object.entries(delta.internalsRemaining)) {
+    if (!Number.isFinite(value)) continue;
     nextStructure[loc] = Math.max(0, value);
   }
 

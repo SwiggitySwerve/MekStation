@@ -22,6 +22,7 @@ import type {
   IGmTimeCascadeProjectedEffect,
 } from '../interventions';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
+import type { BattleUnitManifest } from './BattleUnitManifest';
 import type {
   ICampaignActiveContract,
   ICampaignContractMarket,
@@ -199,6 +200,8 @@ export interface SerializedCampaignBody {
   readonly salvageReports?: Readonly<Record<string, ISalvageReport>>;
   readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
   readonly processedBattleIds?: readonly string[];
+  /** T1 launch manifests for battles not yet applied, keyed by match id. */
+  readonly battleUnitManifests?: Readonly<Record<string, BattleUnitManifest>>;
   readonly gmInterventionEvents?: readonly IGmCampaignProjectedEffect[];
   readonly timeCascadeEvents?: readonly IGmTimeCascadeProjectedEffect[];
   readonly recentlyAppliedOutcomes?: readonly IAppliedCombatOutcome[];

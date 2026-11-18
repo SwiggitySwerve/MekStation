@@ -474,6 +474,7 @@ export function ownedPlayerForceUnits(
     slot.units.map((unit) => ({
       unitRef: unit.reference.unitRef,
       ...(unit.pilotRef === undefined ? {} : { pilotRef: unit.pilotRef }),
+      rosterUnitId: unit.reference.unitId,
     })),
   );
 }

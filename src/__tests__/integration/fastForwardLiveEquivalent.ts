@@ -59,6 +59,7 @@ import { deriveBattleSeed } from '@/lib/campaign/fastForward/deriveBattleSeed';
 import { resolveCampaignSeed } from '@/lib/campaign/utils/campaignRng';
 import { deriveCombatOutcome } from '@/lib/combat/outcome/combatOutcome';
 import { getPilotRepository } from '@/services/pilots/PilotRepository';
+import { recordCampaignBattleUnitManifest } from '@/stores/campaign/campaignBattleUnitManifests';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { usePilotStore } from '@/stores/usePilotStore';
@@ -276,6 +277,20 @@ export async function fightBridgedScenarioLiveEquivalent(
   });
 
   assertSessionInflictedDamage(session, outcome);
+
+  // The live launch records the battle's launch manifest on the campaign
+  // before its outcome is published (`usePreBattleLaunch`, T1).
+  if (
+    !recordCampaignBattleUnitManifest(
+      linkage.campaignId,
+      outcome.matchId,
+      prepared.unitManifest,
+    )
+  ) {
+    throw new Error(
+      `live-equivalent: could not record the launch manifest for match ${outcome.matchId}`,
+    );
+  }
 
   const delivered = publishCombatOutcome({ matchId: outcome.matchId, outcome });
   if (!delivered) {

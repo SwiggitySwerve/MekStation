@@ -16,6 +16,7 @@
  * @spec openspec/changes/add-combat-outcome-model/specs/after-combat-report/spec.md
  */
 
+import type { BattleUnitManifest } from '@/types/campaign/BattleUnitManifest';
 import type { RosterUnitSource } from '@/types/campaign/RosterUnitSource';
 import type { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import type { IPostBattleReport } from '@/utils/gameplay/postBattleReport';
@@ -195,6 +196,12 @@ export interface ICombatOutcome {
 export interface IAppliedCombatOutcome extends ICombatOutcome {
   /** ISO-8601 in-game instant: `campaign.currentDate` when the outcome was applied. */
   readonly appliedOn?: string;
+  /**
+   * T1: the launch manifest the outcome was applied with (session unit id ->
+   * roster unit). Campaign-side only; absent on outcomes applied before it
+   * existed unless the legacy migration resolved them.
+   */
+  readonly unitManifest?: BattleUnitManifest;
 }
 
 /**

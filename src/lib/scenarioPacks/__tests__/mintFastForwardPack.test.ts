@@ -78,6 +78,10 @@ import type { IUnitMaxState } from '@/types/campaign/UnitCombatState';
 
 import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
 import { authoritativeStateFromSerializedCampaign } from '@/lib/campaign/authority/campaignSourceGenesis';
+import {
+  battleUnitManifestFor,
+  resolveDeltaRosterUnit,
+} from '@/lib/campaign/battleUnitManifest';
 import { fastForwardCampaign } from '@/lib/campaign/fastForward/fastForwardCampaign';
 import { buildFastForwardFixture } from '@/lib/campaign/fastForward/fastForwardFixture';
 import { initializeInProcessApiDatabase } from '@/lib/campaign/fastForward/inProcessApiRouter';
@@ -316,15 +320,23 @@ async function runMaintenanceFastForward(): Promise<MaintenanceMintResult> {
   // the drain (module doc: repairQueueBuilderProcessor is same-day-coupled
   // to the outcome's apply, so injecting later never retroactively builds
   // tickets).
+  // Keyed by ROSTER unit id (T1): damage lands there, resolved through the
+  // battle's launch manifest exactly as the post-battle apply resolves it.
   const unitMaxStates: Record<string, IUnitMaxState> = {};
+  const liveCampaign = store.getState().campaign;
+  if (!liveCampaign) {
+    throw new Error('runMaintenanceFastForward: no live campaign');
+  }
   for (const c of captured) {
+    const manifest = battleUnitManifestFor(liveCampaign, c.outcome);
     for (const delta of c.outcome.unitDeltas) {
-      if (delta.side !== GameSide.Player) continue;
+      const resolution = resolveDeltaRosterUnit(delta, manifest);
+      if (resolution.kind !== 'roster') continue;
       const unitRef = unitRefFromSessionUnitId(delta.unitId);
       const sheet = CANONICAL_COMBAT_SHEETS[unitRef];
       if (!sheet) continue;
-      unitMaxStates[delta.unitId] = {
-        unitId: delta.unitId,
+      unitMaxStates[resolution.rosterUnitId] = {
+        unitId: resolution.rosterUnitId,
         maxArmorPerLocation: { ...sheet.armor },
         maxStructurePerLocation: { ...sheet.structure },
         maxAmmoPerBin: {},
@@ -738,7 +750,11 @@ describe('a minted pack carries no retained-outcome history, and loses nothing d
     );
     session = startGame(session, GameSide.Player);
     session = endGame(session, GameSide.Player, 'destruction');
-    return deriveCombatOutcome({ ...session, id: matchId });
+    // T1 launch manifest: this synthetic player unit has no roster unit.
+    return {
+      ...deriveCombatOutcome({ ...session, id: matchId }),
+      unitManifest: { a: { notOnRoster: true as const } },
+    };
   }
 
   interface IDayTrace {

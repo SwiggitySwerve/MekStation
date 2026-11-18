@@ -17,6 +17,7 @@ import type {
 import type { IGmCampaignProjectedEffect } from '../interventions/GmCampaignInterventionTypes';
 import type { IGmTimeCascadeProjectedEffect } from '../interventions/GmTimeCascadeInterventionTypes';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
+import type { BattleUnitManifest } from './BattleUnitManifest';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { ICoopSession } from './CoopSession';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
@@ -175,6 +176,14 @@ export interface ICampaign {
 
   /** Battle ids already applied to campaign state. */
   readonly processedBattleIds?: readonly string[];
+
+  /**
+   * T1 launch manifests for battles not yet applied, keyed by match id:
+   * which roster unit each player session unit is. Written when the
+   * session is created; moved onto the applied outcome record when
+   * `postBattleProcessor` applies the battle.
+   */
+  readonly battleUnitManifests?: Readonly<Record<string, BattleUnitManifest>>;
 
   /**
    * Approved GM campaign intervention effects retained for audit/replay

@@ -46,6 +46,8 @@ type OperationResponse = IForceOperationResult;
 interface UpdateAssignmentBody {
   pilotId?: string;
   unitId?: string;
+  /** Campaign roster link for `unitId` (T1); ignored without `unitId`. */
+  rosterUnitId?: string;
   position?: ForcePosition;
 }
 
@@ -82,6 +84,12 @@ export default async function handler(
   }
 }
 
+function readRosterUnitId(body: UpdateAssignmentBody): string | undefined {
+  return typeof body.rosterUnitId === 'string' && body.rosterUnitId.length > 0
+    ? body.rosterUnitId
+    : undefined;
+}
+
 /**
  * PUT /api/forces/assignments/[id] - Update an assignment
  */
@@ -100,6 +108,7 @@ function handlePut(
         assignmentId,
         body.pilotId,
         body.unitId,
+        readRosterUnitId(body),
       );
       if (result.success) {
         return res.status(200).json(result);
@@ -130,7 +139,11 @@ function handlePut(
 
     // Handle unit assignment only
     if (body.unitId !== undefined) {
-      const result = forceService.assignUnit(assignmentId, body.unitId);
+      const result = forceService.assignUnit(
+        assignmentId,
+        body.unitId,
+        readRosterUnitId(body),
+      );
       if (result.success) {
         return res.status(200).json(result);
       } else {

@@ -171,6 +171,7 @@ export function serializeCampaign(campaign: ICampaign): SerializedCampaignBody {
     salvageReports: campaign.salvageReports,
     pendingBattleOutcomes: campaign.pendingBattleOutcomes,
     processedBattleIds: campaign.processedBattleIds,
+    battleUnitManifests: campaign.battleUnitManifests,
     gmInterventionEvents: campaign.gmInterventionEvents,
     timeCascadeEvents: campaign.timeCascadeEvents,
     recentlyAppliedOutcomes: campaign.recentlyAppliedOutcomes,
@@ -246,6 +247,7 @@ export function deserializeCampaignBody(
     salvageReports: body.salvageReports,
     pendingBattleOutcomes: body.pendingBattleOutcomes,
     processedBattleIds: body.processedBattleIds,
+    battleUnitManifests: body.battleUnitManifests,
     gmInterventionEvents: body.gmInterventionEvents,
     timeCascadeEvents: body.timeCascadeEvents,
     // Old records have no `appliedOn` (their `capturedAt` is a wall-clock

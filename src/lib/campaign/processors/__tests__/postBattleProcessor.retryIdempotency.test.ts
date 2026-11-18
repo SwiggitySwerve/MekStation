@@ -42,6 +42,7 @@ import {
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import { PilotType, PilotStatus } from '@/types/pilot/PilotInterfaces';
 
+import { withIdentityManifest } from '../../__tests__/identityBattleUnitManifest';
 import { applyOutcomePrestige } from '../../prestige/applyOutcomePrestige';
 import { contractProcessor } from '../contractProcessor';
 import {
@@ -151,7 +152,7 @@ function createOutcome(
   matchId: string,
   units: readonly IUnitReport[] = [],
 ): ICombatOutcome {
-  return {
+  return withIdentityManifest({
     version: COMBAT_OUTCOME_VERSION,
     matchId,
     contractId: null,
@@ -160,7 +161,7 @@ function createOutcome(
     report: createTestReport(matchId, units),
     unitDeltas: [createDelta('unit-A')],
     capturedAt: '3025-06-15T12:00:00Z',
-  };
+  });
 }
 
 /** Builds a unit report row so kill attribution flows from the report. */

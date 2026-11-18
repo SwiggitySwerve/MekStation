@@ -232,6 +232,10 @@ describe('Campaign combat loop — end-to-end round trip', () => {
       ...({
         pendingBattleOutcomes: [outcome],
         processedBattleIds: [],
+        // T1 launch manifest: this fixture's session unit is roster unit-A.
+        battleUnitManifests: {
+          [outcome.matchId]: { 'unit-A': { rosterUnitId: 'unit-A' } },
+        },
         unitMaxStates: { 'unit-A': seedUnitMaxState('unit-A') },
       } as unknown as Partial<ICampaign>),
     });
@@ -287,6 +291,10 @@ describe('Campaign combat loop — end-to-end round trip', () => {
       ...({
         pendingBattleOutcomes: [outcome],
         processedBattleIds: [],
+        // T1 launch manifest: this fixture's session unit is roster unit-A.
+        battleUnitManifests: {
+          [outcome.matchId]: { 'unit-A': { rosterUnitId: 'unit-A' } },
+        },
         unitMaxStates: { 'unit-A': seedUnitMaxState('unit-A') },
         // Seed a pre-bridged scenario so the bridge idempotency path is
         // exercised on the very first day.
