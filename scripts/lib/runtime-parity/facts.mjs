@@ -16,7 +16,9 @@ import { z } from 'zod';
 import { canonicalJson } from './rows.mjs';
 
 export const FACTS_FILE = 'facts.ndjson';
-export const FACTS_SCHEMA_VERSION = 1;
+// 2: the load measure gained previewEqualsStatus (gated) and a per-unit `reported` block (previewStatusDistance,
+// reported and NOT gated), both about the record sheet's BV.
+export const FACTS_SCHEMA_VERSION = 2;
 
 /** The gated facts per measure: name -> kind. This is the whole list; the baseline and the gate read it. */
 export const FACT_DEFS = {
@@ -25,6 +27,8 @@ export const FACT_DEFS = {
     bvDistance: 'distance',
     validity: 'bool',
     weightOwners: 'bool',
+    // The BV the real PreviewTab hands to the record-sheet renderer against the status bar's BV.
+    previewEqualsStatus: 'bool',
   },
   reopen: {
     reopenLoad: 'bool',
@@ -40,6 +44,22 @@ export const FACT_DEFS = {
     reopenValid: 'bool',
   },
 };
+
+/**
+ * REPORTED facts: measured per unit and written to facts.ndjson and the gate report, but NOT gated: they are not in
+ * FACT_DEFS, the baseline holds no entry for them and the gate never compares them. previewStatusDistance
+ * (|record-sheet BV - status BV|) is reported only because a correct status-bar fix on one of the units whose sheet
+ * differs would raise it and turn the night red, which is not a regression of the sheet.
+ */
+export const REPORTED_DEFS = {
+  load: { previewStatusDistance: 'distance' },
+  reopen: {},
+};
+
+const unknownReported = (measure) =>
+  Object.fromEntries(
+    Object.keys(REPORTED_DEFS[measure]).map((name) => [name, null]),
+  );
 
 const unknownFacts = (measure) =>
   Object.fromEntries(
@@ -118,10 +138,16 @@ const taggedCell = (tag, c) => `${tag}:${encodeCell(c)}`;
 /** Load row + the unit's Java reference row -> facts. */
 export function loadFacts(row, ref) {
   if (row.status !== 'ok')
-    return { ...identity(row), status: 'error', facts: unknownFacts('load') };
+    return {
+      ...identity(row),
+      status: 'error',
+      facts: unknownFacts('load'),
+      reported: unknownReported('load'),
+    };
   const { observed } = row.load;
   const javaBv = ref?.battleValue?.total;
   const javaValid = ref?.construction?.valid;
+  const sheetBv = row.load.preview?.bv ?? null;
   return {
     ...identity(row),
     status: 'ok',
@@ -135,7 +161,14 @@ export function loadFacts(row, ref) {
           ? (observed.validity === 'valid') === javaValid
           : null,
       weightOwners: observed.weight === observed.allocatedWeight,
+      // Unknown (null) when the preview was not captured or either BV is missing; never a pass.
+      previewEqualsStatus:
+        sheetBv === null || observed.bv === null
+          ? null
+          : sheetBv === observed.bv,
     },
+    // Reported per unit, not gated (see REPORTED_DEFS).
+    reported: { previewStatusDistance: distance(sheetBv, observed.bv) },
   };
 }
 
@@ -148,7 +181,12 @@ function noLossConfirmationBefore(loss) {
 /** Reopen row + the unit's Java reference row -> facts. */
 export function reopenFacts(row, ref) {
   if (row.status !== 'ok')
-    return { ...identity(row), status: 'error', facts: unknownFacts('reopen') };
+    return {
+      ...identity(row),
+      status: 'error',
+      facts: unknownFacts('reopen'),
+      reported: unknownReported('reopen'),
+    };
   const r = row.reopen;
   const javaBv = ref?.battleValue?.total;
   const hasJava = typeof javaBv === 'number';
@@ -176,6 +214,7 @@ export function reopenFacts(row, ref) {
       ),
       reopenValid: r.after.validity === 'valid',
     },
+    reported: {},
   };
 }
 
@@ -210,6 +249,14 @@ const factsSchemaFor = (measure) =>
     unitId: z.string().min(1),
     path: z.string().min(1),
     status: z.enum(['ok', 'error']),
+    reported: z.strictObject(
+      Object.fromEntries(
+        Object.entries(REPORTED_DEFS[measure]).map(([name, kind]) => [
+          name,
+          factSchema(kind),
+        ]),
+      ),
+    ),
     facts: z.strictObject(
       Object.fromEntries(
         Object.entries(FACT_DEFS[measure]).map(([name, kind]) => [

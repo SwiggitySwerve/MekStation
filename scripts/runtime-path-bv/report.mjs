@@ -26,6 +26,8 @@ export function capturedToRow(record) {
       // No calculator result (the status bar's 0 fallback): no breakdown, so no terms.
       terms: record.terms ?? {},
       issues: record.issues,
+      // What the real PreviewTab hands to the sheet renderer ({ bv, cost }); null = not captured.
+      preview: record.preview ?? null,
     },
   };
 }
@@ -37,6 +39,7 @@ export const GATES = {
   'bv.exact': { gated: true, direction: 'higher-is-better' },
   'validity.agree': { gated: true, direction: 'higher-is-better' },
   'weightOwners.agree': { gated: true, direction: 'higher-is-better' },
+  'preview.equalsStatus': { gated: true, direction: 'higher-is-better' },
 };
 
 const fmt = (n) => n.toLocaleString('en-US');
@@ -60,6 +63,9 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
   // Status-bar weightUsed vs projectMechWeight().allocatedWeight, compared exactly: a difference is
   // a second weight owner, reported as a finding (never a tolerance).
   const weightOwners = { agree: 0, mismatch: 0, missing: 0 };
+  // The BV the real PreviewTab hands to the record-sheet renderer against the status bar's BV, exactly.
+  // A unit with no captured preview (or no BV) is a miss, never a pass.
+  const preview = { equalsStatus: 0, different: 0, missing: 0 };
   const differences = [];
   for (const row of rows) {
     const ref = referenceByPath.get(row.path);
@@ -70,6 +76,7 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
       bv.missing++;
       validity.missing++;
       weightOwners.missing++;
+      preview.missing++;
       differences.push({
         ...identity,
         measure: 'bv',
@@ -96,6 +103,19 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
         observed: observed.weight,
         allocated: observed.allocatedWeight,
         why: 'weightUsed differs from allocatedWeight',
+      });
+    }
+    const sheetBv = row.load.preview?.bv ?? null;
+    if (sheetBv === null || observed.bv === null) preview.missing++;
+    else if (sheetBv === observed.bv) preview.equalsStatus++;
+    else {
+      preview.different++;
+      differences.push({
+        ...identity,
+        measure: 'preview',
+        observed: observed.bv,
+        preview: sheetBv,
+        why: 'the record sheet prints a different BV than the status bar',
       });
     }
     const javaBv = ref?.battleValue?.total;
@@ -155,9 +175,10 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
       bv,
       validity,
       weightOwners,
+      preview,
       deterministic,
       gates: GATES,
-      headline: `load=Java ${fmt(bv.exact)}/${fmt(units)} · validity ${fmt(validity.agree)}/${fmt(units)} · weight owners ${fmt(weightOwners.agree)}/${fmt(units)}${weightOwners.mismatch ? ` (DIFFER ${fmt(weightOwners.mismatch)})` : ''}${scope.unitIds ? ' · NARROWED SCOPE' : ''}`,
+      headline: `load=Java ${fmt(bv.exact)}/${fmt(units)} · validity ${fmt(validity.agree)}/${fmt(units)} · weight owners ${fmt(weightOwners.agree)}/${fmt(units)}${weightOwners.mismatch ? ` (DIFFER ${fmt(weightOwners.mismatch)})` : ''} · sheet=status ${fmt(preview.equalsStatus)}/${fmt(units)}${scope.unitIds ? ' · NARROWED SCOPE' : ''}`,
     },
     differences,
   };

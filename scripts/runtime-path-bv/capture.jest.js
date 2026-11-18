@@ -15,12 +15,17 @@ import path from 'path';
 
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 
-// The observer comes before every product import: it imports ./install-mocks first, and ES imports
-// evaluate in source order, so the mocks are registered before any product module loads.
+// The shared mocks (logger, Toast, the mechBV calculator probe) are registered by ./install-mocks, which BOTH
+// runtime-parity modules below import first. ES imports evaluate in source order and the formatter sorts them, so
+// whichever of the two loads first registers the mocks before the product modules it and the other import.
+// (CanonicalUnitService, sorted above them, imports only the unit index mapper and shape guard: nothing mocked.)
+// The sheet read point: the real PreviewTab, read after the status observer's read.
+import { createPreviewObserver } from '../lib/runtime-parity/preview-observer';
 import * as observer from '../lib/runtime-parity/status-observer';
 
 const repoRoot = path.resolve(__dirname, '../..');
 const o = observer.create({ repoRoot });
+const preview = createPreviewObserver();
 const context = JSON.parse(
   fs.readFileSync(process.env.RUNTIME_PATH_BV_CONTEXT, 'utf8'),
 );
@@ -66,6 +71,7 @@ test('canonical open, status BV/terms, validity, weight and MP for every planned
       observed: null,
       terms: null,
       issues: null,
+      preview: null,
     };
     try {
       const bytes = fs.readFileSync(path.join(repoRoot, plan.catalogPath));
@@ -94,6 +100,10 @@ test('canonical open, status BV/terms, validity, weight and MP for every planned
       record.observed = observation.observed;
       record.terms = observation.terms;
       record.issues = observation.issues;
+      // The BV the real PreviewTab hands to the sheet renderer, in the same store, after the status read.
+      // A failure here is a harness failure (stage 'preview'): the capture never records a guess.
+      stage = 'preview';
+      record.preview = await preview.observe(store);
       counts.ok++;
     } catch (error) {
       if (error instanceof observer.ObservationError) {
@@ -103,6 +113,7 @@ test('canonical open, status BV/terms, validity, weight and MP for every planned
       record.observed = null;
       record.terms = null;
       record.issues = null;
+      record.preview = null;
       record.infrastructure = infrastructure;
       record.error = {
         stage,
