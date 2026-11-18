@@ -337,7 +337,6 @@ export default function GameSessionPage(): React.ReactElement {
             onUnitSelect={handleGameplayUnitSelect}
             onAction={handleInteractiveAction}
             onHexClick={movement.handleHexClick}
-            onHexHover={movement.setHoveredHex}
             canUndo={false}
             isPlayerTurn={
               phaseQueueProjection.unresolvedUnits.length === 0 ||
@@ -352,12 +351,7 @@ export default function GameSessionPage(): React.ReactElement {
             interactivePhase={isInteractive ? interactivePhase : undefined}
             hitChance={hitChance}
             validTargetIds={validTargetIds}
-            movementRange={movement.movementRangeHexes}
-            hoveredHex={movement.hoveredHex}
-            hoverMovementInfo={movement.hoveredMovementRangeHex}
-            highlightPath={movement.hoveredPath}
-            hoverMpCost={movement.hoverMpCost}
-            hoverUnreachable={movement.hoverUnreachable}
+            resolveMovementHover={movement.resolveMovementHover}
             mpLegend={movement.mpLegend}
             onMovementModeSelect={movement.handleMovementModeSelect}
             intentComposer={{

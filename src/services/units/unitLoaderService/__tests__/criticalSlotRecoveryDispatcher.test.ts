@@ -58,6 +58,7 @@ it.each([
       entry: locationEntries[0],
       location: L.LEFT_TORSO,
       locationEntries,
+      unitEntries: locationEntries,
     });
     expect(recovered).toHaveLength(1);
     expect(recovered[0]).toMatchObject({
@@ -86,6 +87,7 @@ it.each(['IS MRM 20 Ammo', 'Bomb Bay', 'ISDoubleHeatSink'])(
         entry: locationEntries[0],
         location: L.LEFT_TORSO,
         locationEntries,
+        unitEntries: locationEntries,
         physicalOnly: true,
       }),
     ).toEqual([]);
@@ -104,6 +106,7 @@ it('requires a complete unreserved sink group, using native superheavy entry dem
     entry: locationEntries[0],
     location: L.LEFT_TORSO,
     locationEntries,
+    unitEntries: locationEntries,
   };
   expect(recoverCriticalSlotEntries(dispatch)[0]).toMatchObject({
     criticalSlots: 2,
@@ -130,6 +133,7 @@ it('sees previously recovered placements through refreshed context and does not 
     entry: initial[0],
     location: L.LEFT_TORSO,
     locationEntries: initial,
+    unitEntries: initial,
   });
   const refreshed = { ...input, equipment: first };
   const locationEntries = recognizeCriticalSlotEntries(refreshed).cells;
@@ -144,6 +148,7 @@ it('sees previously recovered placements through refreshed context and does not 
       entry: locationEntries[0],
       location: L.LEFT_TORSO,
       locationEntries,
+      unitEntries: locationEntries,
     }),
   ).toEqual([]);
   expect(
@@ -152,6 +157,7 @@ it('sees previously recovered placements through refreshed context and does not 
       entry: locationEntries[0],
       location: L.LEFT_TORSO,
       locationEntries,
+      unitEntries: locationEntries,
       reservedSlots,
     }),
   ).toEqual([]);
@@ -161,6 +167,7 @@ it('sees previously recovered placements through refreshed context and does not 
       entry: locationEntries[1],
       location: L.LEFT_TORSO,
       locationEntries,
+      unitEntries: locationEntries,
       reservedSlots,
     })[0],
   ).toMatchObject({ slots: [1] });
@@ -185,6 +192,7 @@ it('routes already grouped native weapons through the same dispatcher even with 
       entry: locationEntries[0],
       location: L.LEFT_ARM,
       locationEntries,
+      unitEntries: locationEntries,
       sourceWeapon,
       physicalOnly: true,
     })[0],
@@ -195,6 +203,7 @@ it('routes already grouped native weapons through the same dispatcher even with 
       entry: locationEntries[0],
       location: L.LEFT_ARM,
       locationEntries,
+      unitEntries: locationEntries,
     }),
   ).toEqual([]);
 });
