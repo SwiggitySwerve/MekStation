@@ -21,6 +21,8 @@ fingerprint is unknown even when its library bytes match. With a saved draft
 baseline, equal library bytes mean matched. Different library bytes on a
 receipt from an older writer (`writerVersion` below `LIBRARY_WRITER_VERSION`)
 with an unedited draft (`isModified === false`) mean saved-older-writer.
+The unknown check runs first, so an unknown receipt (no draft fingerprint) is
+deliberately not upgraded to saved-older-writer by this writer-version rule.
 Otherwise different library bytes with equal draft content mean
 saved-older-writer, and anything else means the design changed. No stored
 receipt, fingerprint algorithm or schema version is rewritten. The adapters pass
