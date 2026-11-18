@@ -37,16 +37,18 @@ Run from the repository root after `npm ci`. Everything is written under `<dir>`
 `summary.gates` lists every count the nightly may gate on and which way is better, by path into `summary.json`. The nightly fails
 a worse count and passes a better one by reading the direction from the file, not from a constant of its own.
 
-| Key (path in `summary.json`) | Meaning                                                               | Direction        |
-| ---------------------------- | --------------------------------------------------------------------- | ---------------- |
-| `bv.exact`                   | units whose runtime BV equals the Java BV (the headline `load=Java`)  | higher-is-better |
-| `validity.agree`             | units whose runtime validity equals Java's                            | higher-is-better |
-| `weightOwners.agree`         | units whose status-bar weight equals the validator's allocated weight | higher-is-better |
+| Key (path in `summary.json`) | Meaning                                                                       | Direction        |
+| ---------------------------- | ----------------------------------------------------------------------------- | ---------------- |
+| `bv.exact`                   | units whose runtime BV equals the Java BV (the headline `load=Java`)          | higher-is-better |
+| `validity.agree`             | units whose runtime validity equals Java's                                    | higher-is-better |
+| `weightOwners.agree`         | units whose status-bar weight equals the validator's allocated weight         | higher-is-better |
+| `preview.equalsStatus`       | units whose record-sheet BV (the real `PreviewTab`'s) equals the status bar's | higher-is-better |
 
 ## Gate inputs: facts and the baseline
 
-Beside the rows, the run writes `facts.ndjson`: per unit the gated facts (`bvExact`, `bvDistance`, `validity`, `weightOwners`),
-derived from the row and the Java reference by `scripts/lib/runtime-parity/facts.mjs`. The rows themselves are unchanged.
+Beside the rows, the run writes `facts.ndjson`: per unit the gated facts (`bvExact`, `bvDistance`, `validity`, `weightOwners`, `previewEqualsStatus`, `previewStatusDistance`),
+derived from the row and the Java reference by `scripts/lib/runtime-parity/facts.mjs`. The record-sheet facts read `load.preview`, the BV
+the real `PreviewTab` hands to the sheet renderer (`header.battleValue` of the `extractData` result), captured after the status read.
 `node scripts/lib/runtime-parity/gate.mjs --measure load --run-dir <out>` compares them with the committed baseline
 `config/parity-runtime/baseline-load.json`. `--write-baseline --reason "<why>" [--pr <n>]` writes that file from the run (SHA,
 population hash, a `notes[]` entry) and refuses a narrowed run, differing runs or any failed or unknown unit. The rule, the file

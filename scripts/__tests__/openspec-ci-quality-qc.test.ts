@@ -570,8 +570,22 @@ describe('OpenSpec CI quality QC validator', () => {
         GATE_JOB,
         (block: string) =>
           block.replace(
-            '        if: failure() && (' + CHANGE_GATE_IF + ')',
+            '        if: (failure() || cancelled()) && (' +
+              CHANGE_GATE_IF +
+              ')',
             '        if: failure()',
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
+        'upload skipped when the job is cancelled',
+        GATE_JOB,
+        (block: string) =>
+          block.replace(
+            '        if: (failure() || cancelled()) && (' +
+              CHANGE_GATE_IF +
+              ')',
+            '        if: failure() && (' + CHANGE_GATE_IF + ')',
           ),
         'workflow-job-condition-invalid',
       ],

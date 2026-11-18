@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { MultiplayerTokenState } from '@/pages-modules/multiplayer/multiplayerPage.helpers';
 
 import { LobbyPanel } from '@/components/multiplayer/LobbyPanel';
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { NetworkedGameSurface } from '@/components/multiplayer/NetworkedGameSurface';
 import { useMultiplayerSession } from '@/hooks/useMultiplayerSession';
 import {
@@ -104,12 +105,15 @@ function useAutoOccupySeat(
 
 function BackToMultiplayerLink(): React.ReactElement {
   return (
-    <Link
-      href="/multiplayer"
-      className="text-text-theme-secondary hover:text-text-theme-primary text-sm"
-    >
-      Back to multiplayer hub
-    </Link>
+    <div>
+      <Link
+        href="/multiplayer"
+        className="text-text-theme-secondary hover:text-text-theme-primary text-sm"
+      >
+        Back to multiplayer hub
+      </Link>
+      <ModeAvailabilityNotice mode="hosted" />
+    </div>
   );
 }
 
@@ -396,12 +400,14 @@ export default function LobbyPage(): React.ReactElement {
 
       {!isActive ? (
         <LobbyPanel
+          compactAvailability
           lobbyState={session.lobbyState}
           myPlayerId={tokenState.token.playerId}
           onIntent={session.sendIntent}
         />
       ) : (
         <NetworkedGameSurface
+          compactAvailability
           mirrorSession={session.mirrorSession}
           mirrorEvents={session.mirrorEvents}
           seats={session.lobbyState.seats}

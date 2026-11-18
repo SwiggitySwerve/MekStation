@@ -7,6 +7,7 @@ export interface NavItemConfig {
   href: string;
   icon: ReactElement;
   label: string;
+  badge?: ReactElement;
   prefetch?: false;
 }
 
@@ -115,6 +116,7 @@ export function DropdownMenu({
           >
             <span className="h-5 w-5 flex-shrink-0">{item.icon}</span>
             <span>{item.label}</span>
+            {item.badge}
           </Link>
         ))}
       </div>

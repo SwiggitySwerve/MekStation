@@ -250,6 +250,20 @@
       null,
       null
     ],
+    "Center Torso": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null,
+      null,
+      null,
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Medium Laser (R)",
+      "Medium Laser (R)"
+    ],
     "Left Torso": [
       "Heat Sink",
       "LRM 20",
@@ -277,20 +291,6 @@
       "AC/20",
       "IS Ammo AC/20",
       "IS Ammo AC/20"
-    ],
-    "Center Torso": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      "Medium Laser (R)",
-      "Medium Laser (R)"
     ],
     "Head": [null, null, null, "Heat Sink", null, null],
     "Left Leg": [null, null, null, null, "Heat Sink", "Heat Sink"],

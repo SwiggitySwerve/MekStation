@@ -25,13 +25,14 @@ export default function GameplayHubPage(): React.ReactElement {
         {gameplayItems.map((item) => (
           <Link key={item.href} href={item.href} className="block h-full">
             <Card className="hover:border-accent/50 h-full transition-colors">
-              <div className="mb-3 flex items-center gap-3">
+              <div className="mb-3 flex flex-wrap items-center gap-3">
                 <div className="text-accent flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/10">
                   {item.icon}
                 </div>
                 <h2 className="text-text-theme-primary text-lg font-semibold">
                   {item.label}
                 </h2>
+                {item.badge}
               </div>
               <p className="text-text-theme-secondary text-sm leading-relaxed">
                 {item.description}

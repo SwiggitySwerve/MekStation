@@ -1,3 +1,4 @@
+import React, { useMemo, useState } from 'react';
 /**
  * Campaign Activity Log Page
  *
@@ -6,11 +7,10 @@
  * by one surface still reading the browser FIFO.
  */
 
-import React, { useMemo, useState } from 'react';
-
 import type { ICampaignActivityDisplayRow } from '@/lib/campaign/activity/campaignActivityDisplay';
 import type { ActivityLogCategory } from '@/types/campaign/ActivityLog';
 
+import { CampaignAvailabilityFooter } from '@/components/campaign/CampaignAvailabilityFooter';
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { PageLayout } from '@/components/ui';
 import {
@@ -182,6 +182,10 @@ export default function CampaignActivityLogPage(): React.ReactElement {
           </table>
         </>
       )}
+      <CampaignAvailabilityFooter
+        campaignId={campaign.id}
+        coopSession={campaign.coopSession}
+      />
     </PageLayout>
   );
 }

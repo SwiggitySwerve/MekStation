@@ -5,6 +5,7 @@ import test from 'node:test';
 
 import {
   FACT_DEFS,
+  REPORTED_DEFS,
   decodeCell,
   encodeCell,
   loadFacts,
@@ -27,10 +28,15 @@ const observed = (over = {}) => ({
   allocatedWeight: 50,
   ...over,
 });
-const loadRow = (over = {}) => ({
+// `preview` is what the real PreviewTab hands to the sheet renderer; by default it equals the status BV.
+const loadRow = (over = {}, preview = 'same') => ({
   ...identity('load'),
   status: 'ok',
-  load: { observed: observed(over) },
+  load: {
+    observed: observed(over),
+    preview:
+      preview === 'same' ? { bv: observed(over).bv ?? 0, cost: 1 } : preview,
+  },
 });
 const ref = (total = 1000, valid = true) => ({
   battleValue: { total },
@@ -74,12 +80,14 @@ test('load facts: bvExact and its distance, validity, weight owners; an unknown 
     bvDistance: 0,
     validity: true,
     weightOwners: true,
+    previewEqualsStatus: true,
   });
   assert.deepEqual(loadFacts(loadRow({ bv: 990 }), ref()).facts, {
     bvExact: false,
     bvDistance: 10,
     validity: true,
     weightOwners: true,
+    previewEqualsStatus: true,
   });
   assert.deepEqual(loadFacts(loadRow({ bv: 1004 }), ref()).facts.bvDistance, 4);
   assert.equal(
@@ -104,6 +112,63 @@ test('load facts: bvExact and its distance, validity, weight owners; an unknown 
   );
 });
 
+test('the record sheet: previewEqualsStatus is gated; previewStatusDistance is REPORTED, per unit, not part of the gated facts', () => {
+  const f = (preview, over = {}) => loadFacts(loadRow(over, preview), ref());
+  const same = f({ bv: 1000, cost: 1 });
+  assert.deepEqual(
+    [same.facts.previewEqualsStatus, same.reported.previewStatusDistance],
+    [true, 0],
+  );
+  // Lower and higher than the status bar are both unequal, with the distance either way.
+  const lower = f({ bv: 909, cost: 1 });
+  assert.deepEqual(
+    [lower.facts.previewEqualsStatus, lower.reported.previewStatusDistance],
+    [false, 91],
+  );
+  assert.equal(f({ bv: 1268, cost: 1 }).reported.previewStatusDistance, 268);
+  // Equality is exact: a 5-point difference (archer-arc-2d prints 1295 for 1290) is unequal.
+  assert.equal(f({ bv: 1005, cost: 1 }).facts.previewEqualsStatus, false);
+  assert.equal(f({ bv: 1000.5, cost: 1 }).facts.previewEqualsStatus, false);
+  // The distance is not a gated fact: it is not in FACT_DEFS and not among the facts.
+  assert.equal('previewStatusDistance' in FACT_DEFS.load, false);
+  assert.equal('previewStatusDistance' in lower.facts, false);
+  assert.deepEqual(REPORTED_DEFS, {
+    load: { previewStatusDistance: 'distance' },
+    reopen: {},
+  });
+  // Not captured, or no status BV to compare with: unknown, never a pass.
+  const none = f(null);
+  assert.deepEqual(
+    [none.facts.previewEqualsStatus, none.reported.previewStatusDistance],
+    [null, null],
+  );
+  const noStatus = f({ bv: 0, cost: 1 }, { bv: null });
+  assert.deepEqual(
+    [
+      noStatus.facts.previewEqualsStatus,
+      noStatus.reported.previewStatusDistance,
+    ],
+    [null, null],
+  );
+  // A row written before the field existed has no preview: also unknown.
+  const old = loadRow();
+  delete old.load.preview;
+  assert.equal(loadFacts(old, ref()).facts.previewEqualsStatus, null);
+  // The reported block is part of the facts row and validated with it.
+  assert.throws(
+    () =>
+      validateFacts('load', {
+        ...same,
+        reported: { previewStatusDistance: -1 },
+      }),
+    /malformed/,
+  );
+  assert.throws(
+    () => validateFacts('load', { ...same, reported: {} }),
+    /malformed/,
+  );
+});
+
 test('an error row has every fact unknown, in both measures', () => {
   for (const measure of ['load', 'reopen']) {
     const entry = (measure === 'load' ? loadFacts : reopenFacts)(
@@ -111,6 +176,10 @@ test('an error row has every fact unknown, in both measures', () => {
       ref(),
     );
     assert.equal(entry.status, 'error');
+    assert.deepEqual(
+      Object.values(entry.reported),
+      Object.keys(REPORTED_DEFS[measure]).map(() => null),
+    );
     assert.deepEqual(
       Object.values(entry.facts),
       Object.keys(FACT_DEFS[measure]).map(() => null),
@@ -270,4 +339,14 @@ test('serializeFacts sorts by unit, validates, and parseFacts refuses malformed 
       }),
     /sorted|duplicate/,
   );
+});
+
+test('facts reject a JSON distance of 1e999 instead of accepting Infinity', () => {
+  const row = loadFacts(loadRow(), ref());
+  row.facts.bvDistance = 0;
+  const text = JSON.stringify(row).replace(
+    '"bvDistance":0',
+    '"bvDistance":1e999',
+  );
+  assert.throws(() => parseFacts('load', text), /bvDistance/);
 });
