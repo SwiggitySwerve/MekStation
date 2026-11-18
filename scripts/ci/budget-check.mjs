@@ -88,19 +88,62 @@ export function checkRepositoryMetrics(config, metrics, labels, context) {
   return { schema: METRICS_SCHEMA, metrics, violations };
 }
 
-/** Files the PR changed against its base; undefined when that cannot be known. */
-export function changedFilesSince(baseSha, root = process.cwd()) {
-  if (!/^[0-9a-f]{7,64}$/i.test(baseSha ?? '')) return undefined;
+const git = (args, root) =>
+  execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
+
+/**
+ * The diff that is exactly the PR's own change. A pull_request checkout is a
+ * merge commit whose first parent is the main it was merged with; anything
+ * else falls back to the event's base SHA, which can lag main.
+ */
+export function changedFilesRange(headParentCount, baseSha) {
+  if (headParentCount === 2)
+    return { source: 'merge commit HEAD^1..HEAD', args: ['HEAD^1', 'HEAD'] };
+  if (/^[0-9a-f]{7,64}$/i.test(baseSha ?? ''))
+    return {
+      source: `BUDGET_BASE_SHA ${baseSha}...HEAD`,
+      args: [`${baseSha}...HEAD`],
+    };
+  return undefined;
+}
+
+function headParentCount(root) {
   try {
-    return execFileSync('git', ['diff', '--name-only', `${baseSha}...HEAD`], {
-      cwd: root,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    })
-      .split('\n')
-      .filter(Boolean);
+    return (
+      git(['rev-list', '--parents', '-n', '1', 'HEAD'], root).trim().split(' ')
+        .length - 1
+    );
   } catch {
     return undefined;
+  }
+}
+
+/** Files the PR changed and where that list came from; files is undefined when unknown. */
+export function prChangedFiles(
+  baseSha,
+  root = process.cwd(),
+  parentCount = headParentCount(root),
+) {
+  const range = changedFilesRange(parentCount, baseSha);
+  if (!range)
+    return {
+      source:
+        'none (HEAD is not a merge and BUDGET_BASE_SHA is unset or invalid)',
+      files: undefined,
+    };
+  try {
+    return {
+      source: range.source,
+      files: git(['diff', '--name-only', ...range.args], root)
+        .split('\n')
+        .filter(Boolean),
+    };
+  } catch {
+    return { source: `${range.source} (git diff failed)`, files: undefined };
   }
 }
 
@@ -143,11 +186,16 @@ export function run(argv, root = process.cwd()) {
     process.env.GITHUB_EVENT_NAME === 'pull_request'
       ? process.env.PR_NUMBER
       : undefined;
+  const changed = prNumber
+    ? prChangedFiles(process.env.BUDGET_BASE_SHA, root)
+    : undefined;
+  if (changed)
+    console.log(
+      `PR #${prNumber} changed files: ${changed.files?.length ?? 'unknown'}, from ${changed.source}`,
+    );
   const result = checkRepositoryMetrics(config, metrics, labels, {
     prNumber,
-    changedFiles: prNumber
-      ? changedFilesSince(process.env.BUDGET_BASE_SHA, root)
-      : undefined,
+    changedFiles: changed?.files,
   });
   if (values.report) {
     const destination = path.resolve(root, values.report);

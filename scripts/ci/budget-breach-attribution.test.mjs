@@ -6,8 +6,9 @@ import path from 'node:path';
 import { test } from 'node:test';
 
 import {
-  changedFilesSince,
+  changedFilesRange,
   checkRepositoryMetrics,
+  prChangedFiles,
   reportViolations,
 } from './budget-check.mjs';
 import { loadBudgets } from './budget-config.mjs';
@@ -43,11 +44,11 @@ test('repoWideKeys breach names the PR, the changed repo-wide file and its reaso
   const limit = config.limits.repoWideKeys;
   const result = checkRepositoryMetrics(config, metrics, [], {
     prNumber: '3401',
-    changedFiles: ['README.md', 't/92.test.ts'],
+    changedFiles: ['README.md', `t/${limit}.test.ts`],
   });
   assert.equal(
     violation(result, 'repoWideKeys').message,
-    `${limit + 1} > ${limit} (PR #3401). Changed in this PR and keyed repo-wide: t/92.test.ts (child process in t/92.test.ts).`,
+    `${limit + 1} > ${limit} (PR #3401). Changed in this PR and keyed repo-wide: t/${limit}.test.ts (child process in t/${limit}.test.ts).`,
   );
 });
 
@@ -132,13 +133,13 @@ test('PR number without a changed-file list names only the PR', () => {
 
 test('reportViolations prints each violation and annotates only on GitHub Actions', () => {
   const violations = [
-    { code: 'repoWideKeys', message: '94 > 93 (PR #1)' },
+    { code: 'repoWideKeys', message: '11 > 10 (PR #1)' },
     { code: 'timeout', message: 'a\nb 100%' },
   ];
   const plain = [];
   reportViolations(violations, {}, (line) => plain.push(line));
   assert.deepEqual(plain, [
-    'repoWideKeys: 94 > 93 (PR #1)',
+    'repoWideKeys: 11 > 10 (PR #1)',
     'timeout: a\nb 100%',
   ]);
   const hosted = [];
@@ -146,14 +147,30 @@ test('reportViolations prints each violation and annotates only on GitHub Action
     hosted.push(line),
   );
   assert.deepEqual(hosted, [
-    'repoWideKeys: 94 > 93 (PR #1)',
-    '::error title=CI budget::repoWideKeys: 94 > 93 (PR #1)',
+    'repoWideKeys: 11 > 10 (PR #1)',
+    '::error title=CI budget::repoWideKeys: 11 > 10 (PR #1)',
     'timeout: a\nb 100%',
     '::error title=CI budget::timeout: a%0Ab 100%25',
   ]);
 });
 
-test('changedFilesSince lists the PR side of a three-dot diff and survives a bad base', () => {
+test('changedFilesRange prefers the merge parent and falls back to the base SHA', () => {
+  const base = 'a'.repeat(40);
+  assert.deepEqual(changedFilesRange(2, base), {
+    source: 'merge commit HEAD^1..HEAD',
+    args: ['HEAD^1', 'HEAD'],
+  });
+  assert.deepEqual(changedFilesRange(2, undefined).args, ['HEAD^1', 'HEAD']);
+  for (const parents of [1, undefined])
+    assert.deepEqual(changedFilesRange(parents, base), {
+      source: `BUDGET_BASE_SHA ${base}...HEAD`,
+      args: [`${base}...HEAD`],
+    });
+  for (const bad of [undefined, '', '--output=x', 'main'])
+    assert.equal(changedFilesRange(1, bad), undefined);
+});
+
+test('prChangedFiles diffs a PR merge commit against its first parent, else the base', () => {
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-changed-'));
   const git = (...args) =>
     execFileSync(
@@ -169,26 +186,45 @@ test('changedFilesSince lists the PR side of a three-dot diff and survives a bad
       ],
       { cwd: repo, encoding: 'utf8' },
     ).trim();
+  const commit = (file, message) => {
+    fs.mkdirSync(path.dirname(path.join(repo, file)), { recursive: true });
+    fs.writeFileSync(path.join(repo, file), message);
+    git('add', '.');
+    git('commit', '-q', '-m', message);
+  };
   try {
     git('init', '-q', '-b', 'main');
-    fs.writeFileSync(path.join(repo, 'base.txt'), 'a');
-    git('add', '.');
-    git('commit', '-q', '-m', 'base');
-    const base = git('rev-parse', 'HEAD');
+    commit('base.txt', 'base');
+    const staleBase = git('rev-parse', 'HEAD');
     git('switch', '-q', '-c', 'pr');
-    fs.mkdirSync(path.join(repo, 'dir'));
-    fs.writeFileSync(path.join(repo, 'dir/new.test.ts'), 'b');
-    git('add', '.');
-    git('commit', '-q', '-m', 'pr');
+    commit('dir/new.test.ts', 'pr');
     git('switch', '-q', 'main');
-    fs.writeFileSync(path.join(repo, 'main-only.txt'), 'c');
-    git('add', '.');
-    git('commit', '-q', '-m', 'main moved');
+    commit('main-only.txt', 'main moved after the event base');
+    // The PR checkout: main merged with the PR, first parent = main.
+    git('merge', '-q', '--no-ff', '-m', 'merge pr', 'pr');
+    assert.deepEqual(prChangedFiles(staleBase, repo), {
+      source: 'merge commit HEAD^1..HEAD',
+      files: ['dir/new.test.ts'],
+    });
+    assert.deepEqual(prChangedFiles(undefined, repo).files, [
+      'dir/new.test.ts',
+    ]);
+    // What the stale three-dot base alone would have blamed.
+    assert.deepEqual(prChangedFiles(staleBase, repo, 1).files, [
+      'dir/new.test.ts',
+      'main-only.txt',
+    ]);
     git('switch', '-q', 'pr');
-    assert.deepEqual(changedFilesSince(base, repo), ['dir/new.test.ts']);
-    assert.equal(changedFilesSince('f'.repeat(40), repo), undefined);
-    assert.equal(changedFilesSince(undefined, repo), undefined);
-    assert.equal(changedFilesSince('--output=x', repo), undefined);
+    assert.deepEqual(prChangedFiles(staleBase, repo), {
+      source: `BUDGET_BASE_SHA ${staleBase}...HEAD`,
+      files: ['dir/new.test.ts'],
+    });
+    assert.equal(prChangedFiles('f'.repeat(40), repo).files, undefined);
+    assert.deepEqual(prChangedFiles(undefined, repo), {
+      source:
+        'none (HEAD is not a merge and BUDGET_BASE_SHA is unset or invalid)',
+      files: undefined,
+    });
   } finally {
     fs.rmSync(repo, { recursive: true, force: true });
   }
