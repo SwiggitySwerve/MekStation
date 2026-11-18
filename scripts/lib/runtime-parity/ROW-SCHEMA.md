@@ -37,6 +37,16 @@ so `compareRows` works on these rows unchanged. Rows are sorted by (`family`, `p
 - `terms`: exactly `numericTerms(mechBVTerms(breakdown))`, names unchanged (Java-comparable: `structureBV` includes the gyro,
   `defensiveEquipmentBV` = `defEquipBV` + `armoredComponentBV`, `weapon.<n>.<LOC>.<id>` per mount).
 - `issues[]`: every validation issue `{ruleId, channel (errors|warnings|infos), severity, field, message}`; `field` is the raw field.
+- `preview` (optional; `null` = not captured): `{bv, cost}`, the BV and cost the real `PreviewTab` hands to the record-sheet renderer, i.e. the
+  `header.battleValue` and `header.cost` of the real `getRecordSheetService().extractData(unitConfig)` result, read after the status bar in
+  the same store. Only canvas drawing is replaced. Rows written before this field existed still parse.
+  **A failed sheet calculation is never recorded as a value.** The sheet code catches a throw and falls back to `{battleValue: 0, cost: 0}`,
+  and the extractor does `battleValue || 0`, so a failure reaches the sheet as a plain 0. The capture reads the same mechBV calculator probe
+  the status observer uses, and a missing or thrown preview calculation, or a BV that is not the one the sheet was handed, is a harness
+  failure at stage `preview` (infrastructure: the run fails with `CAPTURE_INFRASTRUCTURE_FAILURE`, the unit's record is an `error` row).
+  **Deliberate:** a preview failure errors the WHOLE load row, so all of that unit's load facts become unknown, `bvExact` included, and
+  the gate reads known -> unknown. That is the safe direction; do not "fix" it by isolating the preview from the row, which would let a
+  broken sheet pass as a measured 0.
 
 ## Reopen row (`measure: reopen`, `status: ok`) — `reopen`
 

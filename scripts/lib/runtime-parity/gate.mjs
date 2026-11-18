@@ -36,6 +36,7 @@ import {
 import {
   FACTS_FILE,
   FACT_DEFS,
+  REPORTED_DEFS,
   isFactValue,
   parseFacts,
   setFactNames,
@@ -331,8 +332,39 @@ export function parseBaseline(
 }
 
 /**
+ * The notes of an existing committed baseline, and nothing else. A rebaseline replaces every unit and fact from the new run, so it
+ * must be able to read the file it replaces even when that file no longer conforms to the current fact list (the very rebaseline
+ * that adds a fact, or changes the facts schema, reads a baseline without it). Only the notes carry over, so only they and the
+ * measure (a file for another measure is refused) are checked.
+ */
+export function readBaselineNotes(mainText, measure) {
+  let main;
+  try {
+    main = JSON.parse(mainText);
+  } catch (error) {
+    throw new GateError(
+      'BASELINE_MALFORMED',
+      `not valid JSON: ${error.message}`,
+    );
+  }
+  // A misplaced file (another measure's baseline) must not lend its notes.
+  if (main?.measure !== measure)
+    throw new GateError(
+      'BASELINE_MALFORMED',
+      `existing baseline is for ${main?.measure}, not ${measure}`,
+    );
+  const notes = z.array(NoteSchema).min(1).safeParse(main?.notes);
+  if (!notes.success)
+    throw new GateError(
+      'BASELINE_MALFORMED',
+      `the existing baseline's notes are malformed: ${notes.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')}`,
+    );
+  return notes.data;
+}
+
+/**
  * Build a baseline from a complete run's facts. Refuses a run with any failed, incomplete or unknown unit, so
- * a baseline can never record a hole. `existing` (a parsed baseline) keeps its notes; `note` is required.
+ * a baseline can never record a hole. `existingNotes` (from readBaselineNotes) carry over; `note` is required.
  */
 export function buildBaseline({
   measure,
@@ -340,7 +372,7 @@ export function buildBaseline({
   sha,
   note,
   provenance,
-  existing = null,
+  existingNotes = [],
 }) {
   if (!facts.length)
     throw new GateError('BASELINE_REFUSED', 'the run has no units');
@@ -368,7 +400,7 @@ export function buildBaseline({
     ...checkedProvenance,
     populationCount: facts.length,
     populationHash: populationHash(Object.keys(units)),
-    notes: [...(existing?.notes ?? []), checkedNote],
+    notes: [...existingNotes, checkedNote],
     units,
   });
 }
@@ -438,6 +470,28 @@ export const defaultRules = {
   verifySidecar: true,
 };
 
+// --- reported facts (not gated) -----------------------------------------------------------------------
+
+/** For each reported fact: how many units it is known for, how many are non-zero, the largest value. */
+function reportedSummary(measure, facts) {
+  return Object.fromEntries(
+    Object.keys(REPORTED_DEFS[measure]).map((name) => {
+      const values = facts.map((f) => f.reported?.[name] ?? null);
+      const known = values.filter((v) => v !== null);
+      return [
+        name,
+        {
+          gated: false,
+          known: known.length,
+          unknown: values.length - known.length,
+          nonZero: known.filter((v) => v !== 0).length,
+          max: known.length ? Math.max(...known) : null,
+        },
+      ];
+    }),
+  );
+}
+
 // --- the evaluation -------------------------------------------------------------------------------------
 
 /**
@@ -473,6 +527,8 @@ export function evaluate(
     removed: [],
     population: { baseline: null, tonight: facts.length, overlap: 0 },
     provenance: { deriverChanged: false, referenceChanged: false },
+    // Measured per unit and shown here, never gated: no baseline entry, no comparison (see REPORTED_DEFS).
+    reported: reportedSummary(measure, facts),
     lastGreen: { status: 'not-used', detail: '' },
     headline: '',
   };

@@ -158,7 +158,9 @@ export const requiredWorkflowJobContracts = [
     skipIf:
       "needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'",
     changeGateIf: E2E_CHANGE_GATE_IF,
-    uploadFailureIf: `failure() && (${E2E_CHANGE_GATE_IF})`,
+    // cancelled() too: a job cut off at its timeout after a failed step must still upload the
+    // trace and screenshot (failure() is false under cancellation; main-push 44249913235).
+    uploadFailureIf: `(failure() || cancelled()) && (${E2E_CHANGE_GATE_IF})`,
     // The gate writes its own report folder (the smoke suites write theirs
     // after it), and the failure upload must carry it.
     uploadPaths: [
