@@ -4,6 +4,7 @@ import { toCanonicalJson } from '@/utils/events/hashUtils';
 
 import { applyEvent, deriveState } from './gameState';
 import {
+  describeEventLog,
   describeFoldRevision,
   foldRevisionMatches,
   NOT_FOLDED,
@@ -32,10 +33,10 @@ export class GameEventSequenceError extends Error {
  * incremental append would carry a state no event produced (D-8).
  */
 export class GameStateRevisionError extends Error {
-  constructor(sessionId: string, stamp: string, lastEvent: string) {
+  constructor(sessionId: string, stamp: string, log: string) {
     super(
       `Game session ${sessionId} currentState is not the fold of its event log ` +
-        `(state folded through ${stamp}, log ends at ${lastEvent}); refusing to append`,
+        `(state folded from ${stamp}; session log is ${log}); refusing to append`,
     );
     this.name = 'GameStateRevisionError';
   }
@@ -80,8 +81,10 @@ function findHeldEvent(
 /**
  * The fold of `session.events`, which the next event is applied to.
  *
- * - Stamped by the fold: it must be stamped with the log's last event, or
- *   the append is refused with GameStateRevisionError.
+ * - Stamped by the fold: it must have been folded from this very events
+ *   array (see foldRevision.ts), or the append is refused with
+ *   GameStateRevisionError. A rewrite of any event, not only the last,
+ *   makes a new array and so is refused.
  * - Marked as set outside the fold (applyCorrectedState): refused.
  * - Unstamped: refolded from the log, exactly as before P1. This is a
  *   deliberate compatibility path for states rebuilt from JSON or transport,
@@ -91,14 +94,13 @@ function findHeldEvent(
 function foldedStateOf(session: IGameSession): IGameState {
   const revision = readFoldRevision(session.currentState);
   if (revision === undefined) return deriveState(session.id, session.events);
-  const lastEvent = session.events.at(-1);
-  if (foldRevisionMatches(revision, lastEvent)) return session.currentState;
+  if (foldRevisionMatches(revision, session.events)) {
+    return session.currentState;
+  }
   throw new GameStateRevisionError(
     session.id,
     describeFoldRevision(revision),
-    lastEvent
-      ? `event ${lastEvent.id} (sequence ${lastEvent.sequence})`
-      : 'the empty log',
+    describeEventLog(session.events),
   );
 }
 
@@ -115,7 +117,7 @@ export function dropStaleFoldStamp(session: IGameSession): IGameSession {
   if (
     revision === undefined ||
     revision === NOT_FOLDED ||
-    foldRevisionMatches(revision, session.events.at(-1))
+    foldRevisionMatches(revision, session.events)
   ) {
     return session;
   }
@@ -155,7 +157,7 @@ export function appendEvent(
   // A no-op handler returns its input; copy it so the held state keeps its
   // own stamp for any other append from the same session.
   const currentState = applied === heldState ? { ...applied } : applied;
-  stampFoldRevision(currentState, event);
+  stampFoldRevision(currentState, events);
 
   return {
     ...session,

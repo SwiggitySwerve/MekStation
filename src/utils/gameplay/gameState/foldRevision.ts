@@ -1,22 +1,27 @@
 import type { IGameEvent, IGameState } from '@/types/gameplay';
 
 /**
- * The last event folded into a state, or `null` for the empty fold.
+ * The events array a state was folded from, and its length then.
  *
  * Kept beside the state, never in it: a WeakMap keyed by the state object
  * adds no field to `IGameState`, so digests, recordings, saved payloads and
  * replay output are unchanged. A state rebuilt from JSON or transport, or
  * replaced outside the fold, has no stamp.
+ *
+ * The array's identity, not its tail, is what ties a state to its log:
+ * appendEvent and deriveFoldedState stamp the very array they return or were
+ * given, while any truncation or rewrite of a log, even one that keeps the
+ * last event, produces a new array.
  */
 export interface IFoldRevision {
-  readonly eventId: string;
-  readonly sequence: number;
+  readonly events: readonly IGameEvent[];
+  readonly length: number;
 }
 
 /** A state set outside the fold on purpose (a GM correction). */
 export const NOT_FOLDED = 'not-folded';
 
-type FoldStamp = IFoldRevision | null | typeof NOT_FOLDED;
+type FoldStamp = IFoldRevision | typeof NOT_FOLDED;
 
 const foldRevisions = new WeakMap<IGameState, FoldStamp>();
 
@@ -39,12 +44,9 @@ function deepFreeze(value: unknown): void {
 
 export function stampFoldRevision(
   state: IGameState,
-  lastEvent: IGameEvent | undefined,
+  events: readonly IGameEvent[],
 ): void {
-  foldRevisions.set(
-    state,
-    lastEvent ? { eventId: lastEvent.id, sequence: lastEvent.sequence } : null,
-  );
+  foldRevisions.set(state, { events, length: events.length });
   if ((globalThis as Record<string, unknown>)[FREEZE_FLAG] === true) {
     deepFreeze(state);
   }
@@ -60,22 +62,26 @@ export function readFoldRevision(state: IGameState): FoldStamp | undefined {
   return foldRevisions.get(state);
 }
 
+/** In step only with the very events array it was folded from, unextended. */
 export function foldRevisionMatches(
   revision: FoldStamp,
-  lastEvent: IGameEvent | undefined,
+  events: readonly IGameEvent[],
 ): boolean {
-  if (revision === NOT_FOLDED) return false;
-  if (revision === null || lastEvent === undefined) {
-    return revision === null && lastEvent === undefined;
-  }
   return (
-    revision.eventId === lastEvent.id &&
-    revision.sequence === lastEvent.sequence
+    revision !== NOT_FOLDED &&
+    revision.events === events &&
+    revision.length === events.length
   );
+}
+
+export function describeEventLog(events: readonly IGameEvent[]): string {
+  const last = events.at(-1);
+  return last
+    ? `a ${events.length}-event log ending at event ${last.id} (sequence ${last.sequence})`
+    : 'the empty log';
 }
 
 export function describeFoldRevision(revision: FoldStamp): string {
   if (revision === NOT_FOLDED) return 'no event (set outside the fold)';
-  if (revision === null) return 'the empty log';
-  return `event ${revision.eventId} (sequence ${revision.sequence})`;
+  return `${describeEventLog(revision.events.slice(0, revision.length))}, a different events array`;
 }

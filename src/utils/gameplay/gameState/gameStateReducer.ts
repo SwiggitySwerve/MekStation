@@ -41,7 +41,7 @@ export function deriveFoldedState(
   events: readonly IGameEvent[],
 ): IGameState {
   const state = deriveState(gameId, events);
-  stampFoldRevision(state, events.at(-1));
+  stampFoldRevision(state, events);
   return state;
 }
 

@@ -99,6 +99,42 @@ describe('fold revision guard', () => {
     );
   });
 
+  it('refuses a stamped state whose log had an earlier event rewritten, tail unchanged', () => {
+    const session = base();
+    expect(session.events[4].type).toBe(GameEventType.HeatGenerated);
+    const rewritten: IGameSession = {
+      ...session,
+      events: session.events.map((event, index) =>
+        index === 4
+          ? ({
+              ...event,
+              payload: { ...event.payload, newTotal: 99 },
+            } as IGameEvent)
+          : event,
+      ),
+    };
+    expect(rewritten.events.at(-1)).toBe(session.events.at(-1));
+    expect(() => appendEvent(rewritten, events[12])).toThrow(
+      GameStateRevisionError,
+    );
+    expect(() =>
+      assertGameEventBatchAdmissible(rewritten, [events[12]]),
+    ).toThrow(GameStateRevisionError);
+  });
+
+  it('keeps a normal append chain and batch admission incremental on the stamped array', () => {
+    let session = base(1);
+    for (const event of events.slice(1, 12)) {
+      session = appendEvent(session, event);
+    }
+    expect(() =>
+      assertGameEventBatchAdmissible(session, events.slice(12)),
+    ).not.toThrow();
+    const next = events.slice(12).reduce(appendEvent, session);
+    expect(isDeepStrictEqual(next.currentState, foldOf(next))).toBe(true);
+    expect(appendEvent(next, events[12])).toBe(next);
+  });
+
   it('refolds an unstamped state from JSON transport, and equals the full fold', () => {
     const session = base();
     const transported: IGameSession = JSON.parse(
