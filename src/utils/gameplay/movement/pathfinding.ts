@@ -93,8 +93,10 @@ export function createPathSearchSpace(
           from,
           movementCostContextForStep(context, isFirstStep),
         );
-        // A NaN price is stored as Infinity: both fail the finiteness guard.
-        row[direction] = Number.isNaN(cost) ? Infinity : cost;
+        // A NaN price becomes Infinity: both fail the finiteness guard, and
+        // every call, first or memoised, returns the same stored value.
+        if (Number.isNaN(cost)) cost = Infinity;
+        row[direction] = cost;
       }
       return cost;
     },
@@ -157,6 +159,64 @@ interface IOpenNode {
   readonly seq: number;
 }
 
+interface IFloodNode extends IOpenNode {
+  /** The hex may only end a path (`classifyNeighbourEntry`), so it is not expanded. */
+  readonly endOnly: boolean;
+}
+
+/**
+ * How a search may enter a neighbour hex:
+ * - `blocked`: never;
+ * - `endOnly`: only as the end of a path (an occupied hex);
+ * - `open`: as the end or a hex passed through.
+ *
+ * The one owner of the neighbour-entry rule (AGENTS.md invariant 1). Both
+ * `findPathInSearchSpace` and `floodSearchSpace` use it, with `enteredCost`
+ * for the price and the bound, so a rule change moves the A* and the overlay's
+ * flood together. A new `IFindPathOptions` key is handled here.
+ */
+export type NeighbourEntry = 'blocked' | 'endOnly' | 'open';
+
+export function classifyNeighbourEntry(
+  grid: IHexGrid,
+  neighbor: IHexCoordinate,
+  movementType: UnitMovementType,
+  options: IFindPathOptions,
+): NeighbourEntry {
+  if (!isInBounds(grid, neighbor)) return 'blocked';
+  if (
+    options.requirePavementRoadBonusSurface &&
+    !hexHasPavementRoadBonusSurface(grid, neighbor, movementType)
+  ) {
+    return 'blocked';
+  }
+  return isOccupied(grid, neighbor) ? 'endOnly' : 'open';
+}
+
+/**
+ * Cost of the cheapest route so far to `neighbor` through `from`, or NaN when
+ * the step has no finite price or the total exceeds `maxCost`. The first step
+ * is the step out of the start, the only node without a parent.
+ */
+function enteredCost(
+  space: IPathSearchSpace,
+  from: IOpenNode,
+  direction: number,
+  neighbor: IHexCoordinate,
+  maxCost: number,
+): number {
+  const moveCost = space.stepCost(
+    from.coord,
+    from.key,
+    direction,
+    neighbor,
+    from.parent === null,
+  );
+  if (!Number.isFinite(moveCost)) return NaN;
+  const tentativeG = from.g + moveCost;
+  return tentativeG > maxCost ? NaN : tentativeG;
+}
+
 /**
  * A* over a search space. The open set is a binary heap ordered by
  * (f, seq): `seq` is the order in which a hex first entered the open set and
@@ -177,7 +237,7 @@ export function findPathInSearchSpace(
 
   const openSet = new Map<string, IOpenNode>();
   const closedSet = new Map<string, IOpenNode>();
-  const heap = new OpenNodeHeap();
+  const heap = new OpenNodeHeap<IOpenNode>();
   let nextSeq = 0;
 
   const startKey = coordToKey(start);
@@ -224,28 +284,23 @@ export function findPathInSearchSpace(
 
       if (closedSet.has(neighborKey)) continue;
 
-      if (!isInBounds(grid, neighbor)) continue;
+      const entry = classifyNeighbourEntry(
+        grid,
+        neighbor,
+        movementType,
+        options,
+      );
+      if (entry === 'blocked') continue;
+      if (entry === 'endOnly' && !hexEquals(neighbor, end)) continue;
 
-      if (!hexEquals(neighbor, end) && isOccupied(grid, neighbor)) continue;
-
-      if (
-        options.requirePavementRoadBonusSurface &&
-        !hexHasPavementRoadBonusSurface(grid, neighbor, movementType)
-      ) {
-        continue;
-      }
-
-      const moveCost = space.stepCost(
-        current.coord,
-        currentKey,
+      const tentativeG = enteredCost(
+        space,
+        current,
         direction,
         neighbor,
-        current.parent === null,
+        maxCost,
       );
-      if (!Number.isFinite(moveCost)) continue;
-      const tentativeG = current.g + moveCost;
-
-      if (tentativeG > maxCost) continue;
+      if (Number.isNaN(tentativeG)) continue;
 
       const existingNode = openSet.get(neighborKey);
 
@@ -269,9 +324,9 @@ export function findPathInSearchSpace(
 
 /**
  * Cheapest cost from the space's start to every hex it can enter for at most
- * `maxCost`, under the same entry rules as `findPathInSearchSpace`: in
- * bounds, the road-surface option, finite step prices. An occupied hex may
- * only end a path, so it gets a cost but is never expanded (the start is).
+ * `maxCost`, under the entry rule `findPathInSearchSpace` uses
+ * (`classifyNeighbourEntry` and `enteredCost`). An `endOnly` hex can end any
+ * search, so it gets a cost but is never expanded (the start always is).
  * Step prices are at least 1, so this is plain Dijkstra.
  */
 export function floodSearchSpace(
@@ -280,18 +335,19 @@ export function floodSearchSpace(
   options: IFindPathOptions = {},
 ): ReadonlyMap<string, number> {
   const { grid, start, movementType } = space;
-  const best = new Map<string, IOpenNode>();
+  const best = new Map<string, IFloodNode>();
   const settled = new Map<string, number>();
-  const heap = new OpenNodeHeap();
+  const heap = new OpenNodeHeap<IFloodNode>();
   const startKey = coordToKey(start);
   let nextSeq = 0;
-  const startNode: IOpenNode = {
+  const startNode: IFloodNode = {
     key: startKey,
     coord: start,
     g: 0,
     f: 0,
     parent: null,
     seq: nextSeq++,
+    endOnly: false,
   };
   best.set(startKey, startNode);
   heap.push(startNode);
@@ -302,39 +358,38 @@ export function floodSearchSpace(
       continue;
     }
     settled.set(current.key, current.g);
-    if (current.key !== startKey && isOccupied(grid, current.coord)) continue;
+    if (current.endOnly) continue;
 
     const neighbors = hexNeighbors(current.coord);
     for (let direction = 0; direction < neighbors.length; direction++) {
       const neighbor = neighbors[direction];
       const neighborKey = coordToKey(neighbor);
       if (settled.has(neighborKey)) continue;
-      if (!isInBounds(grid, neighbor)) continue;
-      if (
-        options.requirePavementRoadBonusSurface &&
-        !hexHasPavementRoadBonusSurface(grid, neighbor, movementType)
-      ) {
-        continue;
-      }
-      const moveCost = space.stepCost(
-        current.coord,
-        current.key,
+      const entry = classifyNeighbourEntry(
+        grid,
+        neighbor,
+        movementType,
+        options,
+      );
+      if (entry === 'blocked') continue;
+      const tentativeG = enteredCost(
+        space,
+        current,
         direction,
         neighbor,
-        current.key === startKey,
+        maxCost,
       );
-      if (!Number.isFinite(moveCost)) continue;
-      const tentativeG = current.g + moveCost;
-      if (tentativeG > maxCost) continue;
+      if (Number.isNaN(tentativeG)) continue;
       const existing = best.get(neighborKey);
       if (!existing || tentativeG < existing.g) {
-        const node: IOpenNode = {
+        const node: IFloodNode = {
           key: neighborKey,
           coord: neighbor,
           g: tentativeG,
           f: tentativeG,
           parent: current.key,
           seq: existing ? existing.seq : nextSeq++,
+          endOnly: entry === 'endOnly',
         };
         best.set(neighborKey, node);
         heap.push(node);
@@ -346,14 +401,14 @@ export function floodSearchSpace(
 }
 
 /** Binary min-heap of open nodes ordered by (f, seq). */
-class OpenNodeHeap {
-  private readonly items: IOpenNode[] = [];
+class OpenNodeHeap<T extends IOpenNode> {
+  private readonly items: T[] = [];
 
   get size(): number {
     return this.items.length;
   }
 
-  push(node: IOpenNode): void {
+  push(node: T): void {
     const items = this.items;
     let index = items.length;
     items.push(node);
@@ -367,7 +422,7 @@ class OpenNodeHeap {
     items[index] = node;
   }
 
-  pop(): IOpenNode {
+  pop(): T {
     const items = this.items;
     const top = items[0];
     const last = items.pop()!;

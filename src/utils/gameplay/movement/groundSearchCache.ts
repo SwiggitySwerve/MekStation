@@ -92,6 +92,9 @@ export class GroundSearchCache {
 
   searchesFor(binding: IGroundSearchBinding): GroundSearches | null {
     if (binding.grid !== this.grid) return null;
+    // Every IMovementCostContext field is JSON-representable today. A Set, Map
+    // or function field would stringify to {} or vanish, and two different
+    // contexts would then share one cache entry: key such a field explicitly.
     const key = JSON.stringify([
       binding.origin.q,
       binding.origin.r,

@@ -5,9 +5,14 @@ import type {
   IHexGrid,
   IMovementCapability,
   IUnitGameState,
+  MovementMotiveMode,
+  MovementTravelMode,
 } from '@/types/gameplay';
+import type { IMovementCostContext } from '@/utils/gameplay/movement/calculations';
+import type { IMovementProjectionRuleOptions } from '@/utils/gameplay/movement/reachableProjectionTypes';
 
 import { MovementType, TerrainType } from '@/types/gameplay';
+import { createEnvironmentalConditions } from '@/utils/gameplay/environmentalModifiers';
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
 import { coordToKey, hexesInRange } from '@/utils/gameplay/hexMath';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
@@ -41,10 +46,16 @@ export const BOARD_KINDS = [
   'elevation',
   'water',
   'urban',
+  'bridge',
+  'cliff',
 ] as const;
 export type BoardKind = (typeof BOARD_KINDS)[number];
 
-type Feature = { readonly type: TerrainType; readonly level: number };
+type Feature = {
+  readonly type: TerrainType;
+  readonly level: number;
+  readonly cliffTopExits?: readonly number[];
+};
 
 const MIXED_FEATURES: readonly (readonly Feature[])[] = [
   [],
@@ -102,6 +113,31 @@ function hexFeatures(
       }
       return roll < 0.55 ? [{ type: TerrainType.Rough, level: 1 }] : [];
     }
+    case 'bridge': {
+      // Rivers of deep water crossed by bridges at varying heights.
+      if (coord.q % 3 !== 0)
+        return random() < 0.2 ? [{ type: TerrainType.Rough, level: 1 }] : [];
+      const water: Feature = {
+        type: TerrainType.Water,
+        level: integer(random, 1, 3),
+      };
+      return random() < 0.5
+        ? [water, { type: TerrainType.Bridge, level: integer(random, 0, 2) }]
+        : [water];
+    }
+    case 'cliff': {
+      // Directional cliff tops (any of the six exits) on raised hexes.
+      if (random() < 0.35) {
+        return [
+          {
+            type: TerrainType.Clear,
+            level: 0,
+            cliffTopExits: [0, 1, 2, 3, 4, 5].filter(() => random() < 0.5),
+          },
+        ];
+      }
+      return random() < 0.2 ? [{ type: TerrainType.LightWoods, level: 1 }] : [];
+    }
     case 'urban': {
       const onRoad = coord.q % 4 === 0 || coord.r % 5 === 0;
       if (onRoad) {
@@ -123,6 +159,10 @@ function hexElevation(random: Random, kind: BoardKind): number {
   switch (kind) {
     case 'elevation':
       return integer(random, -1, 4);
+    case 'cliff':
+      return integer(random, 0, 3);
+    case 'bridge':
+      return random() < 0.2 ? 1 : 0;
     case 'mixed':
       return random() < 0.3 ? integer(random, -1, 2) : 0;
     case 'urban':
@@ -221,13 +261,142 @@ export function corpusMovers(random: Random): readonly ICorpusMover[] {
       },
       mpTypes: [MovementType.Walk],
     },
-    {
-      label: 'naval',
-      capability: { walkMP, runMP, jumpMP: 0, movementMode: 'naval' },
+    ...OTHER_MOTIVE_MODES.map((movementMode) => ({
+      label: movementMode,
+      capability: { walkMP, runMP, jumpMP: 0, movementMode },
       mpTypes: [MovementType.Walk, MovementType.Run],
-    },
+    })),
   ];
 }
+
+/** Motive modes beyond the Mek, ground vehicle and foot infantry movers. */
+const OTHER_MOTIVE_MODES: readonly MovementMotiveMode[] = [
+  'naval',
+  'vtol',
+  'wige',
+  'hydrofoil',
+  'submarine',
+  'umu',
+  'biped_swim',
+  'quad_swim',
+  'rail',
+  'maglev',
+];
+
+/** Every MovementTravelMode, for the path and flood checks. */
+export const TRAVEL_MODES: readonly MovementTravelMode[] = [
+  'walk',
+  'run',
+  'jump',
+  'tracked',
+  'wheeled',
+  'hover',
+  'vtol',
+  'naval',
+  'hydrofoil',
+  'submarine',
+  'umu',
+  'biped_swim',
+  'quad_swim',
+  'wige',
+  'rail',
+  'maglev',
+];
+
+const HARSH_ENVIRONMENT = createEnvironmentalConditions({
+  light: 'night',
+  precipitation: 'heavy_rain',
+  fog: 'heavy_fog',
+  blowingSand: true,
+  wind: 'strong',
+  gravity: 1.5,
+  atmosphere: 'thin',
+  temperature: 'extreme_cold',
+});
+
+const SPAS = ['tm_frogman', 'tm_mountaineer', 'tm_nightwalker'] as const;
+
+/** Cost-context classes for the path and flood checks, by name. */
+export const PATH_CONTEXT_CLASSES: readonly {
+  readonly label: string;
+  readonly context: IMovementCostContext;
+}[] = [
+  { label: 'none', context: {} },
+  {
+    label: 'infantry terrain',
+    context: { movementTerrainProfile: 'infantry' },
+  },
+  {
+    label: 'tacops infantry road',
+    context: {
+      declaredMovementType: MovementType.Run,
+      pavementRoadBonusProfile: 'tacops_infantry',
+      optionalRules: ['tacops_inf_pave_bonus'],
+    },
+  },
+  { label: 'playtest2', context: { optionalRules: ['playtest2'] } },
+  {
+    label: 'environment',
+    context: { environmentalConditions: HARSH_ENVIRONMENT },
+  },
+  {
+    label: 'amphibious + flotation',
+    context: {
+      waterCapability: { fullyAmphibious: true, flotationHull: true },
+    },
+  },
+  {
+    label: 'limited amphibious + frogman',
+    context: {
+      waterCapability: { limitedAmphibious: true, frogmanSpecialist: true },
+    },
+  },
+  { label: 'unit height', context: { unitHeight: 2 } },
+  { label: 'SPAs', context: { pilotAbilities: SPAS } },
+];
+
+export interface IOverlayContextClass {
+  readonly label: string;
+  readonly ruleOptions: IMovementProjectionRuleOptions;
+  readonly capability: Partial<IMovementCapability>;
+  readonly abilities?: readonly string[];
+}
+
+/** The same classes as the projection receives them: rules, capability, unit. */
+export const OVERLAY_CONTEXT_CLASSES: readonly IOverlayContextClass[] = [
+  { label: 'none', ruleOptions: {}, capability: {} },
+  {
+    label: 'playtest2',
+    ruleOptions: { optionalRules: ['playtest2'] },
+    capability: {},
+  },
+  {
+    label: 'tacops infantry road',
+    ruleOptions: { optionalRules: ['tacops_inf_pave_bonus'] },
+    capability: {},
+  },
+  {
+    label: 'environment',
+    ruleOptions: { environmentalConditions: HARSH_ENVIRONMENT },
+    capability: {},
+  },
+  {
+    label: 'amphibious + flotation',
+    ruleOptions: {},
+    capability: {
+      waterCapability: { fullyAmphibious: true, flotationHull: true },
+    },
+  },
+  {
+    label: 'limited amphibious + frogman',
+    ruleOptions: {},
+    capability: {
+      waterCapability: { limitedAmphibious: true, frogmanSpecialist: true },
+    },
+  },
+  { label: 'unit height', ruleOptions: {}, capability: { unitHeight: 2 } },
+  { label: 'SPAs', ruleOptions: {}, capability: {}, abilities: SPAS },
+];
 
 /** A unit at a seeded position and facing, sometimes prone, hull-down or hot. */
 export function corpusUnit(
