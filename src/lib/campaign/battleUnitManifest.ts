@@ -35,7 +35,10 @@ import type { ICampaignWithBridgeState } from './processors/scenarioEncounterBri
 
 import { APPLIED_OUTCOME_RETENTION_DAYS } from './appliedOutcomes';
 import { campaignDaysBetween } from './campaignCalendar';
-import { resolveLegacyBattleUnitManifest } from './legacyRosterResolver';
+import {
+  resolveLegacyBattleUnitManifest,
+  type ILegacyBattleUnitManifest,
+} from './legacyRosterResolver';
 
 export type DeltaRosterResolution =
   | { readonly kind: 'roster'; readonly rosterUnitId: string }
@@ -84,6 +87,34 @@ export interface IOutcomeUnitWritePlan {
   readonly errors: readonly string[];
   /** The mapping the apply used, recorded on the applied outcome. */
   readonly appliedManifest: BattleUnitManifest;
+}
+
+/**
+ * The legacy matches that may be used for units WITHOUT a manifest entry,
+ * in the given order: a match is refused when it claims a roster unit the
+ * manifest already names, or one an earlier accepted match took. The one
+ * owner of that rule for launch-time completion and for the apply.
+ */
+function acceptUnclaimedLegacyMatches(
+  manifest: BattleUnitManifest,
+  legacy: ILegacyBattleUnitManifest,
+  unitIds: readonly string[],
+): Map<string, string> {
+  const claimed = new Set(
+    Object.values(manifest).flatMap((entry) =>
+      'rosterUnitId' in entry ? [entry.rosterUnitId] : [],
+    ),
+  );
+  const accepted = new Map<string, string>();
+  for (const unitId of unitIds) {
+    if (manifest[unitId]) continue;
+    const match = legacy.manifest[unitId];
+    if (match && 'rosterUnitId' in match && !claimed.has(match.rosterUnitId)) {
+      claimed.add(match.rosterUnitId);
+      accepted.set(unitId, match.rosterUnitId);
+    }
+  }
+  return accepted;
 }
 
 /**
@@ -138,11 +169,13 @@ export function planOutcomeUnitWrites(
   const legacy = needsLegacy
     ? resolveLegacyBattleUnitManifest(campaign, rosterUnits, outcome)
     : undefined;
-  const claimed = new Set<string>();
-  for (const delta of players) {
-    const entry = entryOf(delta.unitId);
-    if (entry && 'rosterUnitId' in entry) claimed.add(entry.rosterUnitId);
-  }
+  const accepted = legacy
+    ? acceptUnclaimedLegacyMatches(
+        recorded?.units ?? {},
+        legacy,
+        players.map((delta) => delta.unitId),
+      )
+    : new Map<string, string>();
   for (const delta of players) {
     const entry = entryOf(delta.unitId);
     if (entry && 'rosterUnitId' in entry) {
@@ -163,10 +196,10 @@ export function planOutcomeUnitWrites(
       continue;
     }
     const match = legacy?.manifest[delta.unitId];
-    if (match && 'rosterUnitId' in match && !claimed.has(match.rosterUnitId)) {
-      claimed.add(match.rosterUnitId);
-      writes.push({ delta, rosterUnitId: match.rosterUnitId });
-      appliedManifest[delta.unitId] = match;
+    const acceptedRosterUnitId = accepted.get(delta.unitId);
+    if (acceptedRosterUnitId !== undefined) {
+      writes.push({ delta, rosterUnitId: acceptedRosterUnitId });
+      appliedManifest[delta.unitId] = { rosterUnitId: acceptedRosterUnitId };
       continue;
     }
     const unresolved = legacy?.unresolved[delta.unitId];
@@ -277,18 +310,17 @@ export function completeLaunchManifest(
       pilotRef: unit.pilotRef,
     })),
   });
-  const linked = new Set(
-    Object.values(units).flatMap((entry) =>
-      'rosterUnitId' in entry ? [entry.rosterUnitId] : [],
-    ),
+  const accepted = acceptUnclaimedLegacyMatches(
+    units,
+    legacy,
+    unlinked.map((unit) => unit.unitId),
   );
   const completed: Record<string, BattleUnitManifestEntry> = { ...units };
   let complete = true;
   for (const unit of unlinked) {
-    const match = legacy.manifest[unit.unitId];
-    if (match && 'rosterUnitId' in match && !linked.has(match.rosterUnitId)) {
-      completed[unit.unitId] = match;
-      linked.add(match.rosterUnitId);
+    const rosterUnitId = accepted.get(unit.unitId);
+    if (rosterUnitId !== undefined) {
+      completed[unit.unitId] = { rosterUnitId };
     } else {
       complete = false;
       completed[unit.unitId] = {
