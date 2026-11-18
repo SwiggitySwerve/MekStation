@@ -252,12 +252,14 @@ export function differingUnits(texts) {
 }
 
 /**
- * spec: { measure, repoRoot, supportedFamilies, capture, toRow, summarize, differencesFile, facts }
+ * spec: { measure, repoRoot, families: { <family>: { capture, toRow, summarize, differencesFile, facts } } }
+ *   One entry per supported family; a run measures exactly one family (`--family`, default battlemechs).
  *   toRow(record) -> row; summarize({rows, referenceByPath, scope, deterministic}) -> {summary, differences};
  *   facts(row, javaReferenceRow) -> the unit's gated facts (scripts/lib/runtime-parity/facts.mjs), written to
  *   facts.ndjson beside the rows for the nightly gate.
  *
- * `--write-baseline --reason <text> [--pr <n>] [--baseline-dir <dir>]` also writes config/parity-runtime/baseline-<measure>.json (and its .sets.ndjson sidecar) from
+ * `--write-baseline --reason <text> [--pr <n>] [--baseline-dir <dir>]` also writes the family's baseline (gate.mjs baselinePath:
+ * config/parity-runtime/baseline-<measure>.json for battlemechs, baseline-<family>-<measure>.json otherwise, and its .sets.ndjson sidecar) from
  * the run's facts, with its SHA, population hash and a `notes[]` entry. It REFUSES (nothing written, exit 1,
  * failure.json BASELINE_REFUSED) for a narrowed run, nondeterministic rows, or any failed, incomplete or unknown unit.
  */
@@ -289,19 +291,28 @@ export async function runCensus(argv, deps, spec) {
   // Decided with the other flag checks, so a --sequential/--concurrent conflict fails before any input is read.
   const captureMode = selectCaptureMode(values, deps.env ?? process.env);
   const repoRoot = deps.repoRoot ?? spec.repoRoot;
-  const capture = deps.capture ?? spec.capture;
   const out = path.resolve(values.out);
   const work = path.join(out, 'work');
   fs.mkdirSync(work, { recursive: true });
   const started = process.hrtime.bigint();
   try {
+    // One family per run: each family has its own fact table and baseline files.
     const families = values.family.split(',').filter(Boolean);
-    for (const family of families)
-      if (!spec.supportedFamilies.includes(family))
-        throw new InputError(
-          'UNSUPPORTED_FAMILY',
-          `${family} is not supported yet (battlemechs first)`,
-        );
+    if (families.length !== 1)
+      throw new InputError(
+        'UNSUPPORTED_FAMILY',
+        `--family takes exactly one family per run, not ${families.length}`,
+      );
+    const [family] = families;
+    const familySpec = Object.hasOwn(spec.families, family)
+      ? spec.families[family]
+      : null;
+    if (!familySpec)
+      throw new InputError(
+        'UNSUPPORTED_FAMILY',
+        `${family} is not supported yet (battlemechs first)`,
+      );
+    const capture = deps.capture ?? familySpec.capture;
     const runCount = Number(values.runs);
     if (!Number.isInteger(runCount) || runCount < 1)
       throw new Error('--runs must be a positive integer');
@@ -370,7 +381,7 @@ export async function runCensus(argv, deps, spec) {
     };
     const toRun = (result) => {
       assertOneRecordPerUnit(result.records, plan);
-      const text = serializeRows(result.records.map(spec.toRow));
+      const text = serializeRows(result.records.map(familySpec.toRow));
       return {
         text,
         rowsSha256: sha256(Buffer.from(text)),
@@ -396,15 +407,15 @@ export async function runCensus(argv, deps, spec) {
       .filter(Boolean)
       .map((line) => JSON.parse(line));
     const scope = { families, populationCount, unitIds };
-    const { summary, differences } = spec.summarize({
+    const { summary, differences } = familySpec.summarize({
       rows,
       referenceByPath,
       scope,
       deterministic,
     });
 
-    const facts = spec.facts
-      ? rows.map((row) => spec.facts(row, referenceByPath.get(row.path)))
+    const facts = familySpec.facts
+      ? rows.map((row) => familySpec.facts(row, referenceByPath.get(row.path)))
       : null;
     if (facts) {
       fs.writeFileSync(
@@ -417,6 +428,7 @@ export async function runCensus(argv, deps, spec) {
         JSON.stringify(
           factsMeta({
             measure: spec.measure,
+            family,
             referenceSha256: reference.gzipSha256,
           }),
           null,
@@ -430,7 +442,7 @@ export async function runCensus(argv, deps, spec) {
       JSON.stringify(summary, null, 2) + '\n',
     );
     fs.writeFileSync(
-      path.join(out, spec.differencesFile),
+      path.join(out, familySpec.differencesFile),
       differences.map((d) => JSON.stringify(d) + '\n').join(''),
     );
     const receipt = validateReceipt({
@@ -481,14 +493,17 @@ export async function runCensus(argv, deps, spec) {
         // The committed config/parity-runtime/ unless --baseline-dir names another (a smoke writes to a temp dir).
         const dir = values['baseline-dir']
           ? path.resolve(values['baseline-dir'])
-          : path.join(repoRoot, path.dirname(baselinePath(spec.measure)));
+          : path.join(
+              repoRoot,
+              path.dirname(baselinePath(spec.measure, family)),
+            );
         const target = path.join(
           dir,
-          path.basename(baselinePath(spec.measure)),
+          path.basename(baselinePath(spec.measure, family)),
         );
         const setsTarget = path.join(
           dir,
-          path.basename(baselineSetsPath(spec.measure)),
+          path.basename(baselineSetsPath(spec.measure, family)),
         );
         // Only the notes carry over: the units and facts are replaced by this run, so a baseline that predates a new fact
         // (the very rebaseline that adds it) must still be readable.
@@ -497,6 +512,7 @@ export async function runCensus(argv, deps, spec) {
           : [];
         const baseline = buildBaseline({
           measure: spec.measure,
+          family,
           facts,
           sha: repoSha,
           note: {
@@ -511,7 +527,7 @@ export async function runCensus(argv, deps, spec) {
           existingNotes,
         });
         // Both files come from the one serializer, so they share the one member-set hash function.
-        const { main, sets } = serializeBaseline(baseline);
+        const { main, sets } = serializeBaseline(baseline, family);
         fs.mkdirSync(path.dirname(target), { recursive: true });
         fs.writeFileSync(target, main);
         if (sets !== null) fs.writeFileSync(setsTarget, sets);

@@ -17,6 +17,8 @@ import {
 } from './facts.mjs';
 import {
   GateError,
+  baselinePath,
+  baselineSetsPath,
   buildBaseline,
   defaultRules,
   evaluate,
@@ -1268,6 +1270,227 @@ test('main reads a run directory and the committed files, writes the report file
     assert.match(noMeta.logs.join('\n'), /FACTS_PROVENANCE_MISSING/);
     fs.rmSync(path.join(runDir, FACTS_FILE));
     assert.equal(go().code, 2);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// --- families ---------------------------------------------------------------------------------------------
+
+const vehicleReopenFacts = (over = {}) => ({
+  reopenLoad: true,
+  reopenJava: true,
+  reopenJavaDistance: 0,
+  reopenLoadDistance: 0,
+  reopenMass: true,
+  reopenVerdict: true,
+  reopenMP: true,
+  reopenCrew: true,
+  reopenValid: true,
+  documentLosses: [],
+  mountLosses: [],
+  ...over,
+});
+const V1 = 'vehicles/puma';
+const V2 = 'vehicles/zephyr';
+const vehicleUnits = (a = {}, b = {}) => ({
+  [V1]: vehicleReopenFacts(a),
+  [V2]: vehicleReopenFacts({ documentLosses: ['lost:fuelType'], ...b }),
+});
+const vehicleBaselineFiles = (units) =>
+  serializeBaseline(
+    buildBaseline({
+      measure: 'reopen',
+      family: 'vehicles',
+      facts: entries(units, 'reopen'),
+      sha: SHA,
+      note: { sha: SHA, pr: null, reason: 'seed', units: [] },
+      provenance: PROV,
+    }),
+    'vehicles',
+  );
+
+test('battlemech baseline paths keep their names; other families get their own files', () => {
+  assert.equal(
+    baselinePath('load'),
+    'config/parity-runtime/baseline-load.json',
+  );
+  assert.equal(
+    baselineSetsPath('reopen', 'battlemechs'),
+    'config/parity-runtime/baseline-reopen.sets.ndjson',
+  );
+  assert.equal(
+    baselinePath('reopen', 'vehicles'),
+    'config/parity-runtime/baseline-vehicles-reopen.json',
+  );
+  assert.equal(
+    baselineSetsPath('reopen', 'vehicles'),
+    'config/parity-runtime/baseline-vehicles-reopen.sets.ndjson',
+  );
+});
+
+test('a vehicle baseline is gated with the vehicle fact table, its sets checked through the sidecar', () => {
+  const files = vehicleBaselineFiles(vehicleUnits());
+  assert.match(files.sets, /"documentLosses":\["lost:fuelType"\]/);
+  const back = parseBaseline('reopen', files.main, files.sets, {
+    family: 'vehicles',
+  });
+  assert.deepEqual(back.units[V2].documentLosses, ['lost:fuelType']);
+  const gate = (tonight) =>
+    evaluate({
+      measure: 'reopen',
+      family: 'vehicles',
+      facts: entries(tonight, 'reopen'),
+      provenance: PROV,
+      baselineText: files.main,
+      setsText: files.sets,
+      lastGreen: null,
+      run: {
+        sha: RUN_SHA,
+        scope: { families: ['vehicles'], populationCount: 2, unitIds: null },
+      },
+      isAncestor: () => true,
+    });
+  const green = gate(vehicleUnits());
+  assert.equal(green.exitCode, 0);
+  assert.equal(green.family, 'vehicles');
+  const red = gate(
+    vehicleUnits(
+      { reopenMass: false },
+      { documentLosses: ['lost:fuelType', 'lost:quirks[]'] },
+    ),
+  );
+  assert.equal(red.exitCode, 1);
+  assert.deepEqual(
+    red.regressions.map((r) => [r.unit, r.fact]),
+    [
+      [V1, 'reopenMass'],
+      [V2, 'documentLosses'],
+    ],
+  );
+  // The same text read as the battlemech table is malformed: it has none of the mech facts.
+  assert.throws(
+    () => parseBaseline('reopen', files.main, files.sets),
+    (error) =>
+      error.reason === 'BASELINE_MALFORMED' ||
+      error.reason === 'BASELINE_SIDECAR_MISMATCH',
+  );
+});
+
+test('a baseline holds one family: a foreign unit key or a mixed run is refused', () => {
+  const mech = baselineFiles(two(loadFacts(), loadFacts()));
+  assert.throws(
+    () => parseBaseline('load', mech.main, mech.sets, { family: 'vehicles' }),
+    (error) =>
+      error.reason === 'BASELINE_MALFORMED' &&
+      /is not a vehicles unit/.test(error.message),
+  );
+  assert.throws(
+    () =>
+      buildBaseline({
+        measure: 'reopen',
+        family: 'vehicles',
+        facts: [
+          ...entries({ [V1]: vehicleReopenFacts() }, 'reopen'),
+          ...entries({ [U1]: reopenFacts() }, 'reopen'),
+        ],
+        sha: SHA,
+        note: { sha: SHA, pr: null, reason: 'seed', units: [] },
+        provenance: PROV,
+      }),
+    (error) =>
+      error.reason === 'BASELINE_REFUSED' && /not vehicles/.test(error.message),
+  );
+});
+
+test('main gates one family: the run, the facts and their provenance must all be that family', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'gate-family-'));
+  try {
+    const runDir = path.join(root, 'run');
+    fs.mkdirSync(runDir);
+    const baselineFile = path.join(root, 'baseline-vehicles-reopen.json');
+    const files = vehicleBaselineFiles(vehicleUnits());
+    fs.writeFileSync(baselineFile, files.main);
+    fs.writeFileSync(
+      path.join(root, 'baseline-vehicles-reopen.sets.ndjson'),
+      files.sets,
+    );
+    const write = ({
+      units = vehicleUnits(),
+      metaFamily = 'vehicles',
+      runFamily = 'vehicles',
+    } = {}) => {
+      fs.writeFileSync(
+        path.join(runDir, FACTS_FILE),
+        serializeFacts('reopen', entries(units, 'reopen')),
+      );
+      fs.writeFileSync(
+        path.join(runDir, FACTS_META_FILE),
+        JSON.stringify({
+          schemaVersion: 1,
+          measure: 'reopen',
+          family: metaFamily,
+          ...PROV,
+        }),
+      );
+      fs.writeFileSync(
+        path.join(runDir, 'receipt.json'),
+        JSON.stringify({
+          measure: 'reopen',
+          repoSha: RUN_SHA,
+          scope: {
+            families: [runFamily],
+            populationCount: Object.keys(units).length,
+            unitIds: null,
+          },
+        }),
+      );
+    };
+    const go = (family = 'vehicles') => {
+      const logs = [];
+      const log = console.log;
+      console.log = (...a) => logs.push(a.join(' '));
+      try {
+        const code = main(
+          [
+            '--measure',
+            'reopen',
+            '--family',
+            family,
+            '--run-dir',
+            runDir,
+            '--baseline',
+            baselineFile,
+            '--repo',
+            root,
+            '--out',
+            path.join(root, 'out'),
+          ],
+          { isAncestor: () => true },
+        );
+        return { code, text: logs.join('\n') };
+      } finally {
+        console.log = log;
+      }
+    };
+    write();
+    const green = go();
+    assert.equal(green.code, 0, green.text);
+    assert.equal(
+      JSON.parse(fs.readFileSync(path.join(root, 'out/gate-report.json')))
+        .family,
+      'vehicles',
+    );
+    write({ runFamily: 'battlemechs' });
+    assert.match(go().text, /RUN_INCOMPLETE/);
+    write({ metaFamily: 'battlemechs' });
+    assert.match(go().text, /FACTS_MALFORMED/);
+    write({ units: { ...vehicleUnits(), [U1]: reopenFacts() } });
+    assert.match(go().text, /FACTS_MALFORMED/);
+    // The same vehicle run gated as battlemechs fails closed rather than comparing the wrong table.
+    write();
+    assert.equal(go('battlemechs').code, 2);
+    assert.throws(() => go('aerospace'), /--family must be one of/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
