@@ -2841,3 +2841,54 @@ test('seeded interleavings: a quiescent current head with any revoked associated
     `Interleave sweep: 2000 orderings, ${successWrites} success writes, ${sharedRevocations} shared-SHA revocations, ${overlappingRuns} overlapping runs, ${revokedHeads} revoked current heads\n`,
   );
 });
+
+test('an owner-authored raise passes only on a matching record at the PR base, never the head', async () => {
+  const recordPath = 'config/ci/approved-budget-raises.json';
+  const record = {
+    schema: 'mekstation/ci-budget-raise-approvals/v1',
+    approvals: [
+      {
+        pr: 1,
+        key: 'limits.repoWideKeys',
+        from: 93,
+        to: 94,
+        ruling: { section: 'PARITY-PLAN §185', quote: 'Raise to 94.' },
+      },
+    ],
+  };
+  const outcomes = {};
+  for (const recordAt of ['base', 'head', 'none']) {
+    const f = fixture();
+    f.pull.user = { id: 1, login: 'owner' };
+    f.pull.labels.push({ name: BUDGET_RAISE_LABEL });
+    f.budgets.base = structuredClone(f.budgets.head);
+    f.budgets.base.limits.repoWideKeys = 93;
+    f.budgets.head.limits.repoWideKeys = 94;
+    const read = f.github.rest.repos.getContent;
+    f.github.rest.repos.getContent = async (request) => {
+      if (request.path !== recordPath) return read(request);
+      const at = { base: f.pull.base.sha, head: f.pull.head.sha }[recordAt];
+      if (request.ref !== at)
+        throw Object.assign(new Error('Not Found'), { status: 404 });
+      return {
+        data: {
+          encoding: 'base64',
+          content: Buffer.from(JSON.stringify(record)).toString('base64'),
+        },
+      };
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+      publish: false,
+    });
+    outcomes[recordAt] = [result.allowed, result.code];
+  }
+  assert.deepEqual(outcomes, {
+    base: [true, 'owner-ruling-record'],
+    head: [false, 'self-approval'],
+    none: [false, 'self-approval'],
+  });
+});
