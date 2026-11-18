@@ -8,7 +8,10 @@ import {
   IPSRTriggeredPayload,
   PSRTrigger,
 } from '@/types/gameplay';
-import { projectPsrTriggerTarget } from '@/utils/gameplay/pilotingSkillRolls/eventTargets';
+import {
+  buildPsrResolvedPayload,
+  projectPsrTriggerTarget,
+} from '@/utils/gameplay/pilotingSkillRolls/eventTargets';
 
 import type { GameplayEventContextArgs } from './eventContext';
 
@@ -88,14 +91,11 @@ export function createPSRResolvedEvent(
     reason: input.reason,
     ...(input.reasonCode !== undefined ? { reasonCode: input.reasonCode } : {}),
   };
-  const payload: IPSRResolvedPayload = input.automaticFailure
-    ? {
-        unitId: input.unitId,
-        automaticFailure: true,
-        ...details,
-        passed: input.passed,
-      }
-    : { unitId: input.unitId, targetNumber: input.targetNumber, ...details };
+  const payload: IPSRResolvedPayload = buildPsrResolvedPayload(
+    input,
+    { unitId: input.unitId },
+    details,
+  );
 
   return statusCheckCommon.createStatusCheckEvent(
     GameEventType.PSRResolved,

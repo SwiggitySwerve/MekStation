@@ -4,7 +4,10 @@ import {
   type IGameState,
 } from '@/types/gameplay';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
-import { projectPsrResolutionTarget } from '@/utils/gameplay/pilotingSkillRolls/eventTargets';
+import {
+  buildPsrResolvedPayload,
+  projectPsrResolutionTarget,
+} from '@/utils/gameplay/pilotingSkillRolls/eventTargets';
 
 import {
   type IRunnerPSRBatchResult,
@@ -46,9 +49,7 @@ function psrResolvedPayload(
       : {}),
   };
   const identity = { unitId, reason: psrResult.psr.reason };
-  return target.automaticFailure
-    ? { ...identity, automaticFailure: true, ...details, passed: false }
-    : { ...identity, targetNumber: target.targetNumber, ...details };
+  return buildPsrResolvedPayload(target, identity, details);
 }
 
 export function emitPsrResolvedEvents(options: {

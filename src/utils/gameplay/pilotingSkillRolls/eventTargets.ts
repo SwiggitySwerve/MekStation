@@ -12,6 +12,21 @@ export function projectPsrTriggerTarget(
       : {};
 }
 
+/** The one PSRResolved payload arm rule: an automatic failure carries no
+ * target number and never passes. Each writer keeps its own field order. */
+export function buildPsrResolvedPayload<
+  TIdentity extends { readonly unitId: string },
+  TDetails extends { readonly passed: boolean },
+>(
+  target: IPSRResolutionTarget,
+  identity: TIdentity,
+  details: TDetails,
+): TIdentity & TDetails & IPSRResolutionTarget {
+  return target.automaticFailure
+    ? { ...identity, automaticFailure: true, ...details, passed: false }
+    : { ...identity, targetNumber: target.targetNumber, ...details };
+}
+
 /** Keep finite target behavior and explicitly encode an impossible resolution. */
 export function projectPsrResolutionTarget(result: {
   readonly targetNumber: number;
