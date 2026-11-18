@@ -12,9 +12,20 @@ not import a store, browser storage, serializers, routing, or UI.
 - A browser draft is `pending`, `saved`, or `failed`. Only storage evidence
   establishes a completed write. A failed write can coexist with a successful
   library save.
-- The library state is `none`, `matched`, or `changed`. Matched and changed
+- The library state is `none`, `matched`, `saved-older-writer`, `changed`, or `unknown`. All states except none
   carry the last confirmed receipt. Original source provenance is not a receipt
   and a receipt does not assert that its version is the latest server version.
+
+The library comparison has one owner, `libraryState`. A receipt without a draft
+fingerprint is unknown even when its library bytes match. With a saved draft
+baseline, equal library bytes mean matched; different library bytes with equal
+draft content mean saved-older-writer; otherwise the design changed. No stored
+receipt, fingerprint algorithm or schema version is rewritten. The adapters pass
+both current fingerprints to this owner. Renderers share the wording and Save
+affordance from UnitSaveStatus; older-writer and unknown states never fall through
+to Changed Since. The pinned canonical editable snapshot guards the mechanism's
+limit: a future editor state-model change can move both fingerprints and classify
+the old receipt as changed.
 
 | Event                                   | Effect                                                                                  |
 | --------------------------------------- | --------------------------------------------------------------------------------------- |

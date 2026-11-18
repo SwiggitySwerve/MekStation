@@ -15,10 +15,10 @@ import type { ScenarioTemplateType } from '@/types/encounter/EncounterInterfaces
 import { GameSide, ReplaySource } from '@/types/gameplay';
 
 /**
- * Fields shared by every replay manifest entry. `bvTotal` is computed at
- * write time from `IGameCreatedPayload.units`; consumers MUST NOT lazy-
- * recompute on read (Momus MUST RESOLVE #1 — IGameUnit has no `bv` field
- * for cheap access, so the only correct answer is "compute once at write").
+ * Fields shared by every replay source. BV is recorded at launch and copied
+ * into this derived index at persistence/backfill time. Unknown is null;
+ * recorded zero is a valid value. Reading legacy zero sentinels repairs only
+ * the index, never the immutable recording.
  */
 export interface IReplayManifestEntryBase {
   /** Game identifier — also the file basename (without `.jsonl` extension). */
@@ -41,8 +41,10 @@ export interface IReplayManifestEntryBase {
   readonly turns: number;
   /** Winner side, or `null` for draws / no result. */
   readonly winner: GameSide | null;
-  /** Sum of unit BVs from `GameCreated.payload.units`. */
-  readonly bvTotal: number;
+  /** Recorded total, or null when the battle value was never recorded. */
+  readonly bvTotal: number | null;
+  /** Only persisted for confirmed real zeros during the one-time legacy repair. */
+  readonly bvTotalRecorded?: true;
 }
 
 /**

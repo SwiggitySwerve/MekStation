@@ -72,16 +72,34 @@ test('summary reports every fail-closed reason and removed id, and why last gree
   gate.removed = ['mek/Removed'];
   gate.lastGreen = { status: 'missing', detail: 'missing' };
   const text = renderRuntimeSummary(gate, summary(), {
-    reason: 'no main nightly yet',
+    status: 'none',
+    reason: 'within retention (30 days)',
     sha: null,
   });
   for (const value of [
     'POPULATION_UNIT_REMOVED',
     'FACTS_DERIVER_CHANGED',
     'mek/Removed',
-    'last green: none (no main nightly yet)',
+    'last green: none within retention (30 days)',
+    'Previous-nightly range (informational only): none within retention (30 days)',
   ])
     assert.ok(text.includes(value), value);
+  // A failed lookup (API error, rate limit, download or identity mismatch) is
+  // reported as failed, never as "none".
+  const failed = renderRuntimeSummary(gate, summary(), {
+    status: 'failed',
+    reason: 'API rate limit exceeded',
+    sha: null,
+  });
+  assert.ok(
+    failed.includes('last green: lookup failed (API rate limit exceeded)'),
+  );
+  assert.doesNotMatch(failed, /last green: none/);
+  // No retrieval record at all (the lookup step died before writing it).
+  assert.match(
+    renderRuntimeSummary(gate, summary(), { reason: 'retrieval unavailable' }),
+    /last green: lookup failed \(retrieval unavailable\)/,
+  );
   gate.lastGreen = { status: 'stale', detail: 'different baseline' };
   assert.match(
     renderRuntimeSummary(gate, summary(), { sha: 'a'.repeat(40) }),

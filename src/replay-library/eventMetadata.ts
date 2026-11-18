@@ -1,4 +1,4 @@
-import type { IGameEvent } from '@/types/gameplay';
+import type { IGameCreatedPayload, IGameEvent } from '@/types/gameplay';
 
 export function isReplayBvTotal(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 0;
@@ -49,4 +49,20 @@ export function replayBvTotal(
     }
   }
   return found ? total : undefined;
+}
+
+/** Record a known total without changing the replay's source identity. */
+export function stampReplayBvTotal(
+  event: IGameEvent,
+  bvTotal: number | undefined,
+): IGameEvent {
+  if (event.type !== 'game_created' || !isReplayBvTotal(bvTotal)) return event;
+  const payload = event.payload as IGameCreatedPayload;
+  return {
+    ...event,
+    payload: {
+      ...payload,
+      quickMeta: { ...record(payload?.quickMeta), bvTotal },
+    },
+  };
 }

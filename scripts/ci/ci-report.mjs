@@ -149,6 +149,7 @@ export async function buildReport({
     testBaselines: validProducers.map((entry) => entry.tests).filter(Boolean),
     packages: envelope.packages,
     packageBaselines: validProducers,
+    workflowProfiles: envelope.repositoryMetrics?.workflow?.profiles ?? [],
   });
   if (diagnostics.length) {
     report.missing.push(...diagnostics);

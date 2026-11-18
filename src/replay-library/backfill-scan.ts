@@ -261,11 +261,11 @@ function resolveTurns(summary: IFileSummary): number {
 function computeBvTotal(
   gameCreated: IGameEvent | null,
   relativePath: string,
-): number {
+): number | null {
   const total = replayBvTotal(gameCreated);
   if (total !== undefined) return total;
   logger.debug('[replay-library] backfill could not derive bvTotal', {
     relativePath,
   });
-  return 0;
+  return null;
 }

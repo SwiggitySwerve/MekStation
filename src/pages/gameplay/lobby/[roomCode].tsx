@@ -4,6 +4,10 @@ import { useMemo } from 'react';
 
 import { GameplayLobbyPanel } from '@/components/gameplay/lobby';
 import { useToast } from '@/components/shared/Toast';
+import {
+  isModeLaunchDisabled,
+  isModeDisabled,
+} from '@/lib/multiplayer/modeAvailability';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { useSyncRoomSelector } from '@/lib/p2p/useSyncRoomStore';
 import {
@@ -23,6 +27,11 @@ import { useLobbySelector } from '@/stores/useLobbyStore';
 import { usePilotSelector } from '@/stores/usePilotStore';
 
 export default function GameplayLobbyPage(): React.ReactElement {
+  if (isModeDisabled('p2p')) return <LobbyShell>Peer-to-Peer Lobby</LobbyShell>;
+  return <AvailableGameplayLobbyPage />;
+}
+
+function AvailableGameplayLobbyPage(): React.ReactElement {
   const router = useRouter();
   const routeRoomCode =
     typeof router.query.roomCode === 'string'
@@ -143,6 +152,7 @@ export default function GameplayLobbyPage(): React.ReactElement {
         onReadyChange={setLocalReady}
         onHostSideChange={setHostSide}
         onLaunch={() => {
+          if (isModeLaunchDisabled('p2p')) return;
           void launchLobbyMatch({
             launch,
             lobbyState,

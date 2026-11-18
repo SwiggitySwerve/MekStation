@@ -1,0 +1,38 @@
+name: CI Budget Label and Base Approval
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [labeled, unlabeled, edited]
+
+permissions: {}
+
+jobs:
+  approval:
+    if: github.event.action != 'edited' || github.event.changes.base
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: write
+      checks: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            // No path filter: a cap lowered on main can require approval even
+            // when this PR did not change a budget or dependency file.
+            const { checkBudgetPolicy, guardOutcome } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
+            const { owner, repo } = context.repo;
+            const number = context.payload.pull_request.number;
+            const result = await checkBudgetPolicy({ github, owner, repo, number, expectedHead: context.payload.pull_request.head.sha });
+            const outcome = guardOutcome(number, result);
+            core.info(outcome.line);
+            core.info(JSON.stringify({ number, ...result }));
+            if (outcome.fail) core.setFailed(outcome.line);

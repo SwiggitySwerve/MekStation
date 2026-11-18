@@ -51,6 +51,42 @@ function apiFixture() {
   };
 }
 
+test('budget report carries excluded workflow names and event types from the producer census', async () => {
+  const args = {
+    api: apiFixture(),
+    repository: 'owner/repo',
+    runId: 100,
+    attempt: 2,
+    jobGraph: { tests: [] },
+  };
+  const initial = await buildReport(args);
+  const workflowProfiles = [
+    {
+      id: 'source',
+      otherEvents: [
+        {
+          file: 'labels.yml',
+          name: 'Label approval',
+          events: ['pull_request_target'],
+          types: { pull_request_target: ['labeled', 'unlabeled'] },
+        },
+      ],
+    },
+  ];
+  const producer = observationEnvelope(initial.source.observation, {
+    repositoryMetrics: { workflow: { profiles: workflowProfiles } },
+  });
+  const result = await buildReport({ ...args, producer });
+  assert.deepEqual(result.report.workflowProfiles, workflowProfiles);
+  const markdown = renderReport(result.report);
+  assert.match(
+    markdown,
+    /source.*Label approval.*labels.yml.*pull_request_target.*labeled, unlabeled/,
+  );
+  assert.equal(result.report.breach, initial.report.breach);
+  assert.equal(result.report.labelComplete, initial.report.labelComplete);
+});
+
 test('package bytes and signed main deltas are advisory and use proven baselines', async () => {
   const args = {
     api: apiFixture(),
