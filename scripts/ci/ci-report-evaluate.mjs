@@ -7,6 +7,7 @@ import {
   MIN_TIMING_MAIN_SAMPLES,
 } from './ci-metrics.mjs';
 import { compareTestFiles } from './ci-test-metrics.mjs';
+import { markdownCell as cell } from './markdown.mjs';
 
 export const REPORT_MARKER = '<!-- mekstation-ci-budget-report:v1 -->';
 export const REVIEW_LABEL = 'ci-budget-review';
@@ -169,12 +170,6 @@ function packageRows(packages, baselines, included) {
   });
 }
 
-const cell = (value) =>
-  String(value)
-    .replaceAll('|', '\\|')
-    .replace(/[\r\n]/g, ' ')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
 const measured = (value, unit) =>
   value === null
     ? 'missing'
