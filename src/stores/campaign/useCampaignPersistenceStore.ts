@@ -1064,6 +1064,7 @@ async function runLoad(
         });
         // The row is now the token's base, so the ordinary save is owed.
         armAutoSaveTimer(set, get);
+        await ensureCampaignCombatStateMigration();
         return true;
       }
       // Task 1.3: the cache is keyed, so "is this copy the same thing?"
@@ -1135,7 +1136,7 @@ async function runLoad(
       });
       // T1: migrate legacy session-keyed combat states once the roster is
       // restored; an ordinary edit after the load, so autosave persists it.
-      if (!guard) await ensureCampaignCombatStateMigration();
+      if (current()) await ensureCampaignCombatStateMigration();
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'load failed';

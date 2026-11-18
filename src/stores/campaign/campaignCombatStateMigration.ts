@@ -15,6 +15,7 @@ import { migrateSessionKeyedCombatStates } from '@/lib/campaign/migrateSessionKe
 import { createIndexedDbLegacyCombatStateQuarantineStore } from '@/services/persistence/legacyCombatStateQuarantineStore';
 import { logger } from '@/utils/logger';
 
+import { getCampaignStoreForRoster } from './campaignStoreAccessor';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
 import { useCampaignStore } from './useCampaignStore';
 
@@ -37,11 +38,13 @@ export async function ensureCampaignCombatStateMigration(
 async function migrateLiveCampaign(
   quarantine: ILegacyCombatStateQuarantineStore,
 ): Promise<void> {
-  // `useCampaignStore` is Zustand's lazy store accessor, not a React hook.
-  // oxlint-disable-next-line react-hooks/rules-of-hooks
-  const store = useCampaignStore();
-  const campaign = store.getState().campaign;
-  if (!campaign) return;
+  // The live campaign through the same seam the persistence store installs
+  // it with.
+  const store = getCampaignStoreForRoster();
+  const campaign = store?.getState().campaign;
+  if (!store || !campaign) return;
+  // A co-op guest holds a replica; its host migrates and the result syncs.
+  if (campaign.coopSession?.mode === 'guest') return;
   const roster = useCampaignRosterStore.getState();
   // Mapping needs this campaign's roster; without it nothing is decided.
   if (roster.campaignId !== campaign.id) return;
@@ -78,20 +81,25 @@ async function migrateLiveCampaign(
 
   const removed = migration.prunedOpponentKeys.length;
   if (removed > 0) {
-    store.getState().appendActivityLogEntry({
-      id: `act-technical-legacy-combat-state-cleanup-${campaign.id}-${migratedAt}`,
-      timestamp: migratedAt,
-      campaignDay: campaignDaysBetween(
-        campaign.campaignStartDate ?? campaign.currentDate,
-        campaign.currentDate,
-      ),
-      message: `Removed ${removed} enemy-unit combat state${removed === 1 ? '' : 's'} written by an earlier bug`,
-      category: 'technical',
-      payload: {
-        event: 'legacy-combat-state-cleanup',
-        unitId: '',
-        unitName: '',
-      },
-    });
+    // One id per campaign: a repeated run replaces, never duplicates, it.
+    // `useCampaignStore` is Zustand's lazy store accessor, not a React hook.
+    // oxlint-disable-next-line react-hooks/rules-of-hooks
+    useCampaignStore()
+      .getState()
+      .appendActivityLogEntry({
+        id: `act-technical-legacy-combat-state-cleanup-${campaign.id}`,
+        timestamp: migratedAt,
+        campaignDay: campaignDaysBetween(
+          campaign.campaignStartDate ?? campaign.currentDate,
+          campaign.currentDate,
+        ),
+        message: `Removed ${removed} enemy-unit combat state${removed === 1 ? '' : 's'} written by an earlier bug`,
+        category: 'technical',
+        payload: {
+          event: 'legacy-combat-state-cleanup',
+          unitId: '',
+          unitName: '',
+        },
+      });
   }
 }

@@ -109,6 +109,23 @@ describe('ensureCampaignCombatStateMigration', () => {
     expect(useCampaignStore().getState().activityLog).toEqual([]);
   });
 
+  it('leaves a co-op guest replica to its host', async () => {
+    const campaign = seedLegacyCampaign();
+    useCampaignStore().setState({
+      campaign: {
+        ...campaign,
+        coopSession: { mode: 'guest' } as never,
+      },
+    });
+    const quarantine: ILegacyCombatStateQuarantineStore = {
+      get: jest.fn(),
+      put: jest.fn(),
+    };
+    await ensureCampaignCombatStateMigration(quarantine);
+    expect(quarantine.put).not.toHaveBeenCalled();
+    expect(Object.keys(liveStates())).toContain(PLAYER_KEY);
+  });
+
   it('does nothing without this campaign roster to map against', async () => {
     seedLegacyCampaign();
     useCampaignRosterStore.setState({ campaignId: 'another-campaign' });
