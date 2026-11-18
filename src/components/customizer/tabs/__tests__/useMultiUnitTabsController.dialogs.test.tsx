@@ -547,6 +547,22 @@ describe('useDialogHandlers library save', () => {
     expect(store.getState().id).toBe(UNIT_ID);
   });
 
+  it('says why when a save arrives with no open save dialog', async () => {
+    const getTabById = jest.fn(() => tab(UnitType.BATTLEMECH));
+    const { result } = renderHook(() =>
+      useDialogHandlers(performCloseTab, renameTab, getTabById),
+    );
+    await act(async () => {
+      await result.current.handleSaveDialogSave('Chassis', 'ONE');
+    });
+    expect(mockCreate).not.toHaveBeenCalled();
+    expect(mockSave).not.toHaveBeenCalled();
+    expect(showToastMock).toHaveBeenCalledWith({
+      message: 'Select a unit before saving it to the library.',
+      variant: 'error',
+    });
+  });
+
   it('records overwrite save identity from the API response', async () => {
     const store = makeStore();
     mockGetUnitStore.mockReturnValue(store);

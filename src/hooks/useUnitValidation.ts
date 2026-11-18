@@ -7,7 +7,7 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
-import { useMemo, useEffect, useRef, useState } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 
 import {
   initializeUnitValidationRules,
@@ -160,18 +160,9 @@ export function useUnitValidation(
   // Debounce the validation snapshot
   const debouncedSnapshot = useDebounce(validationSnapshot, debounceMs);
 
-  // Track if validation is pending (during debounce period)
-  const [isValidating, setIsValidating] = useState(false);
-
-  // Detect when snapshot changes (user is making changes)
-  useEffect(() => {
-    setIsValidating(true);
-  }, [validationSnapshot]);
-
-  // Clear validating state when debounced snapshot updates
-  useEffect(() => {
-    setIsValidating(false);
-  }, [debouncedSnapshot]);
+  // Pending is derived in the same render as the inputs, so a consumer never
+  // shows a stale "settled" value for one commit after an input changes.
+  const isValidating = validationSnapshot !== debouncedSnapshot;
 
   // Build validatable unit object and run validation (using debounced snapshot)
   const validationState = useMemo<UnitValidationState>(() => {
