@@ -76,7 +76,7 @@ function metrics(state: UnitState) {
   };
 }
 
-it('CASE protection and BV: King Crab KGC-000', () => {
+it('CASE protection and BV survive save/reopen: King Crab KGC-000', () => {
   const { state, reopened } = roundTrip(
     '2-star-league/advanced/King Crab KGC-000',
   );
@@ -238,7 +238,7 @@ it('weapon mounts retained: Uni ATAE-70 ArtilleryMech', () => {
 // claim; the corresponding notice must explicitly say the effect is unestablished.
 it.each([
   [
-    'unestablished electronics: Scarecrow UCU-F4',
+    'unestablished electronics (Chameleon): Scarecrow UCU-F4',
     '6-dark-age/standard/Scarecrow UCU-F4',
     // Bloodhound is recovered since PR-D1; Chameleon (spread) still is not.
     'Chameleon Light Polarization Shield',

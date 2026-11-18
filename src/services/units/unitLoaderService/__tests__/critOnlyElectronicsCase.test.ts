@@ -16,7 +16,6 @@ import temax from '../../../../../public/data/units/battlemechs/5-civil-war/stan
 import poseidon from '../../../../../public/data/units/battlemechs/6-dark-age/experimental/Poseidon PSD-V2.json';
 import triskelion from '../../../../../public/data/units/battlemechs/6-dark-age/experimental/Triskelion TRK-4V.json';
 import celerity from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Celerity CLR-03-O.json';
-import anastasia from "../../../../../public/data/units/battlemechs/6-dark-age/standard/Hunchback HBK-LGN-Pin 'Anastasia'.json";
 import sneede from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Hybrid Rifleman RFL-3N (Sneede II).json';
 import scarecrow from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Scarecrow UCU-F4.json';
 import {
@@ -41,6 +40,17 @@ beforeAll(async () => {
 });
 
 const L = MechLocation;
+// Named-directory read: the budget scanner cuts a double-quoted import at this apostrophe (C5 tool bug).
+const anastasia: unknown = JSON.parse(
+  readFileSync(
+    join(
+      process.cwd(),
+      'public/data/units/battlemechs/6-dark-age/standard',
+      "Hunchback HBK-LGN-Pin 'Anastasia'.json",
+    ),
+    'utf8',
+  ),
+);
 type Source = Parameters<typeof parseUnit>[0];
 
 function loadAndReopen(source: unknown): {
