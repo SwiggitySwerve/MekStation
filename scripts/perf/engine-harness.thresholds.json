@@ -1,6 +1,10 @@
 {
-  "status": "PROPOSED by the C6 harness worker on 2026-11-18; C6 and Root set the final values",
-  "basis": "DATA-ENGINE-REVIEW.md section 5 targets where it gives one; otherwise about 1.25x the cost that would grow linearly with the axis. Ratios only: never heap, state size or milliseconds (AGENTS.md invariant 6).",
+  "status": "PROPOSED by the C6 harness worker on 2026-11-18 (re-proposed after review of PR #3414); C6 and Root set the final values",
+  "basis": "Every ratio is p50 over p50, and --check requires at least 30 samples on each side (otherwise INSUFFICIENT, which fails). Maxima are DATA-ENGINE-REVIEW.md section 5 targets where it gives one; otherwise about 1.25x the cost that would grow linearly with the axis, the linear reference taken from the event counts at sample time. Ratios only: never heap, state size or milliseconds (AGENTS.md invariant 6). The P1/P3/P5 targets fail on HEAD by design until those fixes land.",
+  "notGated": {
+    "phase-advance-10000-over-500 / phase-advance-2000-over-500": "reported only: the pooled phase-advance row mixes five different transitions and gets 5 samples per turn; repeating one advance 30 times costs 2.7-8 s per sample at 10,000 events (about 4 minutes), and P1 is gated by append, move-commit and weapon-attack instead",
+    "sim-12v12-over-4v4": "reported only: one runner game is a 20-turn macro sample of 1-3 s; 30 of them would cost about 1.5 minutes for the 12v12 side alone"
+  },
   "ratios": {
     "append-10000-over-500": {
       "max": 1.5,
@@ -10,21 +14,19 @@
       "max": 1.5,
       "why": "quick-mode form of the P1 target"
     },
-    "move-commit-p95-10000-over-500": {
+    "move-commit-10000-over-500": {
       "max": 1.5,
-      "why": "commands append events, so P1 sets their shape"
+      "why": "a move appends events, so P1 sets its shape (move-commit-repeat rows)"
     },
-    "move-commit-p95-2000-over-500": { "max": 1.5, "why": "quick-mode form" },
-    "weapon-attack-p95-10000-over-500": {
+    "move-commit-2000-over-500": { "max": 1.5, "why": "quick-mode form" },
+    "weapon-attack-10000-over-500": {
       "max": 1.5,
-      "why": "P1 plus the whole-log scans of P8"
+      "why": "P1 plus the whole-log scans of P8 (weapon-attack-repeat rows)"
     },
-    "weapon-attack-p95-2000-over-500": { "max": 1.5, "why": "quick-mode form" },
-    "phase-advance-p95-10000-over-500": { "max": 1.5, "why": "P1 plus P8" },
-    "phase-advance-p95-2000-over-500": { "max": 1.5, "why": "quick-mode form" },
+    "weapon-attack-2000-over-500": { "max": 1.5, "why": "quick-mode form" },
     "reachable-walk8-over-walk4-clear": {
       "max": 4.5,
-      "why": "hexes within 8 over within 4 is 217/61 = 3.56 (P3)"
+      "why": "hexes within 8 over within 4 is 217/61 = 3.56, plus about 25% (P3)"
     },
     "reachable-walk8-over-walk4-wooded": {
       "max": 4.5,
@@ -36,27 +38,23 @@
     },
     "replay-load-10000-over-2000": {
       "max": 6,
-      "why": "section 5: linear in events (5x), plus 20%"
+      "why": "section 5: linear in events (10,003/2,047 = 4.89 at the checkpoints), plus about 25%"
     },
     "replay-load-2000-over-500": {
-      "max": 4.8,
-      "why": "quick-mode form: linear (4x) plus 20%"
+      "max": 3.6,
+      "why": "quick-mode form: linear in events (2,047/697 = 2.94 at the checkpoints), plus about 25%"
     },
     "los-projection-48x51-over-16x17": {
       "max": 11,
-      "why": "linear in map hexes (2437/271 = 9) plus 20% (P5)"
+      "why": "linear in map hexes (2437/271 = 8.99), plus about 25% (P5)"
     },
-    "bot-decision-p95-48x51-over-16x17": {
+    "bot-decision-48x51-over-16x17": {
       "max": 1.5,
       "why": "a decision should depend on movement points, not map size (P6)"
     },
-    "bot-decision-p95-48u-over-4u": {
+    "bot-decision-48u-over-4u": {
       "max": 2,
       "why": "more units add occupancy and targets, not a new search per hex (P6)"
-    },
-    "sim-12v12-over-4v4": {
-      "max": 4,
-      "why": "linear in units (3x) plus a third"
     }
   }
 }

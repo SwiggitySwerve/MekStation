@@ -88,6 +88,18 @@ interface IArgs {
 const DEFAULT_SEED = 20261118;
 
 /**
+ * Minimum samples on EACH side of a gated ratio. --check gates on p50, and
+ * with n = 30 the distribution-free 95% confidence interval for the median
+ * runs from the 10th to the 21st order statistic, i.e. inside the middle
+ * third of the sample; at n = 10 it spans the 2nd to the 9th (nearly all of
+ * it). Below this a check is INSUFFICIENT, and INSUFFICIENT fails --check.
+ */
+const MIN_SAMPLES = 30;
+
+/** Repetitions of each repeated command row (`*-repeat`): MIN_SAMPLES. */
+const COMMAND_REPEATS = MIN_SAMPLES;
+
+/**
  * One tracking failure, with everything needed to turn it into a failing
  * test: seed, scenario, checkpoint, first failing event, field path, and
  * the command that runs that one scenario again.
@@ -119,6 +131,8 @@ interface IFinding {
 
 interface IFindingContext {
   readonly scenario: string;
+  /** Overrides the default repro command (e.g. the played-log check). */
+  readonly repro?: string;
   readonly gameSeed: number;
   readonly checkpoint: IFinding['checkpoint'];
   readonly logSource: IFinding['logSource'];
@@ -132,6 +146,7 @@ interface IRunMeta {
   findings: IFinding[];
   /** F3: undefined-valued keys the replay comparison tolerated, per scenario. */
   toleratedUndefinedKeys: Record<string, { count: number; paths: string[] }>;
+  warnings: string[];
 }
 
 /** Board sizes from §5 mapped to hex-radius maps of about the same hex count. */
@@ -183,7 +198,8 @@ Usage: node --expose-gc --import tsx scripts/perf/engine-harness.ts [options]
   --quick              Small subset (default)
   --full               Full grid (warm log cache: under 5 minutes)
   --out=PATH           Write the JSON report to PATH
-  --check=PATH         Fail (exit 1) when a ratio exceeds its threshold
+  --check=PATH         Fail (exit 1) when a p50 ratio exceeds its threshold, or
+                       has fewer than ${MIN_SAMPLES} samples on a side (INSUFFICIENT)
   --cpu-prof           Add the top-10 self-time frames (and a .cpuprofile next to --out)
   --cache-dir=DIR      Prior-log cache (default ${defaultCacheDir()})
   --no-cache           Play every prior log now (10,000 events takes about 11 minutes)
@@ -313,7 +329,7 @@ function planFor(mode: Mode): IPlan {
           mapKey: '32x34',
           checkpoints: [500],
           measuredTurns: 1,
-          appendSamples: 10,
+          appendSamples: MIN_SAMPLES,
           replaySamples: 3,
         },
         {
@@ -321,11 +337,12 @@ function planFor(mode: Mode): IPlan {
           mapKey: '32x34',
           checkpoints: [500, 2000],
           measuredTurns: 1,
-          appendSamples: 10,
-          replaySamples: 3,
+          appendSamples: MIN_SAMPLES,
+          // The replay ratio is gated on this log only.
+          replaySamples: MIN_SAMPLES,
         },
       ],
-      microSamples: 10,
+      microSamples: MIN_SAMPLES,
       simulations: [{ perSide: 4, runs: 1 }],
       trimmed: [
         'quick: units 4/48, maps 16x17/48x51, events 5,000/10,000, 12v12 runner',
@@ -340,7 +357,7 @@ function planFor(mode: Mode): IPlan {
         mapKey: '32x34',
         checkpoints: [500],
         measuredTurns: 2,
-        appendSamples: 20,
+        appendSamples: MIN_SAMPLES,
         replaySamples: 3,
       },
       {
@@ -348,7 +365,7 @@ function planFor(mode: Mode): IPlan {
         mapKey: '32x34',
         checkpoints: [500],
         measuredTurns: 2,
-        appendSamples: 20,
+        appendSamples: MIN_SAMPLES,
         replaySamples: 3,
       },
       {
@@ -356,7 +373,7 @@ function planFor(mode: Mode): IPlan {
         mapKey: '32x34',
         checkpoints: [500],
         measuredTurns: 1,
-        appendSamples: 20,
+        appendSamples: MIN_SAMPLES,
         replaySamples: 3,
       },
       // Map axis at 8 units, 500 events.
@@ -365,7 +382,7 @@ function planFor(mode: Mode): IPlan {
         mapKey: '16x17',
         checkpoints: [500],
         measuredTurns: 2,
-        appendSamples: 20,
+        appendSamples: MIN_SAMPLES,
         replaySamples: 3,
       },
       {
@@ -373,7 +390,7 @@ function planFor(mode: Mode): IPlan {
         mapKey: '48x51',
         checkpoints: [500],
         measuredTurns: 2,
-        appendSamples: 20,
+        appendSamples: MIN_SAMPLES,
         replaySamples: 3,
       },
       // Events axis: one 24-unit game, measured at each checkpoint.
@@ -382,11 +399,12 @@ function planFor(mode: Mode): IPlan {
         mapKey: '32x34',
         checkpoints: [500, 2000, 5000, 10000],
         measuredTurns: 1,
-        appendSamples: 10,
-        replaySamples: 3,
+        appendSamples: MIN_SAMPLES,
+        // The replay ratio is gated on this log only.
+        replaySamples: MIN_SAMPLES,
       },
     ],
-    microSamples: 30,
+    microSamples: MIN_SAMPLES,
     simulations: [
       { perSide: 4, runs: 2 },
       { perSide: 12, runs: 1 },
@@ -440,7 +458,7 @@ function recordFinding(
     ...(evidence.blockedCount !== undefined
       ? { blockedCount: evidence.blockedCount }
       : {}),
-    repro: reproCommand(args, ctx.scenario),
+    repro: ctx.repro ?? reproCommand(args, ctx.scenario),
     detail: evidence.detail,
   });
   console.error(`  ${error.message}`);
@@ -533,6 +551,9 @@ function freeMemGb(): number {
   return Math.round((os.freemem() / 1024 ** 3) * 10) / 10;
 }
 
+/** Logs whose largest checkpoint reaches this many events are cached. */
+const CACHE_MIN_EVENTS = 2001;
+
 async function runLog(
   args: IArgs,
   plan: ILogPlan,
@@ -558,11 +579,12 @@ async function runLog(
   };
   const log = obtainPriorLog(config, {
     cacheDir: args.cacheDir,
-    cacheMinEvents: 2001,
+    cacheMinEvents: CACHE_MIN_EVENTS,
     fresh: args.freshLogs,
     commit: meta.commit,
     maxTurns: 400,
   });
+  const staleCache = log.builtAtCommit !== meta.commit;
   meta.logs.push({
     label: config.label,
     seed,
@@ -572,7 +594,16 @@ async function runLog(
     events: log.events.length,
     checkpoints: Object.fromEntries(log.checkpoints),
     unreached: log.unreached,
+    builtAtCommit: log.builtAtCommit,
+    staleCache,
+    liveStateCheck:
+      typeof log.liveStateCheck === 'string' ? log.liveStateCheck : 'FAILED',
   });
+  if (staleCache) {
+    const warning = `WARNING: log ${config.label} was played at ${log.builtAtCommit} but HEAD is ${meta.commit}; HEAD may play different events. Re-play it with --fresh-logs.`;
+    meta.warnings.push(warning);
+    console.warn(`  ${warning}`);
+  }
   for (const target of log.unreached) {
     meta.trimmed.push(
       `${config.label}: ${target} events unreached (game ended at ${log.events.length})`,
@@ -581,6 +612,33 @@ async function runLog(
   console.log(
     `  log ${config.label}: ${log.events.length} events, ${log.source}, ${log.buildMs} ms`,
   );
+  if (log.liveStateCheck === 'ok') {
+    console.log(
+      `  log ${config.label}: live-state check OK over ${log.events.length} played events`,
+    );
+  } else if (log.liveStateCheck === 'skipped: cached log') {
+    console.log(`  log ${config.label}: live-state check skipped: cached log`);
+  } else {
+    const label = `${config.label}-played`;
+    const cacheable = log.events.length >= CACHE_MIN_EVENTS;
+    recordFinding(
+      args,
+      {
+        scenario: label,
+        gameSeed: seed,
+        checkpoint: {
+          target: plan.checkpoints[plan.checkpoints.length - 1],
+          events: log.events.length,
+        },
+        logSource: 'played',
+        repro:
+          reproCommand(args, scenarioName(plan.units, plan.mapKey, wanted[0])) +
+          (cacheable && !args.freshLogs ? ' --fresh-logs' : ''),
+      },
+      new TrackingAssertError(label, log.liveStateCheck),
+      meta,
+    );
+  }
   for (const target of wanted) {
     const count = log.checkpoints.get(target);
     if (count === undefined) continue;
@@ -591,16 +649,18 @@ async function runLog(
       checkpoint: { target, events: count },
       logSource: log.source,
     };
+    const started = nowMs();
+    const { live, fork, gateRefusal } = await recoverAt(log, count);
+    const recoverMs = nowMs() - started;
     const ctx: IScenarioContext = {
       scenario,
       seed,
       rows,
       countCallsEnabled: args.callCounts,
       uncheckedAttacks: args.uncheckedAttacks,
+      repeats: COMMAND_REPEATS,
+      fork,
     };
-    const started = nowMs();
-    const { live, gateRefusal } = await recoverAt(log, count);
-    const recoverMs = nowMs() - started;
     if (gateRefusal) {
       recordFinding(
         args,
@@ -735,90 +795,93 @@ async function runSimulations(
 interface IRatio {
   readonly name: string;
   readonly items: string;
-  readonly numerator: { scenario: string; action: string; stat: 'p50' | 'p95' };
-  readonly denominator: {
-    scenario: string;
-    action: string;
-    stat: 'p50' | 'p95';
-  };
+  readonly numerator: { scenario: string; action: string };
+  readonly denominator: { scenario: string; action: string };
   /**
    * What the ratio would be if cost grew linearly with the axis; 'events'
-   * means the ratio of the two rows' actual event counts.
+   * means the ratio of the two rows' event counts at sample time.
    */
   readonly linear: number | 'events' | null;
 }
 
+/**
+ * Every ratio is p50 over p50. Command ratios use the `*-repeat` rows: one
+ * command repeated on forks of one session state, so both sides have
+ * COMMAND_REPEATS samples. The pooled phase-advance and runner ratios are
+ * reported but not gated (see the thresholds file).
+ */
 function ratioDefinitions(mode: Mode): IRatio[] {
   const hi = mode === 'full' ? 10000 : 2000;
+  const lo = mode === 'full' ? 2000 : 500;
   const ev = (events: number) => scenarioName(24, '32x34', events);
   const r = (
     name: string,
     items: string,
-    num: [string, string, 'p50' | 'p95'],
-    den: [string, string, 'p50' | 'p95'],
+    num: [string, string],
+    den: [string, string],
     linear: number | 'events' | null,
   ): IRatio => ({
     name,
     items,
-    numerator: { scenario: num[0], action: num[1], stat: num[2] },
-    denominator: { scenario: den[0], action: den[1], stat: den[2] },
+    numerator: { scenario: num[0], action: num[1] },
+    denominator: { scenario: den[0], action: den[1] },
     linear,
   });
   const list: IRatio[] = [
     r(
       `append-${hi}-over-500`,
       'P1',
-      [ev(hi), 'append-one-event', 'p50'],
-      [ev(500), 'append-one-event', 'p50'],
+      [ev(hi), 'append-one-event'],
+      [ev(500), 'append-one-event'],
       'events',
     ),
     r(
-      `move-commit-p95-${hi}-over-500`,
+      `move-commit-${hi}-over-500`,
       'P1',
-      [ev(hi), 'move-commit', 'p95'],
-      [ev(500), 'move-commit', 'p95'],
+      [ev(hi), 'move-commit-repeat'],
+      [ev(500), 'move-commit-repeat'],
       'events',
     ),
     r(
-      `weapon-attack-p95-${hi}-over-500`,
+      `weapon-attack-${hi}-over-500`,
       'P1 P8',
-      [ev(hi), 'weapon-attack', 'p95'],
-      [ev(500), 'weapon-attack', 'p95'],
+      [ev(hi), 'weapon-attack-repeat'],
+      [ev(500), 'weapon-attack-repeat'],
       'events',
     ),
     r(
-      `phase-advance-p95-${hi}-over-500`,
+      `phase-advance-${hi}-over-500`,
       'P1 P8',
-      [ev(hi), 'phase-advance-any', 'p95'],
-      [ev(500), 'phase-advance-any', 'p95'],
+      [ev(hi), 'phase-advance-any'],
+      [ev(500), 'phase-advance-any'],
       'events',
     ),
     r(
       'reachable-walk8-over-walk4-clear',
       'P3',
-      ['micro-r19-clear', 'reachable-overlay-walk8', 'p95'],
-      ['micro-r19-clear', 'reachable-overlay-walk4', 'p95'],
+      ['micro-r19-clear', 'reachable-overlay-walk8'],
+      ['micro-r19-clear', 'reachable-overlay-walk4'],
       217 / 61,
     ),
     r(
       'reachable-walk8-over-walk4-wooded',
       'P3',
-      ['micro-r19-heavy_woods', 'reachable-overlay-walk8', 'p95'],
-      ['micro-r19-heavy_woods', 'reachable-overlay-walk4', 'p95'],
+      ['micro-r19-heavy_woods', 'reachable-overlay-walk8'],
+      ['micro-r19-heavy_woods', 'reachable-overlay-walk4'],
       217 / 61,
     ),
     r(
       'path-30-over-5-clear',
       'P4',
-      ['micro-r19-clear', 'single-path-length30', 'p50'],
-      ['micro-r19-clear', 'single-path-length5', 'p50'],
+      ['micro-r19-clear', 'single-path-length30'],
+      ['micro-r19-clear', 'single-path-length5'],
       6,
     ),
     r(
-      `replay-load-${hi}-over-${mode === 'full' ? 2000 : 500}`,
+      `replay-load-${hi}-over-${lo}`,
       'P1 R2',
-      [ev(hi), 'replay-load-gate-fold', 'p50'],
-      [ev(mode === 'full' ? 2000 : 500), 'replay-load-gate-fold', 'p50'],
+      [ev(hi), 'replay-load-gate-fold'],
+      [ev(lo), 'replay-load-gate-fold'],
       'events',
     ),
   ];
@@ -827,29 +890,29 @@ function ratioDefinitions(mode: Mode): IRatio[] {
       r(
         'los-projection-48x51-over-16x17',
         'P5',
-        [scenarioName(8, '48x51', 500), 'los-whole-map-projection', 'p50'],
-        [scenarioName(8, '16x17', 500), 'los-whole-map-projection', 'p50'],
+        [scenarioName(8, '48x51', 500), 'los-whole-map-projection-repeat'],
+        [scenarioName(8, '16x17', 500), 'los-whole-map-projection-repeat'],
         2437 / 271,
       ),
       r(
-        'bot-decision-p95-48x51-over-16x17',
+        'bot-decision-48x51-over-16x17',
         'P6',
-        [scenarioName(8, '48x51', 500), 'bot-move-decision', 'p95'],
-        [scenarioName(8, '16x17', 500), 'bot-move-decision', 'p95'],
+        [scenarioName(8, '48x51', 500), 'bot-move-decision-repeat'],
+        [scenarioName(8, '16x17', 500), 'bot-move-decision-repeat'],
         null,
       ),
       r(
-        'bot-decision-p95-48u-over-4u',
+        'bot-decision-48u-over-4u',
         'P6',
-        [scenarioName(48, '32x34', 500), 'bot-move-decision', 'p95'],
-        [scenarioName(4, '32x34', 500), 'bot-move-decision', 'p95'],
+        [scenarioName(48, '32x34', 500), 'bot-move-decision-repeat'],
+        [scenarioName(4, '32x34', 500), 'bot-move-decision-repeat'],
         null,
       ),
       r(
         'sim-12v12-over-4v4',
         'runner',
-        ['sim-12v12-32x34-20turns', 'simulation-runner-game', 'p50'],
-        ['sim-4v4-32x34-20turns', 'simulation-runner-game', 'p50'],
+        ['sim-12v12-32x34-20turns', 'simulation-runner-game'],
+        ['sim-4v4-32x34-20turns', 'simulation-runner-game'],
         3,
       ),
     );
@@ -865,10 +928,7 @@ function computeRatios(rows: readonly IResultRow[], mode: Mode) {
   return ratioDefinitions(mode).map((def) => {
     const num = find(def.numerator);
     const den = find(def.denominator);
-    const value =
-      num && den && den[def.denominator.stat] > 0
-        ? num[def.numerator.stat] / den[def.denominator.stat]
-        : null;
+    const value = num && den && den.p50 > 0 ? num.p50 / den.p50 : null;
     const linear =
       def.linear === 'events'
         ? num && den && den.eventCount > 0
@@ -878,12 +938,15 @@ function computeRatios(rows: readonly IResultRow[], mode: Mode) {
     return {
       name: def.name,
       items: def.items,
+      stat: 'p50' as const,
       value: value === null ? null : Math.round(value * 100) / 100,
       linear: linear === null ? null : Math.round(linear * 100) / 100,
       overLinear:
         value === null || linear === null
           ? null
           : Math.round((value / linear) * 100) / 100,
+      numeratorSamples: num?.count ?? 0,
+      denominatorSamples: den?.count ?? 0,
       numerator: def.numerator,
       denominator: def.denominator,
     };
@@ -894,31 +957,81 @@ interface IThresholds {
   readonly ratios: Readonly<Record<string, { readonly max: number }>>;
 }
 
-function applyChecks(
-  ratios: ReturnType<typeof computeRatios>,
-  thresholdsPath: string,
-) {
+/**
+ * Read the thresholds file before anything runs. A ratio name that neither
+ * mode defines is an error (exit 3), so a typo cannot pass as "skipped".
+ */
+function loadThresholds(thresholdsPath: string): IThresholds {
   const thresholds = JSON.parse(
     fs.readFileSync(thresholdsPath, 'utf8'),
   ) as IThresholds;
+  const known = new Set(
+    [...ratioDefinitions('quick'), ...ratioDefinitions('full')].map(
+      (def) => def.name,
+    ),
+  );
+  const unknown = Object.keys(thresholds.ratios).filter(
+    (name) => !known.has(name),
+  );
+  if (unknown.length > 0) {
+    throw new Error(
+      `unknown ratio name(s) in ${thresholdsPath}: ${unknown.join(', ')}. Known: ${[...known].join(', ')}`,
+    );
+  }
+  return thresholds;
+}
+
+type CheckStatus = 'pass' | 'fail' | 'insufficient' | 'skipped';
+
+/**
+ * Gate each threshold on its p50 ratio. A ratio of the other mode is
+ * skipped; one with fewer than MIN_SAMPLES on either side (or a missing row)
+ * is INSUFFICIENT, which fails like a ratio over its max.
+ */
+function applyChecks(
+  ratios: ReturnType<typeof computeRatios>,
+  thresholds: IThresholds,
+) {
   return Object.entries(thresholds.ratios).map(([name, { max }]) => {
     const ratio = ratios.find((entry) => entry.name === name);
-    const value = ratio?.value ?? null;
-    const status: 'pass' | 'fail' | 'skipped' =
-      value === null ? 'skipped' : value <= max ? 'pass' : 'fail';
-    return {
-      name,
-      max,
-      value,
-      status,
-      reason:
-        status === 'skipped'
-          ? 'ratio not measured in this mode'
-          : status === 'pass'
-            ? 'ok'
-            : `ratio ${value} > max ${max}`,
-    };
+    const samples = ratio
+      ? `n=${ratio.numeratorSamples}/${ratio.denominatorSamples}`
+      : '';
+    let status: CheckStatus;
+    let reason: string;
+    if (!ratio) {
+      status = 'skipped';
+      reason = 'a ratio of the other mode';
+    } else if (
+      ratio.value === null ||
+      ratio.numeratorSamples < MIN_SAMPLES ||
+      ratio.denominatorSamples < MIN_SAMPLES
+    ) {
+      status = 'insufficient';
+      reason = `${samples} samples (numerator/denominator), below ${MIN_SAMPLES} per side${ratio.value === null ? '; a row is missing' : ''}: not a pass`;
+    } else if (ratio.value <= max) {
+      status = 'pass';
+      reason = `p50 ratio ${ratio.value} <= max ${max} (${samples})`;
+    } else {
+      status = 'fail';
+      reason = `p50 ratio ${ratio.value} > max ${max} (${samples})`;
+    }
+    return { name, max, value: ratio?.value ?? null, status, reason };
   });
+}
+
+/** Every scenario name the plan can run, for --scenario. */
+function scenarioNames(plan: IPlan): string[] {
+  return [
+    ...plan.logs.flatMap((log) =>
+      log.checkpoints.map((target) =>
+        scenarioName(log.units, log.mapKey, target),
+      ),
+    ),
+    ...plan.simulations.map(
+      ({ perSide }) => `sim-${perSide}v${perSide}-32x34-20turns`,
+    ),
+  ];
 }
 
 function printRows(rows: readonly IResultRow[]): void {
@@ -934,6 +1047,12 @@ function printRows(rows: readonly IResultRow[]): void {
 async function main(): Promise<number> {
   const args = parseArgs();
   const plan = planFor(args.mode);
+  if (args.scenario !== null && !scenarioNames(plan).includes(args.scenario)) {
+    throw new Error(
+      `unknown --scenario ${args.scenario}; valid in --${args.mode}: ${scenarioNames(plan).join(', ')}`,
+    );
+  }
+  const thresholds = args.check ? loadThresholds(args.check) : null;
   const startedAt = new Date().toISOString();
   const wallStarted = Date.now();
   const commit = gitHead();
@@ -956,6 +1075,9 @@ async function main(): Promise<number> {
     trackingFailures: [],
     findings: [],
     toleratedUndefinedKeys: {},
+    warnings: [],
+    minSamplesPerSide: MIN_SAMPLES,
+    commandRepeats: COMMAND_REPEATS,
   };
   console.log(
     `engine harness: ${args.mode}, seed ${args.seed}, ${commit.slice(0, 9)}, free ${meta.freeMemGbAtStart} GB, gc ${meta.gcExposed}`,
@@ -1005,7 +1127,7 @@ async function main(): Promise<number> {
   }
 
   const ratios = computeRatios(rows, args.mode);
-  const checks = args.check ? applyChecks(ratios, args.check) : undefined;
+  const checks = thresholds ? applyChecks(ratios, thresholds) : undefined;
   const report = {
     meta: {
       ...meta,
@@ -1019,10 +1141,10 @@ async function main(): Promise<number> {
     ...(cpuTopSelf ? { cpuTopSelf } : {}),
   };
   printRows(rows);
-  console.log('\nratios (value / linear):');
+  console.log('\nratios (p50 / p50, value / linear):');
   for (const ratio of ratios) {
     console.log(
-      `  ${ratio.name.padEnd(40)} ${String(ratio.value).padStart(8)}  linear ${ratio.linear ?? '-'}  x${ratio.overLinear ?? '-'}`,
+      `  ${ratio.name.padEnd(40)} ${String(ratio.value).padStart(8)}  linear ${ratio.linear ?? '-'}  x${ratio.overLinear ?? '-'}  n=${ratio.numeratorSamples}/${ratio.denominatorSamples}`,
     );
   }
   if (args.out) {
@@ -1037,7 +1159,13 @@ async function main(): Promise<number> {
   console.log(
     `F3 tolerated undefined-valued keys: ${tolerated} across ${Object.keys(meta.toleratedUndefinedKeys).length} passing scenario(s)`,
   );
+  for (const warning of meta.warnings) console.warn(warning);
   console.log(`wall ${report.meta.wallMs} ms`);
+  for (const check of checks ?? []) {
+    console.log(
+      `  check ${check.status.toUpperCase()} ${check.name}: ${check.reason}`,
+    );
+  }
   if (meta.trackingFailures.length > 0) {
     console.error(
       `\n${meta.trackingFailures.length} TRACKING ASSERT FAILURE(S):\n${meta.trackingFailures.join('\n')}`,
@@ -1045,14 +1173,14 @@ async function main(): Promise<number> {
     printFindings(meta.findings);
     return 2;
   }
-  if (checks) {
-    const failed = checks.filter((check) => check.status === 'fail');
-    for (const check of checks) {
-      console.log(
-        `  check ${check.status.toUpperCase()} ${check.name}: ${check.reason}`,
-      );
-    }
-    if (failed.length > 0) return 1;
+  const notPassed = (checks ?? []).filter(
+    (check) => check.status === 'fail' || check.status === 'insufficient',
+  );
+  if (notPassed.length > 0) {
+    console.error(
+      `\n${notPassed.length} check(s) did not pass: ${notPassed.map((check) => `${check.name} (${check.status})`).join(', ')}`,
+    );
+    return 1;
   }
   return 0;
 }

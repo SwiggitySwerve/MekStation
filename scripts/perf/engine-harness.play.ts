@@ -22,6 +22,7 @@ import { isDeepStrictEqual } from 'node:util';
 
 import type { IAdaptedUnit } from '../../src/engine/types';
 import type { IReplaySurfaceBlockedEvent } from '../../src/lib/events/replay/ReplaySurfaceGate';
+import type { IHexGrid } from '../../src/types/gameplay/HexGridInterfaces';
 
 import { adaptUnitFromData } from '../../src/engine/adapters/CompendiumAdapter';
 import { GameEngine, InteractiveSession } from '../../src/engine/GameEngine';
@@ -35,9 +36,12 @@ import {
   REPLAY_SURFACE_REGISTRY,
   gateReplaySurfaceHistory,
 } from '../../src/lib/events/replay/ReplaySurfaceGate';
-import { recoverServerInteractiveSession } from '../../src/lib/multiplayer/server/matchUnitBootstrap';
+import {
+  deriveServerAdaptedUnits,
+  recoverServerInteractiveSession,
+} from '../../src/lib/multiplayer/server/matchUnitBootstrap';
 import { getNodeCanonicalUnitService } from '../../src/services/units/NodeCanonicalUnitService';
-import { SeededRandom } from '../../src/simulation/core';
+import { SeededD6Roller, SeededRandom } from '../../src/simulation/core';
 import { TerrainPreset } from '../../src/types/encounter';
 import {
   GamePhase,
@@ -76,6 +80,13 @@ export interface IPlayedLog {
   readonly source: 'played' | 'cache';
   readonly buildMs: number;
   readonly turns: number;
+  /** HEAD when the log was played; differs from HEAD for a stale cache. */
+  readonly builtAtCommit: string;
+  /**
+   * Check 1 (deriveState over every event equals currentState) on the played
+   * session itself, across all its appends; a cached log has no live session.
+   */
+  readonly liveStateCheck: 'ok' | 'skipped: cached log' | ITrackingEvidence;
 }
 
 /** The first event a tracking check fails on, as stored in the log. */
@@ -160,7 +171,7 @@ function sideFor(index: number): GameSide {
   return index % 2 === 0 ? GameSide.Player : GameSide.Opponent;
 }
 
-export function gridFor(radius: number, terrain: TerrainPreset) {
+export function gridFor(radius: number, terrain: TerrainPreset): IHexGrid {
   return createGridFromTerrainPreset(radius, terrain);
 }
 
@@ -224,7 +235,11 @@ export function playTurnRemainder(session: InteractiveSession): void {
   }
 }
 
-function playLog(config: IPlayConfig, maxTurns: number): IPlayedLog {
+function playLog(
+  config: IPlayConfig,
+  maxTurns: number,
+  commit: string,
+): IPlayedLog {
   const started = Date.now();
   const session = createLiveSession(config);
   const pending = [...config.checkpoints];
@@ -241,16 +256,28 @@ function playLog(config: IPlayConfig, maxTurns: number): IPlayedLog {
     playTurnRemainder(session);
     turns++;
   }
+  const buildMs = Date.now() - started;
   return {
     events: session.getSession().events,
     checkpoints,
     unreached: pending,
     source: 'played',
-    buildMs: Date.now() - started,
+    buildMs,
     turns,
+    builtAtCommit: commit,
+    // One fold, outside buildMs. Vacuous while every append refolds from
+    // event 0; once appends are incremental (P1) it checks all of them.
+    liveStateCheck: liveFoldEvidence(session) ?? 'ok',
   };
 }
 
+/**
+ * The cache key omits a hash of the src tree on purpose: a before/after perf
+ * comparison must measure the SAME events on both commits. It omits catalog
+ * data too (units are keyed by id only). Either change can make a cached log
+ * differ from what HEAD would play; runLog warns when builtAtCommit is not
+ * HEAD, and --fresh-logs replays.
+ */
 function cacheKey(config: IPlayConfig): string {
   return createHash('sha256')
     .update(
@@ -315,9 +342,11 @@ export function obtainPriorLog(
       source: 'cache',
       buildMs: cached.buildMs,
       turns: cached.turns,
+      builtAtCommit: cached.builtAtCommit,
+      liveStateCheck: 'skipped: cached log',
     };
   }
-  const played = playLog(config, options.maxTurns);
+  const played = playLog(config, options.maxTurns, options.commit);
   if (file) {
     fs.mkdirSync(path.dirname(file), { recursive: true });
     const record: ICachedLog = {
@@ -358,6 +387,7 @@ export async function recoverAt(
   count: number,
 ): Promise<{
   live: InteractiveSession;
+  fork: SessionFork;
   gateRefusal: ITrackingEvidence | null;
 }> {
   const prefix = log.events.slice(0, count);
@@ -366,6 +396,7 @@ export async function recoverAt(
     const session = await gateAndFold(matchId, prefix);
     return {
       live: await recoverServerInteractiveSession(session),
+      fork: await sessionFork(session),
       gateRefusal: null,
     };
   } catch (error) {
@@ -375,6 +406,7 @@ export async function recoverAt(
     const check = 'cold recovery refused the played log';
     return {
       live: await recoverServerInteractiveSession(session),
+      fork: await sessionFork(session),
       gateRefusal:
         blocked && blocked.length > 0
           ? blockedEvidence(check, prefix, blocked)
@@ -386,6 +418,29 @@ export async function recoverAt(
             },
     };
   }
+}
+
+/** A fresh InteractiveSession over a given session state. */
+export type SessionFork = (session: IGameSession) => InteractiveSession;
+
+/**
+ * The fork the repeated command rows run on: the same wiring as
+ * recoverServerInteractiveSession (adapted units, seeded RNG and dice), with
+ * the adapted units derived once, so a fork costs no catalog work. Commands
+ * return new session objects (appendEvent is pure), so forks of one session
+ * do not see each other; the repeat loop also hashes the shared events.
+ */
+async function sessionFork(base: IGameSession): Promise<SessionFork> {
+  const adapted = await deriveServerAdaptedUnits(base);
+  const seed = base.config.seed;
+  const seeded = typeof seed === 'number' && Number.isFinite(seed);
+  return (session) =>
+    InteractiveSession.fromHydratedSession(session, {
+      random: new SeededRandom(seeded ? seed : 0xc0ffee),
+      d6Roller: seeded ? new SeededD6Roller(seed).asD6Roller() : undefined,
+      playerUnits: adapted.filter((unit) => unit.side === GameSide.Player),
+      opponentUnits: adapted.filter((unit) => unit.side === GameSide.Opponent),
+    });
 }
 
 const GATE_FORMAT = { formatId: 'match-log-idb', formatVersion: 2 } as const;
@@ -644,20 +699,8 @@ export function assertTracking(
   live: InteractiveSession,
 ): { count: number; paths: string[] } {
   const session = live.getSession();
-  const fold = deriveState(session.id, session.events);
-  const foldDiff = findDifference(fold, session.currentState);
-  if (foldDiff) {
-    // currentState is not a fold of any event prefix, so there is no
-    // failing event to name: the state moved without its log.
-    throw new TrackingAssertError(scenario, {
-      check: 'deriveState(events) != currentState',
-      detail: `${foldDiff.path}: ${foldDiff.left} vs ${foldDiff.right}`,
-      firstEvent: null,
-      fieldPath: foldDiff.path,
-      liveValue: foldDiff.right,
-      storedValue: foldDiff.left,
-    });
-  }
+  const foldEvidence = liveFoldEvidence(live);
+  if (foldEvidence) throw new TrackingAssertError(scenario, foldEvidence);
   return assertReplayFold(
     scenario,
     session.matchId ?? session.id,
@@ -666,6 +709,28 @@ export function assertTracking(
     session.currentState,
     'gated replay fold != currentState',
   );
+}
+
+/**
+ * Check 1: deriveState over every event equals the session's currentState.
+ * currentState is not a fold of any event prefix, so there is no failing
+ * event to name: the state moved without its log.
+ */
+export function liveFoldEvidence(
+  live: InteractiveSession,
+): ITrackingEvidence | null {
+  const session = live.getSession();
+  const fold = deriveState(session.id, session.events);
+  const foldDiff = findDifference(fold, session.currentState);
+  if (!foldDiff) return null;
+  return {
+    check: 'deriveState(events) != currentState',
+    detail: `${foldDiff.path}: ${foldDiff.left} vs ${foldDiff.right}`,
+    firstEvent: null,
+    fieldPath: foldDiff.path,
+    liveValue: foldDiff.right,
+    storedValue: foldDiff.left,
+  };
 }
 
 /**

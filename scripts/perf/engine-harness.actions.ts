@@ -3,6 +3,8 @@
  * the app, the engine or the bots call; nothing here re-implements a rule.
  */
 
+import { createHash } from 'node:crypto';
+
 import type { InteractiveSession } from '../../src/engine/GameEngine';
 import type { IGameEvent, IGameSession } from '../../src/types/gameplay';
 import type { ICombatRangeHex, IWeaponStatus } from '../../src/types/gameplay';
@@ -40,7 +42,7 @@ import {
   type ICallTarget,
   type IResultRow,
 } from './engine-harness.measure';
-import { gridFor } from './engine-harness.play';
+import { gridFor, type SessionFork } from './engine-harness.play';
 
 export const CALL_TARGETS = {
   findPath: {
@@ -79,12 +81,20 @@ export function stateBytes(session: IGameSession): number {
 
 interface ISampler {
   readonly samples: number[];
+  /** Session event count when each sample was taken (the P1 axis). */
+  readonly events: number[];
   readonly appends: number[];
   readonly extra: Record<string, number[]>;
 }
 
 function sampler(): ISampler {
-  return { samples: [], appends: [], extra: {} };
+  return { samples: [], events: [], appends: [], extra: {} };
+}
+
+/** Record one timed sample and the event count it was taken at. */
+function take(into: ISampler, ms: number, events: number): void {
+  into.samples.push(ms);
+  into.events.push(events);
 }
 
 function median(values: readonly number[]): number {
@@ -102,7 +112,7 @@ function timeCommand(
   const before = live.getSession().events.length;
   const started = nowMs();
   run();
-  into.samples.push(nowMs() - started);
+  take(into, nowMs() - started, before);
   into.appends.push(live.getSession().events.length - before);
 }
 
@@ -194,6 +204,12 @@ export interface IScenarioContext {
    * volleys. On, it reproduces the AttackDeclared history rewrite.
    */
   readonly uncheckedAttacks: boolean;
+  /**
+   * Repetitions of one command on forks of the same session state (the
+   * `*-repeat` rows the ratios gate on); 0 turns them off.
+   */
+  readonly repeats: number;
+  readonly fork: SessionFork;
 }
 
 function pushRow(
@@ -222,7 +238,12 @@ function pushRow(
         unit,
         heapDeltaBytes,
         stateBytes: stateBytes(live.getSession()),
-        eventCount: live.getSession().events.length,
+        // The median event count at sample time, not after the turns: the
+        // linear reference of a ratio is the ratio of these counts.
+        eventCount:
+          s.events.length > 0
+            ? median(s.events)
+            : live.getSession().events.length,
         extra,
       },
       s.samples,
@@ -249,7 +270,7 @@ export function measureAppend(
   for (let i = 0; i < samples; i++) {
     const started = nowMs();
     appendEvent(session, nextEvent);
-    s.samples.push(nowMs() - started);
+    take(s, nowMs() - started, session.events.length);
   }
   collectGarbage();
   pushRow(ctx, live, 'append-one-event', s, heapUsed() - heapBefore);
@@ -288,9 +309,9 @@ export function measureReplayLoad(
       gated.kind === 'accepted' ? [...gated.events] : events,
     );
     const done = nowMs();
-    gate.samples.push(gatedAt - started);
-    fold.samples.push(done - gatedAt);
-    total.samples.push(done - started);
+    take(gate, gatedAt - started, events.length);
+    take(fold, done - gatedAt, events.length);
+    take(total, done - started, events.length);
   }
   collectGarbage();
   const heapDelta = heapUsed() - heapBefore;
@@ -309,7 +330,43 @@ interface ITurnSamplers {
   readonly projection: ISampler;
   readonly toHit: ISampler;
   readonly attack: ISampler;
+  readonly moveRepeat: ISampler;
+  readonly botRepeat: ISampler;
+  readonly attackRepeat: ISampler;
+  readonly projectionRepeat: ISampler;
   skippedAttacks: number;
+}
+
+function digest(events: readonly IGameEvent[]): string {
+  return createHash('sha256').update(JSON.stringify(events)).digest('hex');
+}
+
+/**
+ * Time `run` on `ctx.repeats` fresh forks of one session state: the same
+ * command on the same state, so the samples measure the command, not the
+ * game. The shared events are hashed before and after, because a fork that
+ * mutated them would corrupt the live session.
+ */
+function repeatOnForks(
+  ctx: IScenarioContext,
+  snapshot: IGameSession,
+  into: ISampler,
+  run: (fork: InteractiveSession) => void,
+): void {
+  if (ctx.repeats === 0) return;
+  const before = digest(snapshot.events);
+  for (let i = 0; i < ctx.repeats; i++) {
+    const fork = ctx.fork(snapshot);
+    const started = nowMs();
+    run(fork);
+    take(into, nowMs() - started, snapshot.events.length);
+    into.appends.push(fork.getSession().events.length - snapshot.events.length);
+  }
+  if (digest(snapshot.events) !== before) {
+    throw new Error(
+      `[${ctx.scenario}] a forked command changed the shared session's events`,
+    );
+  }
 }
 
 /**
@@ -331,6 +388,10 @@ export async function measureTurns(
     projection: sampler(),
     toHit: sampler(),
     attack: sampler(),
+    moveRepeat: sampler(),
+    botRepeat: sampler(),
+    attackRepeat: sampler(),
+    projectionRepeat: sampler(),
     skippedAttacks: 0,
   };
   collectGarbage();
@@ -362,6 +423,27 @@ export async function measureTurns(
   });
   pushRow(ctx, live, 'phase-advance-any', t.advance, heapDelta);
   for (const [label, s] of t.byPhase) pushRow(ctx, live, label, s, heapDelta);
+  const repeated = { repeatedOn: 'forks of one session state (turn 1)' };
+  pushRow(ctx, live, 'move-commit-repeat', t.moveRepeat, 0, 'ms', repeated);
+  pushRow(
+    ctx,
+    live,
+    'bot-move-decision-repeat',
+    t.botRepeat,
+    0,
+    'ms',
+    repeated,
+  );
+  pushRow(ctx, live, 'weapon-attack-repeat', t.attackRepeat, 0, 'ms', repeated);
+  pushRow(
+    ctx,
+    live,
+    'los-whole-map-projection-repeat',
+    t.projectionRepeat,
+    0,
+    'ms',
+    { repeatedOn: 'the live session (pure, turn 1)' },
+  );
 }
 
 /**
@@ -406,7 +488,7 @@ async function playMeasuredTurn(
         optionalRules: config.optionalRules,
       },
     );
-    overlay.samples.push(nowMs() - started);
+    take(overlay, nowMs() - started, live.getSession().events.length);
     const options = range.filter(
       (hex) =>
         hex.reachable &&
@@ -415,15 +497,19 @@ async function playMeasuredTurn(
     );
     if (options.length === 0) continue;
     const choice = options[Math.floor(random.next() * options.length)];
-    timeCommand(live, move, () =>
-      live.applyMovement(
+    const commit = (session: InteractiveSession) =>
+      session.applyMovement(
         id,
         choice.hex,
         unit.facing,
         MovementType.Walk,
         choice.path,
-      ),
-    );
+      );
+    const snapshot = live.getSession();
+    timeCommand(live, move, () => commit(live));
+    if (turnIndex === 0 && t.moveRepeat.samples.length === 0) {
+      repeatOnForks(ctx, snapshot, t.moveRepeat, commit);
+    }
   }
   const opponents = liveUnits(live, GameSide.Opponent);
   for (const [index, { id }] of opponents.entries()) {
@@ -457,7 +543,13 @@ async function playMeasuredTurn(
       );
       continue;
     }
+    const snapshot = live.getSession();
     timeCommand(live, bot, () => live.runAITurn(GameSide.Opponent, id));
+    if (turnIndex === 0 && t.botRepeat.samples.length === 0) {
+      repeatOnForks(ctx, snapshot, t.botRepeat, (fork) =>
+        fork.runAITurn(GameSide.Opponent, id),
+      );
+    }
   }
   const timeAdvance = (label: string): void => {
     const phaseSampler = byPhase.get(label) ?? sampler();
@@ -467,9 +559,9 @@ async function playMeasuredTurn(
     live.advancePhase();
     const elapsed = nowMs() - started;
     const appended = live.getSession().events.length - before;
-    phaseSampler.samples.push(elapsed);
+    take(phaseSampler, elapsed, before);
     phaseSampler.appends.push(appended);
-    advance.samples.push(elapsed);
+    take(advance, elapsed, before);
     advance.appends.push(appended);
   };
   timeAdvance('advance-from-movement');
@@ -507,7 +599,15 @@ async function playMeasuredTurn(
     }
     const started = nowMs();
     const projected = projectWholeMap(live, id, target.id, weapons);
-    projection.samples.push(nowMs() - started);
+    const eventsNow = live.getSession().events.length;
+    take(projection, nowMs() - started, eventsNow);
+    if (turnIndex === 0 && t.projectionRepeat.samples.length === 0) {
+      for (let i = 0; i < ctx.repeats; i++) {
+        const again = nowMs();
+        projectWholeMap(live, id, target.id, weapons);
+        take(t.projectionRepeat, nowMs() - again, eventsNow);
+      }
+    }
     const targetHex = projected.find(
       (hex) =>
         hex.hex.q === target.unit.position.q &&
@@ -533,7 +633,7 @@ async function playMeasuredTurn(
         target.distance,
       );
     }
-    toHit.samples.push(((nowMs() - toHitStarted) * 1000) / batch);
+    take(toHit, ((nowMs() - toHitStarted) * 1000) / batch, eventsNow);
 
     // Commit only what the play page lets a player commit: a target the
     // projection marks attackable, with the weapons it marks available.
@@ -555,7 +655,19 @@ async function playMeasuredTurn(
     }
     (attack.extra.weapons ??= []).push(weaponIds.length);
     (attack.extra.rangeHexes ??= []).push(target.distance);
+    const snapshot = live.getSession();
     timeCommand(live, attack, () => live.applyAttack(id, target.id, weaponIds));
+    // Not under --unchecked-attacks: a rejected attack rewrites an older
+    // AttackDeclared in place (F2), which would mutate the shared events.
+    if (
+      turnIndex === 0 &&
+      !ctx.uncheckedAttacks &&
+      t.attackRepeat.samples.length === 0
+    ) {
+      repeatOnForks(ctx, snapshot, t.attackRepeat, (fork) =>
+        fork.applyAttack(id, target.id, weaponIds),
+      );
+    }
   }
   live.runAITurn(GameSide.Opponent);
   timeAdvance('advance-from-weapon-attack');
