@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, dirname, join, posix, resolve } from 'node:path';
 import { test } from 'node:test';
@@ -76,10 +82,6 @@ function lintFixture(file, policy) {
   return isolated;
 }
 
-const lintStagedCli = resolve(
-  root,
-  'node_modules/lint-staged/bin/lint-staged.js',
-);
 const previouslyBlockedRoots = [
   'public/data/custom-units',
   'public/data/equipment/custom',
@@ -110,15 +112,22 @@ for (const dir of [...catalogDirectories].sort()) {
 function runHook(isolated, childExit = 0) {
   const bin = join(isolated.cwd, 'bin');
   mkdirSync(bin);
-  // Only the npx launcher is local: it runs the actual installed lint-staged
-  // CLI, so this fixture never downloads or changes dependencies.
-  writeFileSync(
-    join(bin, 'npx'),
-    childExit
-      ? `#!/bin/sh\nexit ${childExit}\n`
-      : `#!/bin/sh\nshift\nexec "${process.execPath.replaceAll('\\', '/')}" "${lintStagedCli.replaceAll('\\', '/')}" "$@"\n`,
-    { mode: 0o755 },
+  mkdirSync(join(isolated.cwd, 'node_modules'));
+  symlinkSync(
+    join(root, 'node_modules/lint-staged'),
+    join(isolated.cwd, 'node_modules/lint-staged'),
+    process.platform === 'win32' ? 'junction' : 'dir',
   );
+  // Only the failure row intercepts the local CLI; helper scripts use real node.
+  if (childExit) {
+    writeFileSync(
+      join(bin, 'node'),
+      '#!/bin/sh\nif [ "$1" = node_modules/lint-staged/bin/lint-staged.js ]; then\n' +
+        `  exit ${childExit}\nfi\n` +
+        `exec "${process.execPath.replaceAll('\\', '/')}" "$@"\n`,
+      { mode: 0o755 },
+    );
+  }
   // The hook runs its scripts (scripts/lib/hook-scripts.json) from the fixture's own tree.
   mkdirSync(resolve(isolated.cwd, 'scripts/lib'), { recursive: true });
   const hookScripts = JSON.parse(
