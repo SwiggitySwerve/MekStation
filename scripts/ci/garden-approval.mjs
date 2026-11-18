@@ -1,4 +1,6 @@
 // Approval policy only. G1 owns detection and validation of budget increases.
+import { isReportOnlyBudgetId } from './budget-config.mjs';
+
 export const BUDGET_RAISE_LABEL = 'ci-budget-raise';
 // Owner rulings that approve owner-authored raises (PARITY-PLAN §186.2). The
 // caller reads it at the PR's base commit, never its head, so a PR cannot
@@ -86,7 +88,41 @@ export const isOwnerAuthored = (repositoryOwner, pullRequest) =>
   pullRequest.user.id === repositoryOwner.id ||
   pullRequest.user.login.toLowerCase() === repositoryOwner.login.toLowerCase();
 
-export function evaluateBudgetRaiseApproval({
+// A removed reporting cap (after null) has no finite delta.
+const delta = ({ before, after }) =>
+  Number.isFinite(before) && Number.isFinite(after)
+    ? `+${after - before}`
+    : 'unbounded';
+const countDeltas = (raises) =>
+  raises.map((r) => `${r.id} ${r.before}->${r.after} (${delta(r)})`).join(', ');
+
+/** Count raises are report-only (PARITY-PLAN §193.2); the rest keep approval. */
+export function evaluateBudgetRaiseApproval(context) {
+  const { raises } = context;
+  if (!Array.isArray(raises))
+    return {
+      allowed: false,
+      code: 'invalid-delta',
+      message: 'Budget delta is missing or malformed.',
+    };
+  const counts = raises.filter((raise) => isReportOnlyBudgetId(raise?.id));
+  const gated = raises.filter((raise) => !isReportOnlyBudgetId(raise?.id));
+  if (counts.length && !gated.length)
+    return {
+      allowed: true,
+      code: 'count-report-only',
+      message: `Count budgets are report-only (PARITY-PLAN §193.2): ${countDeltas(counts)}.`,
+    };
+  const result = evaluateGatedRaises({ ...context, raises: gated });
+  return result.allowed && counts.length
+    ? {
+        ...result,
+        message: `${result.message} Report-only counts: ${countDeltas(counts)}.`,
+      }
+    : result;
+}
+
+function evaluateGatedRaises({
   raises,
   repositoryOwner,
   pullRequest,
@@ -94,9 +130,6 @@ export function evaluateBudgetRaiseApproval({
   approvalRecord,
 }) {
   const deny = (code, message) => ({ allowed: false, code, message });
-  if (!Array.isArray(raises)) {
-    return deny('invalid-delta', 'Budget delta is missing or malformed.');
-  }
   if (raises.length === 0) {
     return { allowed: true, code: 'no-raise', message: 'No budget increases.' };
   }
