@@ -260,7 +260,8 @@ jobs:
 
   # ---------------------------------------------------------------
   # Summary of the shards under the job name D-11 and the history readers
-  # use. Runs after every shard, whatever their outcome. Fails unless the
+  # use. Runs after every shard, whatever their outcome, unless the run is
+  # cancelled (always() would let its steps skip and show green). Fails unless the
   # whole matrix succeeded (cancelled or skipped fail too) and the shards'
   # executed tests equal a fresh census of this head exactly. Retry-only
   # passes are printed as named observations.
@@ -268,7 +269,7 @@ jobs:
   e2e-full:
     name: Full E2E Suite (chromium)
     needs: e2e-full-shard
-    if: always()
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 

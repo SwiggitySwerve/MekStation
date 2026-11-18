@@ -65,6 +65,10 @@ reseed from). The `Full E2E Suite (chromium)` job then runs
 shards' executed tests equal a fresh census of the same head exactly, and it
 prints merged first-attempt and retry-only lists.
 
+The first seed comes from one unsharded run (44284322346, converted from its
+HTML report). After the first green sharded Nightly, reseed from the three
+`nightly-e2e-timings-I/nightly.json` reports, adding green runs as they come.
+
 ## Shared-flow map schema
 
 `shared-flows.json` records the C3/C4-reviewed flow inventory. It does not feed

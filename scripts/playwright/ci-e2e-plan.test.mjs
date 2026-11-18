@@ -868,7 +868,7 @@ test('the Nightly Full E2E is three run-ci-e2e shards and a summary under the ol
   const summary = jobs['e2e-full'];
   assert.equal(summary.name, 'Full E2E Suite (chromium)');
   assert.equal(summary.needs, 'e2e-full-shard');
-  assert.equal(summary.if, 'always()');
+  assert.equal(summary.if, '${{ !cancelled() }}');
   assert.ok(summary['timeout-minutes'] <= 10);
   const check = summary.steps.at(-1);
   assert.equal(
