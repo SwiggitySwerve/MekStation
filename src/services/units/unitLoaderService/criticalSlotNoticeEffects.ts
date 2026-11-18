@@ -387,6 +387,10 @@ export function classifyCriticalSlotRecoveryKind(identity: {
   readonly equipmentCategory?: EquipmentCategory;
   readonly equipmentId?: string;
   readonly physicalWeapon: boolean;
+  readonly lookupToken: string;
+  readonly equipmentName?: string;
+  /** The resolved id is an exact `criticalSlotEquipment` vocabulary row. */
+  readonly vocabularyEquipment: boolean;
 }): CriticalEntryKind {
   if (
     identity.markerKind === 'armor-marker' ||
@@ -397,6 +401,17 @@ export function classifyCriticalSlotRecoveryKind(identity: {
   if (identity.equipmentCategory === EquipmentCategory.AMMUNITION)
     return 'ammunition';
   if (identity.equipmentId === 'bomb-bay') return 'bomb-bay';
+  // Admission is the exact resolved id; this table only names its PR-D kind.
+  if (identity.vocabularyEquipment) {
+    const { kind } = classifyCriticalSlotNoticeIdentity({
+      lookupToken: identity.lookupToken,
+      equipmentId: identity.equipmentId,
+      equipmentName: identity.equipmentName,
+      equipmentCategory: identity.equipmentCategory,
+    });
+    if (kind === CriticalSlotEntryKind.CASE) return 'case';
+    if (kind === CriticalSlotEntryKind.ELECTRONICS) return 'electronics';
+  }
   if (
     identity.equipmentCategory &&
     (isWeaponCategory(identity.equipmentCategory) || identity.physicalWeapon)

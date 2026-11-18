@@ -61,3 +61,18 @@ The legacy enum fallbacks in `PhysicalWeaponTypes.ts` retain their old guards
 and results; source recovery does not call them. BV formulas in
 `scripts/validate-bv-physical-weapons.ts` measure a separate quantity and stay
 with the BV owner. This extraction changes no source admissions or outputs.
+
+## Crit-only CASE and electronics (PR-D1)
+
+A source cell whose resolved id is an exact `criticalSlotEquipment` row in
+`mtf-component-vocabulary.json` is admitted; `classifyCriticalSlotRecoveryKind`
+names it `case` or `electronics` through the one notice table. The dispatcher
+recovers one mount per complete group of unreserved cells of that id at the
+location (`MtfFile.java:1049-1140`, MegaMek 48fcb2f64), after source weapons,
+so a targeting computer sees the recovered weapon list. Mass and criticals come
+from the resolved definition, or from `createCalculatedEquipment` for the
+targeting computer (`mountAs`, `MiscType.java:614-616,1098-1102`), converted
+once to superheavy entries. An incomplete group, an unknown id, or a row whose
+owner yields no criticals stays in the unrecovered residual. Omni pod flags use
+the existing final token projection; rear flags come from the cells.
+`CASE II [IS]`/`ISCASEII` identity stays with `resolveEquipmentId` (#3303).

@@ -28,6 +28,8 @@ export type CriticalEntryKind =
   | 'heat-sink'
   | 'bomb-bay'
   | 'weapon'
+  | 'case'
+  | 'electronics'
   | 'unclassified';
 
 export type CriticalEntryEffect =

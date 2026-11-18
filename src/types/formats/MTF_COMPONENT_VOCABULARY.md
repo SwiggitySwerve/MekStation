@@ -77,6 +77,19 @@ alone never proves that the source cell is occupied. Export armor-family names
 remain owned by the export vocabulary; no second slot-marker names table is
 introduced in the loader or notice.
 
+`criticalSlotEquipment` lists the crit-only equipment the loader may recover
+into real mounts (PR-D). Each row is one **resolved equipment id** with the
+native spellings that resolve to it and their pinned `MiscType.java` /
+`Sensor.java` citation. A row carries no kind and no effect: the recovery kind
+comes from `criticalSlotNoticeEffects.ts`, and token-to-id resolution stays with
+`resolveEquipmentId`. Admission is exact membership of the resolved id, never a
+name or substring match. `mountAs` names the editor identity a recovered mount
+takes when the resolved id is a registry stub (the two targeting computers,
+sized by the existing targeting-computer owner). The first rows are CASE and
+the electronics whose definitions carry their own mass and criticals; spread
+systems (Chameleon, Null/Void Signature, Blue Shield), sized communications and
+the Drone OS have no row yet and stay in the unrecovered residual.
+
 ## Tripod and the other late cockpit types
 
 Java's table has 19 cockpits (`Mek.java:214-230`). `Tripod Cockpit` / `Tripod`
