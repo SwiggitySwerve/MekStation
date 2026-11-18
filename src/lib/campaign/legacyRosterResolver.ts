@@ -44,10 +44,11 @@ import type { LegacyRosterEvidence } from '@/types/campaign/LegacyCombatStateMig
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type { IUnitCombatDelta } from '@/types/combat/CombatOutcome';
 
-import { UNKNOWN_PILOT_REF } from '@/components/gameplay/pages/preBattleSessionBuilder';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 import type { ICampaignWithBridgeState } from './processors/scenarioEncounterBridgeProcessor';
+
+import { UNKNOWN_PILOT_REF } from './pilotRefPlaceholder';
 
 const SESSION_UNIT_ID = /^(player|opponent)-\d+-(.+)$/;
 

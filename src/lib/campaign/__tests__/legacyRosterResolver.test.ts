@@ -7,7 +7,7 @@
  */
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
-import { UNKNOWN_PILOT_REF } from '@/components/gameplay/pages/preBattleSessionBuilder';
+import { UNKNOWN_PILOT_REF } from '@/lib/campaign/pilotRefPlaceholder';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 import { resolveLegacyBattleUnitManifest } from '../legacyRosterResolver';

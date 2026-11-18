@@ -7,13 +7,13 @@ import type { IForce } from '@/types/force';
 import type { IPilot } from '@/types/pilot';
 
 import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
+import { UNKNOWN_PILOT_REF } from '@/lib/campaign/pilotRefPlaceholder';
 import { GameSide, type IGameUnit } from '@/types/gameplay';
 import { assertSkirmishUnitReference } from '@/utils/gameplay/preBattleSessionBuilder';
 
 type ForceAssignment = IForce['assignments'][number];
 type AssignedForceUnit = ForceAssignment & { unitId: string };
 
-export const UNKNOWN_PILOT_REF = 'Unknown';
 interface IPilotSkills {
   gunnery: number;
   piloting: number;
@@ -150,7 +150,7 @@ function buildGameUnits(
         `Player Unit ${index + 1}`,
       side: GameSide.Player,
       unitRef: assignment.unitId ?? '',
-      pilotRef: assignment.pilotId ?? 'Unknown',
+      pilotRef: assignment.pilotId ?? UNKNOWN_PILOT_REF,
       gunnery: getPilotSkills(assignment.pilotId, pilots).gunnery,
       piloting: getPilotSkills(assignment.pilotId, pilots).piloting,
       pilotToughness: getPilotToughness(assignment.pilotId, pilots),
@@ -167,7 +167,7 @@ function buildGameUnits(
         `Opponent Unit ${index + 1}`,
       side: GameSide.Opponent,
       unitRef: assignment.unitId ?? '',
-      pilotRef: assignment.pilotId ?? 'Unknown',
+      pilotRef: assignment.pilotId ?? UNKNOWN_PILOT_REF,
       gunnery: getPilotSkills(assignment.pilotId, pilots).gunnery,
       piloting: getPilotSkills(assignment.pilotId, pilots).piloting,
       pilotToughness: getPilotToughness(assignment.pilotId, pilots),
