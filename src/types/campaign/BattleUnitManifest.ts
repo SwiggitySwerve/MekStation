@@ -29,3 +29,15 @@ export type BattleUnitManifestEntry =
 export type BattleUnitManifest = Readonly<
   Record<string, BattleUnitManifestEntry>
 >;
+
+/**
+ * A manifest held on the campaign until its battle is applied. The date
+ * and launch key let a battle that never produced an outcome be pruned.
+ */
+export interface IPendingBattleUnitManifest {
+  readonly units: BattleUnitManifest;
+  /** ISO campaign date (not wall clock) the session was created on. */
+  readonly recordedOn: string;
+  /** Scenario (else mission) the battle launched for; null when unknown. */
+  readonly launchKey: string | null;
+}

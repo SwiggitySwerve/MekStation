@@ -13,7 +13,10 @@
  *   caller must treat that as an error, never guess.
  */
 
-import type { BattleUnitManifest } from '@/types/campaign/BattleUnitManifest';
+import type {
+  BattleUnitManifest,
+  IPendingBattleUnitManifest,
+} from '@/types/campaign/BattleUnitManifest';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type {
   IAppliedCombatOutcome,
@@ -22,6 +25,9 @@ import type {
 } from '@/types/combat/CombatOutcome';
 
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
+
+import { APPLIED_OUTCOME_RETENTION_DAYS } from './appliedOutcomes';
+import { campaignDaysBetween } from './campaignCalendar';
 
 export type DeltaRosterResolution =
   | { readonly kind: 'roster'; readonly rosterUnitId: string }
@@ -38,8 +44,51 @@ export function battleUnitManifestFor(
 ): BattleUnitManifest | undefined {
   return (
     (outcome as IAppliedCombatOutcome).unitManifest ??
-    campaign.battleUnitManifests?.[outcome.matchId]
+    campaign.battleUnitManifests?.[outcome.matchId]?.units
   );
+}
+
+type PendingManifests = Readonly<Record<string, IPendingBattleUnitManifest>>;
+
+/**
+ * Drop the manifests of battles that never produced an outcome: a match
+ * that is not pending is pruned once its mission/scenario is launched again
+ * (`relaunch`, the new match itself kept) or once it is older than the
+ * retained-outcome window in CAMPAIGN days. Returns the same object when
+ * nothing is pruned.
+ */
+export function prunePendingBattleUnitManifests(
+  manifests: PendingManifests,
+  {
+    pendingMatchIds,
+    asOf,
+    relaunch,
+  }: {
+    readonly pendingMatchIds: ReadonlySet<string>;
+    readonly asOf: Date;
+    readonly relaunch?: {
+      readonly launchKey: string;
+      readonly matchId: string;
+    };
+  },
+): PendingManifests {
+  const kept = Object.entries(manifests).filter(([matchId, entry]) => {
+    if (pendingMatchIds.has(matchId)) return true;
+    if (
+      relaunch &&
+      matchId !== relaunch.matchId &&
+      entry.launchKey === relaunch.launchKey
+    ) {
+      return false;
+    }
+    return (
+      campaignDaysBetween(new Date(entry.recordedOn), asOf) <=
+      APPLIED_OUTCOME_RETENTION_DAYS
+    );
+  });
+  return kept.length === Object.keys(manifests).length
+    ? manifests
+    : Object.fromEntries(kept);
 }
 
 export function resolveDeltaRosterUnit(

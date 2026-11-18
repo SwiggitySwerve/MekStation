@@ -108,6 +108,7 @@ function recordCampaignLaunchManifest(
     nonEmpty(linkage.campaignId),
     session.id,
     unitManifest,
+    nonEmpty(linkage.scenarioId) ?? nonEmpty(linkage.missionId),
   );
 }
 

@@ -147,7 +147,11 @@ function buildStart(): Record<string, string> {
     // T1 launch manifest recorded at session creation: session unit `a`
     // is roster unit `a`.
     battleUnitManifests: {
-      'crash-window-win': { a: { rosterUnitId: 'a' } },
+      'crash-window-win': {
+        units: { a: { rosterUnitId: 'a' } },
+        recordedOn: START.toISOString(),
+        launchKey: null,
+      },
     },
   });
   store.getState().enqueueOutcome(winForContract('c1'));

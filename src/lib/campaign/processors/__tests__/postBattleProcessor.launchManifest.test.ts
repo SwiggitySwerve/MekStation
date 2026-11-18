@@ -3,6 +3,7 @@
  * manifest, and a player delta the manifest cannot map fails the whole
  * outcome before the commit point.
  */
+import type { BattleUnitManifest } from '@/types/campaign/BattleUnitManifest';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type {
   IAppliedCombatOutcome,
@@ -184,6 +185,11 @@ const fullDeltas = [
   delta(OPPONENT_SESSION_ID, GameSide.Opponent),
 ];
 
+/** A manifest as the campaign holds it until the battle is applied. */
+function pending(units: BattleUnitManifest) {
+  return { units, recordedOn: '3025-06-15T00:00:00.000Z', launchKey: null };
+}
+
 const fullManifest = {
   [PLAYER_SESSION_ID]: { rosterUnitId: ROSTER_ID },
   [ALLY_SESSION_ID]: { notOnRoster: true as const },
@@ -201,7 +207,7 @@ describe('postBattleProcessor launch manifest (T1)', () => {
     const result = postBattleProcessor.process(
       campaignWith({
         pendingBattleOutcomes: [battle],
-        battleUnitManifests: { [MATCH]: fullManifest },
+        battleUnitManifests: { [MATCH]: pending(fullManifest) },
       }),
       new Date('3025-06-15T00:00:00Z'),
     );
@@ -234,7 +240,7 @@ describe('postBattleProcessor launch manifest (T1)', () => {
     };
     const start = campaignWith({
       pendingBattleOutcomes: [battle],
-      battleUnitManifests: { [MATCH]: partialManifest },
+      battleUnitManifests: { [MATCH]: pending(partialManifest) },
     });
 
     const day1 = postBattleProcessor.process(
@@ -254,7 +260,7 @@ describe('postBattleProcessor launch manifest (T1)', () => {
     expect(livePilot()).toEqual(rosterEntry());
 
     const retry = postBattleProcessor.process(
-      { ...failed, battleUnitManifests: { [MATCH]: fullManifest } },
+      { ...failed, battleUnitManifests: { [MATCH]: pending(fullManifest) } },
       new Date('3025-06-16T00:00:00Z'),
     );
     const applied = retry.campaign as ICampaignWithBattleState;
@@ -298,7 +304,7 @@ describe('postBattleProcessor launch manifest (T1)', () => {
     const result = postBattleProcessor.process(
       campaignWith({
         pendingBattleOutcomes: [battle],
-        battleUnitManifests: { [MATCH]: fullManifest },
+        battleUnitManifests: { [MATCH]: pending(fullManifest) },
       }),
       new Date('3025-06-15T00:00:00Z'),
     );
@@ -327,7 +333,7 @@ describe('postBattleProcessor launch manifest (T1)', () => {
     ]);
     const { campaign, summary, events } = applyPostBattle(
       battle,
-      campaignWith({ battleUnitManifests: { [MATCH]: fullManifest } }),
+      campaignWith({ battleUnitManifests: { [MATCH]: pending(fullManifest) } }),
     );
     const state = campaign.unitCombatStates[ROSTER_ID];
     expect(state.currentArmorPerLocation.RT).toBe(0);
@@ -474,5 +480,39 @@ describe('postBattleProcessor legacy battles without a launch manifest (T1)', ()
     expect(error).toContain(PLAYER_SESSION_ID);
     expect(error).toContain('roster-a');
     expect(error).toContain('roster-b');
+  });
+});
+
+describe('postBattleProcessor prunes abandoned launch manifests (T1)', () => {
+  it('drops a non-pending manifest older than 31 campaign days, even with an empty queue', () => {
+    const stale = {
+      units: fullManifest,
+      recordedOn: '3025-05-01T00:00:00.000Z',
+      launchKey: 'scn-a',
+    };
+    const fresh = { ...stale, recordedOn: '3025-06-10T00:00:00.000Z' };
+    const result = postBattleProcessor.process(
+      campaignWith({ battleUnitManifests: { stale, fresh } }),
+      new Date('3025-06-15T00:00:00Z'),
+    );
+    expect(
+      (result.campaign as ICampaignWithBattleState).battleUnitManifests,
+    ).toEqual({ fresh });
+  });
+
+  it('leaves the campaign untouched when nothing is stale', () => {
+    const start = campaignWith({
+      battleUnitManifests: {
+        fresh: {
+          units: fullManifest,
+          recordedOn: '3025-06-10T00:00:00.000Z',
+          launchKey: null,
+        },
+      },
+    });
+    expect(
+      postBattleProcessor.process(start, new Date('3025-06-15T00:00:00Z'))
+        .campaign,
+    ).toBe(start);
   });
 });

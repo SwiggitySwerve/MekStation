@@ -18,6 +18,7 @@ import type { IDayProcessor, IDayProcessorResult } from '../dayPipeline';
 import { withAppliedOn } from '../appliedOutcomes';
 import {
   battleUnitManifestFor,
+  prunePendingBattleUnitManifests,
   resolveDeltaRosterUnit,
 } from '../battleUnitManifest';
 import { publishContractFulfilled } from '../contractFulfillmentBus';
@@ -430,11 +431,24 @@ export const postBattleProcessor: IDayProcessor = {
   id: 'post-battle',
   phase: DayPhase.MISSIONS - 50,
   displayName: 'Post-Battle Processing',
-  process(campaign: ICampaign): IDayProcessorResult {
-    const extended = campaign as ICampaignWithBattleState;
-    const queue = extended.pendingBattleOutcomes ?? [];
+  process(campaign: ICampaign, date: Date): IDayProcessorResult {
+    const queue =
+      (campaign as ICampaignWithBattleState).pendingBattleOutcomes ?? [];
+    // T1: manifests of battles that never produced an outcome age out on
+    // the campaign calendar (the same window as retained outcomes).
+    const manifests = campaign.battleUnitManifests;
+    const prunedManifests = manifests
+      ? prunePendingBattleUnitManifests(manifests, {
+          pendingMatchIds: new Set(queue.map((outcome) => outcome.matchId)),
+          asOf: date,
+        })
+      : manifests;
+    const extended: ICampaignWithBattleState =
+      prunedManifests === manifests
+        ? campaign
+        : { ...campaign, battleUnitManifests: prunedManifests };
     if (queue.length === 0) {
-      return { events: [], campaign };
+      return { events: [], campaign: extended };
     }
     let working: ICampaignWithBattleState = extended;
     const events: IDayEvent[] = [];

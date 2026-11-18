@@ -17,7 +17,7 @@ import type {
 import type { IGmCampaignProjectedEffect } from '../interventions/GmCampaignInterventionTypes';
 import type { IGmTimeCascadeProjectedEffect } from '../interventions/GmTimeCascadeInterventionTypes';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
-import type { BattleUnitManifest } from './BattleUnitManifest';
+import type { IPendingBattleUnitManifest } from './BattleUnitManifest';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { ICoopSession } from './CoopSession';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
@@ -184,7 +184,9 @@ export interface ICampaign {
    * session is created; moved onto the applied outcome record when
    * `postBattleProcessor` applies the battle.
    */
-  readonly battleUnitManifests?: Readonly<Record<string, BattleUnitManifest>>;
+  readonly battleUnitManifests?: Readonly<
+    Record<string, IPendingBattleUnitManifest>
+  >;
 
   /**
    * Session-keyed combat states from older saves that the legacy migration

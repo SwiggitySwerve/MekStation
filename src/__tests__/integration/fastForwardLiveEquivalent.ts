@@ -285,6 +285,7 @@ export async function fightBridgedScenarioLiveEquivalent(
       linkage.campaignId,
       outcome.matchId,
       prepared.unitManifest,
+      handoff.scenarioId,
     )
   ) {
     throw new Error(

@@ -1,5 +1,5 @@
 import type { IShoppingList } from '@/types/campaign/acquisition/acquisitionTypes';
-import type { BattleUnitManifest } from '@/types/campaign/BattleUnitManifest';
+import type { IPendingBattleUnitManifest } from '@/types/campaign/BattleUnitManifest';
 import type {
   ICampaign,
   ICampaignOptions,
@@ -141,7 +141,7 @@ export interface SerializedCampaignState {
   timeCascadeEvents?: readonly IGmTimeCascadeProjectedEffect[];
   recentlyAppliedOutcomes?: readonly IAppliedCombatOutcome[];
   /** T1 launch manifests for battles not yet applied, keyed by match id. */
-  battleUnitManifests?: Readonly<Record<string, BattleUnitManifest>>;
+  battleUnitManifests?: Readonly<Record<string, IPendingBattleUnitManifest>>;
   /** Legacy session-keyed combat states awaiting the user's review. */
   legacyCombatStateFlags?: readonly ILegacyCombatStateFlag[];
   /**

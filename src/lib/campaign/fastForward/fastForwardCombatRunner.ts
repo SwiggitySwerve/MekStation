@@ -511,6 +511,7 @@ export async function runFastForwardBattle(
       campaign.id,
       outcome.matchId,
       prepared.unitManifest,
+      handoff.scenarioId,
     )
   ) {
     throw new Error(
