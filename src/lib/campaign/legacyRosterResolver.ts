@@ -20,8 +20,19 @@
  *     conflicts: the unit now has another pilot, or that pilot is now
  *     linked to another roster unit (the force or roster changed since).
  *     With several pool units it resolves only by pilot.
+ *   - Without a real `pilotRef`, a unit resolves only if the mission's force
+ *     record (when known) lists no unit that has left the roster: a
+ *     removed unit does not change the force record, so it may be the one
+ *     that fought.
  *   - Two player units resolving to the same roster unit are both refused.
  * Slot order is never used.
+ *
+ * Known limit: for a delta with no `pilotRef`, a unit swapped WITHIN the
+ * force after the battle (the force edited, every unit still on the
+ * roster) is not detectable, and the force record as it is now is used.
+ * Only outcomes recorded before `IUnitCombatDelta.pilotRef` was added
+ * (2f3bd661e, 2026-07-10) lack a pilot; every later outcome carries the
+ * session unit's pilot linkage.
  */
 
 import type {
@@ -107,12 +118,19 @@ function matchUnit(
   pool: readonly IRosterUnitProjection[],
   fromForce: boolean,
   rosterUnits: readonly IRosterUnitProjection[],
+  forceListsRemovedUnit: boolean,
 ): Match {
   const candidates = pool.map((rosterUnit) => rosterUnit.unitId);
   const pilotRef =
     unit.pilotRef && unit.pilotRef !== UNKNOWN_PILOT_REF
       ? unit.pilotRef
       : undefined;
+  // Without a pilot, a force record that still lists a unit no longer on
+  // the roster is incomplete evidence: the removed unit may be the one
+  // that fought.
+  if (!pilotRef && forceListsRemovedUnit) {
+    return { kind: 'unresolved', reason: 'ambiguous', candidates };
+  }
   const byPilot = pilotRef
     ? pool.filter((rosterUnit) => rosterUnit.pilotId === pilotRef)
     : [];
@@ -171,6 +189,10 @@ export function resolveLegacyBattleUnitManifest(
   }
   const force = missionForce(campaign, battle.scenarioId);
   const members = force ? new Set(force.unitIds) : undefined;
+  const rosterIds = new Set(rosterUnits.map((rosterUnit) => rosterUnit.unitId));
+  const forceListsRemovedUnit = [...(members ?? [])].some(
+    (unitId) => !rosterIds.has(unitId),
+  );
 
   const matches = players.map((unit) => {
     const design = designOf(unit);
@@ -201,6 +223,7 @@ export function resolveLegacyBattleUnitManifest(
         fromForce ? inForce : ofDesign,
         fromForce,
         rosterUnits,
+        forceListsRemovedUnit,
       ),
     };
   });

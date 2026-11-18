@@ -676,3 +676,46 @@ describe('postBattleProcessor prunes abandoned launch manifests (T1)', () => {
     ).toBe(start);
   });
 });
+
+describe('postBattleProcessor legacy force evidence (review round 4)', () => {
+  it('flags, and does not write, a no-pilotRef delta whose force still lists a unit removed from the roster', () => {
+    useCampaignRosterStore.setState({
+      units: [
+        { unitId: 'roster-a', unitName: 'Atlas A', unitRef: 'atlas-as7-d' },
+      ] as never,
+    });
+    const battle: ICombatOutcome = {
+      ...outcome([
+        delta(PLAYER_SESSION_ID, GameSide.Player, { unitRef: 'atlas-as7-d' }),
+      ]),
+      scenarioId: 'scn-contract-1-3025-06-14-team-force-1',
+    };
+    const result = postBattleProcessor.process(
+      campaignWith({
+        pendingBattleOutcomes: [battle],
+        forces: new Map([
+          [
+            'team-force-1',
+            {
+              id: 'team-force-1',
+              name: 'Team One',
+              subForceIds: [],
+              unitIds: ['roster-a', 'roster-b'],
+            } as never,
+          ],
+        ]),
+      }),
+      new Date('3025-06-15T00:00:00Z'),
+    );
+    const applied = result.campaign as ICampaignWithBattleState;
+    expect(applied.processedBattleIds).toContain(MATCH);
+    expect(applied.unitCombatStates).toEqual({});
+    expect(
+      (applied.legacyCombatStateFlags ?? []).map((flag) => [
+        flag.kind,
+        flag.sessionUnitId,
+      ]),
+    ).toEqual([['unapplied-delta', PLAYER_SESSION_ID]]);
+    useCampaignRosterStore.setState({ units: [] });
+  });
+});

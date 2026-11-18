@@ -230,3 +230,20 @@ describe('resolveLegacyBattleUnitManifest review round 3', () => {
     });
   });
 });
+
+describe('resolveLegacyBattleUnitManifest review round 4', () => {
+  it('a no-pilotRef delta is unresolved when the force still lists a unit no longer on the roster', () => {
+    // Two Atlases fought in the force; roster-b was later removed from the
+    // roster, which does not touch the force record.
+    const result = resolveLegacyBattleUnitManifest(
+      campaignWithTeam(['roster-a', 'roster-b']),
+      roster(['roster-a', 'atlas-as7-d']),
+      {
+        scenarioId: SCENARIO,
+        unitDeltas: [player('player-1-atlas-as7-d', 'atlas-as7-d')],
+      },
+    );
+    expect(result.manifest).toEqual({});
+    expect(result.unresolved['player-1-atlas-as7-d']?.reason).toBe('ambiguous');
+  });
+});
