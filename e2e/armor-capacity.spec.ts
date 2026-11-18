@@ -250,9 +250,12 @@ test('saved MegaMek appearance falls back safely and all configuration previews 
       .getByRole('button', { name: configuration, exact: true })
       .click();
     for (const [name, id] of styles) {
+      // Match the style list button by its own name: the armor diagram's
+      // "Silhouette: <style>" pickers in this section also contain the name.
       await section
-        .getByRole('button')
-        .filter({ has: page.getByText(name, { exact: true }) })
+        .getByRole('button', {
+          name: new RegExp(`^${id} style preview ${name} `),
+        })
         .click();
       const preview = section.locator(
         `[data-armor-preview="${id}"][data-mech-configuration="${configId}"]`,
