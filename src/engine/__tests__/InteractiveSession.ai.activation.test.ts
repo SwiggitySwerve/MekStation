@@ -6,6 +6,7 @@ import type {
   IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 
+import { withUnitFieldsRemoved } from '@/__tests__/helpers/sessionState';
 import { GameEventType } from '@/types/gameplay';
 import {
   GamePhase,
@@ -132,7 +133,7 @@ function createAIContext(
 describe('runInteractiveSessionAITurn unit scoping', () => {
   it('locks the requested opponent when recovered state side is missing', () => {
     let session = createMovementSession();
-    Reflect.deleteProperty(session.currentState.units['opponent-1'], 'side');
+    session = withUnitFieldsRemoved(session, 'opponent-1', ['side']);
     const botPlayer = {
       evaluateRetreat: jest.fn(() => null),
       playMovementPhase: jest.fn(() => null),
@@ -168,8 +169,8 @@ describe('runInteractiveSessionAITurn unit scoping', () => {
         phase: GamePhase.WeaponAttack,
       },
     };
-    Reflect.deleteProperty(session.currentState.units['opponent-1'], 'side');
-    Reflect.deleteProperty(session.currentState.units['opponent-2'], 'side');
+    session = withUnitFieldsRemoved(session, 'opponent-1', ['side']);
+    session = withUnitFieldsRemoved(session, 'opponent-2', ['side']);
     Reflect.deleteProperty(session.units[2], 'side');
     const playAttackPhase = jest.fn(() => null);
     const context = createAIContext(

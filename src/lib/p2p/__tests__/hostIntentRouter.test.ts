@@ -5,6 +5,7 @@
  * @spec openspec/changes/add-p2p-game-session-sync/specs/multiplayer-sync/spec.md § 7
  */
 
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import {
   GamePhase,
   GameEventType,
@@ -402,14 +403,14 @@ it.each([false, true])(
   (buffered) => {
     for (const phase of [GamePhase.WeaponAttack, GamePhase.PhysicalAttack]) {
       const initial = fixtureSession();
-      const session = {
+      let session = {
         ...initial,
         currentState: { ...initial.currentState, phase },
       };
-      session.currentState.units['guest-0'] = {
+      session = withUnitState(session, 'guest-0', {
         ...session.currentState.units['guest-0'],
         lockState: LockState.Locked,
-      };
+      });
       const harness = makeAdapter(session);
       harness.setGuestPending(buffered);
       const router = createHostIntentRouter(harness.adapter);

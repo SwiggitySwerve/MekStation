@@ -9,6 +9,7 @@
 
 import type { InteractiveSession } from '@/engine/GameEngine';
 
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import { applyInteractiveSessionMovement } from '@/engine/InteractiveSession.actions';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplayStore } from '@/stores/useGameplayStore';
@@ -217,7 +218,7 @@ describe('commitComposedMovement (task 1.4)', () => {
       ...{ gunnery: 4, piloting: 5 },
     });
     const config = { mapRadius: 4, turnLimit: 0, optionalRules: [] };
-    const session = advancePhase(
+    let session = advancePhase(
       startGame(
         createGameSession({ ...config, victoryConditions: ['elimination'] }, [
           mech('hbk', GameSide.Player),
@@ -226,9 +227,16 @@ describe('commitComposedMovement (task 1.4)', () => {
         GameSide.Player,
       ),
     );
+    session = withUnitState(session, 'hbk', {
+      ...session.currentState.units.hbk,
+      position: { q: 0, r: 0 },
+      heat: 20,
+    });
+    session = withUnitState(session, 'shd', {
+      ...session.currentState.units.shd,
+      position: { q: 3, r: 0 },
+    });
     const units = session.currentState.units;
-    units.hbk = { ...units.hbk, position: { q: 0, r: 0 }, heat: 20 };
-    units.shd = { ...units.shd, position: { q: 3, r: 0 } };
     const declaration = intentToMovementDeclaration(
       { items: [], lockedMode: null },
       MovementType.Walk,

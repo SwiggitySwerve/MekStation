@@ -6,6 +6,7 @@
 
 import type { IWeapon } from '@/simulation/ai/types';
 
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import {
   GamePhase,
   LockState,
@@ -969,11 +970,11 @@ it.each([LockState.Locked, LockState.Revealed, LockState.Resolved])(
   'refuses committed ranged and physical P2P declarations in %s',
   (lockState) => {
     for (const phase of [GamePhase.WeaponAttack, GamePhase.PhysicalAttack]) {
-      const session = withPhase(fixtureSession(), phase);
-      session.currentState.units['guest-0'] = {
+      let session = withPhase(fixtureSession(), phase);
+      session = withUnitState(session, 'guest-0', {
         ...session.currentState.units['guest-0'],
         lockState,
-      };
+      });
       const before = JSON.stringify(session);
       const intent =
         phase === GamePhase.WeaponAttack

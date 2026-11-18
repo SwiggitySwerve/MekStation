@@ -29,6 +29,19 @@ export function withUnitState(
   }));
 }
 
+/** A session whose unit lacks the named own fields (e.g. a recovered unit with no side). */
+export function withUnitFieldsRemoved(
+  session: IGameSession,
+  unitId: string,
+  fields: readonly (keyof IUnitGameState)[],
+): IGameSession {
+  const unit: Record<string, unknown> = {
+    ...session.currentState.units[unitId],
+  };
+  for (const field of fields) delete unit[field];
+  return withUnitState(session, unitId, unit as unknown as IUnitGameState);
+}
+
 /** Replace an InteractiveSession's held state; returns the new session. */
 export function replaceInteractiveState(
   interactive: InteractiveSession,
