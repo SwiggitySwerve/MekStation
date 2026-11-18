@@ -363,3 +363,62 @@ describe('library receipts from before the S1 writer version', () => {
     expect(libraryState({ ...state, librarySave: receipt })).toBe('matched');
   });
 });
+
+/** What the version-1 writer saved for Scarecrow: no crit-only Bloodhound or IS CASE II mount. */
+function withoutPrD1Mounts(state: UnitState): UnitState {
+  return {
+    ...state,
+    equipment: state.equipment.filter(
+      (item) =>
+        !['bloodhound-active-probe', 'caseii'].includes(item.equipmentId),
+    ),
+  };
+}
+
+describe('library receipts from before the PR-D1 writer version', () => {
+  const opened = () => loader.mapToUnitState(parseUnit(scarecrow), false);
+  const libraryState = (state: UnitState) =>
+    getEditorSaveState({ store: 'battlemech', state }).library.state;
+  const olderReceipt = (state: UnitState, writerVersion?: number) => {
+    const before = withoutPrD1Mounts(state);
+    return {
+      id: 'pre-pr-d1-library-copy',
+      version: 6,
+      fingerprint: getUnitLibraryFingerprint(before),
+      draftFingerprint: getUnitDraftFingerprint(before),
+      ...(writerVersion === undefined ? {} : { writerVersion }),
+    };
+  };
+
+  it.each([
+    ['a version-1 receipt', 1],
+    ['a legacy receipt', undefined],
+  ] as const)(
+    'reads %s on freshly opened Scarecrow as saved-older-writer',
+    (_label, writerVersion) => {
+      const state = opened();
+      expect(state.isModified).toBe(false);
+      const receipt = olderReceipt(state, writerVersion);
+      expect(getUnitLibraryFingerprint(state)).not.toBe(receipt.fingerprint);
+      expect(libraryState({ ...state, librarySave: receipt })).toBe(
+        'saved-older-writer',
+      );
+    },
+  );
+
+  it.each([
+    ['a version-1 receipt', 1],
+    ['a legacy receipt', undefined],
+  ] as const)(
+    'reads %s after a real edit as changed',
+    (_label, writerVersion) => {
+      const store = createUnitStore(opened());
+      store.setState({
+        librarySave: olderReceipt(store.getState(), writerVersion),
+      });
+      store.getState().setHeatSinkCount(store.getState().heatSinkCount + 1);
+      expect(store.getState().isModified).toBe(true);
+      expect(libraryState(store.getState())).toBe('changed');
+    },
+  );
+});
