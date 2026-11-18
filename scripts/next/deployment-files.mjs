@@ -26,6 +26,10 @@ export const deploymentTraceExcludes = [
   '**/node_modules/**/{test,tests,examples}/**',
   // The API uses its platform package binary; this duplicate serves the CLI.
   '**/node_modules/esbuild/bin/esbuild{,.exe}',
+  // Images are unoptimized (next.config.ts), so sharp never loads at runtime;
+  // Next's trace carried its binding without libvips (PARITY-PLAN 1.0.53).
+  '**/node_modules/sharp{,/**}',
+  '**/node_modules/@img{,/**}',
   ...nativeModules.flatMap(({ name, buildSources }) =>
     buildSources.map((source) => `**/node_modules/${name}/${source}{,/**}`),
   ),
