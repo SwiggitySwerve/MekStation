@@ -561,19 +561,19 @@ jobs:
         working-directory: desktop
         run: npm run rebuild:next-standalone
 
-      - name: Save native module cache
-        if: ${{ steps.native-cache.outputs.cache-hit != 'true' }}
-        uses: actions/cache/save@v5
-        with:
-          path: desktop/.electron-native-cache
-          key: ${{ steps.native-cache.outputs.cache-primary-key }}
-
       - name: Save Electron downloads
         if: ${{ !cancelled() && steps.electron-cache.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v5
         with:
           path: ${{ env.electron_config_cache }}
           key: ${{ steps.electron-cache.outputs.cache-primary-key }}
+
+      - name: Save native module cache
+        if: ${{ steps.native-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: desktop/.electron-native-cache
+          key: ${{ steps.native-cache.outputs.cache-primary-key }}
 
       # Every code change builds the unpacked app: the same config, asar,
       # afterPack copy, native modules and server closure, without the

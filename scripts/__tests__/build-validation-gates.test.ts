@@ -160,20 +160,25 @@ describe('Electron download caches', () => {
           '${{ github.workspace }}/.cache/electron-builder',
       });
 
-      for (const [cacheId, cacheEnv, download] of [
+      // Each download is one step, or adjacent steps of which exactly one
+      // runs; the save follows the last of them.
+      for (const [cacheId, cacheEnv, downloads] of [
         [
           'electron-cache',
           'electron_config_cache',
-          'npm run rebuild:next-standalone',
+          ['npm run rebuild:next-standalone'],
         ],
         [
           'electron-builder-cache',
           'ELECTRON_BUILDER_CACHE',
           id === 'simulation-checks'
-            ? 'npx electron-builder --linux tar.gz --publish never'
-            : 'npx electron-builder --dir --publish never',
+            ? [
+                'npx electron-builder --linux dir --publish never',
+                'npx electron-builder --linux tar.gz --publish never',
+              ]
+            : ['npx electron-builder --dir --publish never'],
         ],
-      ]) {
+      ] as const) {
         const restoreIndex = job.steps.findIndex((step) => step.id === cacheId);
         expect(restoreIndex).toBeGreaterThan(0);
         expect(restoreIndex).toBeLessThan(setupIndex);
@@ -189,9 +194,21 @@ describe('Electron download caches', () => {
             "-v1-${{ hashFiles('desktop/package-lock.json') }}",
         });
 
-        const downloadStep = command(job, download, 'desktop');
-        expect(downloadStep.env?.[cacheEnv]).toBeUndefined();
-        const save = job.steps[job.steps.indexOf(downloadStep) + 1];
+        const downloadSteps = downloads.map((download) =>
+          command(job, download, 'desktop'),
+        );
+        const first = job.steps.indexOf(downloadSteps[0]);
+        downloadSteps.forEach((step, offset) => {
+          expect(job.steps.indexOf(step)).toBe(first + offset);
+          expect(step.env?.[cacheEnv]).toBeUndefined();
+        });
+        if (downloadSteps.length === 2) {
+          expect(downloadSteps.map((step) => step.if)).toEqual([
+            "${{ !cancelled() && needs.detect-changes.outputs.packaging != 'true' }}",
+            "${{ !cancelled() && needs.detect-changes.outputs.packaging == 'true' }}",
+          ]);
+        }
+        const save = job.steps[first + downloadSteps.length];
         expect(save.uses).toBe('actions/cache/save@v5');
         expect(save.if).toBe(
           '${{ !cancelled() && steps.' +
@@ -205,6 +222,38 @@ describe('Electron download caches', () => {
       }
     },
   );
+
+  it('simulation-checks restores the native module cache before the rebuild and saves only a successful miss after it', () => {
+    const job = pr.jobs['simulation-checks'];
+    const cachePath = 'desktop/.electron-native-cache';
+    const rebuild = job.steps.indexOf(
+      command(job, 'npm run rebuild:next-standalone', 'desktop'),
+    );
+    const restore = job.steps.findIndex((step) => step.id === 'native-cache');
+    const save = job.steps.findIndex(
+      (step) =>
+        step.uses === 'actions/cache/save@v5' && step.with?.path === cachePath,
+    );
+    expect(restore).toBeGreaterThan(0);
+    expect(restore).toBeLessThan(rebuild);
+    expect(save).toBeGreaterThan(rebuild);
+    expect(job.steps[restore].uses).toBe('actions/cache/restore@v5');
+    expect(job.steps[restore].with?.path).toBe(cachePath);
+    // The runner image is in the key: a restored binding is only reused on
+    // the image it was built on (the rebuild script also probes it).
+    expect(job.steps[restore].with?.key).toContain(
+      '${{ steps.runner-image.outputs.id }}',
+    );
+    // No status function: the implicit success() keeps a failed rebuild's
+    // directory out of the cache.
+    expect(job.steps[save].if).toBe(
+      "${{ steps.native-cache.outputs.cache-hit != 'true' }}",
+    );
+    expect(job.steps[save].with).toEqual({
+      path: cachePath,
+      key: '${{ steps.native-cache.outputs.cache-primary-key }}',
+    });
+  });
 });
 
 describe('Lint and Test aggregator', () => {
