@@ -200,7 +200,8 @@ function stripTechMarkersFromName(name: string): string {
     .trim();
 }
 
-function getTechHintFromToken(token: string): TechHint | null {
+/** A token's own Clan or Inner Sphere marker, if it carries one. */
+export function getTechHintFromToken(token: string): TechHint | null {
   const trimmed = token.trim();
 
   // Clan markers commonly found in MegaMek exports

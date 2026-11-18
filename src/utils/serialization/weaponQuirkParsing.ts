@@ -21,6 +21,22 @@ function appendNativeQuirk(
   appendQuirk(result, quirk, `${location}:${slot}:${weapon}`);
 }
 
+/** Reads a native `LOCATION:SLOT:WEAPON_NAME` key; a legacy name key returns undefined. */
+export function parseNativeWeaponQuirkKey(
+  key: string,
+): { location: string; slot: number; weapon: string } | undefined {
+  const parts = key.split(':');
+  if (parts.length !== 3) return undefined;
+  const [location, rawSlot, weapon] = parts;
+  const slot = Number(rawSlot);
+  return location &&
+    /^\d+$/.test(rawSlot) &&
+    Number.isSafeInteger(slot) &&
+    weapon
+    ? { location, slot, weapon }
+    : undefined;
+}
+
 function appendQuirk(
   result: Record<string, string[]>,
   quirk: string,
