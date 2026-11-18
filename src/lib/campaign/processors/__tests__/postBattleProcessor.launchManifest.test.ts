@@ -270,7 +270,7 @@ describe('postBattleProcessor launch manifest (T1)', () => {
     expect(livePilot().campaignMissions).toBe(1);
   });
 
-  it('an outcome with no manifest at all is an error and stays queued', () => {
+  it('an outcome with no manifest and no roster match is an error and stays queued', () => {
     const battle = outcome(fullDeltas);
     const result = postBattleProcessor.process(
       campaignWith({ pendingBattleOutcomes: [battle] }),
@@ -372,5 +372,107 @@ describe('postBattleProcessor launch manifest (T1)', () => {
     const applied = result.campaign as ICampaignWithBattleState;
     expect(applied.processedBattleIds).toContain(MATCH);
     expect(applied.unitCombatStates).toEqual({});
+  });
+});
+
+// ----------------------------------------------------------------------------
+// Legacy battles: queued before the manifest existed, or started before the
+// upgrade and finished after. The apply resolves them with the migration's
+// trust order, and only an ambiguous one stays queued.
+// ----------------------------------------------------------------------------
+
+describe('postBattleProcessor legacy battles without a launch manifest (T1)', () => {
+  const TEAM_FORCE = 'team-force-1';
+  const LEGACY_SCENARIO = `scn-contract-1-3025-06-14-${TEAM_FORCE}`;
+
+  function legacyOutcome(pilotRef?: string): ICombatOutcome {
+    return {
+      ...outcome([
+        delta(PLAYER_SESSION_ID, GameSide.Player, {
+          unitRef: 'atlas-as7-d',
+          ...(pilotRef ? { pilotRef } : {}),
+        }),
+        delta(OPPONENT_SESSION_ID, GameSide.Opponent),
+      ]),
+      scenarioId: LEGACY_SCENARIO,
+    };
+  }
+
+  function teamCampaign(unitIds: readonly string[]): ICampaignWithBattleState {
+    return campaignWith({
+      forces: new Map([
+        [
+          TEAM_FORCE,
+          {
+            id: TEAM_FORCE,
+            name: 'Team One',
+            subForceIds: [],
+            unitIds: [...unitIds],
+          } as never,
+        ],
+      ]),
+    });
+  }
+
+  function seedRosterUnits(
+    units: readonly { unitId: string; unitRef: string; pilotId?: string }[],
+  ): void {
+    useCampaignRosterStore.setState({
+      units: units.map((unit) => ({ ...unit, unitName: unit.unitId })) as never,
+    });
+  }
+
+  afterEach(() => {
+    useCampaignRosterStore.setState({ pilots: [], units: [] });
+  });
+
+  it('applies a pending legacy outcome under the roster unit the force record resolves', () => {
+    seedRosterUnits([
+      { unitId: ROSTER_ID, unitRef: 'atlas-as7-d' },
+      { unitId: 'roster-unit-8', unitRef: 'locust-lct-1v' },
+    ]);
+    const battle = legacyOutcome();
+    const result = postBattleProcessor.process(
+      {
+        ...teamCampaign([ROSTER_ID, 'roster-unit-8']),
+        pendingBattleOutcomes: [battle],
+      },
+      new Date('3025-06-15T00:00:00Z'),
+    );
+    const applied = result.campaign as ICampaignWithBattleState;
+    expect(applied.processedBattleIds).toContain(MATCH);
+    expect(Object.keys(applied.unitCombatStates)).toEqual([ROSTER_ID]);
+    const record = applied.recentlyAppliedOutcomes?.find(
+      (o) => o.matchId === MATCH,
+    ) as IAppliedCombatOutcome | undefined;
+    expect(record?.unitManifest).toEqual({
+      [PLAYER_SESSION_ID]: { rosterUnitId: ROSTER_ID },
+    });
+  });
+
+  it('keeps an ambiguous legacy outcome queued, naming the candidates', () => {
+    seedRosterUnits([
+      { unitId: 'roster-a', unitRef: 'atlas-as7-d', pilotId: 'pilot-a' },
+      { unitId: 'roster-b', unitRef: 'atlas-as7-d', pilotId: 'pilot-b' },
+    ]);
+    const battle = legacyOutcome('pilot-unknown');
+    const result = postBattleProcessor.process(
+      {
+        ...teamCampaign(['roster-a', 'roster-b']),
+        pendingBattleOutcomes: [battle],
+      },
+      new Date('3025-06-15T00:00:00Z'),
+    );
+    const failed = result.campaign as ICampaignWithBattleState;
+    expect(failed.pendingBattleOutcomes).toEqual([battle]);
+    expect(failed.processedBattleIds ?? []).not.toContain(MATCH);
+    expect(failed.unitCombatStates).toEqual({});
+    const error = String(
+      result.events.find((e) => e.type === 'post_battle_apply_failed')?.data
+        ?.error,
+    );
+    expect(error).toContain(PLAYER_SESSION_ID);
+    expect(error).toContain('roster-a');
+    expect(error).toContain('roster-b');
   });
 });

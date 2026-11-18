@@ -9,14 +9,8 @@
  * Player entries are never moved. Each retained delta in
  * `recentlyAppliedOutcomes` that carries the session key is mapped to its
  * roster unit on its own and re-applied under the roster key in apply
- * order. Trust order for a delta, never slot alone:
- *   1. the mission's force record: `bridgedEncounters[scenarioId]`'s player
- *      force, or (bridged encounters are not persisted) the team force
- *      whose id ends the scenario id (`scn-<contract>-<date>-<teamForceId>`,
- *      `scenarioGenerationProcessor.buildScenarioId`), intersected with the
- *      roster and matched on `unitRef`;
- *   2. `delta.pilotRef` against the roster unit's `pilotId`;
- *   3. the design being unique on that mission and on the roster.
+ * order, matched by `legacyRosterResolver` (its trust order: force record,
+ * then pilot, then design uniqueness; never slot alone).
  *
  * An entry is left for the user (flagged) when its retained deltas do not
  * rebuild it, a delta has no single candidate, its roster unit already has
@@ -43,19 +37,17 @@ import type {
 
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
-import type { ICampaignWithBridgeState } from './processors/scenarioEncounterBridgeProcessor';
-
+import {
+  isSessionKeyedUnitId,
+  resolveLegacyRosterUnit,
+} from './legacyRosterResolver';
 import {
   applyUnitDelta,
   isLostOnField,
   playerWon,
 } from './processors/postBattleProcessor.helpers';
 
-const SESSION_UNIT_ID = /^(player|opponent)-\d+-(.+)$/;
-
-export function isSessionKeyedUnitId(key: string): boolean {
-  return SESSION_UNIT_ID.test(key);
-}
+export { isSessionKeyedUnitId };
 
 export interface ISessionKeyedCombatStateMigration {
   /** Campaign with roster-keyed rebuilds, no session-keyed entries, and flags. */
@@ -86,58 +78,20 @@ interface IEntryAnalysis {
   reason: LegacyCombatStateFlagReason | null;
 }
 
-function unitRefOf(delta: IUnitCombatDelta): string | undefined {
-  return delta.unitRef ?? SESSION_UNIT_ID.exec(delta.unitId)?.[2];
-}
-
-function missionForce(
-  campaign: ICampaign,
-  scenarioId: string | null,
-): { readonly unitIds: readonly string[] } | undefined {
-  if (!scenarioId) return undefined;
-  const bridgedForceId = (campaign as ICampaignWithBridgeState)
-    .bridgedEncounters?.[scenarioId]?.playerForce?.forceId;
-  if (bridgedForceId) return campaign.forces.get(bridgedForceId);
-  const encoded = [...campaign.forces.values()].filter((force) =>
-    scenarioId.endsWith(`-${force.id}`),
-  );
-  return encoded.length === 1 ? encoded[0] : undefined;
-}
-
 function mapDelta(
   campaign: ICampaign,
   roster: readonly IRosterUnitProjection[],
   retained: IRetainedDelta,
 ): IDeltaMapping {
-  const { delta, outcome } = retained;
-  const unitRef = unitRefOf(delta);
-  if (!unitRef) return { retained, candidates: [] };
-  let pool = roster.filter((unit) => unit.unitRef === unitRef);
-
-  const force = missionForce(campaign, outcome.scenarioId);
-  if (force) {
-    const members = new Set(force.unitIds);
-    const inForce = pool.filter((unit) => members.has(unit.unitId));
-    if (inForce.length === 1) {
-      return { retained, candidates: [inForce[0].unitId], evidence: 'force' };
-    }
-    if (inForce.length > 1) pool = inForce;
-  }
-
-  if (delta.pilotRef) {
-    const byPilot = pool.filter((unit) => unit.pilotId === delta.pilotRef);
-    if (byPilot.length === 1) {
-      return { retained, candidates: [byPilot[0].unitId], evidence: 'pilot' };
-    }
-  }
-
-  const sameDesignOnMission = outcome.unitDeltas.filter(
-    (other) => other.side === GameSide.Player && unitRefOf(other) === unitRef,
-  ).length;
-  if (sameDesignOnMission === 1 && pool.length === 1) {
-    return { retained, candidates: [pool[0].unitId], evidence: 'design' };
-  }
-  return { retained, candidates: pool.map((unit) => unit.unitId) };
+  return {
+    retained,
+    ...resolveLegacyRosterUnit(
+      campaign,
+      roster,
+      retained.outcome,
+      retained.delta,
+    ),
+  };
 }
 
 /**

@@ -23,6 +23,7 @@ import {
 import { publishContractFulfilled } from '../contractFulfillmentBus';
 import { getDayPipeline } from '../dayPipeline';
 import { DayPhase, type IDayEvent } from '../dayPipeline';
+import { resolveLegacyBattleUnitManifest } from '../legacyRosterResolver';
 import { applyOutcomePrestige } from '../prestige/applyOutcomePrestige';
 import { applyContractClosure } from './contractClosure';
 import {
@@ -65,6 +66,8 @@ interface IOutcomeDeltaApplicationContext {
   readonly campaign: ICampaignWithBattleState;
   readonly outcome: ICombatOutcome;
   readonly manifest: BattleUnitManifest | undefined;
+  /** Legacy (manifest-less) player units with no single roster match. */
+  readonly legacyUnresolved?: Readonly<Record<string, readonly string[]>>;
   readonly wonByPlayer: boolean;
   readonly unitStates: Record<string, IUnitCombatState>;
   readonly nowIso: string;
@@ -82,6 +85,7 @@ function applyOutcomeDeltas({
   campaign,
   outcome,
   manifest,
+  legacyUnresolved,
   wonByPlayer,
   unitStates,
   nowIso,
@@ -137,7 +141,16 @@ function applyOutcomeDeltas({
     const resolution = resolveDeltaRosterUnit(delta, manifest);
     if (resolution.kind === 'skip') continue;
     if (resolution.kind === 'unmapped') {
-      errors.push(`unit ${delta.unitId}: ${resolution.message}`);
+      const candidates = legacyUnresolved?.[delta.unitId];
+      errors.push(
+        `unit ${delta.unitId}: ${
+          candidates === undefined
+            ? resolution.message
+            : candidates.length === 0
+              ? 'battle has no launch manifest and no roster unit matches it'
+              : `battle has no launch manifest and it matches more than one roster unit (${candidates.join(', ')})`
+        }`,
+      );
       continue;
     }
     const rosterUnitId = resolution.rosterUnitId;
@@ -212,7 +225,17 @@ function applyOutcome(
   };
   const wonByPlayer = playerWon(outcome);
   const nowIso = new Date().toISOString();
-  const manifest = battleUnitManifestFor(campaign, outcome);
+  // A battle queued or started before launch manifests existed has none:
+  // resolve it with the legacy trust order (the migration's resolver).
+  const recordedManifest = battleUnitManifestFor(campaign, outcome);
+  const legacy = recordedManifest
+    ? undefined
+    : resolveLegacyBattleUnitManifest(
+        campaign,
+        useCampaignRosterStore.getState().units,
+        outcome,
+      );
+  const manifest = recordedManifest ?? legacy?.manifest;
   const {
     pilotPatches,
     pilotsUpdated,
@@ -223,6 +246,7 @@ function applyOutcome(
     campaign,
     outcome,
     manifest,
+    legacyUnresolved: legacy?.unresolved,
     wonByPlayer,
     unitStates,
     nowIso,
