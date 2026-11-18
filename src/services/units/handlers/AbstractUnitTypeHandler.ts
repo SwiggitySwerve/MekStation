@@ -1,4 +1,3 @@
-import { IBlkDocument, BLK_UNIT_TYPE_MAP } from '@/types/formats/BlkFormat';
 /**
  * Abstract Unit Type Handler
  *
@@ -8,6 +7,8 @@ import { IBlkDocument, BLK_UNIT_TYPE_MAP } from '@/types/formats/BlkFormat';
  *
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.3.4
  */
+
+import { IBlkDocument, BLK_UNIT_TYPE_MAP } from '@/types/formats/BlkFormat';
 import { IBaseUnit } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';

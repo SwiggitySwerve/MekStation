@@ -1,4 +1,4 @@
-/** Existing handler total-mass rule, shared by loaded-editor validation. */
+/** Total-mass rule used by AbstractUnitTypeHandler.validate for every unit type that requires tonnage. */
 export function unitOverweightErrors(
   totalWeight: number,
   tonnage: number,

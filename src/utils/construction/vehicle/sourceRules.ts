@@ -1,4 +1,4 @@
-/** Vehicle validation rule owner. Adapters pass source or loaded-editor facts. */
+/** Vehicle validation rule owner. The Tank, VTOL and support-vehicle handlers pass their parsed source facts. */
 import {
   getTankMaxTonnage,
   getSupportVehicleMaxTonnage,
