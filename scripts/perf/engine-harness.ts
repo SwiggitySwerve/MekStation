@@ -24,7 +24,6 @@ import * as path from 'node:path';
 import type { UnitHydrationMap } from '../../src/simulation/runner/SimulationRunnerState';
 import type { IGameEvent } from '../../src/types/gameplay';
 
-import { gateReplaySurfaceHistory } from '../../src/lib/events/replay/ReplaySurfaceGate';
 import { getNodeCanonicalUnitService } from '../../src/services/units/NodeCanonicalUnitService';
 import { SimulationRunner } from '../../src/simulation/runner/SimulationRunner';
 import {
@@ -34,7 +33,6 @@ import {
 import { TerrainPreset } from '../../src/types/encounter';
 import { GameSide } from '../../src/types/gameplay';
 import { WEAPON_CATALOG_FILES } from '../../src/utils/construction/equipmentBVCatalogData';
-import { hydrateGameSessionFromEvents } from '../../src/utils/gameplay/gameSession';
 import { deriveState } from '../../src/utils/gameplay/gameState';
 import {
   measureAppend,
@@ -57,18 +55,17 @@ import {
 } from './engine-harness.measure';
 import {
   TrackingAssertError,
+  assertReplayFold,
   assertTracking,
   createLiveSession,
   defaultCacheDir,
-  describeBlocked,
-  firstDifference,
   loadUnitPool,
   obtainPriorLog,
   pickUnits,
   recoverAt,
+  type IFailingEvent,
   type IPlayConfig,
   type IUnitPick,
-  withoutUndefinedKeys,
 } from './engine-harness.play';
 
 type Mode = 'quick' | 'full';
@@ -84,6 +81,57 @@ interface IArgs {
   readonly callCounts: boolean;
   readonly allConfigurations: boolean;
   readonly uncheckedAttacks: boolean;
+  /** Run only this scenario (a repro command); null runs the whole plan. */
+  readonly scenario: string | null;
+}
+
+const DEFAULT_SEED = 20261118;
+
+/**
+ * One tracking failure, with everything needed to turn it into a failing
+ * test: seed, scenario, checkpoint, first failing event, field path, and
+ * the command that runs that one scenario again.
+ */
+interface IFinding {
+  readonly scenario: string;
+  /** --seed of the run; the game seed below is derived from it. */
+  readonly baseSeed: number;
+  readonly gameSeed: number;
+  /** Target and actual event count of the checkpoint; null for the runner. */
+  readonly checkpoint: {
+    readonly target: number;
+    readonly events: number;
+  } | null;
+  /**
+   * Where the prior log came from. A cached log is the JSON image of the
+   * played one, so its in-memory ("live") event values are already imaged.
+   */
+  readonly logSource: 'played' | 'cache' | 'runner';
+  readonly check: string;
+  readonly firstEvent: IFailingEvent | null;
+  readonly fieldPath: string | null;
+  readonly liveValue?: string;
+  readonly storedValue?: string;
+  readonly blockedCount?: number;
+  readonly repro: string;
+  readonly detail: string;
+}
+
+interface IFindingContext {
+  readonly scenario: string;
+  readonly gameSeed: number;
+  readonly checkpoint: IFinding['checkpoint'];
+  readonly logSource: IFinding['logSource'];
+}
+
+interface IRunMeta {
+  commit: string;
+  logs: unknown[];
+  trimmed: string[];
+  trackingFailures: string[];
+  findings: IFinding[];
+  /** F3: undefined-valued keys the replay comparison tolerated, per scenario. */
+  toleratedUndefinedKeys: Record<string, { count: number; paths: string[] }>;
 }
 
 /** Board sizes from §5 mapped to hex-radius maps of about the same hex count. */
@@ -146,6 +194,8 @@ Usage: node --expose-gc --import tsx scripts/perf/engine-harness.ts [options]
                        quads currently fail the replay gate, see the report)
   --unchecked-attacks  Fire ten weapons at the nearest enemy even when the
                        projection says no (reproduces the AttackDeclared rewrite)
+  --scenario=NAME      Run only NAME (e.g. u24-32x34-e5000, sim-4v4-32x34-20turns);
+                       each tracking finding prints the command with this set
   --help, -h           Show this help
 `);
 }
@@ -157,10 +207,11 @@ function parseArgs(argv = process.argv.slice(2)): IArgs {
   let cpuProf = false;
   let cacheDir: string | null = defaultCacheDir();
   let freshLogs = false;
-  let seed = 20261118;
+  let seed = DEFAULT_SEED;
   let callCounts = true;
   let allConfigurations = false;
   let uncheckedAttacks = false;
+  let scenario: string | null = null;
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     const [flag, inline] = arg.includes('=')
@@ -210,6 +261,9 @@ function parseArgs(argv = process.argv.slice(2)): IArgs {
       case '--unchecked-attacks':
         uncheckedAttacks = true;
         break;
+      case '--scenario':
+        scenario = value();
+        break;
       case '--help':
       case '-h':
         printHelp();
@@ -230,6 +284,7 @@ function parseArgs(argv = process.argv.slice(2)): IArgs {
     callCounts,
     allConfigurations,
     uncheckedAttacks,
+    scenario,
   };
 }
 
@@ -344,23 +399,117 @@ function planFor(mode: Mode): IPlan {
   };
 }
 
+/** The command that runs one scenario again with this run's settings. */
+function reproCommand(args: IArgs, scenario: string): string {
+  const parts = ['npm run perf:engine --', `--${args.mode}`];
+  if (args.seed !== DEFAULT_SEED) parts.push(`--seed=${args.seed}`);
+  if (args.allConfigurations) parts.push('--all-configurations');
+  if (args.uncheckedAttacks) parts.push('--unchecked-attacks');
+  if (!args.callCounts) parts.push('--no-call-counts');
+  if (args.cacheDir === null) parts.push('--no-cache');
+  else if (args.cacheDir !== defaultCacheDir())
+    parts.push(`--cache-dir=${args.cacheDir}`);
+  parts.push(`--scenario=${scenario}`);
+  return parts.join(' ');
+}
+
+/** Record a tracking failure as a string (report) and as a finding. */
+function recordFinding(
+  args: IArgs,
+  ctx: IFindingContext,
+  error: TrackingAssertError,
+  meta: IRunMeta,
+): void {
+  const evidence = error.evidence;
+  meta.trackingFailures.push(error.message);
+  meta.findings.push({
+    scenario: ctx.scenario,
+    baseSeed: args.seed,
+    gameSeed: ctx.gameSeed,
+    checkpoint: ctx.checkpoint,
+    logSource: ctx.logSource,
+    check: evidence.check,
+    firstEvent: evidence.firstEvent,
+    fieldPath: evidence.fieldPath,
+    ...(evidence.liveValue !== undefined
+      ? { liveValue: evidence.liveValue }
+      : {}),
+    ...(evidence.storedValue !== undefined
+      ? { storedValue: evidence.storedValue }
+      : {}),
+    ...(evidence.blockedCount !== undefined
+      ? { blockedCount: evidence.blockedCount }
+      : {}),
+    repro: reproCommand(args, ctx.scenario),
+    detail: evidence.detail,
+  });
+  console.error(`  ${error.message}`);
+}
+
 /**
  * Run a scenario's tracking asserts. A failure is recorded and the run goes
  * on, so one report lists every failing scenario; main() then exits 2.
  */
 function trackScenario(
-  scenario: string,
-  check: () => void,
-  failures: string[],
+  args: IArgs,
+  ctx: IFindingContext,
+  check: () => { count: number; paths: string[] },
+  meta: IRunMeta,
 ): 'OK' | 'FAILED' {
   try {
-    check();
+    meta.toleratedUndefinedKeys[ctx.scenario] = check();
     return 'OK';
   } catch (error) {
     if (!(error instanceof TrackingAssertError)) throw error;
-    failures.push(error.message);
-    console.error(`  ${error.message}`);
+    recordFinding(args, ctx, error, meta);
     return 'FAILED';
+  }
+}
+
+/**
+ * The findings block: one entry per distinct defect (event type and field
+ * path, or check and field path when no event is named), first scenario
+ * first, with the command that reproduces it.
+ */
+function printFindings(findings: readonly IFinding[]): void {
+  const groups = new Map<string, IFinding[]>();
+  for (const finding of findings) {
+    const key = finding.firstEvent
+      ? `${finding.firstEvent.type} ${finding.fieldPath ?? '?'}`
+      : `${finding.check} ${finding.fieldPath ?? '?'}`;
+    groups.set(key, [...(groups.get(key) ?? []), finding]);
+  }
+  console.error(
+    `\nFINDINGS (${groups.size} distinct, ${findings.length} failures):`,
+  );
+  let n = 0;
+  for (const group of groups.values()) {
+    const f = group[0];
+    const event = f.firstEvent
+      ? `#${f.firstEvent.sequence} id ${f.firstEvent.id} type ${f.firstEvent.type}`
+      : 'none (state moved without its log)';
+    console.error(
+      [
+        `  [${++n}] ${f.check}`,
+        `      seed        ${f.gameSeed} (--seed ${f.baseSeed})`,
+        `      scenario    ${f.scenario}`,
+        `      checkpoint  ${f.checkpoint ? `target ${f.checkpoint.target}, at ${f.checkpoint.events} events` : 'n/a (runner game)'}, log ${f.logSource}`,
+        `      first event ${event}`,
+        `      field path  ${f.fieldPath ?? '?'}${f.liveValue !== undefined ? ` (live ${f.liveValue}, stored ${f.storedValue})` : ''}`,
+        ...(f.blockedCount !== undefined
+          ? [`      blocked     ${f.blockedCount} event(s)`]
+          : []),
+        `      repro       ${f.repro}`,
+        ...(group.length > 1
+          ? [
+              `      also in     ${group
+                .slice(1)
+                .map((other) => `${other.scenario} (${other.check})`)
+                .join('; ')}`,
+            ]
+          : []),
+      ].join('\n'),
+    );
   }
 }
 
@@ -389,14 +538,15 @@ async function runLog(
   plan: ILogPlan,
   pool: readonly IUnitPick[],
   rows: IResultRow[],
-  meta: {
-    commit: string;
-    logs: unknown[];
-    trimmed: string[];
-    trackingFailures: string[];
-  },
+  meta: IRunMeta,
 ): Promise<void> {
   const radius = MAP_RADIUS[plan.mapKey];
+  const wanted = plan.checkpoints.filter(
+    (target) =>
+      args.scenario === null ||
+      args.scenario === scenarioName(plan.units, plan.mapKey, target),
+  );
+  if (wanted.length === 0) return;
   const seed = args.seed + plan.units * 101 + radius;
   const config: IPlayConfig = {
     label: `u${plan.units}-${plan.mapKey}`,
@@ -431,10 +581,16 @@ async function runLog(
   console.log(
     `  log ${config.label}: ${log.events.length} events, ${log.source}, ${log.buildMs} ms`,
   );
-  for (const target of plan.checkpoints) {
+  for (const target of wanted) {
     const count = log.checkpoints.get(target);
     if (count === undefined) continue;
     const scenario = scenarioName(plan.units, plan.mapKey, target);
+    const findingCtx: IFindingContext = {
+      scenario,
+      gameSeed: seed,
+      checkpoint: { target, events: count },
+      logSource: log.source,
+    };
     const ctx: IScenarioContext = {
       scenario,
       seed,
@@ -446,13 +602,12 @@ async function runLog(
     const { live, gateRefusal } = await recoverAt(log, count);
     const recoverMs = nowMs() - started;
     if (gateRefusal) {
-      const message = new TrackingAssertError(
-        scenario,
-        'cold recovery refused the played log',
-        gateRefusal,
-      ).message;
-      meta.trackingFailures.push(message);
-      console.error(`  ${message}`);
+      recordFinding(
+        args,
+        findingCtx,
+        new TrackingAssertError(scenario, gateRefusal),
+        meta,
+      );
     }
     measureAppend(ctx, live, log.events[count], plan.appendSamples);
     measureReplayLoad(
@@ -463,9 +618,10 @@ async function runLog(
     );
     await measureTurns(ctx, live, plan.measuredTurns);
     const tracking = trackScenario(
-      scenario,
+      args,
+      findingCtx,
       () => assertTracking(scenario, live),
-      meta.trackingFailures,
+      meta,
     );
     console.log(
       `  ${scenario}: checkpoint at ${count} events, recover ${Math.round(recoverMs)} ms, now ${live.getSession().events.length} events, state ${stateBytes(live.getSession())} B, tracking ${tracking}`,
@@ -478,13 +634,15 @@ async function runSimulations(
   plan: IPlan,
   pool: readonly IUnitPick[],
   rows: IResultRow[],
-  trackingFailures: string[],
+  meta: IRunMeta,
 ): Promise<void> {
   const catalog = getNodeCanonicalUnitService();
   const weaponLookup = buildWeaponLookupFromCatalogFiles(
     WEAPON_CATALOG_FILES as readonly { items?: readonly unknown[] }[],
   );
   for (const { perSide, runs } of plan.simulations) {
+    const scenario = `sim-${perSide}v${perSide}-32x34-20turns`;
+    if (args.scenario !== null && args.scenario !== scenario) continue;
     const seed = args.seed + 5000 + perSide;
     const picks = pickUnits(pool, perSide * 2, seed, configurationsFor(args));
     // The hydration map the swarm CLI builds (buildSwarmHydration in
@@ -511,7 +669,6 @@ async function runSimulations(
         ];
       }),
     );
-    const scenario = `sim-${perSide}v${perSide}-32x34-20turns`;
     const times: number[] = [];
     let events = 0;
     let turns = 0;
@@ -543,9 +700,18 @@ async function runSimulations(
     const gameId = lastEvents[0]?.gameId ?? scenario;
     const fold = deriveState(gameId, lastEvents);
     const tracking = trackScenario(
-      scenario,
-      () => assertRunnerTracking(scenario, gameId, lastEvents, fold),
-      trackingFailures,
+      args,
+      { scenario, gameSeed: seed, checkpoint: null, logSource: 'runner' },
+      () =>
+        assertReplayFold(
+          scenario,
+          gameId,
+          gameId,
+          lastEvents,
+          fold,
+          'gated replay fold != raw fold',
+        ),
+      meta,
     );
     rows.push(
       summarize(
@@ -562,45 +728,6 @@ async function runSimulations(
     );
     console.log(
       `  ${scenario}: ${events} events, ${turns} turns, ${Math.round(times[0])} ms, tracking ${tracking}`,
-    );
-  }
-}
-
-/**
- * The runner exposes no live state, so its tracking check is the replay one:
- * the gated recording folds to the same state as the raw events.
- */
-function assertRunnerTracking(
-  scenario: string,
-  gameId: string,
-  events: readonly IGameEvent[],
-  fold: ReturnType<typeof deriveState>,
-): void {
-  const gated = gateReplaySurfaceHistory(events, {
-    surfaceId: 'cold-recovery',
-    streamId: gameId,
-    formatId: 'match-log-idb',
-    formatVersion: 2,
-  });
-  if (gated.kind !== 'accepted') {
-    throw new TrackingAssertError(
-      scenario,
-      'replay gate blocked the runner recording',
-      describeBlocked(gated.blockedEvents),
-    );
-  }
-  const replayed = hydrateGameSessionFromEvents(gameId, [
-    ...gated.events,
-  ]).currentState;
-  const diff = firstDifference(
-    withoutUndefinedKeys(replayed),
-    withoutUndefinedKeys(fold),
-  );
-  if (diff) {
-    throw new TrackingAssertError(
-      scenario,
-      'gated replay fold != raw fold',
-      diff,
     );
   }
 }
@@ -810,7 +937,7 @@ async function main(): Promise<number> {
   const startedAt = new Date().toISOString();
   const wallStarted = Date.now();
   const commit = gitHead();
-  const meta = {
+  const meta: IRunMeta & Record<string, unknown> = {
     mode: args.mode,
     seed: args.seed,
     commit,
@@ -825,7 +952,10 @@ async function main(): Promise<number> {
     trimmed: [...plan.trimmed],
     unitConfigurations: args.allConfigurations ? 'all' : 'Biped',
     uncheckedAttacks: args.uncheckedAttacks,
-    trackingFailures: [] as string[],
+    scenario: args.scenario,
+    trackingFailures: [],
+    findings: [],
+    toleratedUndefinedKeys: {},
   };
   console.log(
     `engine harness: ${args.mode}, seed ${args.seed}, ${commit.slice(0, 9)}, free ${meta.freeMemGbAtStart} GB, gc ${meta.gcExposed}`,
@@ -839,7 +969,7 @@ async function main(): Promise<number> {
   for (const logPlan of plan.logs) {
     await runLog(args, logPlan, pool, rows, meta);
   }
-  {
+  if (args.scenario === null) {
     // A real unit state as the template for the micro benchmarks.
     const config: IPlayConfig = {
       label: 'template',
@@ -851,16 +981,16 @@ async function main(): Promise<number> {
     };
     const live = createLiveSession(config);
     templateUnit = Object.values(live.getState().units)[0];
+    await measureReachableMicro(
+      rows,
+      templateUnit,
+      MAP_RADIUS['32x34'],
+      plan.microSamples,
+      args.callCounts,
+    );
+    measurePathMicro(rows, MAP_RADIUS['32x34'], plan.microSamples * 2);
   }
-  await measureReachableMicro(
-    rows,
-    templateUnit,
-    MAP_RADIUS['32x34'],
-    plan.microSamples,
-    args.callCounts,
-  );
-  measurePathMicro(rows, MAP_RADIUS['32x34'], plan.microSamples * 2);
-  await runSimulations(args, plan, pool, rows, meta.trackingFailures);
+  await runSimulations(args, plan, pool, rows, meta);
 
   let cpuTopSelf: ISelfFrame[] | undefined;
   if (args.cpuProf) {
@@ -900,11 +1030,19 @@ async function main(): Promise<number> {
     fs.writeFileSync(args.out, JSON.stringify(report, null, 2));
     console.log(`\nreport: ${args.out}`);
   }
+  const tolerated = Object.values(meta.toleratedUndefinedKeys).reduce(
+    (sum, entry) => sum + entry.count,
+    0,
+  );
+  console.log(
+    `F3 tolerated undefined-valued keys: ${tolerated} across ${Object.keys(meta.toleratedUndefinedKeys).length} passing scenario(s)`,
+  );
   console.log(`wall ${report.meta.wallMs} ms`);
   if (meta.trackingFailures.length > 0) {
     console.error(
       `\n${meta.trackingFailures.length} TRACKING ASSERT FAILURE(S):\n${meta.trackingFailures.join('\n')}`,
     );
+    printFindings(meta.findings);
     return 2;
   }
   if (checks) {

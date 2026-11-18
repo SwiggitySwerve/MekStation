@@ -21,6 +21,7 @@ import * as path from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 
 import type { IAdaptedUnit } from '../../src/engine/types';
+import type { IReplaySurfaceBlockedEvent } from '../../src/lib/events/replay/ReplaySurfaceGate';
 
 import { adaptUnitFromData } from '../../src/engine/adapters/CompendiumAdapter';
 import { GameEngine, InteractiveSession } from '../../src/engine/GameEngine';
@@ -29,7 +30,11 @@ import {
   InteractiveSessionRecoveryCorruptError,
   hydrateRecoverableSessionWithReport,
 } from '../../src/engine/InteractiveSession.persistence';
-import { gateReplaySurfaceHistory } from '../../src/lib/events/replay/ReplaySurfaceGate';
+import { bindLegacyObjectEvent } from '../../src/lib/events/replay/ReplayLegacySourceAdapters';
+import {
+  REPLAY_SURFACE_REGISTRY,
+  gateReplaySurfaceHistory,
+} from '../../src/lib/events/replay/ReplaySurfaceGate';
 import { recoverServerInteractiveSession } from '../../src/lib/multiplayer/server/matchUnitBootstrap';
 import { getNodeCanonicalUnitService } from '../../src/services/units/NodeCanonicalUnitService';
 import { SeededRandom } from '../../src/simulation/core';
@@ -73,10 +78,38 @@ export interface IPlayedLog {
   readonly turns: number;
 }
 
+/** The first event a tracking check fails on, as stored in the log. */
+export interface IFailingEvent {
+  readonly sequence: number | null;
+  readonly id: string;
+  readonly type: string;
+}
+
+/**
+ * What a tracking failure points at: the first failing event, the field path
+ * that differs (a payload path for a gate refusal, a state path for a fold
+ * difference) and the values on each side.
+ */
+export interface ITrackingEvidence {
+  readonly check: string;
+  readonly detail: string;
+  readonly firstEvent: IFailingEvent | null;
+  readonly fieldPath: string | null;
+  /** The live (in-memory) value at fieldPath, JSON-rendered; Infinity kept. */
+  readonly liveValue?: string;
+  /** The stored (JSON image) or replayed value at fieldPath. */
+  readonly storedValue?: string;
+  readonly blockedCount?: number;
+}
+
 export class TrackingAssertError extends Error {
-  constructor(scenario: string, check: string, detail: string) {
-    super(`TRACKING ASSERT FAILED [${scenario}] ${check}: ${detail}`);
+  readonly evidence: ITrackingEvidence;
+  constructor(scenario: string, evidence: ITrackingEvidence) {
+    super(
+      `TRACKING ASSERT FAILED [${scenario}] ${evidence.check}: ${evidence.detail}`,
+    );
     this.name = 'TrackingAssertError';
+    this.evidence = evidence;
   }
 }
 
@@ -323,7 +356,10 @@ export async function gateAndFold(
 export async function recoverAt(
   log: IPlayedLog,
   count: number,
-): Promise<{ live: InteractiveSession; gateRefusal: string | null }> {
+): Promise<{
+  live: InteractiveSession;
+  gateRefusal: ITrackingEvidence | null;
+}> {
   const prefix = log.events.slice(0, count);
   const matchId = prefix[0].gameId;
   try {
@@ -336,13 +372,141 @@ export async function recoverAt(
     if (!(error instanceof InteractiveSessionRecoveryCorruptError)) throw error;
     const blocked = error.blockedEvents;
     const session = hydrateGameSessionFromEvents(matchId, prefix);
+    const check = 'cold recovery refused the played log';
     return {
       live: await recoverServerInteractiveSession(session),
-      gateRefusal: blocked
-        ? describeBlocked(blocked)
-        : String(error.originalError ?? error.message),
+      gateRefusal:
+        blocked && blocked.length > 0
+          ? blockedEvidence(check, prefix, blocked)
+          : {
+              check,
+              detail: String(error.originalError ?? error.message),
+              firstEvent: null,
+              fieldPath: null,
+            },
     };
   }
+}
+
+const GATE_FORMAT = { formatId: 'match-log-idb', formatVersion: 2 } as const;
+
+function failingEvent(event: IGameEvent): IFailingEvent {
+  return { sequence: event.sequence, id: event.id, type: event.type };
+}
+
+/** JSON rendering for evidence values; keeps Infinity/NaN and undefined visible. */
+function renderValue(value: unknown): string {
+  if (typeof value === 'number' && !Number.isFinite(value))
+    return String(value);
+  if (value === undefined) return 'undefined';
+  return (JSON.stringify(value) ?? String(value)).slice(0, 160);
+}
+
+/** The rendered value at a path, or '(absent)' when a key on it is missing. */
+function renderAt(root: unknown, segments: readonly PropertyKey[]): string {
+  let value = root;
+  for (const segment of segments) {
+    if (value === null || typeof value !== 'object' || !(segment in value)) {
+      return '(absent)';
+    }
+    value = (value as Record<PropertyKey, unknown>)[segment];
+  }
+  return renderValue(value);
+}
+
+function pathText(prefix: string, segments: readonly PropertyKey[]): string {
+  return segments.reduce<string>(
+    (text, segment) =>
+      typeof segment === 'number'
+        ? `${text}[${segment}]`
+        : `${text}.${String(segment)}`,
+    prefix,
+  );
+}
+
+/**
+ * Evidence for a gate refusal: the first blocked event, and the payload path
+ * its schema rejects. The gate keeps only the message, so the event's JSON
+ * image is bound and upcast again here to read the schema's first issue.
+ */
+function blockedEvidence(
+  check: string,
+  events: readonly IGameEvent[],
+  blocked: readonly IReplaySurfaceBlockedEvent[],
+): ITrackingEvidence {
+  const first = blocked[0];
+  const event = events[first.index];
+  let fieldPath: string | null = null;
+  let issue = first.message;
+  let liveValue: string | undefined;
+  let storedValue: string | undefined;
+  try {
+    const image = JSON.parse(JSON.stringify(event)) as unknown;
+    const attributed = bindLegacyObjectEvent(
+      GATE_FORMAT.formatId,
+      GATE_FORMAT.formatVersion,
+      image,
+    );
+    const envelope = attributed.payload as { payload: unknown };
+    REPLAY_SURFACE_REGISTRY.upcast(
+      event.type,
+      attributed.schemaVersion,
+      envelope.payload,
+    );
+  } catch (error) {
+    const cause = (error as { cause?: unknown }).cause as
+      | { issues?: { path: PropertyKey[]; message: string }[] }
+      | undefined;
+    const top = cause?.issues?.[0];
+    if (top) {
+      fieldPath = pathText('payload', top.path);
+      issue = `${first.message}: ${top.message}`;
+      liveValue = renderAt(event.payload, top.path);
+      storedValue = renderAt(
+        JSON.parse(JSON.stringify(event.payload)),
+        top.path,
+      );
+    } else if (error instanceof Error) {
+      issue = `${first.message}: ${error.message}`;
+    }
+  }
+  return {
+    check,
+    detail: `${describeBlocked(blocked)}; first: #${event.sequence} ${event.type} id ${event.id}${fieldPath ? ` at ${fieldPath} (live ${liveValue}, stored ${storedValue})` : ''} - ${issue}`,
+    firstEvent: failingEvent(event),
+    fieldPath,
+    liveValue,
+    storedValue,
+    blockedCount: blocked.length,
+  };
+}
+
+/**
+ * The first event after which the gated (JSON image) fold of the log stops
+ * matching the raw fold, by bisection over prefixes. Assumes a difference,
+ * once in, stays in, which holds for state the replay keeps.
+ */
+function firstReplayDivergence(
+  id: string,
+  events: readonly IGameEvent[],
+  gated: readonly IGameEvent[],
+): { event: IGameEvent; diff: IDifference } | null {
+  const differs = (count: number): IDifference | null =>
+    findDifference(
+      withoutUndefinedKeys(
+        hydrateGameSessionFromEvents(id, gated.slice(0, count)).currentState,
+      ),
+      withoutUndefinedKeys(deriveState(id, events.slice(0, count))),
+    );
+  if (!differs(events.length)) return null;
+  let low = 1;
+  let high = events.length;
+  while (low < high) {
+    const mid = Math.floor((low + high) / 2);
+    if (differs(mid)) high = mid;
+    else low = mid + 1;
+  }
+  return { event: events[low - 1], diff: differs(low) as IDifference };
 }
 
 /**
@@ -386,12 +550,18 @@ export function describeBlocked(
     .join('; ')}`;
 }
 
-/** Path to the first difference between two values, for assert messages. */
-export function firstDifference(
+export interface IDifference {
+  readonly path: string;
+  readonly left: string;
+  readonly right: string;
+}
+
+/** The first difference between two values: its path and both sides. */
+export function findDifference(
   a: unknown,
   b: unknown,
   at = 'state',
-): string | null {
+): IDifference | null {
   if (isDeepStrictEqual(a, b)) return null;
   if (
     a === null ||
@@ -400,14 +570,14 @@ export function firstDifference(
     typeof b !== 'object' ||
     Array.isArray(a) !== Array.isArray(b)
   ) {
-    return `${at}: ${JSON.stringify(a)?.slice(0, 120)} vs ${JSON.stringify(b)?.slice(0, 120)}`;
+    return { path: at, left: renderValue(a), right: renderValue(b) };
   }
   if (a instanceof Map && b instanceof Map) {
     for (const key of new Set([...a.keys(), ...b.keys()])) {
-      const diff = firstDifference(a.get(key), b.get(key), `${at}<${key}>`);
+      const diff = findDifference(a.get(key), b.get(key), `${at}<${key}>`);
       if (diff) return diff;
     }
-    return `${at}: Map differs`;
+    return { path: at, left: 'Map', right: 'Map (differs)' };
   }
   const keys = new Set([
     ...Object.keys(a as object),
@@ -417,12 +587,69 @@ export function firstDifference(
     const ra = (a as Record<string, unknown>)[key];
     const rb = (b as Record<string, unknown>)[key];
     if (!(key in (a as object)) || !(key in (b as object))) {
-      return `${at}.${key}: present on one side only`;
+      return {
+        path: `${at}.${key}`,
+        left: key in (a as object) ? renderValue(ra) : '(absent)',
+        right: key in (b as object) ? renderValue(rb) : '(absent)',
+      };
     }
-    const diff = firstDifference(ra, rb, `${at}.${key}`);
+    const diff = findDifference(ra, rb, `${at}.${key}`);
     if (diff) return diff;
   }
-  return `${at}: differs (prototype or symbol keys)`;
+  return { path: at, left: '?', right: '? (prototype or symbol keys)' };
+}
+
+/** Path to the first difference between two values, for assert messages. */
+export function firstDifference(
+  a: unknown,
+  b: unknown,
+  at = 'state',
+): string | null {
+  const diff = findDifference(a, b, at);
+  return diff ? `${diff.path}: ${diff.left} vs ${diff.right}` : null;
+}
+
+/**
+ * F3 (R2): own keys whose value is `undefined` on one side and that are
+ * absent on the other, the one difference assertTracking tolerates. Returns
+ * the count and up to five distinct paths (array indices as [*]).
+ */
+export function countToleratedUndefinedKeys(
+  a: unknown,
+  b: unknown,
+): { count: number; paths: string[] } {
+  const paths = new Set<string>();
+  let count = 0;
+  const walk = (x: unknown, y: unknown, at: string): void => {
+    if (Array.isArray(x) && Array.isArray(y)) {
+      for (let i = 0; i < Math.min(x.length, y.length); i++) {
+        walk(x[i], y[i], `${at}[*]`);
+      }
+      return;
+    }
+    if (x instanceof Map && y instanceof Map) {
+      for (const [key, value] of x) walk(value, y.get(key), `${at}<*>`);
+      return;
+    }
+    if (!x || !y || typeof x !== 'object' || typeof y !== 'object') return;
+    for (const key of new Set([...Object.keys(x), ...Object.keys(y)])) {
+      const inX = key in x;
+      const inY = key in y;
+      const vx = (x as Record<string, unknown>)[key];
+      const vy = (y as Record<string, unknown>)[key];
+      if (
+        (inX && !inY && vx === undefined) ||
+        (inY && !inX && vy === undefined)
+      ) {
+        count++;
+        if (paths.size < 5) paths.add(`${at}.${key}`);
+      } else if (inX && inY) {
+        walk(vx, vy, `${at}.${key}`);
+      }
+    }
+  };
+  walk(a, b, 'state');
+  return { count, paths: [...paths] };
 }
 
 /**
@@ -430,46 +657,87 @@ export function firstDifference(
  * 1. deriveState over the session's events deep-equals its current state;
  * 2. the recording, through the replay gate, folds to the same state
  *    (undefined-valued keys aside, see withoutUndefinedKeys).
+ *
+ * Each failure carries its evidence (first failing event, field path). On
+ * success it returns the F3 count: undefined-valued keys check 2 tolerated.
  */
 export function assertTracking(
   scenario: string,
   live: InteractiveSession,
-): void {
+): { count: number; paths: string[] } {
   const session = live.getSession();
   const fold = deriveState(session.id, session.events);
-  const foldDiff = firstDifference(fold, session.currentState);
+  const foldDiff = findDifference(fold, session.currentState);
   if (foldDiff) {
-    throw new TrackingAssertError(
-      scenario,
-      'deriveState(events) != currentState',
-      foldDiff,
-    );
+    // currentState is not a fold of any event prefix, so there is no
+    // failing event to name: the state moved without its log.
+    throw new TrackingAssertError(scenario, {
+      check: 'deriveState(events) != currentState',
+      detail: `${foldDiff.path}: ${foldDiff.left} vs ${foldDiff.right}`,
+      firstEvent: null,
+      fieldPath: foldDiff.path,
+      liveValue: foldDiff.right,
+      storedValue: foldDiff.left,
+    });
   }
-  const gated = gateReplaySurfaceHistory(session.events, {
+  return assertReplayFold(
+    scenario,
+    session.matchId ?? session.id,
+    session.id,
+    session.events,
+    session.currentState,
+    'gated replay fold != currentState',
+  );
+}
+
+/**
+ * Check 2 alone: the events, through the replay gate, fold to `state`.
+ * The simulation runner, which has no live state, passes its raw fold.
+ */
+export function assertReplayFold(
+  scenario: string,
+  streamId: string,
+  id: string,
+  events: readonly IGameEvent[],
+  state: unknown,
+  check: string,
+): { count: number; paths: string[] } {
+  const gated = gateReplaySurfaceHistory(events, {
     surfaceId: 'cold-recovery',
-    streamId: session.matchId ?? session.id,
-    formatId: 'match-log-idb',
-    formatVersion: 2,
+    streamId,
+    ...GATE_FORMAT,
   });
   if (gated.kind !== 'accepted') {
     throw new TrackingAssertError(
       scenario,
-      'replay gate blocked the recording',
-      describeBlocked(gated.blockedEvents),
+      blockedEvidence(
+        'replay gate blocked the recording',
+        events,
+        gated.blockedEvents,
+      ),
     );
   }
-  const replayed = hydrateGameSessionFromEvents(session.id, [
+  const replayed = hydrateGameSessionFromEvents(id, [
     ...gated.events,
   ]).currentState;
-  const replayDiff = firstDifference(
-    withoutUndefinedKeys(replayed),
-    withoutUndefinedKeys(session.currentState),
-  );
-  if (replayDiff) {
-    throw new TrackingAssertError(
-      scenario,
-      'gated replay fold != currentState',
-      replayDiff,
-    );
+  if (
+    firstDifference(withoutUndefinedKeys(replayed), withoutUndefinedKeys(state))
+  ) {
+    const found = firstReplayDivergence(id, events, gated.events);
+    const diff =
+      found?.diff ??
+      (findDifference(
+        withoutUndefinedKeys(replayed),
+        withoutUndefinedKeys(state),
+      ) as IDifference);
+    throw new TrackingAssertError(scenario, {
+      check,
+      detail: `${diff.path}: ${diff.left} vs ${diff.right}${found ? `; first diverges at #${found.event.sequence} ${found.event.type} id ${found.event.id}` : ''}`,
+      firstEvent: found ? failingEvent(found.event) : null,
+      fieldPath: diff.path,
+      liveValue: diff.right,
+      storedValue: diff.left,
+    });
   }
+  return countToleratedUndefinedKeys(replayed, state);
 }
