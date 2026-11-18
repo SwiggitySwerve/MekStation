@@ -392,33 +392,43 @@ describe('targeting computer: one per unit', () => {
     expect(result.unrecoveredCriticalSlots).toHaveLength(2);
   });
 
-  it('lets a listed TC without slots claim its native cells: one TC, empty residual', () => {
-    const listedTc = {
-      ...placed('targeting-computer', L.LEFT_TORSO, []),
-      slots: undefined,
-    };
-    const result = restoreCriticalSlotEquipmentWithDiagnostics(
-      [{ id: 'large-laser' }, { id: 'targeting-computer' }] as never,
-      [
-        { ...placed('large-laser', L.RIGHT_ARM, []), slots: undefined },
-        listedTc,
-      ] as never,
-      IS.unitTechBase,
-      IS.unitTechBaseMode,
-      {
-        RIGHT_ARM: ['ISLargeLaser', 'ISLargeLaser'],
-        LEFT_TORSO: ['ISTargeting Computer', 'ISTargeting Computer'],
-      },
-      50,
-    );
-    expect(
-      tcs(result.equipment).map((e) => [
-        (e as { location?: string }).location,
-        (e as { slots?: number[] }).slots,
-      ]),
-    ).toEqual([[L.LEFT_TORSO, [0, 1]]]);
-    expect(result.unrecoveredCriticalSlots).toEqual([]);
-  });
+  // The stub spelling resolves to the registry stub (claimed through mountAs);
+  // the plain spellings resolve straight to `targeting-computer`.
+  it.each([
+    'ISTargeting Computer',
+    'Targeting Computer',
+    'ISTargetingComputer',
+    'IS Targeting Computer',
+  ])(
+    'lets a listed TC without slots claim its %s cells: one TC, empty residual',
+    (token) => {
+      const listedTc = {
+        ...placed('targeting-computer', L.LEFT_TORSO, []),
+        slots: undefined,
+      };
+      const result = restoreCriticalSlotEquipmentWithDiagnostics(
+        [{ id: 'large-laser' }, { id: 'targeting-computer' }] as never,
+        [
+          { ...placed('large-laser', L.RIGHT_ARM, []), slots: undefined },
+          listedTc,
+        ] as never,
+        IS.unitTechBase,
+        IS.unitTechBaseMode,
+        {
+          RIGHT_ARM: ['ISLargeLaser', 'ISLargeLaser'],
+          LEFT_TORSO: [token, token],
+        },
+        50,
+      );
+      expect(
+        tcs(result.equipment).map((e) => [
+          (e as { location?: string }).location,
+          (e as { slots?: number[] }).slots,
+        ]),
+      ).toEqual([[L.LEFT_TORSO, [0, 1]]]);
+      expect(result.unrecoveredCriticalSlots).toEqual([]);
+    },
+  );
 
   it('keeps the superheavy Ares ARS-V1 Zeus TC: one mount, 2 entries, 4 t', () => {
     expectBoth(aresZeus, 'targeting-computer', [

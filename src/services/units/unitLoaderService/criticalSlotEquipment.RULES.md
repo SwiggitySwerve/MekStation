@@ -80,9 +80,12 @@ the existing final token projection; rear flags come from the cells.
 `CASE II [IS]`/`ISCASEII` identity stays with `resolveEquipmentId` (#3303).
 
 A targeting computer is one mount per type per unit (`MtfFile.java:1076-1084`,
-`hSharedEquip`): it is recovered only when every cell of that type in the unit
-sits in one location and their total equals the owner's computed criticals,
-and never when the unit already holds that TC. A listed TC without slots claims
-the cells that resolve to its stub (the row's `mountAs`). Anything else, a
-count mismatch or cells across locations, stays in the residual with its
-notice.
+`hSharedEquip`); Java attaches every later TC cell, in any location, to it.
+PR-D1 recovers it only when every cell of that type in the unit totals the
+owner's computed criticals and sits in one location, and never when the unit
+already holds that TC. A listed TC without slots claims the cells that resolve
+to its stub (the row's `mountAs`), or to its own id. PR-D1 deliberately leaves
+cells in several locations, more cells than computed, or a superheavy mismatch
+in the residual with their notice (no canonical unit; never mints an extra TC);
+Java would recover one shared TC there. A listed slotless Clan TC over
+IS-spelled TC cells still yields two TCs, as on main (no canonical case).

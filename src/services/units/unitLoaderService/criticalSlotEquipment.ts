@@ -618,11 +618,14 @@ export function recoverCriticalSlotEntries(
       const count = criticalEntryCount(sized.criticalSlots, input.tonnage);
       if (count <= 0) return [];
       // MtfFile.java:1076-1084 (48fcb2f64): one targeting computer per type per
-      // unit, and every cell of that type belongs to it. Recover it only when the
-      // unit's cells total the owner's criticals; the grouping below then needs
-      // all of them in this location (one mount; no cross-location TC).
+      // unit; Java attaches every later TC cell, in any location, to it. PR-D1
+      // recovers it only when the unit's cells total the owner's criticals and
+      // the grouping below finds all of them in this location. Cells in several
+      // locations, more cells than computed, or a superheavy mismatch are
+      // deliberately left in the residual (no canonical unit; never mints an
+      // extra TC); Java would recover one shared TC.
       if (TARGETING_COMPUTER_IDS.includes(sized.equipmentId)) {
-        const unitCells = (input.unitEntries ?? input.locationEntries).filter(
+        const unitCells = input.unitEntries.filter(
           (cell) => cell.equipmentId === entry.equipmentId,
         );
         if (
@@ -752,9 +755,19 @@ export function restoreCriticalSlotEquipmentWithDiagnostics(
     }
 
     const claimedAtLocation = claimedSlotsFor(claimed, item.location);
-    // A listed `mountAs` item (targeting computer) owns cells resolved to its stub.
+    // A listed `mountAs` item (targeting computer) owns cells resolved to its
+    // stub; cells that resolve straight to its own id keep matching as before.
+    const stubId = stubIdByMountAs.get(item.equipmentId);
     const cellIdentity =
-      stubIdByMountAs.get(item.equipmentId) ?? item.equipmentId;
+      stubId &&
+      takeMatchingSlots(
+        resolvedByLocation.get(item.location) ?? [],
+        claimedAtLocation,
+        stubId,
+        item.criticalSlots,
+      ).length === item.criticalSlots
+        ? stubId
+        : item.equipmentId;
     const matching = takeMatchingSlots(
       resolvedByLocation.get(item.location) ?? [],
       claimedAtLocation,
