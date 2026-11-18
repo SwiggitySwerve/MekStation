@@ -39,7 +39,9 @@ import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
   isSessionKeyedUnitId,
-  resolveLegacyRosterUnit,
+  resolveLegacyBattleUnitManifest,
+  type ILegacyBattleUnitManifest,
+  type LegacyUnresolvedReason,
 } from './legacyRosterResolver';
 import {
   applyUnitDelta,
@@ -67,8 +69,11 @@ interface IRetainedDelta {
 
 interface IDeltaMapping {
   readonly retained: IRetainedDelta;
-  readonly candidates: readonly string[];
+  /** Set only when the battle's legacy match resolved this unit. */
+  readonly rosterUnitId?: string;
   readonly evidence?: LegacyRosterEvidence;
+  readonly candidates: readonly string[];
+  readonly unresolvedReason?: LegacyUnresolvedReason;
 }
 
 interface IEntryAnalysis {
@@ -78,19 +83,26 @@ interface IEntryAnalysis {
   reason: LegacyCombatStateFlagReason | null;
 }
 
+/** One battle's legacy match, double-claim check included. */
 function mapDelta(
-  campaign: ICampaign,
-  roster: readonly IRosterUnitProjection[],
+  battles: readonly ILegacyBattleUnitManifest[],
   retained: IRetainedDelta,
 ): IDeltaMapping {
+  const battle = battles[retained.outcomeIndex];
+  const entry = battle.manifest[retained.delta.unitId];
+  if (entry && 'rosterUnitId' in entry) {
+    return {
+      retained,
+      rosterUnitId: entry.rosterUnitId,
+      evidence: battle.evidence[retained.delta.unitId],
+      candidates: [entry.rosterUnitId],
+    };
+  }
+  const unresolved = battle.unresolved[retained.delta.unitId];
   return {
     retained,
-    ...resolveLegacyRosterUnit(
-      campaign,
-      roster,
-      retained.outcome,
-      retained.delta,
-    ),
+    candidates: unresolved?.candidates ?? [],
+    unresolvedReason: unresolved?.reason ?? 'ambiguous',
   };
 }
 
@@ -140,7 +152,7 @@ function comparable(state: IUnitCombatState): string {
 
 function analyse(
   campaign: ICampaign,
-  roster: readonly IRosterUnitProjection[],
+  battles: readonly ILegacyBattleUnitManifest[],
   outcomes: readonly IAppliedCombatOutcome[],
   key: string,
   original: IUnitCombatState,
@@ -157,15 +169,21 @@ function analyse(
     (state, entry) => applyRetained(state, key, entry, migratedAt),
     undefined,
   );
-  const mappings = retained.map((entry) => mapDelta(campaign, roster, entry));
+  const mappings = retained.map((entry) => mapDelta(battles, entry));
   const states = campaign.unitCombatStates ?? {};
 
   let reason: LegacyCombatStateFlagReason | null = null;
   if (!rebuilt || comparable(rebuilt) !== comparable(original)) {
     reason = 'not-fully-explained';
-  } else if (mappings.some((mapping) => mapping.candidates.length !== 1)) {
+  } else if (
+    mappings.some((mapping) => mapping.unresolvedReason === 'conflicting-pilot')
+  ) {
+    reason = 'conflicting-pilot';
+  } else if (mappings.some((mapping) => mapping.rosterUnitId === undefined)) {
     reason = 'ambiguous-roster-unit';
-  } else if (mappings.some((mapping) => states[mapping.candidates[0]])) {
+  } else if (
+    mappings.some((mapping) => states[mapping.rosterUnitId as string])
+  ) {
     reason = 'roster-unit-has-state';
   }
   return { key, original, mappings, reason };
@@ -227,8 +245,11 @@ export function migrateSessionKeyedCombatStates({
     key.startsWith('opponent-'),
   );
 
+  const battles = outcomes.map((outcome) =>
+    resolveLegacyBattleUnitManifest(campaign, rosterUnits, outcome),
+  );
   const analyses = playerKeys.map((key) =>
-    analyse(campaign, rosterUnits, outcomes, key, states[key], migratedAt),
+    analyse(campaign, battles, outcomes, key, states[key], migratedAt),
   );
   taintSharedRosterUnits(analyses);
 
@@ -244,8 +265,8 @@ export function migrateSessionKeyedCombatStates({
         a.retained.deltaIndex - b.retained.deltaIndex,
     );
   const manifests = new Map<number, Record<string, { rosterUnitId: string }>>();
-  for (const { retained, candidates } of operations) {
-    const rosterUnitId = candidates[0];
+  for (const { retained, rosterUnitId: resolved } of operations) {
+    const rosterUnitId = resolved as string;
     nextStates[rosterUnitId] = applyRetained(
       nextStates[rosterUnitId],
       rosterUnitId,
@@ -292,7 +313,7 @@ export function migrateSessionKeyedCombatStates({
               targets: analysis.mappings.map(
                 (mapping): ILegacyCombatStateTarget => ({
                   matchId: mapping.retained.outcome.matchId,
-                  rosterUnitId: mapping.candidates[0],
+                  rosterUnitId: mapping.rosterUnitId as string,
                   evidence: mapping.evidence as LegacyRosterEvidence,
                 }),
               ),

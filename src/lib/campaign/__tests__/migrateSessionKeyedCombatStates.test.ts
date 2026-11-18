@@ -361,3 +361,133 @@ describe('migrateSessionKeyedCombatStates leaves and flags what it cannot prove'
     ]);
   });
 });
+
+// ----------------------------------------------------------------------------
+// Review findings R1/R2: never invent an attribution.
+// ----------------------------------------------------------------------------
+
+describe('migrateSessionKeyedCombatStates never invents damage (review R1/R2)', () => {
+  const TEAM = 'team-force-1';
+  const SECOND_KEY = 'player-2-atlas-as7-d';
+
+  function teamOutcome(
+    deltas: IAppliedCombatOutcome['unitDeltas'],
+  ): IAppliedCombatOutcome {
+    return {
+      ...syntheticOutcome('m-team', deltas),
+      scenarioId: `scn-contract-1-3025-06-01-${TEAM}`,
+    };
+  }
+
+  function stateFor(
+    outcome: IAppliedCombatOutcome,
+    index: number,
+  ): IUnitCombatState {
+    return applyUnitDelta(
+      undefined,
+      outcome.unitDeltas[index],
+      outcome.matchId,
+      outcome.appliedOn as string,
+    );
+  }
+
+  function teamCampaign(
+    outcome: IAppliedCombatOutcome,
+    states: Record<string, IUnitCombatState>,
+    teamUnitIds: readonly string[],
+  ): ICampaign {
+    return {
+      ...syntheticCampaign([outcome], states),
+      forces: new Map([
+        [
+          TEAM,
+          {
+            id: TEAM,
+            name: 'Team',
+            subForceIds: [],
+            unitIds: [...teamUnitIds],
+          },
+        ],
+      ]) as never,
+    };
+  }
+
+  it('flags both entries of a design that fought twice when one Atlas is left, and writes nothing to it', () => {
+    const outcome = teamOutcome([
+      syntheticDelta(PLAYER_KEY, 30),
+      syntheticDelta(SECOND_KEY, 5),
+    ]);
+    const states = {
+      [PLAYER_KEY]: stateFor(outcome, 0),
+      [SECOND_KEY]: stateFor(outcome, 1),
+    };
+    const result = migrateSessionKeyedCombatStates({
+      campaign: teamCampaign(outcome, states, ['roster-a']),
+      rosterUnits: [rosterUnit('roster-a')],
+      migratedAt: MIGRATED_AT,
+    });
+    if (!result) throw new Error('expected a migration');
+
+    expect(result.campaign.unitCombatStates).toEqual({});
+    expect(result.flags.map((flag) => flag.sessionUnitId).sort()).toEqual(
+      [PLAYER_KEY, SECOND_KEY].sort(),
+    );
+    expect(
+      result.quarantine.map((record) => [
+        record.sessionUnitId,
+        record.resolution.kind,
+        record.original,
+      ]),
+    ).toEqual([
+      [PLAYER_KEY, 'flagged', states[PLAYER_KEY]],
+      [SECOND_KEY, 'flagged', states[SECOND_KEY]],
+    ]);
+  });
+
+  it('migrates a design that fought twice when each delta agrees with one pilot', () => {
+    const outcome = teamOutcome([
+      syntheticDelta(PLAYER_KEY, 30, 'pilot-b'),
+      syntheticDelta(SECOND_KEY, 5, 'pilot-a'),
+    ]);
+    const result = migrateSessionKeyedCombatStates({
+      campaign: teamCampaign(
+        outcome,
+        {
+          [PLAYER_KEY]: stateFor(outcome, 0),
+          [SECOND_KEY]: stateFor(outcome, 1),
+        },
+        ['roster-a', 'roster-b'],
+      ),
+      rosterUnits: [
+        rosterUnit('roster-a', 'pilot-a'),
+        rosterUnit('roster-b', 'pilot-b'),
+      ],
+      migratedAt: MIGRATED_AT,
+    });
+    const states = result?.campaign.unitCombatStates ?? {};
+    expect(states['roster-b']?.currentArmorPerLocation.CT).toBe(30);
+    expect(states['roster-a']?.currentArmorPerLocation.CT).toBe(5);
+    expect(result?.flags).toEqual([]);
+  });
+
+  it('does not map onto the Atlas now in the force when the pilot who fought was someone else', () => {
+    const outcome = teamOutcome([syntheticDelta(PLAYER_KEY, 30, 'pilot-b')]);
+    const result = migrateSessionKeyedCombatStates({
+      campaign: teamCampaign(outcome, { [PLAYER_KEY]: stateFor(outcome, 0) }, [
+        'roster-a',
+      ]),
+      rosterUnits: [
+        rosterUnit('roster-a', 'pilot-a'),
+        rosterUnit('roster-b', 'pilot-c'),
+      ],
+      migratedAt: MIGRATED_AT,
+    });
+    expect(result?.campaign.unitCombatStates).toEqual({});
+    expect(result?.flags).toEqual([
+      expect.objectContaining({
+        sessionUnitId: PLAYER_KEY,
+        reason: 'conflicting-pilot',
+      }),
+    ]);
+  });
+});

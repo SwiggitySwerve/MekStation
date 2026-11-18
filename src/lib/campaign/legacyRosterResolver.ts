@@ -1,18 +1,25 @@
 /**
  * The one owner of the LEGACY roster-unit match (T1): which roster unit a
- * combat delta belongs to when its battle has no launch manifest. Used by
- * the load-time migration of session-keyed combat states and by the
- * post-battle apply for battles queued or started before the manifest
- * existed.
+ * battle's player unit was, when the battle has no launch manifest entry
+ * for it. Used by the load-time migration of session-keyed combat states,
+ * by the post-battle apply for battles queued or started before manifests
+ * existed, and by the launch recorder for assignments with no roster link.
  *
- * Trust order for a player delta, never slot alone:
- *   1. the mission's force record: `bridgedEncounters[scenarioId]`'s player
- *      force, or (bridged encounters are not persisted) the team force
- *      whose id ends the scenario id (`scn-<contract>-<date>-<teamForceId>`,
- *      `scenarioGenerationProcessor.buildScenarioId`), intersected with the
- *      roster and matched on `unitRef`;
- *   2. `delta.pilotRef` against the roster unit's `pilotId`;
- *   3. the design being unique on that mission and on the roster.
+ * It never invents an attribution. For each player unit of the battle,
+ * with `design` the unit's `unitRef`:
+ *   - Pool: roster units of that design; when the mission's force record is
+ *     known (`bridgedEncounters[scenarioId]`'s player force, or the team
+ *     force whose id ends the scenario id, `scn-<contract>-<date>-<team>`
+ *     per `scenarioGenerationProcessor.buildScenarioId`) and holds some of
+ *     them, only those.
+ *   - A design that fought more than once in this battle resolves only by
+ *     the unit's `pilotRef` matching exactly one pool unit's pilot.
+ *   - A design that fought once resolves to the single pool unit, unless
+ *     that unit's current pilot disagrees with a non-empty `pilotRef`
+ *     (conflicting evidence: the force or roster changed since). With
+ *     several pool units it resolves only by pilot.
+ *   - Two player units resolving to the same roster unit are both refused.
+ * Slot order is never used.
  */
 
 import type {
@@ -22,10 +29,7 @@ import type {
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { LegacyRosterEvidence } from '@/types/campaign/LegacyCombatStateMigration';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
-import type {
-  ICombatOutcome,
-  IUnitCombatDelta,
-} from '@/types/combat/CombatOutcome';
+import type { IUnitCombatDelta } from '@/types/combat/CombatOutcome';
 
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
@@ -37,17 +41,47 @@ export function isSessionKeyedUnitId(key: string): boolean {
   return SESSION_UNIT_ID.test(key);
 }
 
-export interface ILegacyRosterMatch {
-  /** Exactly one entry means a match; zero or several mean none. */
+/** The identity a legacy match reads from a combat delta or a session unit. */
+export type LegacyBattleUnit = Pick<
+  IUnitCombatDelta,
+  'unitId' | 'side' | 'unitRef' | 'pilotRef'
+>;
+
+export type LegacyUnresolvedReason =
+  /** No pool unit, or several and no pilot evidence picks one. */
+  | 'ambiguous'
+  /** The only candidate's current pilot is not the pilot who fought. */
+  | 'conflicting-pilot'
+  /** Another unit of the same battle resolved to the same roster unit. */
+  | 'double-claim';
+
+export interface ILegacyUnresolvedUnit {
+  readonly reason: LegacyUnresolvedReason;
   readonly candidates: readonly string[];
-  readonly evidence?: LegacyRosterEvidence;
+}
+
+export interface ILegacyBattleUnitManifest {
+  /** Entries only for player units matched to exactly one roster unit. */
+  readonly manifest: BattleUnitManifest;
+  /** How each manifest entry was matched, by session unit id. */
+  readonly evidence: Readonly<Record<string, LegacyRosterEvidence>>;
+  /** Player units with no match, by session unit id. */
+  readonly unresolved: Readonly<Record<string, ILegacyUnresolvedUnit>>;
 }
 
 type LegacyCampaignView = Pick<ICampaign, 'forces'> &
   Pick<ICampaignWithBridgeState, 'bridgedEncounters'>;
 
-function unitRefOf(delta: IUnitCombatDelta): string | undefined {
-  return delta.unitRef ?? SESSION_UNIT_ID.exec(delta.unitId)?.[2];
+type Match =
+  | {
+      readonly kind: 'resolved';
+      readonly rosterUnitId: string;
+      readonly evidence: LegacyRosterEvidence;
+    }
+  | ({ readonly kind: 'unresolved' } & ILegacyUnresolvedUnit);
+
+function designOf(unit: LegacyBattleUnit): string | undefined {
+  return unit.unitRef ?? SESSION_UNIT_ID.exec(unit.unitId)?.[2];
 }
 
 function missionForce(
@@ -64,82 +98,116 @@ function missionForce(
   return encoded.length === 1 ? encoded[0] : undefined;
 }
 
-/** Match one player delta of `outcome` to a roster unit. */
-export function resolveLegacyRosterUnit(
-  campaign: LegacyCampaignView,
-  rosterUnits: readonly IRosterUnitProjection[],
-  outcome: Pick<ICombatOutcome, 'scenarioId' | 'unitDeltas'>,
-  delta: IUnitCombatDelta,
-): ILegacyRosterMatch {
-  const unitRef = unitRefOf(delta);
-  if (!unitRef) return { candidates: [] };
-  let pool = rosterUnits.filter((unit) => unit.unitRef === unitRef);
-
-  const force = missionForce(campaign, outcome.scenarioId);
-  if (force) {
-    const members = new Set(force.unitIds);
-    const inForce = pool.filter((unit) => members.has(unit.unitId));
-    if (inForce.length === 1) {
-      return { candidates: [inForce[0].unitId], evidence: 'force' };
+function matchUnit(
+  unit: LegacyBattleUnit,
+  timesFought: number,
+  pool: readonly IRosterUnitProjection[],
+  fromForce: boolean,
+): Match {
+  const candidates = pool.map((rosterUnit) => rosterUnit.unitId);
+  const pilotRef = unit.pilotRef || undefined;
+  const byPilot = pilotRef
+    ? pool.filter((rosterUnit) => rosterUnit.pilotId === pilotRef)
+    : [];
+  if (timesFought === 1 && pool.length === 1) {
+    const only = pool[0];
+    if (pilotRef && only.pilotId && only.pilotId !== pilotRef) {
+      return { kind: 'unresolved', reason: 'conflicting-pilot', candidates };
     }
-    if (inForce.length > 1) pool = inForce;
+    return {
+      kind: 'resolved',
+      rosterUnitId: only.unitId,
+      evidence: fromForce ? 'force' : 'design',
+    };
   }
-
-  if (delta.pilotRef) {
-    const byPilot = pool.filter((unit) => unit.pilotId === delta.pilotRef);
-    if (byPilot.length === 1) {
-      return { candidates: [byPilot[0].unitId], evidence: 'pilot' };
-    }
+  // Fought more than once, or several pool units: only the pilot decides.
+  if (byPilot.length === 1) {
+    return {
+      kind: 'resolved',
+      rosterUnitId: byPilot[0].unitId,
+      evidence: 'pilot',
+    };
   }
-
-  const sameDesignOnMission = outcome.unitDeltas.filter(
-    (other) => other.side === GameSide.Player && unitRefOf(other) === unitRef,
-  ).length;
-  if (sameDesignOnMission === 1 && pool.length === 1) {
-    return { candidates: [pool[0].unitId], evidence: 'design' };
-  }
-  return { candidates: pool.map((unit) => unit.unitId) };
-}
-
-export interface ILegacyBattleUnitManifest {
-  /** Entries only for the player units matched to exactly one roster unit. */
-  readonly manifest: BattleUnitManifest;
-  /** Player units with no single match, keyed by session unit id. */
-  readonly unresolved: Readonly<Record<string, readonly string[]>>;
+  return { kind: 'unresolved', reason: 'ambiguous', candidates };
 }
 
 /**
- * A launch manifest for a battle that has none, built from the legacy
- * trust order. Two player units resolving to the same roster unit are
- * both left unresolved rather than guessed.
+ * Resolve every player unit of one battle. `battle.unitDeltas` may be the
+ * outcome's deltas or the session's player units at launch.
  */
 export function resolveLegacyBattleUnitManifest(
   campaign: LegacyCampaignView,
   rosterUnits: readonly IRosterUnitProjection[],
-  outcome: Pick<ICombatOutcome, 'scenarioId' | 'unitDeltas'>,
+  battle: {
+    readonly scenarioId: string | null;
+    readonly unitDeltas: readonly LegacyBattleUnit[];
+  },
 ): ILegacyBattleUnitManifest {
-  const matches = outcome.unitDeltas
-    .filter((delta) => delta.side === GameSide.Player)
-    .map((delta) => ({
-      unitId: delta.unitId,
-      match: resolveLegacyRosterUnit(campaign, rosterUnits, outcome, delta),
-    }));
+  const players = battle.unitDeltas.filter(
+    (unit) => unit.side === GameSide.Player,
+  );
+  const timesFought = new Map<string, number>();
+  for (const unit of players) {
+    const design = designOf(unit);
+    if (design) timesFought.set(design, (timesFought.get(design) ?? 0) + 1);
+  }
+  const force = missionForce(campaign, battle.scenarioId);
+  const members = force ? new Set(force.unitIds) : undefined;
+
+  const matches = players.map((unit) => {
+    const design = designOf(unit);
+    if (!design) {
+      return {
+        unit,
+        match: {
+          kind: 'unresolved',
+          reason: 'ambiguous',
+          candidates: [],
+        } as Match,
+      };
+    }
+    const ofDesign = rosterUnits.filter(
+      (rosterUnit) => rosterUnit.unitRef === design,
+    );
+    const inForce = members
+      ? ofDesign.filter((rosterUnit) => members.has(rosterUnit.unitId))
+      : [];
+    const fromForce = inForce.length > 0;
+    return {
+      unit,
+      match: matchUnit(
+        unit,
+        timesFought.get(design) ?? 0,
+        fromForce ? inForce : ofDesign,
+        fromForce,
+      ),
+    };
+  });
+
   const claims = new Map<string, number>();
   for (const { match } of matches) {
-    if (match.candidates.length === 1) {
-      const rosterUnitId = match.candidates[0];
-      claims.set(rosterUnitId, (claims.get(rosterUnitId) ?? 0) + 1);
+    if (match.kind === 'resolved') {
+      claims.set(match.rosterUnitId, (claims.get(match.rosterUnitId) ?? 0) + 1);
     }
   }
   const manifest: Record<string, BattleUnitManifestEntry> = {};
-  const unresolved: Record<string, readonly string[]> = {};
-  for (const { unitId, match } of matches) {
-    const rosterUnitId = match.candidates[0];
-    if (match.candidates.length === 1 && claims.get(rosterUnitId) === 1) {
-      manifest[unitId] = { rosterUnitId };
+  const evidence: Record<string, LegacyRosterEvidence> = {};
+  const unresolved: Record<string, ILegacyUnresolvedUnit> = {};
+  for (const { unit, match } of matches) {
+    if (match.kind === 'unresolved') {
+      unresolved[unit.unitId] = {
+        reason: match.reason,
+        candidates: match.candidates,
+      };
+    } else if (claims.get(match.rosterUnitId) === 1) {
+      manifest[unit.unitId] = { rosterUnitId: match.rosterUnitId };
+      evidence[unit.unitId] = match.evidence;
     } else {
-      unresolved[unitId] = match.candidates;
+      unresolved[unit.unitId] = {
+        reason: 'double-claim',
+        candidates: [match.rosterUnitId],
+      };
     }
   }
-  return { manifest, unresolved };
+  return { manifest, evidence, unresolved };
 }

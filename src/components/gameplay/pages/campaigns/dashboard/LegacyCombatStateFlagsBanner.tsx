@@ -20,6 +20,8 @@ const REASON_TEXT: Record<LegacyCombatStateFlagReason, string> = {
   'not-fully-explained':
     'its recorded battles no longer explain the stored damage',
   'ambiguous-roster-unit': 'it could belong to more than one roster unit',
+  'conflicting-pilot':
+    'the unit that could hold it now has a different pilot than the one who fought',
   'roster-unit-has-state': 'the roster unit already has damage recorded',
   'shares-roster-unit-with-flagged-entry':
     'it shares a roster unit with another unresolved entry',

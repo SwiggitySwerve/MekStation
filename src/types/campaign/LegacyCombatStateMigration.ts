@@ -16,6 +16,8 @@ export type LegacyCombatStateFlagReason =
   | 'not-fully-explained'
   /** A delta matches more than one roster unit, or none. */
   | 'ambiguous-roster-unit'
+  /** The only candidate unit's current pilot is not the pilot who fought. */
+  | 'conflicting-pilot'
   /** The roster unit already holds combat state of its own. */
   | 'roster-unit-has-state'
   /** It shares a roster unit with another entry that could not migrate. */

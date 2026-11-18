@@ -24,7 +24,10 @@ import {
 import { publishContractFulfilled } from '../contractFulfillmentBus';
 import { getDayPipeline } from '../dayPipeline';
 import { DayPhase, type IDayEvent } from '../dayPipeline';
-import { resolveLegacyBattleUnitManifest } from '../legacyRosterResolver';
+import {
+  resolveLegacyBattleUnitManifest,
+  type ILegacyUnresolvedUnit,
+} from '../legacyRosterResolver';
 import { applyOutcomePrestige } from '../prestige/applyOutcomePrestige';
 import { applyContractClosure } from './contractClosure';
 import {
@@ -68,7 +71,7 @@ interface IOutcomeDeltaApplicationContext {
   readonly outcome: ICombatOutcome;
   readonly manifest: BattleUnitManifest | undefined;
   /** Legacy (manifest-less) player units with no single roster match. */
-  readonly legacyUnresolved?: Readonly<Record<string, readonly string[]>>;
+  readonly legacyUnresolved?: Readonly<Record<string, ILegacyUnresolvedUnit>>;
   readonly wonByPlayer: boolean;
   readonly unitStates: Record<string, IUnitCombatState>;
   readonly nowIso: string;
@@ -142,7 +145,7 @@ function applyOutcomeDeltas({
     const resolution = resolveDeltaRosterUnit(delta, manifest);
     if (resolution.kind === 'skip') continue;
     if (resolution.kind === 'unmapped') {
-      const candidates = legacyUnresolved?.[delta.unitId];
+      const candidates = legacyUnresolved?.[delta.unitId]?.candidates;
       errors.push(
         `unit ${delta.unitId}: ${
           candidates === undefined
