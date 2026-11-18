@@ -79,15 +79,15 @@ test('typical event census retains omitted, synchronize, ready and mixed types; 
 
 test('event-aware census preserves the deployed main profile counts and included files', () => {
   const expected = {
-    docs: 9,
-    source: 10,
-    data: 10,
-    browser: 9,
-    desktop: 12,
-    ci: 12,
-    budgets: 11,
-    bootstrap: 13,
-    dependency: 13,
+    docs: 10,
+    source: 11,
+    data: 11,
+    browser: 10,
+    desktop: 13,
+    ci: 13,
+    budgets: 12,
+    bootstrap: 14,
+    dependency: 14,
   };
   for (const profile of workflowMetrics(root, config).profiles) {
     assert.equal(profile.active, expected[profile.id], profile.id);
@@ -401,8 +401,8 @@ test('matrix template metadata and soft timing projection share expanded names',
 test('expanded count includes matrix legs, detector, aggregator and induced trusted guard', () => {
   const metrics = workflowMetrics(root, config);
   const source = metrics.profiles.find((p) => p.id === 'source');
-  assert.equal(source.active, 10); // 9 PR Checks + the automatically induced guard
-  assert.equal(source.expanded, 12); // also exposes the 2 gated packaging legs
+  assert.equal(source.active, 11); // 10 PR Checks + the automatically induced guard
+  assert.equal(source.expanded, 13); // also exposes the 2 gated packaging legs
   assert.equal(
     source.census.filter((j) => j.file === 'lint-and-test-guard.yml').length,
     1,
@@ -501,6 +501,85 @@ test('dynamic/unknown matrices, conditions and aggregator bypasses fail closed',
     mutate(next);
     assert.throws(() => workflowMetrics(root, config, next));
   }
+});
+
+/** Fails unless the advisory reports run in Sim + Pack after its build, tolerated, and Static has none. */
+function assertAdvisoryReports(jobs) {
+  const sim = jobs['simulation-checks'],
+    staticJob = jobs['static-checks'];
+  const advisory = [
+    [
+      'Prepare source-head graphs and prove advisory reporting read-only',
+      'node scripts/ci/budget-github.mjs',
+    ],
+    ['Install isolated pinned tsrs (advisory)', 'tsrs@'],
+    [
+      'Compare TS7 and verified tsrs diagnostics (advisory)',
+      'node scripts/qc/tsrs-side-check.mjs',
+    ],
+  ];
+  const at = (name) => sim.steps.findIndex((s) => s.name === name);
+  const build = at('Build Next.js application');
+  assert.ok(build >= 0);
+  for (const [name, command] of advisory) {
+    const step = sim.steps[at(name)];
+    assert.ok(step?.run.includes(command), name);
+    assert.ok(at(name) > build, `${name} runs after the Next build`);
+    assert.equal(step['continue-on-error'], true, name);
+    assert.equal(step.if, '${{ !cancelled() }}', name);
+  }
+  // The side-check's compilers read the generated route types.
+  assert.ok(
+    at('Generate Next.js route types') <
+      at('Compare TS7 and verified tsrs diagnostics (advisory)'),
+  );
+  for (const [name, artifact] of [
+    ['Upload canonical reporter inputs', 'ci-budget-inputs'],
+    ['Upload in-Actions reporter dry-run proof', 'ci-budget-report-proof'],
+  ]) {
+    const step = sim.steps[at(name)];
+    assert.equal(step?.with.name, artifact, name);
+    assert.equal(step.if, '${{ always() }}', name);
+    assert.equal(step.with['if-no-files-found'], 'warn', name);
+  }
+  // Static Checks no longer carries them.
+  for (const step of staticJob.steps) {
+    assert.ok(!advisory.some(([name]) => name === step.name), step.name);
+    assert.ok(!/budget-github|tsrs/.test(step.run ?? ''), step.name);
+    assert.ok(!/ci-budget-(inputs|report-proof)/.test(step.with?.name ?? ''));
+  }
+}
+
+test('advisory reports run late in Simulation Checks and Linux Pack, every advisory step tolerated, none in Static', () => {
+  assertAdvisoryReports(workflow.jobs);
+  // No new job: the aggregator still needs every job.
+  assert.deepEqual(
+    [...workflow.jobs['lint-and-test'].needs].sort(),
+    Object.keys(workflow.jobs)
+      .filter((id) => id !== 'lint-and-test')
+      .sort(),
+  );
+  // Mutants: an advisory step that can fail its job, one back in Static
+  // Checks, and one moved before the build are refused.
+  const tolerated = structuredClone(workflow.jobs);
+  delete tolerated['simulation-checks'].steps.find(
+    (s) => s.name === 'Compare TS7 and verified tsrs diagnostics (advisory)',
+  )['continue-on-error'];
+  assert.throws(() => assertAdvisoryReports(tolerated));
+  const back = structuredClone(workflow.jobs);
+  back['static-checks'].steps.push(
+    back['simulation-checks'].steps.find(
+      (s) => s.run === 'node scripts/ci/budget-github.mjs',
+    ),
+  );
+  assert.throws(() => assertAdvisoryReports(back));
+  const early = structuredClone(workflow.jobs);
+  const steps = early['simulation-checks'].steps;
+  const reporter = steps.findIndex(
+    (s) => s.run === 'node scripts/ci/budget-github.mjs',
+  );
+  steps.unshift(...steps.splice(reporter, 1));
+  assert.throws(() => assertAdvisoryReports(early), /after the Next build/);
 });
 
 test('actual aggregator boundary rejects failures, unexpected skips, unknown/missing results and forged gates', () => {

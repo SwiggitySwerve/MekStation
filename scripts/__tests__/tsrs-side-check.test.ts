@@ -253,16 +253,17 @@ describe('advisory tsrs side-check', () => {
     }
   });
 
-  it('keeps the isolated, exact-pinned check advisory inside the read-only Static Checks job', () => {
+  it('keeps the isolated, exact-pinned check advisory inside the read-only Simulation Checks and Linux Pack job', () => {
     const workflow = invoke('parseWorkflow', [
       fs.readFileSync(
         path.join(root, '.github/workflows/pr-checks.yml'),
         'utf8',
       ),
     ]);
-    // The side-check runs as two steps of Static Checks: a read-only,
-    // non-persisted token, and each step advisory with its own timeout.
-    const job = workflow.jobs['static-checks'];
+    // The side-check runs as two late steps of Simulation Checks and Linux
+    // Pack: a read-only, non-persisted token, and each step advisory with its
+    // own timeout (placement: scripts/ci/budget-workflow.test.mjs).
+    const job = workflow.jobs['simulation-checks'];
     expect(job['runs-on']).toBe('ubuntu-latest');
     expect(job.permissions).toEqual({
       contents: 'read',

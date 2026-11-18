@@ -203,7 +203,14 @@ export async function reportRun({
     ),
     jest: [],
   };
-  for (const shard of [1, 2, 3]) {
+  // One artifact per unit shard, whatever the shard count.
+  const jestShards = fs
+    .readdirSync(artifactRoot)
+    .map((name) => /^ci-budget-jest-([1-9]\d*)$/.exec(name)?.[1])
+    .filter(Boolean)
+    .map(Number)
+    .sort((a, b) => a - b);
+  for (const shard of jestShards) {
     for (const project of ['unit', 'corpus']) {
       const entry = json(
         path.join(
