@@ -60,7 +60,7 @@ function reapply(
         state,
         { ...delta, unitId: rosterUnitId },
         outcome.matchId,
-        outcome.appliedOn ?? outcome.capturedAt,
+        outcome.appliedOn ?? MIGRATED_AT,
         isLostOnField(outcome, delta, playerWon(outcome)),
       );
     }

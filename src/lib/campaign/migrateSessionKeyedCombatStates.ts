@@ -90,10 +90,6 @@ function unitRefOf(delta: IUnitCombatDelta): string | undefined {
   return delta.unitRef ?? SESSION_UNIT_ID.exec(delta.unitId)?.[2];
 }
 
-function appliedAtOf(outcome: IAppliedCombatOutcome): string {
-  return outcome.appliedOn ?? outcome.capturedAt;
-}
-
 function missionForce(
   campaign: ICampaign,
   scenarioId: string | null,
@@ -144,16 +140,22 @@ function mapDelta(
   return { retained, candidates: pool.map((unit) => unit.unitId) };
 }
 
+/**
+ * `lastUpdated` is the campaign day the outcome was applied on (loads stamp
+ * `appliedOn` on old records), else the migration instant; the wall-clock
+ * `capturedAt` is never read as a campaign time.
+ */
 function applyRetained(
   state: IUnitCombatState | undefined,
   unitId: string,
   { delta, outcome }: IRetainedDelta,
+  migratedAt: string,
 ): IUnitCombatState {
   return applyUnitDelta(
     state,
     { ...delta, unitId },
     outcome.matchId,
-    appliedAtOf(outcome),
+    outcome.appliedOn ?? migratedAt,
     isLostOnField(outcome, delta, playerWon(outcome)),
   );
 }
@@ -188,6 +190,7 @@ function analyse(
   outcomes: readonly IAppliedCombatOutcome[],
   key: string,
   original: IUnitCombatState,
+  migratedAt: string,
 ): IEntryAnalysis {
   const retained: IRetainedDelta[] = outcomes.flatMap((outcome, outcomeIndex) =>
     outcome.unitDeltas.flatMap((delta, deltaIndex) =>
@@ -197,7 +200,7 @@ function analyse(
     ),
   );
   const rebuilt = retained.reduce<IUnitCombatState | undefined>(
-    (state, entry) => applyRetained(state, key, entry),
+    (state, entry) => applyRetained(state, key, entry, migratedAt),
     undefined,
   );
   const mappings = retained.map((entry) => mapDelta(campaign, roster, entry));
@@ -271,7 +274,7 @@ export function migrateSessionKeyedCombatStates({
   );
 
   const analyses = playerKeys.map((key) =>
-    analyse(campaign, rosterUnits, outcomes, key, states[key]),
+    analyse(campaign, rosterUnits, outcomes, key, states[key], migratedAt),
   );
   taintSharedRosterUnits(analyses);
 
@@ -293,6 +296,7 @@ export function migrateSessionKeyedCombatStates({
       nextStates[rosterUnitId],
       rosterUnitId,
       retained,
+      migratedAt,
     );
     const manifest = manifests.get(retained.outcomeIndex) ?? {};
     manifest[retained.delta.unitId] = { rosterUnitId };
