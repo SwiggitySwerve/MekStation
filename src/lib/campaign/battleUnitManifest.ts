@@ -92,10 +92,10 @@ export interface IOutcomeUnitWritePlan {
  * - A COMPLETE recorded manifest is authoritative: a player delta with no
  *   roster or not-on-roster entry is an error (T3, stays queued).
  * - Otherwise (no manifest, an aged-out one, or one with unresolved units)
- *   a delta without an entry takes the legacy path: the legacy match
- *   (`legacyRosterResolver`), and if that cannot attribute it, the delta
- *   is written to no unit and returned in `unapplied` for the caller to
- *   flag and quarantine. The rest of the outcome still applies.
+ *   a delta with NO entry takes the legacy match (`legacyRosterResolver`).
+ *   A launch-time `unresolved` entry, or a delta the legacy match cannot
+ *   attribute, is written to no unit and returned in `unapplied` for the
+ *   caller to flag and quarantine. The rest of the outcome still applies.
  * Opponent deltas and not-on-roster units are never written.
  */
 export function planOutcomeUnitWrites(
@@ -131,10 +131,10 @@ export function planOutcomeUnitWrites(
     return { writes, unapplied, errors, appliedManifest };
   }
 
-  const needsLegacy = players.some((delta) => {
-    const entry = entryOf(delta.unitId);
-    return !entry || 'unresolved' in entry;
-  });
+  // Only a delta with NO entry takes the legacy match. A launch-time
+  // `unresolved` entry stays unresolved: re-matching it against the force
+  // as it is at apply could attribute it to the wrong unit.
+  const needsLegacy = players.some((delta) => !entryOf(delta.unitId));
   const legacy = needsLegacy
     ? resolveLegacyBattleUnitManifest(campaign, rosterUnits, outcome)
     : undefined;
@@ -152,6 +152,14 @@ export function planOutcomeUnitWrites(
     }
     if (entry && 'notOnRoster' in entry) {
       appliedManifest[delta.unitId] = entry;
+      continue;
+    }
+    if (entry && 'unresolved' in entry) {
+      unapplied.push({
+        delta,
+        reason: 'ambiguous-roster-unit',
+        candidates: entry.candidates,
+      });
       continue;
     }
     const match = legacy?.manifest[delta.unitId];

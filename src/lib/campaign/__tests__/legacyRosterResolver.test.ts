@@ -7,6 +7,7 @@
  */
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
+import { UNKNOWN_PILOT_REF } from '@/components/gameplay/pages/preBattleSessionBuilder';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 import { resolveLegacyBattleUnitManifest } from '../legacyRosterResolver';
@@ -167,5 +168,65 @@ describe('resolveLegacyBattleUnitManifest', () => {
     expect(result.unresolved['player-1-atlas-as7-d']?.reason).toBe(
       'double-claim',
     );
+  });
+});
+
+describe('resolveLegacyBattleUnitManifest review round 3', () => {
+  it('N4 (probe B2): a pilot now linked to another roster unit is conflicting evidence, even against a pilotless candidate', () => {
+    const result = resolveLegacyBattleUnitManifest(
+      campaignWithTeam(['roster-b']),
+      roster(
+        ['roster-a', 'atlas-as7-d', 'pilot-p'],
+        ['roster-b', 'atlas-as7-d'],
+      ),
+      {
+        scenarioId: SCENARIO,
+        unitDeltas: [player('player-1-atlas-as7-d', 'atlas-as7-d', 'pilot-p')],
+      },
+    );
+    expect(result.manifest).toEqual({});
+    expect(result.unresolved['player-1-atlas-as7-d']?.reason).toBe(
+      'conflicting-pilot',
+    );
+  });
+
+  it('N5 (probe B3): a design that fought twice is attributed all or none', () => {
+    const result = resolveLegacyBattleUnitManifest(
+      campaignWithTeam(['roster-a', 'roster-b']),
+      roster(
+        ['roster-a', 'atlas-as7-d', 'pilot-q'],
+        ['roster-b', 'atlas-as7-d', 'pilot-p'],
+      ),
+      {
+        scenarioId: SCENARIO,
+        unitDeltas: [
+          player('player-1-atlas-as7-d', 'atlas-as7-d', 'pilot-p'),
+          player('player-2-atlas-as7-d', 'atlas-as7-d', 'pilot-r'),
+        ],
+      },
+    );
+    expect(result.manifest).toEqual({});
+    expect(Object.keys(result.unresolved).sort()).toEqual([
+      'player-1-atlas-as7-d',
+      'player-2-atlas-as7-d',
+    ]);
+  });
+
+  it('N7: the session builder placeholder pilot is not evidence', () => {
+    // The one constant the campaign session builder stamps on unassigned units.
+    expect(UNKNOWN_PILOT_REF).toBe('Unknown');
+    const result = resolveLegacyBattleUnitManifest(
+      campaignWithTeam(['roster-a']),
+      roster(['roster-a', 'atlas-as7-d', 'pilot-a']),
+      {
+        scenarioId: SCENARIO,
+        unitDeltas: [
+          player('player-1-atlas-as7-d', 'atlas-as7-d', UNKNOWN_PILOT_REF),
+        ],
+      },
+    );
+    expect(result.manifest).toEqual({
+      'player-1-atlas-as7-d': { rosterUnitId: 'roster-a' },
+    });
   });
 });

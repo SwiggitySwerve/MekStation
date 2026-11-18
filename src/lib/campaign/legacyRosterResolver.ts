@@ -13,11 +13,13 @@
  *     per `scenarioGenerationProcessor.buildScenarioId`) and holds some of
  *     them, only those.
  *   - A design that fought more than once in this battle resolves only by
- *     the unit's `pilotRef` matching exactly one pool unit's pilot.
- *   - A design that fought once resolves to the single pool unit, unless
- *     that unit's current pilot disagrees with a non-empty `pilotRef`
- *     (conflicting evidence: the force or roster changed since). With
- *     several pool units it resolves only by pilot.
+ *     each unit's `pilotRef` matching exactly one pool unit's pilot, and
+ *     all of that design's units or none.
+ *   - A design that fought once resolves to the single pool unit, unless a
+ *     real `pilotRef` (not the session builder's `UNKNOWN_PILOT_REF`)
+ *     conflicts: the unit now has another pilot, or that pilot is now
+ *     linked to another roster unit (the force or roster changed since).
+ *     With several pool units it resolves only by pilot.
  *   - Two player units resolving to the same roster unit are both refused.
  * Slot order is never used.
  */
@@ -31,17 +33,12 @@ import type { LegacyRosterEvidence } from '@/types/campaign/LegacyCombatStateMig
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type { IUnitCombatDelta } from '@/types/combat/CombatOutcome';
 
+import { UNKNOWN_PILOT_REF } from '@/components/gameplay/pages/preBattleSessionBuilder';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 import type { ICampaignWithBridgeState } from './processors/scenarioEncounterBridgeProcessor';
 
 const SESSION_UNIT_ID = /^(player|opponent)-\d+-(.+)$/;
-
-/**
- * The campaign session builder stamps unassigned units with this pilotRef
- * (`buildGameUnits` in `preBattleSessionBuilder.ts`); it is not evidence.
- */
-const UNASSIGNED_PILOT_REF = 'Unknown';
 
 export function isSessionKeyedUnitId(key: string): boolean {
   return SESSION_UNIT_ID.test(key);
@@ -109,10 +106,11 @@ function matchUnit(
   timesFought: number,
   pool: readonly IRosterUnitProjection[],
   fromForce: boolean,
+  rosterUnits: readonly IRosterUnitProjection[],
 ): Match {
   const candidates = pool.map((rosterUnit) => rosterUnit.unitId);
   const pilotRef =
-    unit.pilotRef && unit.pilotRef !== UNASSIGNED_PILOT_REF
+    unit.pilotRef && unit.pilotRef !== UNKNOWN_PILOT_REF
       ? unit.pilotRef
       : undefined;
   const byPilot = pilotRef
@@ -120,7 +118,18 @@ function matchUnit(
     : [];
   if (timesFought === 1 && pool.length === 1) {
     const only = pool[0];
-    if (pilotRef && only.pilotId && only.pilotId !== pilotRef) {
+    // The pilot who fought is evidence against this unit when the unit now
+    // has another pilot, or that pilot is now linked to another roster unit.
+    const pilotNowElsewhere =
+      pilotRef !== undefined &&
+      rosterUnits.some(
+        (rosterUnit) =>
+          rosterUnit.pilotId === pilotRef && rosterUnit.unitId !== only.unitId,
+      );
+    if (
+      pilotRef &&
+      ((only.pilotId && only.pilotId !== pilotRef) || pilotNowElsewhere)
+    ) {
       return { kind: 'unresolved', reason: 'conflicting-pilot', candidates };
     }
     return {
@@ -168,6 +177,7 @@ export function resolveLegacyBattleUnitManifest(
     if (!design) {
       return {
         unit,
+        design: undefined,
         match: {
           kind: 'unresolved',
           reason: 'ambiguous',
@@ -184,14 +194,41 @@ export function resolveLegacyBattleUnitManifest(
     const fromForce = inForce.length > 0;
     return {
       unit,
+      design,
       match: matchUnit(
         unit,
         timesFought.get(design) ?? 0,
         fromForce ? inForce : ofDesign,
         fromForce,
+        rosterUnits,
       ),
     };
   });
+
+  // A design that fought more than once is attributed all or none: one
+  // unmatched unit of it leaves its siblings' matches unproven too.
+  const designsWithGaps = new Set(
+    matches.flatMap(({ design, match }) =>
+      design &&
+      match.kind === 'unresolved' &&
+      (timesFought.get(design) ?? 0) > 1
+        ? [design]
+        : [],
+    ),
+  );
+  for (const entry of matches) {
+    if (
+      entry.design &&
+      entry.match.kind === 'resolved' &&
+      designsWithGaps.has(entry.design)
+    ) {
+      entry.match = {
+        kind: 'unresolved',
+        reason: 'ambiguous',
+        candidates: [entry.match.rosterUnitId],
+      };
+    }
+  }
 
   const claims = new Map<string, number>();
   for (const { match } of matches) {

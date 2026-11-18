@@ -587,6 +587,44 @@ describe('postBattleProcessor legacy battles without a launch manifest (T1)', ()
     ).toEqual([ALLY_SESSION_ID]);
   });
 
+  it('N1 (probe B1): a launch-time unresolved unit is never re-resolved against the force as it is at apply', () => {
+    seedRosterUnits([
+      { unitId: 'roster-a', unitRef: 'atlas-as7-d' },
+      { unitId: 'roster-b', unitRef: 'atlas-as7-d' },
+    ]);
+    const battle = legacyOutcome();
+    // At launch both Atlases were in the force and nothing said which one
+    // fought; afterwards roster-b left the force.
+    const result = postBattleProcessor.process(
+      {
+        ...teamCampaign(['roster-a']),
+        pendingBattleOutcomes: [battle],
+        battleUnitManifests: {
+          [MATCH]: pending(
+            {
+              [PLAYER_SESSION_ID]: {
+                unresolved: true,
+                candidates: ['roster-a', 'roster-b'],
+              },
+            },
+            false,
+          ),
+        },
+      },
+      new Date('3025-06-15T00:00:00Z'),
+    );
+    const applied = result.campaign as ICampaignWithBattleState;
+    expect(applied.processedBattleIds).toContain(MATCH);
+    expect(applied.unitCombatStates).toEqual({});
+    expect(applied.legacyCombatStateFlags).toEqual([
+      expect.objectContaining({
+        kind: 'unapplied-delta',
+        sessionUnitId: PLAYER_SESSION_ID,
+        candidateRosterUnitIds: ['roster-a', 'roster-b'],
+      }),
+    ]);
+  });
+
   it('T3 still holds for a complete manifest missing a player unit', () => {
     const battle = outcome(fullDeltas);
     const result = postBattleProcessor.process(

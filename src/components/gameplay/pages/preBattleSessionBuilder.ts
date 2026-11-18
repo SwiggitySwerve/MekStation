@@ -13,6 +13,7 @@ import { assertSkirmishUnitReference } from '@/utils/gameplay/preBattleSessionBu
 type ForceAssignment = IForce['assignments'][number];
 type AssignedForceUnit = ForceAssignment & { unitId: string };
 
+export const UNKNOWN_PILOT_REF = 'Unknown';
 interface IPilotSkills {
   gunnery: number;
   piloting: number;
