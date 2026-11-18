@@ -8,8 +8,8 @@ const olderSave: ILegacyCombatStateFlag = {
   kind: 'combat-state',
   quarantinedOnDeviceId: 'device-a',
   sessionUnitId: 'player-1-atlas-as7-d',
-  reason: 'ambiguous-roster-unit',
-  candidateRosterUnitIds: ['roster-a', 'roster-b'],
+  reason: 'legacy-not-attributed',
+  candidateRosterUnitIds: [],
   matchIds: ['m-1'],
 };
 
@@ -17,8 +17,8 @@ const unapplied: ILegacyCombatStateFlag = {
   kind: 'unapplied-delta',
   quarantinedOnDeviceId: 'device-a',
   sessionUnitId: 'player-2-locust-lct-1v',
-  reason: 'ambiguous-roster-unit',
-  candidateRosterUnitIds: ['locust-a', 'locust-b'],
+  reason: 'legacy-not-attributed',
+  candidateRosterUnitIds: [],
   matchIds: ['match-7'],
 };
 
@@ -38,7 +38,7 @@ describe('LegacyCombatStateFlagsBanner (T1)', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('N6: says an older-save record came from an older save and that its copy is kept', () => {
+  it('§186.4: says plainly that older-save damage was not applied to any unit and that its copy is kept', () => {
     render(
       <LegacyCombatStateFlagsBanner
         flags={[olderSave]}
@@ -47,10 +47,13 @@ describe('LegacyCombatStateFlagsBanner (T1)', () => {
         onDismiss={jest.fn()}
       />,
     );
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '1 damage record was not applied to any unit',
+    );
     expect(
       screen.getByTestId('legacy-combat-state-flag-player-1-atlas-as7-d'),
     ).toHaveTextContent(
-      'Damage recorded for player-1-atlas-as7-d in an older save could not be matched to a roster unit: it could belong to more than one roster unit (possible units: roster-a, roster-b). A copy is kept on this device.',
+      /^Damage recorded for player-1-atlas-as7-d in an older save was not applied to any unit\. A copy is kept on this device\.$/,
     );
   });
 
@@ -64,10 +67,9 @@ describe('LegacyCombatStateFlagsBanner (T1)', () => {
       />,
     );
     const pendingText = screen.getByTestId(UNAPPLIED_ID).textContent ?? '';
-    expect(pendingText).toContain(
-      'Damage from battle match-7 to player-2-locust-lct-1v could not be matched to a unit and was not applied: it could belong to more than one roster unit (possible units: locust-a, locust-b).',
+    expect(pendingText).toBe(
+      'Damage to player-2-locust-lct-1v from battle match-7 was not applied to any unit: this save does not record which roster unit fought.',
     );
-    expect(pendingText).not.toContain('kept on this device');
     expect(screen.getByRole('status')).not.toHaveTextContent('older save');
 
     rerender(
@@ -83,6 +85,26 @@ describe('LegacyCombatStateFlagsBanner (T1)', () => {
     );
   });
 
+  it('words a battle unit the launch could not tell apart with its possible units', () => {
+    render(
+      <LegacyCombatStateFlagsBanner
+        flags={[
+          {
+            ...unapplied,
+            reason: 'ambiguous-roster-unit',
+            candidateRosterUnitIds: ['locust-a', 'locust-b'],
+          },
+        ]}
+        currentDeviceId="device-a"
+        pendingQuarantineKeys={new Set()}
+        onDismiss={jest.fn()}
+      />,
+    );
+    expect(screen.getByTestId(UNAPPLIED_ID)).toHaveTextContent(
+      'Damage to player-2-locust-lct-1v from battle match-7 was not applied to any unit: it could belong to more than one roster unit (possible units: locust-a, locust-b). A copy is kept on this device.',
+    );
+  });
+
   it('N6: dismisses one flag at a time', () => {
     const onDismiss = jest.fn();
     render(
@@ -92,6 +114,9 @@ describe('LegacyCombatStateFlagsBanner (T1)', () => {
         pendingQuarantineKeys={new Set()}
         onDismiss={onDismiss}
       />,
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(
+      '2 damage records were not applied to any unit',
     );
     fireEvent.click(
       screen.getByTestId(

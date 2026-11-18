@@ -2,7 +2,9 @@
  * T1: the legacy combat-state migration runs on every load that installs a
  * server record: the ordinary load AND the guarded refresh after a committed
  * command (which also cancels any armed autosave, so it could otherwise
- * re-install a record a migration had not yet saved).
+ * re-install a record a migration had not yet saved). Owner ruling
+ * PARITY-PLAN §186.4: the player entry is flagged and quarantined, and no
+ * roster unit (the fixture's ff-roster-unit-1) gets its damage.
  */
 import type { StoreApi } from 'zustand';
 
@@ -41,7 +43,6 @@ jest.mock('@/services/persistence/legacyCombatStateQuarantineStore', () => ({
 const BASE_VERSION = 11;
 const HOST_INSTANCE_ID = 'instance-host-a';
 const PLAYER_KEY = 'player-1-atlas-as7-d';
-const ROSTER_ID = 'ff-roster-unit-1';
 
 interface MockCampaignStore {
   campaign: ICampaign | null;
@@ -91,6 +92,12 @@ function registerLiveCampaign(campaign: ICampaign): void {
 
 function liveStateKeys(): string[] {
   return Object.keys(campaignStore.getState().campaign?.unitCombatStates ?? {});
+}
+
+function liveFlagKeys(): string[] {
+  return (campaignStore.getState().campaign?.legacyCombatStateFlags ?? []).map(
+    (flag) => `${flag.sessionUnitId}|${flag.reason}`,
+  );
 }
 
 async function settle(): Promise<void> {
@@ -146,8 +153,8 @@ describe('the legacy combat-state migration on load', () => {
 
     expect(adopted).toBe(true);
     expect(mockQuarantinePut).toHaveBeenCalledTimes(1);
-    expect(liveStateKeys()).toEqual([ROSTER_ID]);
-    expect(liveStateKeys()).not.toContain(PLAYER_KEY);
+    expect(liveStateKeys()).toEqual([]);
+    expect(liveFlagKeys()).toEqual([`${PLAYER_KEY}|legacy-not-attributed`]);
   });
 
   it('runs on an ordinary load', async () => {
@@ -158,6 +165,7 @@ describe('the legacy combat-state migration on load', () => {
 
     expect(loaded).toBe(true);
     expect(mockQuarantinePut).toHaveBeenCalledTimes(1);
-    expect(liveStateKeys()).toEqual([ROSTER_ID]);
+    expect(liveStateKeys()).toEqual([]);
+    expect(liveFlagKeys()).toEqual([`${PLAYER_KEY}|legacy-not-attributed`]);
   });
 });

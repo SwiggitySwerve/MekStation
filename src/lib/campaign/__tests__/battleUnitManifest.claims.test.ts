@@ -1,6 +1,7 @@
 /**
  * T1: a legacy match never takes a roster unit the launch manifest already
- * names, at launch-time completion and at apply (one helper owns the rule).
+ * names at launch-time completion; at apply no legacy match is made at all
+ * (owner ruling PARITY-PLAN §186.4).
  */
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
@@ -43,7 +44,7 @@ describe('a legacy match never takes a unit the launch manifest already names', 
     });
   });
 
-  it('at apply: the colliding delta is unapplied, the named one written', () => {
+  it('at apply: a delta with no manifest entry is unapplied as legacy, the named one written', () => {
     const delta = (unitId: string, unitRef: string, pilotRef?: string) => ({
       unitId,
       unitRef,
@@ -61,7 +62,6 @@ describe('a legacy match never takes a unit the launch manifest already names', 
           },
         },
       },
-      rosterUnits,
       {
         matchId: 'm1',
         scenarioId: null,
@@ -74,8 +74,12 @@ describe('a legacy match never takes a unit the launch manifest already names', 
     expect(
       plan.writes.map((write) => [write.delta.unitId, write.rosterUnitId]),
     ).toEqual([[LINKED, 'roster-a']]);
-    expect(plan.unapplied.map((entry) => entry.delta.unitId)).toEqual([
-      UNLINKED,
-    ]);
+    expect(
+      plan.unapplied.map((entry) => [
+        entry.delta.unitId,
+        entry.reason,
+        entry.candidates,
+      ]),
+    ).toEqual([[UNLINKED, 'legacy-not-attributed', []]]);
   });
 });

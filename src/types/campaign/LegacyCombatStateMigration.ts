@@ -2,27 +2,24 @@
  * Legacy session-keyed combat-state migration (T1).
  *
  * Saves written before the launch manifest existed hold `unitCombatStates`
- * entries under session unit ids (`player-1-atlas-as7-d`). The migration
- * re-applies the retained deltas under the roster unit, keeps every
- * original in a quarantine record OUTSIDE the campaign payload, and flags
- * what it could not explain.
+ * entries under session unit ids (`player-1-atlas-as7-d`). Legacy damage is
+ * never attributed to a roster unit (owner ruling PARITY-PLAN §186.4): the
+ * migration removes each player entry from the payload, keeps the original
+ * in a quarantine record OUTSIDE the campaign payload, and flags it.
  */
 
 import type { IUnitCombatDelta } from '../combat/CombatOutcome';
 import type { IUnitCombatState } from './UnitCombatState';
 
-/** Why a player session-keyed entry was left for the user instead of migrated. */
+/** Why damage was written to no roster unit. */
 export type LegacyCombatStateFlagReason =
-  /** Re-applying its retained deltas does not rebuild the stored entry. */
-  | 'not-fully-explained'
-  /** A delta matches more than one roster unit, or none. */
-  | 'ambiguous-roster-unit'
-  /** The only candidate unit's current pilot is not the pilot who fought. */
-  | 'conflicting-pilot'
-  /** The roster unit already holds combat state of its own. */
-  | 'roster-unit-has-state'
-  /** It shares a roster unit with another entry that could not migrate. */
-  | 'shares-roster-unit-with-flagged-entry';
+  /**
+   * Legacy damage: an older save's session-keyed entry, or a battle delta
+   * with no launch-manifest entry. Never attributed (§186.4).
+   */
+  | 'legacy-not-attributed'
+  /** The launch could not tell which roster unit fought (unresolved entry). */
+  | 'ambiguous-roster-unit';
 
 /**
  * The visible flag the campaign payload carries (small; the original
@@ -30,9 +27,9 @@ export type LegacyCombatStateFlagReason =
  */
 export interface ILegacyCombatStateFlag {
   /**
-   * `combat-state`: a stored session-keyed state the load migration could
-   * not attribute. `unapplied-delta`: a battle's player delta the apply
-   * could not attribute, so it was written to no unit.
+   * `combat-state`: a stored session-keyed state the load migration removed
+   * and never attributed. `unapplied-delta`: a battle's player delta the
+   * apply wrote to no unit.
    */
   readonly kind: 'combat-state' | 'unapplied-delta';
   /**
@@ -48,34 +45,25 @@ export interface ILegacyCombatStateFlag {
   readonly matchIds: readonly string[];
 }
 
-/** How one delta was matched to its roster unit. */
-export type LegacyRosterEvidence = 'force' | 'pilot' | 'design';
+export const LEGACY_NOT_ATTRIBUTED_NOTE =
+  'not attributed: legacy, owner ruling PARITY-PLAN §186.4';
 
-export interface ILegacyCombatStateTarget {
-  readonly matchId: string;
-  readonly rosterUnitId: string;
-  readonly evidence: LegacyRosterEvidence;
+/** What the migration did with a quarantined entry: never attributed it. */
+export interface ILegacyCombatStateResolution {
+  readonly kind: 'not-attributed';
+  readonly note: typeof LEGACY_NOT_ATTRIBUTED_NOTE;
+  readonly flag: ILegacyCombatStateFlag;
 }
-
-export type LegacyCombatStateResolution =
-  | {
-      readonly kind: 'migrated';
-      readonly targets: readonly ILegacyCombatStateTarget[];
-    }
-  | {
-      readonly kind: 'flagged';
-      readonly flag: ILegacyCombatStateFlag;
-    };
 
 /** One original, stored outside the campaign payload. */
 export type ILegacyCombatStateQuarantineRecord =
   | {
-      /** A stored session-keyed combat state, migrated or flagged. */
+      /** A stored session-keyed combat state, removed and flagged. */
       readonly source: 'combat-state';
       readonly campaignId: string;
       readonly sessionUnitId: string;
       readonly original: IUnitCombatState;
-      readonly resolution: LegacyCombatStateResolution;
+      readonly resolution: ILegacyCombatStateResolution;
       /** Wall-clock instant the migration ran. */
       readonly migratedAt: string;
     }

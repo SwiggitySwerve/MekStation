@@ -10,9 +10,12 @@
  * - Opponent deltas never map to a roster unit.
  * - A player delta whose manifest entry is `notOnRoster` is skipped.
  * - With a complete recorded manifest, a player delta with no entry is an
- *   error (T3). Without one, the delta takes the legacy path
- *   (`planOutcomeUnitWrites`): the legacy match, else written to no unit
- *   and flagged. Nothing is ever guessed.
+ *   error (T3). Without one (a battle launched before the manifest existed,
+ *   or whose manifest was pruned), the delta is never attributed (owner
+ *   ruling PARITY-PLAN §186.4): it is written to no unit, flagged and
+ *   quarantined (`planOutcomeUnitWrites`). Nothing is ever guessed.
+ * - The legacy resolver runs only at launch, to fill gaps in a manifest
+ *   being recorded (`completeLaunchManifest`).
  */
 
 import type {
@@ -70,13 +73,10 @@ export interface IPlannedUnitWrite {
   readonly rosterUnitId: string;
 }
 
-/** A player delta no evidence attributes: written to no unit, flagged. */
+/** A player delta written to no unit: flagged and quarantined. */
 export interface IUnappliedLegacyDelta {
   readonly delta: IUnitCombatDelta;
-  readonly reason: Extract<
-    LegacyCombatStateFlagReason,
-    'ambiguous-roster-unit' | 'conflicting-pilot'
-  >;
+  readonly reason: LegacyCombatStateFlagReason;
   readonly candidates: readonly string[];
 }
 
@@ -92,8 +92,7 @@ export interface IOutcomeUnitWritePlan {
 /**
  * The legacy matches that may be used for units WITHOUT a manifest entry,
  * in the given order: a match is refused when it claims a roster unit the
- * manifest already names, or one an earlier accepted match took. The one
- * owner of that rule for launch-time completion and for the apply.
+ * manifest already names, or one an earlier accepted match took.
  */
 function acceptUnclaimedLegacyMatches(
   manifest: BattleUnitManifest,
@@ -123,16 +122,14 @@ function acceptUnclaimedLegacyMatches(
  * - A COMPLETE recorded manifest is authoritative: a player delta with no
  *   roster or not-on-roster entry is an error (T3, stays queued).
  * - Otherwise (no manifest, an aged-out one, or one with unresolved units)
- *   a delta with NO entry takes the legacy match (`legacyRosterResolver`).
- *   A launch-time `unresolved` entry, or a delta the legacy match cannot
- *   attribute, is written to no unit and returned in `unapplied` for the
- *   caller to flag and quarantine. The rest of the outcome still applies.
+ *   only manifest entries are used. A launch-time `unresolved` entry, and a
+ *   delta with NO entry (legacy damage, never attributed: owner ruling
+ *   PARITY-PLAN §186.4), are written to no unit and returned in `unapplied`
+ *   for the caller to flag and quarantine. The rest of the outcome applies.
  * Opponent deltas and not-on-roster units are never written.
  */
 export function planOutcomeUnitWrites(
-  campaign: Pick<ICampaign, 'battleUnitManifests' | 'forces'> &
-    Pick<ICampaignWithBridgeState, 'bridgedEncounters'>,
-  rosterUnits: readonly IRosterUnitProjection[],
+  campaign: Pick<ICampaign, 'battleUnitManifests'>,
   outcome: ICombatOutcome,
 ): IOutcomeUnitWritePlan {
   const recorded = battleUnitManifestFor(campaign, outcome);
@@ -143,76 +140,33 @@ export function planOutcomeUnitWrites(
   const unapplied: IUnappliedLegacyDelta[] = [];
   const errors: string[] = [];
   const appliedManifest: Record<string, BattleUnitManifestEntry> = {};
-  const entryOf = (unitId: string) => recorded?.units[unitId];
 
-  if (recorded?.complete) {
-    for (const delta of players) {
-      const entry = entryOf(delta.unitId);
-      if (entry && 'rosterUnitId' in entry) {
-        writes.push({ delta, rosterUnitId: entry.rosterUnitId });
-        appliedManifest[delta.unitId] = entry;
-      } else if (entry && 'notOnRoster' in entry) {
-        appliedManifest[delta.unitId] = entry;
-      } else {
-        errors.push(
-          `unit ${delta.unitId}: session unit is not in the launch manifest`,
-        );
-      }
-    }
-    return { writes, unapplied, errors, appliedManifest };
-  }
-
-  // Only a delta with NO entry takes the legacy match. A launch-time
-  // `unresolved` entry stays unresolved: re-matching it against the force
-  // as it is at apply could attribute it to the wrong unit.
-  const needsLegacy = players.some((delta) => !entryOf(delta.unitId));
-  const legacy = needsLegacy
-    ? resolveLegacyBattleUnitManifest(campaign, rosterUnits, outcome)
-    : undefined;
-  const accepted = legacy
-    ? acceptUnclaimedLegacyMatches(
-        recorded?.units ?? {},
-        legacy,
-        players.map((delta) => delta.unitId),
-      )
-    : new Map<string, string>();
   for (const delta of players) {
-    const entry = entryOf(delta.unitId);
+    const entry = recorded?.units[delta.unitId];
     if (entry && 'rosterUnitId' in entry) {
       writes.push({ delta, rosterUnitId: entry.rosterUnitId });
       appliedManifest[delta.unitId] = entry;
-      continue;
-    }
-    if (entry && 'notOnRoster' in entry) {
+    } else if (entry && 'notOnRoster' in entry) {
       appliedManifest[delta.unitId] = entry;
-      continue;
-    }
-    if (entry && 'unresolved' in entry) {
+    } else if (recorded?.complete) {
+      errors.push(
+        `unit ${delta.unitId}: session unit is not in the launch manifest`,
+      );
+    } else if (entry) {
+      // Unresolved at launch: re-matching it against the force as it is
+      // at apply could attribute it to the wrong unit.
       unapplied.push({
         delta,
         reason: 'ambiguous-roster-unit',
         candidates: entry.candidates,
       });
-      continue;
+    } else {
+      unapplied.push({
+        delta,
+        reason: 'legacy-not-attributed',
+        candidates: [],
+      });
     }
-    const match = legacy?.manifest[delta.unitId];
-    const acceptedRosterUnitId = accepted.get(delta.unitId);
-    if (acceptedRosterUnitId !== undefined) {
-      writes.push({ delta, rosterUnitId: acceptedRosterUnitId });
-      appliedManifest[delta.unitId] = { rosterUnitId: acceptedRosterUnitId };
-      continue;
-    }
-    const unresolved = legacy?.unresolved[delta.unitId];
-    unapplied.push({
-      delta,
-      reason:
-        unresolved?.reason === 'conflicting-pilot'
-          ? 'conflicting-pilot'
-          : 'ambiguous-roster-unit',
-      candidates:
-        unresolved?.candidates ??
-        (match && 'rosterUnitId' in match ? [match.rosterUnitId] : []),
-    });
   }
   return { writes, unapplied, errors, appliedManifest };
 }
@@ -224,7 +178,8 @@ type PendingManifests = Readonly<Record<string, IPendingBattleUnitManifest>>;
  * that is not pending is pruned once it is older than the retained-outcome
  * window in CAMPAIGN days. A relaunch of the same mission prunes nothing,
  * because the earlier battle may still be in progress; a battle that
- * finishes after its manifest aged out applies through the legacy path.
+ * finishes after its manifest aged out has its player damage flagged and
+ * quarantined, not applied.
  * Returns the same object when nothing is pruned.
  */
 export function prunePendingBattleUnitManifests(

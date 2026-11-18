@@ -1,10 +1,13 @@
 /**
  * T1 legacy migration against a real campaign saved by main 3dcb06123
- * (see fixtures/README.md), plus synthetic cases for what must be left
- * and flagged.
+ * (see fixtures/README.md), plus synthetic cases. Owner ruling PARITY-PLAN
+ * §186.4 (option ii): legacy damage is never attributed. Every player
+ * session-keyed entry is removed from the payload, quarantined with its
+ * original and flagged; nothing is written to any roster unit, even where
+ * the evidence would have named one.
  */
 import type { ICampaign } from '@/types/campaign/Campaign';
-import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
+import type { ILegacyCombatStateFlag } from '@/types/campaign/LegacyCombatStateMigration';
 import type {
   SerializedCampaign,
   SerializedCampaignRosterState,
@@ -14,22 +17,18 @@ import type { IAppliedCombatOutcome } from '@/types/combat/CombatOutcome';
 
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { deserializeCampaignBody } from '@/lib/campaign/persistence/serializeCampaign';
+import { LEGACY_NOT_ATTRIBUTED_NOTE } from '@/types/campaign/LegacyCombatStateMigration';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
   isSessionKeyedUnitId,
   migrateSessionKeyedCombatStates,
 } from '../migrateSessionKeyedCombatStates';
-import {
-  applyUnitDelta,
-  isLostOnField,
-  playerWon,
-} from '../processors/postBattleProcessor.helpers';
+import { applyUnitDelta } from '../processors/postBattleProcessor.helpers';
 import legacyFixture from './fixtures/legacySessionKeyedCampaign.json';
 
 const PLAYER_KEY = 'player-1-atlas-as7-d';
 const OPPONENT_KEY = 'opponent-1-marauder-mad-3r';
-const ROSTER_ID = 'ff-roster-unit-1';
 const MIGRATED_AT = '2026-11-18T12:00:00.000Z';
 
 interface ILegacyFixture {
@@ -46,28 +45,6 @@ function loadFixture(): {
   return { campaign: deserializeCampaignBody(envelope.body), roster };
 }
 
-/** Re-apply every retained delta for `sessionUnitId` under `rosterUnitId`, in apply order. */
-function reapply(
-  campaign: ICampaign,
-  sessionUnitId: string,
-  rosterUnitId: string,
-): IUnitCombatState | undefined {
-  let state: IUnitCombatState | undefined;
-  for (const outcome of campaign.recentlyAppliedOutcomes ?? []) {
-    for (const delta of outcome.unitDeltas) {
-      if (delta.unitId !== sessionUnitId) continue;
-      state = applyUnitDelta(
-        state,
-        { ...delta, unitId: rosterUnitId },
-        outcome.matchId,
-        outcome.appliedOn ?? MIGRATED_AT,
-        isLostOnField(outcome, delta, playerWon(outcome)),
-      );
-    }
-  }
-  return state;
-}
-
 /** What the page-close keepalive flush measures (`useCampaignPersistenceStore`). */
 function keepaliveBytes(
   campaign: ICampaign,
@@ -80,6 +57,21 @@ function keepaliveBytes(
   return { bytes: new TextEncoder().encode(json).length, json };
 }
 
+function notAttributed(
+  sessionUnitId: string,
+  matchIds: readonly string[],
+  deviceId?: string,
+): ILegacyCombatStateFlag {
+  return {
+    kind: 'combat-state',
+    ...(deviceId === undefined ? {} : { quarantinedOnDeviceId: deviceId }),
+    sessionUnitId,
+    reason: 'legacy-not-attributed',
+    candidateRosterUnitIds: [],
+    matchIds,
+  };
+}
+
 describe('migrateSessionKeyedCombatStates on a save from main 3dcb06123', () => {
   it('the fixture really holds the legacy phantom entries', () => {
     const { campaign } = loadFixture();
@@ -87,23 +79,33 @@ describe('migrateSessionKeyedCombatStates on a save from main 3dcb06123', () => 
       [OPPONENT_KEY, PLAYER_KEY].sort(),
     );
     expect(campaign.recentlyAppliedOutcomes).toHaveLength(1);
+    // Non-vacuous: the entry holds real damage, and its delta names the
+    // pilot who fought, which the old resolver used to attribute it.
+    expect(
+      campaign.unitCombatStates[PLAYER_KEY].currentArmorPerLocation.right_torso,
+    ).toBe(22);
+    expect(
+      campaign.recentlyAppliedOutcomes![0].unitDeltas.find(
+        (delta) => delta.unitId === PLAYER_KEY,
+      )?.pilotRef,
+    ).toBeTruthy();
   });
 
-  it('rebuilds the player entry under the roster id by re-applying its deltas, quarantines the original and prunes the opponent', () => {
-    const { campaign, roster } = loadFixture();
+  it('§186.4: flags and quarantines the player entry, writes nothing to the roster unit, and prunes the opponent', () => {
+    const { campaign } = loadFixture();
     const result = migrateSessionKeyedCombatStates({
       campaign,
-      rosterUnits: roster.units as IRosterUnitProjection[],
       migratedAt: MIGRATED_AT,
+      deviceId: 'device-a',
     });
     if (!result) throw new Error('expected a migration');
 
-    const states = result.campaign.unitCombatStates;
-    expect(Object.keys(states)).toEqual([ROSTER_ID]);
-    expect(states[ROSTER_ID]).toEqual(reapply(campaign, PLAYER_KEY, ROSTER_ID));
-    // Non-vacuous: the battle left real damage on the unit.
-    expect(states[ROSTER_ID].currentArmorPerLocation.right_torso).toBe(22);
-
+    // Nothing written: no roster-keyed state appears.
+    expect(result.campaign.unitCombatStates).toEqual({});
+    const matchId = campaign.recentlyAppliedOutcomes![0].matchId;
+    const flag = notAttributed(PLAYER_KEY, [matchId], 'device-a');
+    expect(result.flags).toEqual([flag]);
+    expect(result.campaign.legacyCombatStateFlags).toEqual([flag]);
     expect(result.quarantine).toEqual([
       {
         source: 'combat-state',
@@ -111,43 +113,38 @@ describe('migrateSessionKeyedCombatStates on a save from main 3dcb06123', () => 
         sessionUnitId: PLAYER_KEY,
         original: campaign.unitCombatStates[PLAYER_KEY],
         resolution: {
-          kind: 'migrated',
-          targets: [
-            {
-              matchId: campaign.recentlyAppliedOutcomes![0].matchId,
-              rosterUnitId: ROSTER_ID,
-              // The fixture delta carries the pilot who fought: under the
-              // closed rule a real pilotRef is the only evidence (A).
-              evidence: 'pilot',
-            },
-          ],
+          kind: 'not-attributed',
+          note: LEGACY_NOT_ATTRIBUTED_NOTE,
+          flag,
         },
         migratedAt: MIGRATED_AT,
       },
     ]);
+    expect(LEGACY_NOT_ATTRIBUTED_NOTE).toBe(
+      'not attributed: legacy, owner ruling PARITY-PLAN §186.4',
+    );
     // Opponents are pruned, never quarantined or flagged.
     expect(result.prunedOpponentKeys).toEqual([OPPONENT_KEY]);
-    expect(result.flags).toEqual([]);
-    expect(result.campaign.legacyCombatStateFlags).toBeUndefined();
-    // The resolved mapping is recorded on the retained outcome.
+    // No mapping is recorded on the retained outcome.
+    expect(result.campaign.recentlyAppliedOutcomes).toBe(
+      campaign.recentlyAppliedOutcomes,
+    );
     expect(
       (result.campaign.recentlyAppliedOutcomes![0] as IAppliedCombatOutcome)
         .unitManifest,
-    ).toEqual({ [PLAYER_KEY]: { rosterUnitId: ROSTER_ID } });
+    ).toBeUndefined();
   });
 
   it('running it a second time changes nothing', () => {
-    const { campaign, roster } = loadFixture();
+    const { campaign } = loadFixture();
     const first = migrateSessionKeyedCombatStates({
       campaign,
-      rosterUnits: roster.units as IRosterUnitProjection[],
       migratedAt: MIGRATED_AT,
     });
     if (!first) throw new Error('expected a migration');
     expect(
       migrateSessionKeyedCombatStates({
         campaign: first.campaign,
-        rosterUnits: roster.units as IRosterUnitProjection[],
         migratedAt: MIGRATED_AT,
       }),
     ).toBeNull();
@@ -157,7 +154,6 @@ describe('migrateSessionKeyedCombatStates on a save from main 3dcb06123', () => 
     const { campaign, roster } = loadFixture();
     const result = migrateSessionKeyedCombatStates({
       campaign,
-      rosterUnits: roster.units as IRosterUnitProjection[],
       migratedAt: MIGRATED_AT,
     });
     if (!result) throw new Error('expected a migration');
@@ -179,8 +175,12 @@ describe('migrateSessionKeyedCombatStates on a save from main 3dcb06123', () => 
 });
 
 // ----------------------------------------------------------------------------
-// Synthetic: entries that must be left and flagged
+// Synthetic: nothing is attributed, whatever the evidence
 // ----------------------------------------------------------------------------
+
+const TEAM = 'team-force-1';
+const TEAM_SCENARIO = `scn-contract-1-3025-06-01-${TEAM}`;
+const SECOND_KEY = 'player-2-atlas-as7-d';
 
 function syntheticDelta(unitId: string, armor: number, pilotRef?: string) {
   return {
@@ -208,12 +208,13 @@ function syntheticDelta(unitId: string, armor: number, pilotRef?: string) {
 function syntheticOutcome(
   matchId: string,
   deltas: IAppliedCombatOutcome['unitDeltas'],
+  scenarioId: string | null = null,
 ): IAppliedCombatOutcome {
   return {
     version: 1,
     matchId,
     contractId: null,
-    scenarioId: null,
+    scenarioId,
     endReason: 'destruction',
     report: {
       version: 1,
@@ -231,217 +232,139 @@ function syntheticOutcome(
   } as unknown as IAppliedCombatOutcome;
 }
 
-function rosterUnit(unitId: string, pilotId?: string): IRosterUnitProjection {
-  return {
-    unitId,
-    unitName: unitId,
-    unitRef: 'atlas-as7-d',
-    ...(pilotId ? { pilotId } : {}),
-  } as unknown as IRosterUnitProjection;
-}
-
 function syntheticCampaign(
   outcomes: readonly IAppliedCombatOutcome[],
   states: Record<string, IUnitCombatState>,
+  teamUnitIds?: readonly string[],
 ): ICampaign {
   const { campaign } = loadFixture();
   return {
     ...campaign,
-    forces: new Map(),
+    forces: teamUnitIds
+      ? (new Map([
+          [
+            TEAM,
+            {
+              id: TEAM,
+              name: 'Team',
+              subForceIds: [],
+              unitIds: [...teamUnitIds],
+            },
+          ],
+        ]) as never)
+      : new Map(),
     unitCombatStates: states,
     recentlyAppliedOutcomes: outcomes,
   };
 }
 
-function stateFrom(outcome: IAppliedCombatOutcome): IUnitCombatState {
-  const delta = outcome.unitDeltas[0];
+function stateFor(outcome: IAppliedCombatOutcome, index = 0): IUnitCombatState {
   return applyUnitDelta(
     undefined,
-    delta,
+    outcome.unitDeltas[index],
     outcome.matchId,
     outcome.appliedOn as string,
   );
 }
 
-describe('migrateSessionKeyedCombatStates leaves and flags what it cannot prove', () => {
-  it('not fully explained: the retained deltas do not rebuild the stored entry', () => {
-    const outcome = syntheticOutcome('m-1', [syntheticDelta(PLAYER_KEY, 30)]);
-    const stored = {
-      ...stateFrom(outcome),
-      // Damage from a battle whose outcome was pruned (> 31 days).
-      currentArmorPerLocation: { CT: 12 },
-    };
-    const campaign = syntheticCampaign([outcome], { [PLAYER_KEY]: stored });
+describe('migrateSessionKeyedCombatStates never attributes legacy damage (§186.4)', () => {
+  it('a delta whose pilot and force both name one roster unit: flagged, quarantined, nothing written', () => {
+    // The old resolver attributed this confidently (pilot plus force).
+    const outcome = syntheticOutcome(
+      'm-1',
+      [syntheticDelta(PLAYER_KEY, 30, 'pilot-a')],
+      TEAM_SCENARIO,
+    );
+    const stored = stateFor(outcome);
     const result = migrateSessionKeyedCombatStates({
-      campaign,
-      rosterUnits: [rosterUnit('roster-a')],
+      campaign: syntheticCampaign([outcome], { [PLAYER_KEY]: stored }, [
+        'roster-a',
+      ]),
       migratedAt: MIGRATED_AT,
-      deviceId: 'device-a',
     });
     if (!result) throw new Error('expected a migration');
     expect(result.campaign.unitCombatStates).toEqual({});
-    expect(result.flags).toEqual([
-      {
-        kind: 'combat-state',
-        quarantinedOnDeviceId: 'device-a',
-        sessionUnitId: PLAYER_KEY,
-        reason: 'not-fully-explained',
-        candidateRosterUnitIds: ['roster-a'],
-        matchIds: ['m-1'],
-      },
-    ]);
-    expect(result.campaign.legacyCombatStateFlags).toEqual(result.flags);
+    expect(result.flags).toEqual([notAttributed(PLAYER_KEY, ['m-1'])]);
     expect(result.quarantine).toEqual([
       expect.objectContaining({
         sessionUnitId: PLAYER_KEY,
         original: stored,
-        resolution: { kind: 'flagged', flag: result.flags[0] },
+        resolution: {
+          kind: 'not-attributed',
+          note: LEGACY_NOT_ATTRIBUTED_NOTE,
+          flag: result.flags[0],
+        },
       }),
     ]);
   });
 
-  it('two candidates: the same design twice on the roster with no deciding pilot', () => {
-    const outcome = syntheticOutcome('m-2', [
-      syntheticDelta(PLAYER_KEY, 30, 'pilot-unknown'),
-    ]);
-    const campaign = syntheticCampaign([outcome], {
-      [PLAYER_KEY]: stateFrom(outcome),
-    });
+  it('an entry its retained deltas do not explain is flagged the same way, with its original kept', () => {
+    const outcome = syntheticOutcome('m-2', [syntheticDelta(PLAYER_KEY, 30)]);
+    const stored = {
+      ...stateFor(outcome),
+      // Damage from a battle whose outcome was pruned (> 31 days).
+      currentArmorPerLocation: { CT: 12 },
+    };
     const result = migrateSessionKeyedCombatStates({
-      campaign,
-      rosterUnits: [
-        rosterUnit('roster-a', 'pilot-a'),
-        rosterUnit('roster-b', 'pilot-b'),
-      ],
+      campaign: syntheticCampaign([outcome], { [PLAYER_KEY]: stored }),
       migratedAt: MIGRATED_AT,
     });
-    if (!result) throw new Error('expected a migration');
-    expect(result.campaign.unitCombatStates).toEqual({});
-    expect(result.flags).toEqual([
-      expect.objectContaining({
-        sessionUnitId: PLAYER_KEY,
-        reason: 'ambiguous-roster-unit',
-        candidateRosterUnitIds: ['roster-a', 'roster-b'],
-      }),
+    expect(result?.campaign.unitCombatStates).toEqual({});
+    expect(result?.flags).toEqual([notAttributed(PLAYER_KEY, ['m-2'])]);
+    expect(result?.quarantine.map((record) => record.original)).toEqual([
+      stored,
     ]);
   });
 
-  it('the pilot decides between two same-design roster units', () => {
-    const outcome = syntheticOutcome('m-3', [
-      syntheticDelta(PLAYER_KEY, 30, 'pilot-b'),
-    ]);
-    const campaign = syntheticCampaign([outcome], {
-      [PLAYER_KEY]: stateFrom(outcome),
-    });
+  it('an entry with no retained battle is flagged with no battles named', () => {
+    const outcome = syntheticOutcome('m-3', [syntheticDelta(PLAYER_KEY, 30)]);
     const result = migrateSessionKeyedCombatStates({
-      campaign,
-      rosterUnits: [
-        rosterUnit('roster-a', 'pilot-a'),
-        rosterUnit('roster-b', 'pilot-b'),
-      ],
+      campaign: syntheticCampaign([], { [PLAYER_KEY]: stateFor(outcome) }),
       migratedAt: MIGRATED_AT,
     });
-    expect(Object.keys(result?.campaign.unitCombatStates ?? {})).toEqual([
-      'roster-b',
-    ]);
-    expect(result?.flags).toEqual([]);
+    expect(result?.campaign.unitCombatStates).toEqual({});
+    expect(result?.flags).toEqual([notAttributed(PLAYER_KEY, [])]);
   });
 
-  it('a roster unit that already has state is left and flagged', () => {
-    // The delta's pilot is the evidence that names roster-a (closed rule
-    // (A)); a pilotless delta with no force record is never attributed.
+  it('never touches a roster unit that has state of its own', () => {
     const outcome = syntheticOutcome('m-4', [
       syntheticDelta(PLAYER_KEY, 30, 'pilot-a'),
     ]);
-    const own = stateFrom(
+    const own = stateFor(
       syntheticOutcome('m-new', [syntheticDelta('roster-a', 5)]),
     );
-    const campaign = syntheticCampaign([outcome], {
-      [PLAYER_KEY]: stateFrom(outcome),
-      'roster-a': own,
-    });
     const result = migrateSessionKeyedCombatStates({
-      campaign,
-      rosterUnits: [rosterUnit('roster-a', 'pilot-a')],
+      campaign: syntheticCampaign([outcome], {
+        [PLAYER_KEY]: stateFor(outcome),
+        'roster-a': own,
+      }),
       migratedAt: MIGRATED_AT,
     });
     expect(result?.campaign.unitCombatStates).toEqual({ 'roster-a': own });
-    expect(result?.flags.map((flag) => flag.reason)).toEqual([
-      'roster-unit-has-state',
+    expect(result?.flags.map((flag) => flag.sessionUnitId)).toEqual([
+      PLAYER_KEY,
     ]);
   });
-});
 
-// ----------------------------------------------------------------------------
-// Review findings R1/R2: never invent an attribution.
-// ----------------------------------------------------------------------------
-
-describe('migrateSessionKeyedCombatStates never invents damage (review R1/R2)', () => {
-  const TEAM = 'team-force-1';
-  const SECOND_KEY = 'player-2-atlas-as7-d';
-
-  function teamOutcome(
-    deltas: IAppliedCombatOutcome['unitDeltas'],
-  ): IAppliedCombatOutcome {
-    return {
-      ...syntheticOutcome('m-team', deltas),
-      scenarioId: `scn-contract-1-3025-06-01-${TEAM}`,
-    };
-  }
-
-  function stateFor(
-    outcome: IAppliedCombatOutcome,
-    index: number,
-  ): IUnitCombatState {
-    return applyUnitDelta(
-      undefined,
-      outcome.unitDeltas[index],
-      outcome.matchId,
-      outcome.appliedOn as string,
+  it('a design that fought twice, each delta agreeing with one pilot: both flagged, nothing written', () => {
+    const outcome = syntheticOutcome(
+      'm-team',
+      [
+        syntheticDelta(PLAYER_KEY, 30, 'pilot-b'),
+        syntheticDelta(SECOND_KEY, 5, 'pilot-a'),
+      ],
+      TEAM_SCENARIO,
     );
-  }
-
-  function teamCampaign(
-    outcome: IAppliedCombatOutcome,
-    states: Record<string, IUnitCombatState>,
-    teamUnitIds: readonly string[],
-  ): ICampaign {
-    return {
-      ...syntheticCampaign([outcome], states),
-      forces: new Map([
-        [
-          TEAM,
-          {
-            id: TEAM,
-            name: 'Team',
-            subForceIds: [],
-            unitIds: [...teamUnitIds],
-          },
-        ],
-      ]) as never,
-    };
-  }
-
-  it('flags both entries of a design that fought twice when one Atlas is left, and writes nothing to it', () => {
-    const outcome = teamOutcome([
-      syntheticDelta(PLAYER_KEY, 30),
-      syntheticDelta(SECOND_KEY, 5),
-    ]);
     const states = {
       [PLAYER_KEY]: stateFor(outcome, 0),
       [SECOND_KEY]: stateFor(outcome, 1),
     };
     const result = migrateSessionKeyedCombatStates({
-      campaign: teamCampaign(outcome, states, ['roster-a']),
-      rosterUnits: [rosterUnit('roster-a')],
+      campaign: syntheticCampaign([outcome], states, ['roster-a', 'roster-b']),
       migratedAt: MIGRATED_AT,
     });
     if (!result) throw new Error('expected a migration');
-
     expect(result.campaign.unitCombatStates).toEqual({});
-    expect(result.flags.map((flag) => flag.sessionUnitId).sort()).toEqual(
-      [PLAYER_KEY, SECOND_KEY].sort(),
-    );
     expect(
       result.quarantine.map((record) => [
         record.sessionUnitId,
@@ -449,55 +372,31 @@ describe('migrateSessionKeyedCombatStates never invents damage (review R1/R2)', 
         record.original,
       ]),
     ).toEqual([
-      [PLAYER_KEY, 'flagged', states[PLAYER_KEY]],
-      [SECOND_KEY, 'flagged', states[SECOND_KEY]],
+      [PLAYER_KEY, 'not-attributed', states[PLAYER_KEY]],
+      [SECOND_KEY, 'not-attributed', states[SECOND_KEY]],
     ]);
   });
 
-  it('migrates a design that fought twice when each delta agrees with one pilot', () => {
-    const outcome = teamOutcome([
-      syntheticDelta(PLAYER_KEY, 30, 'pilot-b'),
-      syntheticDelta(SECOND_KEY, 5, 'pilot-a'),
-    ]);
+  it('keeps flags already on the campaign and does not duplicate its own', () => {
+    const outcome = syntheticOutcome('m-5', [syntheticDelta(PLAYER_KEY, 30)]);
+    const earlier: ILegacyCombatStateFlag = {
+      kind: 'unapplied-delta',
+      sessionUnitId: 'player-3-locust-lct-1v',
+      reason: 'legacy-not-attributed',
+      candidateRosterUnitIds: [],
+      matchIds: ['m-0'],
+    };
     const result = migrateSessionKeyedCombatStates({
-      campaign: teamCampaign(
-        outcome,
-        {
-          [PLAYER_KEY]: stateFor(outcome, 0),
-          [SECOND_KEY]: stateFor(outcome, 1),
-        },
-        ['roster-a', 'roster-b'],
-      ),
-      rosterUnits: [
-        rosterUnit('roster-a', 'pilot-a'),
-        rosterUnit('roster-b', 'pilot-b'),
-      ],
+      campaign: {
+        ...syntheticCampaign([outcome], { [PLAYER_KEY]: stateFor(outcome) }),
+        legacyCombatStateFlags: [earlier, notAttributed(PLAYER_KEY, ['m-5'])],
+      },
       migratedAt: MIGRATED_AT,
+      deviceId: 'device-a',
     });
-    const states = result?.campaign.unitCombatStates ?? {};
-    expect(states['roster-b']?.currentArmorPerLocation.CT).toBe(30);
-    expect(states['roster-a']?.currentArmorPerLocation.CT).toBe(5);
-    expect(result?.flags).toEqual([]);
-  });
-
-  it('does not map onto the Atlas now in the force when the pilot who fought was someone else', () => {
-    const outcome = teamOutcome([syntheticDelta(PLAYER_KEY, 30, 'pilot-b')]);
-    const result = migrateSessionKeyedCombatStates({
-      campaign: teamCampaign(outcome, { [PLAYER_KEY]: stateFor(outcome, 0) }, [
-        'roster-a',
-      ]),
-      rosterUnits: [
-        rosterUnit('roster-a', 'pilot-a'),
-        rosterUnit('roster-b', 'pilot-c'),
-      ],
-      migratedAt: MIGRATED_AT,
-    });
-    expect(result?.campaign.unitCombatStates).toEqual({});
-    expect(result?.flags).toEqual([
-      expect.objectContaining({
-        sessionUnitId: PLAYER_KEY,
-        reason: 'conflicting-pilot',
-      }),
+    expect(result?.campaign.legacyCombatStateFlags).toEqual([
+      earlier,
+      notAttributed(PLAYER_KEY, ['m-5'], 'device-a'),
     ]);
   });
 });

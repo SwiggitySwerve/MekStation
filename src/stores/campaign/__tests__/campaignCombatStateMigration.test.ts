@@ -1,7 +1,8 @@
 /**
  * T1: the load-time runner for the legacy combat-state migration. The
  * quarantine is written outside the payload BEFORE the migrated campaign is
- * adopted; a failed write leaves every entry in place.
+ * adopted; a failed write leaves every entry in place. Owner ruling
+ * PARITY-PLAN §186.4: nothing is attributed to a roster unit.
  */
 import 'fake-indexeddb/auto';
 
@@ -16,16 +17,19 @@ if (typeof globalThis.structuredClone === 'undefined') {
 }
 
 import type { ILegacyCombatStateQuarantineStore } from '@/services/persistence/legacyCombatStateQuarantineStore';
+import type { ILegacyCombatStateRecord } from '@/types/campaign/LegacyCombatStateMigration';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import legacyFixture from '@/lib/campaign/__tests__/fixtures/legacySessionKeyedCampaign.json';
+import { getDeviceId } from '@/lib/campaign/persistence/deviceId';
 import { deserializeCampaignBody } from '@/lib/campaign/persistence/serializeCampaign';
 import {
   IndexedDBService,
   resetIndexedDBService,
 } from '@/services/persistence/IndexedDBService';
 import { createIndexedDbLegacyCombatStateQuarantineStore } from '@/services/persistence/legacyCombatStateQuarantineStore';
+import { LEGACY_NOT_ATTRIBUTED_NOTE } from '@/types/campaign/LegacyCombatStateMigration';
 
 import { ensureCampaignCombatStateMigration } from '../campaignCombatStateMigration';
 import { useCampaignRosterStore } from '../useCampaignRosterStore';
@@ -52,13 +56,38 @@ function liveStates() {
   return useCampaignStore().getState().campaign?.unitCombatStates ?? {};
 }
 
+/** A quarantine record for the store tests (its resolution is the migration's). */
+function storedRecord(
+  campaignId: string,
+  sessionUnitId: string,
+): ILegacyCombatStateRecord {
+  return {
+    source: 'combat-state',
+    campaignId,
+    sessionUnitId,
+    original: { unitId: sessionUnitId } as never,
+    resolution: {
+      kind: 'not-attributed',
+      note: LEGACY_NOT_ATTRIBUTED_NOTE,
+      flag: {
+        kind: 'combat-state',
+        sessionUnitId,
+        reason: 'legacy-not-attributed',
+        candidateRosterUnitIds: [],
+        matchIds: [],
+      },
+    },
+    migratedAt: '2026-11-18T00:00:00.000Z',
+  };
+}
+
 describe('ensureCampaignCombatStateMigration', () => {
   afterEach(() => {
     resetCampaignStore();
     useCampaignRosterStore.setState({ campaignId: null, units: [] });
   });
 
-  it('stores the quarantine first, then adopts the migration and logs the opponent prune', async () => {
+  it('stores the quarantine first, then adopts the migration (nothing attributed, the entry flagged) and logs the opponent prune', async () => {
     const campaign = seedLegacyCampaign();
     const order: string[] = [];
     const quarantine: ILegacyCombatStateQuarantineStore = {
@@ -77,7 +106,18 @@ describe('ensureCampaignCombatStateMigration', () => {
     await ensureCampaignCombatStateMigration(quarantine);
 
     expect(order).toEqual(['quarantine']);
-    expect(Object.keys(liveStates())).toEqual(['ff-roster-unit-1']);
+    // §186.4: the fixture's roster unit (ff-roster-unit-1) gets nothing.
+    expect(liveStates()).toEqual({});
+    expect(
+      useCampaignStore().getState().campaign?.legacyCombatStateFlags,
+    ).toEqual([
+      expect.objectContaining({
+        kind: 'combat-state',
+        sessionUnitId: PLAYER_KEY,
+        reason: 'legacy-not-attributed',
+        quarantinedOnDeviceId: getDeviceId(),
+      }),
+    ]);
     const log = useCampaignStore().getState().activityLog;
     expect(log).toHaveLength(1);
     expect(log[0]).toMatchObject({
@@ -126,16 +166,16 @@ describe('ensureCampaignCombatStateMigration', () => {
     expect(Object.keys(liveStates())).toContain(PLAYER_KEY);
   });
 
-  it('does nothing without this campaign roster to map against', async () => {
+  it('§186.4: needs no roster, since nothing is mapped', async () => {
     seedLegacyCampaign();
     useCampaignRosterStore.setState({ campaignId: 'another-campaign' });
     const quarantine: ILegacyCombatStateQuarantineStore = {
       get: jest.fn(),
-      put: jest.fn(),
+      put: jest.fn(async () => {}),
     };
     await ensureCampaignCombatStateMigration(quarantine);
-    expect(quarantine.put).not.toHaveBeenCalled();
-    expect(Object.keys(liveStates())).toContain(PLAYER_KEY);
+    expect(quarantine.put).toHaveBeenCalledTimes(1);
+    expect(liveStates()).toEqual({});
   });
 });
 
@@ -146,14 +186,8 @@ describe('IndexedDB legacy combat-state quarantine store', () => {
     const store = createIndexedDbLegacyCombatStateQuarantineStore(
       new IndexedDBService(),
     );
-    const record = (sessionUnitId: string) => ({
-      source: 'combat-state' as const,
-      campaignId: 'camp-race',
-      sessionUnitId,
-      original: { unitId: sessionUnitId } as never,
-      resolution: { kind: 'migrated' as const, targets: [] },
-      migratedAt: '2026-11-18T00:00:00.000Z',
-    });
+    const record = (sessionUnitId: string) =>
+      storedRecord('camp-race', sessionUnitId);
     await Promise.all([
       store.put('camp-race', [record('player-1-atlas-as7-d')]),
       store.put('camp-race', [record('player-2-locust-lct-1v')]),
@@ -167,14 +201,7 @@ describe('IndexedDB legacy combat-state quarantine store', () => {
     const store = createIndexedDbLegacyCombatStateQuarantineStore(
       new IndexedDBService(),
     );
-    const record = {
-      source: 'combat-state' as const,
-      campaignId: 'camp-q',
-      sessionUnitId: PLAYER_KEY,
-      original: { unitId: PLAYER_KEY } as never,
-      resolution: { kind: 'migrated' as const, targets: [] },
-      migratedAt: '2026-11-18T00:00:00.000Z',
-    };
+    const record = storedRecord('camp-q', PLAYER_KEY);
     await store.put('camp-q', [record]);
     await store.put('camp-q', [{ ...record, migratedAt: 'later' }]);
     expect(await store.get('camp-q')).toEqual([record]);

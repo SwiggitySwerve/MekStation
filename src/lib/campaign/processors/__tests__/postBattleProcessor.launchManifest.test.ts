@@ -416,8 +416,9 @@ describe('postBattleProcessor launch manifest (T1)', () => {
 
 // ----------------------------------------------------------------------------
 // Legacy battles: queued before the manifest existed, or started before the
-// upgrade and finished after. The apply resolves them with the migration's
-// trust order, and only an ambiguous one stays queued.
+// upgrade and finished after. Owner ruling PARITY-PLAN §186.4: their player
+// deltas are never attributed; each is flagged and quarantined while the
+// rest of the outcome applies.
 // ----------------------------------------------------------------------------
 
 describe('postBattleProcessor legacy battles without a launch manifest (T1)', () => {
@@ -465,7 +466,7 @@ describe('postBattleProcessor legacy battles without a launch manifest (T1)', ()
     useCampaignRosterStore.setState({ pilots: [], units: [] });
   });
 
-  it('applies a pending legacy outcome under the roster unit the force record resolves', () => {
+  it('§186.4: a pending legacy outcome the force record alone would name is flagged and quarantined, not written', () => {
     seedRosterUnits([
       { unitId: ROSTER_ID, unitRef: 'atlas-as7-d' },
       { unitId: 'roster-unit-8', unitRef: 'locust-lct-1v' },
@@ -480,16 +481,22 @@ describe('postBattleProcessor legacy battles without a launch manifest (T1)', ()
     );
     const applied = result.campaign as ICampaignWithBattleState;
     expect(applied.processedBattleIds).toContain(MATCH);
-    expect(Object.keys(applied.unitCombatStates)).toEqual([ROSTER_ID]);
+    expect(applied.unitCombatStates).toEqual({});
     const record = applied.recentlyAppliedOutcomes?.find(
       (o) => o.matchId === MATCH,
     ) as IAppliedCombatOutcome | undefined;
-    expect(record?.unitManifest).toEqual({
-      [PLAYER_SESSION_ID]: { rosterUnitId: ROSTER_ID },
-    });
+    expect(record?.unitManifest).toEqual({});
+    expect(mockQuarantinePut).toHaveBeenCalledWith('camp-1', [
+      expect.objectContaining({
+        source: 'unapplied-delta',
+        sessionUnitId: PLAYER_SESSION_ID,
+        matchId: MATCH,
+        delta: battle.unitDeltas[0],
+      }),
+    ]);
   });
 
-  it('R3: applies an ambiguous legacy outcome, writing no unit and flagging the delta with its candidates', () => {
+  it('R3 + §186.4: a legacy outcome with two same-design candidates is flagged as legacy, naming no unit', () => {
     seedRosterUnits([
       { unitId: 'roster-a', unitRef: 'atlas-as7-d', pilotId: 'pilot-a' },
       { unitId: 'roster-b', unitRef: 'atlas-as7-d', pilotId: 'pilot-b' },
@@ -509,14 +516,14 @@ describe('postBattleProcessor legacy battles without a launch manifest (T1)', ()
       {
         kind: 'unapplied-delta',
         sessionUnitId: PLAYER_SESSION_ID,
-        reason: 'ambiguous-roster-unit',
-        candidateRosterUnitIds: ['roster-a', 'roster-b'],
+        reason: 'legacy-not-attributed',
+        candidateRosterUnitIds: [],
         matchIds: [MATCH],
       },
     ]);
   });
 
-  it('R3: applies the resolvable unit, pilot XP and contract while the ambiguous delta is flagged, not written', () => {
+  it('R3 + §186.4: applies pilot XP and the contract while every legacy player delta is flagged, not written', () => {
     seedPilot();
     seedRosterUnits([
       { unitId: ROSTER_ID, unitRef: 'atlas-as7-d', pilotId: PILOT_ID },
@@ -547,22 +554,22 @@ describe('postBattleProcessor legacy battles without a launch manifest (T1)', ()
       missions: new Map([[contract.id, contract]]),
     });
 
-    expect(Object.keys(campaign.unitCombatStates)).toEqual([ROSTER_ID]);
+    expect(campaign.unitCombatStates).toEqual({});
     expect(campaign.processedBattleIds).toContain(MATCH);
     expect(summary.contractUpdated).toBe(contract.id);
     expect(livePilot().campaignMissions).toBe(1);
-    expect(campaign.legacyCombatStateFlags).toEqual([
-      {
+    expect(campaign.legacyCombatStateFlags).toEqual(
+      [PLAYER_SESSION_ID, ALLY_SESSION_ID].map((sessionUnitId) => ({
         kind: 'unapplied-delta',
-        sessionUnitId: ALLY_SESSION_ID,
-        reason: 'ambiguous-roster-unit',
-        candidateRosterUnitIds: ['locust-a', 'locust-b'],
+        sessionUnitId,
+        reason: 'legacy-not-attributed',
+        candidateRosterUnitIds: [],
         matchIds: [MATCH],
-      },
-    ]);
+      })),
+    );
   });
 
-  it('R4: an incomplete manifest sends its unresolved unit through the legacy path instead of blocking', () => {
+  it('R4: an incomplete manifest writes its named unit and flags its unresolved one instead of blocking', () => {
     const battle = outcome(fullDeltas);
     const result = postBattleProcessor.process(
       campaignWith({
@@ -756,6 +763,61 @@ describe('postBattleProcessor closed legacy rule (review round 5)', () => {
     const applied = result.campaign as ICampaignWithBattleState;
     expect(applied.processedBattleIds).toContain(MATCH);
     expect(applied.unitCombatStates).toEqual({});
+    useCampaignRosterStore.setState({ units: [] });
+  });
+});
+
+describe('owner ruling §186.4: legacy damage is never attributed (option ii)', () => {
+  it('flags, and does not write, a legacy delta the old resolver would have attributed by pilot and force', () => {
+    seedPilot();
+    useCampaignRosterStore.setState({
+      units: [
+        {
+          unitId: ROSTER_ID,
+          unitName: 'Atlas',
+          unitRef: 'atlas-as7-d',
+          pilotId: PILOT_ID,
+        },
+      ] as never,
+    });
+    const battle: ICombatOutcome = {
+      ...outcome([
+        delta(PLAYER_SESSION_ID, GameSide.Player, {
+          unitRef: 'atlas-as7-d',
+          pilotRef: PILOT_ID,
+        }),
+      ]),
+      scenarioId: 'scn-contract-1-3025-06-14-team-force-1',
+    };
+    const result = postBattleProcessor.process(
+      campaignWith({
+        pendingBattleOutcomes: [battle],
+        forces: new Map([
+          [
+            'team-force-1',
+            {
+              id: 'team-force-1',
+              name: 'Team One',
+              subForceIds: [],
+              unitIds: [ROSTER_ID],
+            } as never,
+          ],
+        ]),
+      }),
+      new Date('3025-06-15T00:00:00Z'),
+    );
+    const applied = result.campaign as ICampaignWithBattleState;
+    expect(applied.processedBattleIds).toContain(MATCH);
+    expect(applied.unitCombatStates).toEqual({});
+    expect(applied.legacyCombatStateFlags).toEqual([
+      expect.objectContaining({
+        kind: 'unapplied-delta',
+        sessionUnitId: PLAYER_SESSION_ID,
+        reason: 'legacy-not-attributed',
+      }),
+    ]);
+    // The rest of the outcome still applies.
+    expect(livePilot().campaignMissions).toBe(1);
     useCampaignRosterStore.setState({ units: [] });
   });
 });

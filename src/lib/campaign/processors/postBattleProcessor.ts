@@ -203,13 +203,9 @@ function applyOutcome(
   };
   const wonByPlayer = playerWon(outcome);
   const nowIso = new Date().toISOString();
-  // T1: which roster unit each player delta is written under. A battle
-  // with no complete launch manifest takes the legacy path per delta.
-  const plan = planOutcomeUnitWrites(
-    campaign,
-    useCampaignRosterStore.getState().units,
-    outcome,
-  );
+  // T1: which roster unit each player delta is written under. A delta the
+  // launch manifest does not name is written to no unit and flagged.
+  const plan = planOutcomeUnitWrites(campaign, outcome);
   const unapplied = unappliedDeltaEffects(campaign, outcome.matchId, plan);
 
   const {

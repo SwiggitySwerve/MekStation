@@ -1,6 +1,6 @@
 /**
  * Runs the legacy session-keyed combat-state migration (T1) on the live
- * campaign after a load has restored its roster.
+ * campaign after a load.
  *
  * Order is what keeps it lossless: the quarantine records are written to
  * their store (outside the campaign payload) first; only when that write
@@ -18,7 +18,6 @@ import { createIndexedDbLegacyCombatStateQuarantineStore } from '@/services/pers
 import { logger } from '@/utils/logger';
 
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
-import { useCampaignRosterStore } from './useCampaignRosterStore';
 import { useCampaignStore } from './useCampaignStore';
 
 export async function ensureCampaignCombatStateMigration(
@@ -60,14 +59,10 @@ async function migrateLiveCampaign(
   // Releasing pending records is an edit: migrate the campaign as it is now.
   const campaign = store.getState().campaign;
   if (!campaign || campaign.id !== loaded.id) return;
-  const roster = useCampaignRosterStore.getState();
-  // Mapping needs this campaign's roster; without it nothing is decided.
-  if (roster.campaignId !== campaign.id) return;
 
   const migratedAt = new Date().toISOString();
   const migration = migrateSessionKeyedCombatStates({
     campaign,
-    rosterUnits: roster.units,
     migratedAt,
     deviceId: getDeviceId(),
   });
@@ -91,7 +86,6 @@ async function migrateLiveCampaign(
 
   store.getState().updateCampaign({
     unitCombatStates: migration.campaign.unitCombatStates,
-    recentlyAppliedOutcomes: migration.campaign.recentlyAppliedOutcomes,
     legacyCombatStateFlags: migration.campaign.legacyCombatStateFlags,
   });
 

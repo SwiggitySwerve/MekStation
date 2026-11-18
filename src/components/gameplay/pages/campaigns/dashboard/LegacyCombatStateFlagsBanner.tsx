@@ -1,11 +1,11 @@
 /**
  * Legacy Combat State Flags Banner (T1)
  *
- * Lists battle damage the campaign could not attribute to a roster unit:
- * - `combat-state`: damage an older save recorded under a battle-session id
- *   that the load migration could not match to a roster unit;
- * - `unapplied-delta`: damage from a battle that was not applied to any
- *   unit because no evidence names the unit.
+ * Lists battle damage that was not applied to any unit:
+ * - `combat-state`: damage an older save recorded under a battle-session id;
+ *   legacy damage is never attributed (owner ruling PARITY-PLAN §186.4);
+ * - `unapplied-delta`: damage from a battle whose save does not record which
+ *   roster unit fought, or whose launch could not tell.
  * Where the copy is: nothing is claimed while an unapplied delta's
  * quarantine write is pending; once confirmed, "this device" only when the
  * flag's recorded device (`quarantinedOnDeviceId`) is this one, otherwise
@@ -23,14 +23,8 @@ import { Button } from '@/components/ui';
 import { legacyCombatStateFlagKey } from '@/types/campaign/LegacyCombatStateMigration';
 
 const REASON_TEXT: Record<LegacyCombatStateFlagReason, string> = {
-  'not-fully-explained':
-    'its recorded battles no longer explain the stored damage',
+  'legacy-not-attributed': 'this save does not record which roster unit fought',
   'ambiguous-roster-unit': 'it could belong to more than one roster unit',
-  'conflicting-pilot':
-    'the unit that could hold it now has a different pilot than the one who fought',
-  'roster-unit-has-state': 'the roster unit already has damage recorded',
-  'shares-roster-unit-with-flagged-entry':
-    'it shares a roster unit with another unresolved entry',
 };
 
 export interface LegacyCombatStateFlagsBannerProps {
@@ -47,10 +41,11 @@ function describeFlag(
   pendingQuarantineKeys: ReadonlySet<string>,
   currentDeviceId: string,
 ): string {
+  // An older save's entry says why in its lead; a battle's delta says why after it.
   const lead =
     flag.kind === 'combat-state'
-      ? `Damage recorded for ${flag.sessionUnitId} in an older save could not be matched to a roster unit`
-      : `Damage from battle ${flag.matchIds.join(', ')} to ${flag.sessionUnitId} could not be matched to a unit and was not applied`;
+      ? `Damage recorded for ${flag.sessionUnitId} in an older save was not applied to any unit`
+      : `Damage to ${flag.sessionUnitId} from battle ${flag.matchIds.join(', ')} was not applied to any unit: ${REASON_TEXT[flag.reason]}`;
   const candidates =
     flag.candidateRosterUnitIds.length > 0
       ? ` (possible units: ${flag.candidateRosterUnitIds.join(', ')})`
@@ -65,7 +60,7 @@ function describeFlag(
     : flag.quarantinedOnDeviceId === currentDeviceId
       ? ' A copy is kept on this device.'
       : ' A copy is kept on the device where this was found.';
-  return `${lead}: ${REASON_TEXT[flag.reason]}${candidates}.${copy}`;
+  return `${lead}${candidates}.${copy}`;
 }
 
 export function LegacyCombatStateFlagsBanner({
@@ -82,8 +77,8 @@ export function LegacyCombatStateFlagsBanner({
       role="status"
     >
       <p className="text-text-theme-primary text-sm font-semibold">
-        {flags.length} unit damage record{flags.length === 1 ? '' : 's'} could
-        not be matched to a roster unit
+        {flags.length} damage record{flags.length === 1 ? ' was' : 's were'} not
+        applied to any unit
       </p>
       <ul className="mt-2 space-y-2">
         {flags.map((flag) => {

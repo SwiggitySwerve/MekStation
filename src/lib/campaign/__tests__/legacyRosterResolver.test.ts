@@ -1,5 +1,7 @@
 /**
- * T1 legacy roster match: never invents an attribution. A design that
+ * T1 legacy roster match, used only at launch to fill gaps in the manifest
+ * being recorded (owner ruling PARITY-PLAN §186.4: recorded legacy damage is
+ * never attributed). It never invents an attribution. A design that
  * fought more than once in one battle needs per-delta pilot agreement; a
  * force-record or design candidate whose current pilot disagrees with the
  * delta's pilot is conflicting evidence; there is no bare roster-pool
@@ -116,7 +118,6 @@ describe('resolveLegacyBattleUnitManifest', () => {
     );
     expect(result.manifest).toEqual({});
     expect(result.unresolved['player-1-atlas-as7-d']).toEqual({
-      reason: 'conflicting-pilot',
       candidates: ['roster-a'],
     });
   });
@@ -131,9 +132,9 @@ describe('resolveLegacyBattleUnitManifest', () => {
       },
     );
     expect(result.manifest).toEqual({});
-    expect(result.unresolved['player-1-atlas-as7-d']?.reason).toBe(
-      'conflicting-pilot',
-    );
+    expect(result.unresolved['player-1-atlas-as7-d']).toEqual({
+      candidates: ['roster-a'],
+    });
   });
 
   it('has no roster-pool fallback: one design, two roster units, no evidence', () => {
@@ -147,7 +148,6 @@ describe('resolveLegacyBattleUnitManifest', () => {
     );
     expect(result.manifest).toEqual({});
     expect(result.unresolved['player-1-atlas-as7-d']).toEqual({
-      reason: 'ambiguous',
       candidates: ['roster-a', 'roster-b'],
     });
   });
@@ -165,9 +165,10 @@ describe('resolveLegacyBattleUnitManifest', () => {
       },
     );
     expect(result.manifest).toEqual({});
-    expect(result.unresolved['player-1-atlas-as7-d']?.reason).toBe(
-      'double-claim',
-    );
+    expect(Object.keys(result.unresolved).sort()).toEqual([
+      'player-1-atlas-as7-d',
+      'player-2-atlas-as7-d',
+    ]);
   });
 });
 
@@ -185,9 +186,9 @@ describe('resolveLegacyBattleUnitManifest review round 3', () => {
       },
     );
     expect(result.manifest).toEqual({});
-    expect(result.unresolved['player-1-atlas-as7-d']?.reason).toBe(
-      'conflicting-pilot',
-    );
+    expect(result.unresolved['player-1-atlas-as7-d']).toEqual({
+      candidates: ['roster-b'],
+    });
   });
 
   it('N5 (probe B3): a design that fought twice is attributed all or none', () => {
@@ -244,7 +245,9 @@ describe('resolveLegacyBattleUnitManifest review round 4', () => {
       },
     );
     expect(result.manifest).toEqual({});
-    expect(result.unresolved['player-1-atlas-as7-d']?.reason).toBe('ambiguous');
+    expect(result.unresolved['player-1-atlas-as7-d']).toEqual({
+      candidates: ['roster-a'],
+    });
   });
 });
 
