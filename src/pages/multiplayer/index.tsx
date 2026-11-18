@@ -1,3 +1,4 @@
+import Link from 'next/link';
 /**
  * Multiplayer Hub — `/multiplayer/index`.
  *
@@ -14,8 +15,6 @@
  * `/api/multiplayer/auth/token`. The token is cached in component state
  * for the session.
  */
-
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
@@ -28,6 +27,7 @@ import type { IPlayerToken } from '@/types/multiplayer/Player';
 import { CreateMatchForm } from '@/components/multiplayer/CreateMatchForm';
 import { JoinMatchForm } from '@/components/multiplayer/JoinMatchForm';
 import { MatchBrowser } from '@/components/multiplayer/MatchBrowser';
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { decodeTokenFromWire } from '@/types/multiplayer/Player';
 
@@ -219,10 +219,7 @@ export default function MultiplayerHubPage(): React.ReactElement {
         <h1 className="text-text-theme-primary mt-2 text-3xl font-bold">
           Multiplayer
         </h1>
-        <p className="text-text-theme-secondary mt-2 text-sm">
-          Host a match or join one with a code. 1v1 through 4v4 + free-for-all
-          (up to 8 players).
-        </p>
+        <ModeAvailabilityNotice mode="hosted" />
       </header>
 
       {!tokenState && (
@@ -278,15 +275,23 @@ export default function MultiplayerHubPage(): React.ReactElement {
       <div className="grid gap-6 md:grid-cols-2">
         <section className="border-border-theme bg-surface-deep rounded-lg border p-6">
           <h2 className="mb-4 text-lg font-semibold text-emerald-300">
-            Create match
+            Create Match
           </h2>
-          <CreateMatchForm onSubmit={handleCreate} busy={busy === 'create'} />
+          <CreateMatchForm
+            compactAvailability
+            onSubmit={handleCreate}
+            busy={busy === 'create'}
+          />
         </section>
         <section className="border-border-theme bg-surface-deep rounded-lg border p-6">
           <h2 className="mb-4 text-lg font-semibold text-cyan-300">
-            Join match
+            Join Match
           </h2>
-          <JoinMatchForm onSubmit={handleJoin} busy={busy === 'join'} />
+          <JoinMatchForm
+            compactAvailability
+            onSubmit={handleJoin}
+            busy={busy === 'join'}
+          />
         </section>
       </div>
 
@@ -295,6 +300,7 @@ export default function MultiplayerHubPage(): React.ReactElement {
           click navigates to /multiplayer/lobby/[roomCode]. */}
       <div className="mt-6">
         <MatchBrowser
+          compactAvailability
           wireToken={tokenState?.wireToken ?? null}
           onJoinLobby={(roomCode) => {
             void router.push(

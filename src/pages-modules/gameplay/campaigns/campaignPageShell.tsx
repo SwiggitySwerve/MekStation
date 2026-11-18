@@ -5,6 +5,7 @@ import { useStore } from 'zustand';
 import type { ICampaign } from '@/types/campaign/Campaign';
 
 import { BayError, BayLoading } from '@/components/campaign/bays/BayStates';
+import { CampaignAvailabilityFooter } from '@/components/campaign/CampaignAvailabilityFooter';
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import {
   CommandError,
@@ -361,6 +362,10 @@ export function CampaignPageFrame({
         />
       ) : null}
       {children}
+      <CampaignAvailabilityFooter
+        campaignId={campaign.id}
+        coopSession={campaign.coopSession}
+      />
     </PageLayout>
   );
 }

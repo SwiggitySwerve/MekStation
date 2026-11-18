@@ -1,6 +1,8 @@
-import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
+
+import { modeAvailability } from '@/lib/multiplayer/modeAvailability';
 
 import { CreateMatchForm } from '../CreateMatchForm';
 
@@ -171,4 +173,26 @@ describe('CreateMatchForm', () => {
       }),
     );
   });
+});
+
+describe('hosted create availability', () => {
+  afterEach(() => jest.restoreAllMocks());
+  it.each(['preview', 'available'] as const)(
+    'discloses %s without disabling creation',
+    (status) => {
+      jest.replaceProperty(modeAvailability.hosted, 'status', status);
+      render(<CreateMatchForm onSubmit={jest.fn()} />);
+      expect(
+        screen.getByRole('button', { name: 'Create match' }),
+      ).toBeEnabled();
+      if (status === 'available')
+        expect(
+          screen.queryByText(modeAvailability.hosted.sentence),
+        ).not.toBeInTheDocument();
+      else
+        expect(
+          screen.getByText(modeAvailability.hosted.sentence),
+        ).toBeVisible();
+    },
+  );
 });

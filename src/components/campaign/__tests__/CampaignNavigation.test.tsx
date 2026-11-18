@@ -1,3 +1,5 @@
+import { render, screen, within } from '@testing-library/react';
+import { axe } from 'jest-axe';
 /**
  * Campaign Navigation — Bays group tests
  *
@@ -7,15 +9,15 @@
  *
  * @spec openspec/changes/add-campaign-bay-ui/specs/campaign-bay-ui/spec.md
  */
-
-import { render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+import { modeAvailability } from '@/lib/multiplayer/modeAvailability';
 import {
   createGuestCoopSession,
   createHostCoopSession,
 } from '@/types/campaign/CoopSession';
 
+import { CampaignAvailabilityFooter } from '../CampaignAvailabilityFooter';
 import { CampaignNavigation } from '../CampaignNavigation';
 
 describe('CampaignNavigation — Bays group', () => {
@@ -186,4 +188,72 @@ describe('CampaignNavigation — Command group', () => {
       within(commandGroup).getByRole('link', { name: 'GM Ledger' }),
     ).toHaveAttribute('aria-current', 'page');
   });
+});
+
+describe('co-op navigation availability', () => {
+  afterEach(() => jest.restoreAllMocks());
+  it.each(['preview', 'available'] as const)(
+    'discloses a %s co-op campaign',
+    (status) => {
+      jest.replaceProperty(modeAvailability.coop, 'status', status);
+      render(
+        <CampaignNavigation
+          campaignId="campaign-1"
+          currentPage="missions"
+          coopSession={createHostCoopSession('ABCDEF', 'match-host')}
+        />,
+      );
+      if (status === 'available')
+        expect(
+          screen.queryByText(modeAvailability.coop.sentence),
+        ).not.toBeInTheDocument();
+      else
+        expect(screen.getByText(modeAvailability.coop.sentence)).toBeVisible();
+      expect(screen.getByTestId('coop-session-badge')).toHaveTextContent(
+        'Host',
+      );
+    },
+  );
+});
+
+it('keeps co-op navigation notices accessible', async () => {
+  const { container } = render(
+    <CampaignNavigation
+      campaignId="campaign-1"
+      currentPage="missions"
+      coopSession={createHostCoopSession('ABCDEF', 'match-host')}
+    />,
+  );
+  expect((await axe(container)).violations).toEqual([]);
+});
+
+it('associates the in-row mobile preview badge with the sentence below primary content', () => {
+  const coopSession = createHostCoopSession('ROOT01');
+  render(
+    <>
+      <CampaignNavigation
+        campaignId="root-campaign"
+        currentPage="dashboard"
+        coopSession={coopSession}
+      />
+      <button>Primary action</button>
+      <CampaignAvailabilityFooter
+        campaignId="root-campaign"
+        coopSession={coopSession}
+      />
+    </>,
+  );
+  const sentence = document.getElementById(
+    'campaign-root-campaign-availability',
+  );
+  expect(sentence).toHaveTextContent(modeAvailability.coop.sentence);
+  const badge = document.querySelector(
+    '[aria-describedby="campaign-root-campaign-availability"]',
+  );
+  expect(badge).toHaveTextContent('Preview');
+  expect(
+    screen
+      .getByRole('button', { name: 'Primary action' })
+      .compareDocumentPosition(sentence!),
+  ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
 });

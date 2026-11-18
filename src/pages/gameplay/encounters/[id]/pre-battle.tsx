@@ -1,11 +1,10 @@
+import type { NextRouter } from 'next/router';
 /**
  * Pre-Battle Screen
  * Shows force comparison, scenario info, and mode selection before launching an encounter.
  *
  * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
  */
-
-import type { NextRouter } from 'next/router';
 
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -37,6 +36,7 @@ import {
 } from '@/components/gameplay/pages/PreBattlePage.sections';
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout } from '@/components/ui';
+import { isModeDisabled } from '@/lib/multiplayer/modeAvailability';
 import { useSyncRoomSelector } from '@/lib/p2p/useSyncRoomStore';
 import { encounterRouteIdentityFromRouter } from '@/pages-modules/gameplay/encounters/encounterRouteIdentity';
 import { buildGameConfigFromEncounter } from '@/services/encounter/encounterToGameSession';
@@ -145,12 +145,12 @@ function networked1v1LaunchMessage(error: unknown): string {
     : 'Failed to create networked lobby';
 }
 
-function useNetworked1v1Launch({
+export function useNetworked1v1Launch({
   createSyncRoom,
   router,
 }: {
   readonly createSyncRoom: () => Promise<string>;
-  readonly router: NextRouter;
+  readonly router: Pick<NextRouter, 'push'>;
 }): {
   readonly networked1v1Error: string | null;
   readonly startNetworked1v1: () => void;
@@ -160,6 +160,7 @@ function useNetworked1v1Launch({
   );
 
   const startNetworked1v1 = useCallback(() => {
+    if (isModeDisabled('p2p')) return;
     void (async () => {
       setNetworked1v1Error(null);
       try {
