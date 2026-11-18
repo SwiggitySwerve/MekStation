@@ -58,15 +58,44 @@ function eventRowInteractionProps(
   };
 }
 
-export function EventRow({
+function rowActor({ event, actorLookup }: EventRowProps): string | undefined {
+  return event.unitId
+    ? (actorLookup?.[event.unitId] ?? event.unitId)
+    : undefined;
+}
+
+function sameRowEvent(
+  prev: IFormattedEventWithGrouping,
+  next: IFormattedEventWithGrouping,
+): boolean {
+  const keys = Object.keys(prev) as (keyof IFormattedEventWithGrouping)[];
+  return (
+    keys.length === Object.keys(next).length &&
+    keys.every((key) => Object.is(prev[key], next[key]))
+  );
+}
+
+/**
+ * A row re-renders only when what it draws changes: the formatted event's
+ * fields, its resolved actor label, or the focus handler. Re-formatting the
+ * log on an appended event builds new row objects with equal fields, so an
+ * append renders just the new row (perf P2).
+ */
+function sameRow(prev: EventRowProps, next: EventRowProps): boolean {
+  return (
+    prev.onRowFocus === next.onRowFocus &&
+    rowActor(prev) === rowActor(next) &&
+    sameRowEvent(prev.event, next.event)
+  );
+}
+
+export const EventRow = React.memo(function EventRow({
   event,
   actorLookup,
   onRowFocus,
 }: EventRowProps): React.ReactElement {
   const iconColor = getIconColor(event.icon);
-  const actor = event.unitId
-    ? (actorLookup?.[event.unitId] ?? event.unitId)
-    : undefined;
+  const actor = rowActor({ event, actorLookup });
   const isNested = event.indentLevel === 1;
 
   return (
@@ -126,4 +155,4 @@ export function EventRow({
       </span>
     </div>
   );
-}
+}, sameRow);
