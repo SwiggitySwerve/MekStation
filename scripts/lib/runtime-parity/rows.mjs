@@ -326,6 +326,21 @@ export const ReceiptSchema = z.strictObject({
       }),
     )
     .min(1),
+  /**
+   * Whether the capture processes ran together (the default) or one after another (`--sequential`). It changes each
+   * run's wall time and peak memory, never its rows. Optional so receipts written before it existed still validate.
+   */
+  captureMode: z.enum(['concurrent', 'sequential']).optional(),
+  /**
+   * How much later each concurrent run started than the one before it (0 for `--sequential`). Runs after the first are
+   * staggered so a time-derived value in a row still differs between runs. Optional like captureMode.
+   */
+  captureOffsetMs: z.int().min(0).optional(),
+  /**
+   * The time zone each run's capture process ran in, in `runs` order. Concurrent runs after the first get a different
+   * zone from the first, so a zone-derived value in a row differs between runs. Optional like captureMode.
+   */
+  captureTimeZones: z.array(text).optional(),
   /** True when every run produced byte-identical rows (the determinism gate). */
   deterministic: z.boolean(),
   /**
@@ -563,6 +578,11 @@ export const validateReceipt = (receipt) => {
   if (!parsed.success)
     throw new Error(`Invalid receipt: ${parsed.error.message}`);
   assertPopulation(parsed.data.scope, parsed.data.rows.count);
+  const zones = parsed.data.captureTimeZones;
+  if (zones && zones.length !== parsed.data.runs.length)
+    throw new Error(
+      `captureTimeZones names ${zones.length} zone(s) for ${parsed.data.runs.length} run(s)`,
+    );
   return parsed.data;
 };
 

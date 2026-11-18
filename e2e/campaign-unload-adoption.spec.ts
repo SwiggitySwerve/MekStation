@@ -7,6 +7,8 @@
  * The bare fetch-listener positive control must lose >= half its writes or the
  * run is INCONCLUSIVE. Browser request reports are never arrival evidence.
  * Tab-close control: campaign-crash-window-flush.spec.ts (unchanged).
+ * The reload/pagehide timing precondition gates measured trials only; warm-up
+ * misses are recorded in the JSON and the summary.
  *
  * At offset 2000 ms the reload lands on the debounce boundary by construction.
  * The split between keepalive and ordinary-save delivery there depends on the
@@ -45,6 +47,7 @@ import {
   startCampaignPoll,
 } from './helpers/unloadObservation';
 import { startUnloadPositiveControl } from './helpers/unloadPositiveControl';
+import { judgeReloadTiming } from './helpers/unloadTiming';
 
 const OFFSETS_MS = [40, 100, 250, 500, 1000, 1500, 1900, 2000] as const;
 const MEASURED_TRIALS = Number(process.env.MEKSTATION_UNLOAD_TRIALS ?? '100');
@@ -101,6 +104,13 @@ for (const mutation of ['date', 'battle-outcome'] as const) {
     const trials: Trial[] = [];
     const campaignIds: string[] = [];
     const harnessErrors: string[] = [];
+    const warmupTimingMisses: {
+      trialId: string;
+      arm: 'app' | 'control';
+      offsetMs: number;
+      reloadCallMs: number;
+      pagehideMs: number;
+    }[] = [];
     const startedAt = performance.now();
     const contextCapture = captureContextCampaignWrites(context);
     let activePoll: Awaited<ReturnType<typeof startCampaignPoll>> | undefined;
@@ -298,13 +308,23 @@ for (const mutation of ['date', 'battle-outcome'] as const) {
           ['app', appTiming],
           ['control', controlTiming],
         ] as const) {
-          if (
-            timing.reloadCallMs >= offsetMs + 100 ||
-            timing.pagehideMs >= offsetMs + 150
-          ) {
+          const verdict = judgeReloadTiming(
+            timing,
+            offsetMs,
+            index >= WARMUP_TRIALS,
+          );
+          if (verdict === 'gating') {
             harnessErrors.push(
               `${trialId} ${arm}: reload/pagehide exceeded timing tolerance`,
             );
+          } else if (verdict === 'recorded') {
+            warmupTimingMisses.push({
+              trialId,
+              arm,
+              offsetMs,
+              reloadCallMs: timing.reloadCallMs,
+              pagehideMs: timing.pagehideMs,
+            });
           }
         }
         trials.push({
@@ -386,7 +406,7 @@ for (const mutation of ['date', 'battle-outcome'] as const) {
       const elapsedMs = performance.now() - startedAt;
       const proofSide =
         process.env.MEKSTATION_UNLOAD_PROOF_SIDE ?? 'unspecified';
-      const summary = `[campaign-unload-sweep] ${proofSide} ${mutation} ${verdict}: app trials ${measured}, undelivered ${counts.undelivered}, unattributable ${counts.unattributable}, delivered-observed ${counts.deliveredObserved}, delivered-observed-ordinary-save ${counts.deliveredObservedOrdinarySave}, delivered-by-chain ${counts.deliveredByChain}, total delivered ${flushAccepted}, values present ${valuesPresent}, values lost ${valuesLost}; control trials ${measured}, losses ${controlLost}, loss rate ${controlLossRate}; discarded ${trials.filter((trial) => !trial.measured).length} warm-up pairs; runtime ${Math.round(elapsedMs)} ms; delays=${JSON.stringify(totals)}`;
+      const summary = `[campaign-unload-sweep] ${proofSide} ${mutation} ${verdict}: app trials ${measured}, undelivered ${counts.undelivered}, unattributable ${counts.unattributable}, delivered-observed ${counts.deliveredObserved}, delivered-observed-ordinary-save ${counts.deliveredObservedOrdinarySave}, delivered-by-chain ${counts.deliveredByChain}, total delivered ${flushAccepted}, values present ${valuesPresent}, values lost ${valuesLost}; control trials ${measured}, losses ${controlLost}, loss rate ${controlLossRate}; discarded ${trials.filter((trial) => !trial.measured).length} warm-up pairs; warm-up timing misses ${warmupTimingMisses.length}; runtime ${Math.round(elapsedMs)} ms; delays=${JSON.stringify(totals)}`;
       process.stdout.write(`${summary}\n`);
       await testInfo.attach('same-context-unload-sweep', {
         contentType: 'application/json',
@@ -406,6 +426,7 @@ for (const mutation of ['date', 'battle-outcome'] as const) {
             controlOrigin: control.origin,
             totals,
             harnessErrors,
+            warmupTimingMisses,
             incompletePoll,
             pollIntervalMs: 75,
             contextCaptureAvailable: contextCapture.available,

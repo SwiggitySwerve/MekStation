@@ -41,6 +41,10 @@ jobs:
   # desktop lanes always run. `desktop` limits the win/mac packaging legs
   # (native better-sqlite3 rebuild, the slowest PR jobs) to changes in
   # desktop packaging inputs; Linux packs on every code change.
+  # `packaging` is narrower: the full Linux installer (tar.gz, artifact name,
+  # byte census) is built on a pull request only when it is on, and always on
+  # main pushes, nightly and manual runs. Every code change still builds the
+  # unpacked Linux app (`electron-builder --linux dir`).
   # `pr-desktop` is `desktop` on pull requests and 'false' otherwise: main
   # pushes, nightly and manual runs pack win/mac in Desktop Packs
   # (desktop-packs.yml), outside this workflow's concurrency group.
@@ -61,6 +65,7 @@ jobs:
       e2e: ${{ steps.filter.outputs.e2e }}
       data-specs: ${{ steps.filter.outputs.data-specs }}
       equipment: ${{ steps.filter.outputs.equipment }}
+      packaging: ${{ steps.filter.outputs.packaging }}
       corpus: ${{ steps.filter.outputs.corpus }}
       roadmap: ${{ steps.filter.outputs.roadmap }}
       storybook: ${{ steps.filter.outputs.storybook }}
@@ -136,6 +141,8 @@ jobs:
         if: ${{ !cancelled() }}
         env:
           PR_LABELS_JSON: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BUDGET_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           node --test scripts/ci/*.test.mjs
           node scripts/ci/budget-check.mjs --report "$RUNNER_TEMP/budget-output/repository.json"
@@ -320,7 +327,7 @@ jobs:
 
       - name: Test schema generator fail-closed definitions and clause refine
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
-        run: node --test scripts/__tests__/schema-local-definitions.test.mjs scripts/__tests__/refine-conditional-clauses.test.mjs
+        run: node --test scripts/__tests__/schema-local-definitions.test.mjs scripts/__tests__/refine-conditional-clauses.test.mjs scripts/__tests__/route-safe-parse-issues.test.mjs
 
       # The equipment catalog resolution guard adds about 1-4 minutes.
       - name: Test equipment catalog generator and resolution guards
@@ -532,6 +539,25 @@ jobs:
           # this the artifact silently drops it (Lane C, run 41790472413).
           include-hidden-files: true
 
+      # The rebuild script keeps its own content-keyed cache in
+      # desktop/.electron-native-cache (Electron and Node versions, runner
+      # image, kernel, glibc, compiler flags, better-sqlite3 sources) and
+      # probes a restored binding under Electron before using it. This outer
+      # key only decides when the directory is refreshed; the script rejects
+      # a stale entry itself. A runner-image roll changes the key, so the hit
+      # rate drops once per image roll. Main writes the shared key; a pull
+      # request reads main's and, on a miss, writes only its own scope.
+      - name: Identify runner image
+        id: runner-image
+        run: echo "id=${ImageOS:-unknown}-${ImageVersion:-unknown}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore native module cache
+        id: native-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: desktop/.electron-native-cache
+          key: electron-native-${{ runner.os }}-${{ steps.runner-image.outputs.id }}-${{ hashFiles('desktop/package-lock.json', 'package-lock.json') }}-${{ hashFiles('desktop/scripts/electron-native-cache.js', 'desktop/scripts/electron-native-modules.js') }}
+
       - name: Rebuild native modules for Linux
         if: ${{ !cancelled() }}
         working-directory: desktop
@@ -544,10 +570,54 @@ jobs:
           path: ${{ env.electron_config_cache }}
           key: ${{ steps.electron-cache.outputs.cache-primary-key }}
 
-      - name: Build complete Linux installer and unpacked application
-        if: ${{ !cancelled() }}
+      - name: Save native module cache
+        if: ${{ steps.native-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: desktop/.electron-native-cache
+          key: ${{ steps.native-cache.outputs.cache-primary-key }}
+
+      # Every code change builds the unpacked app: the same config, asar,
+      # afterPack copy, native modules and server closure, without the
+      # archive step. The full installer below runs when packaging inputs
+      # changed, and on main, nightly and manual runs.
+      - name: Build unpacked Linux application
+        if: ${{ !cancelled() && needs.detect-changes.outputs.packaging != 'true' }}
         working-directory: desktop
         run: |
+          # @electron/get fetches fresh checksums even for cached Electron zips.
+          for attempt in 1 2 3; do
+            echo "Linux packaging attempt $attempt/3"
+            if npx electron-builder --linux dir --publish never; then
+              exit 0
+            else
+              status=$?
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Linux packaging failed after 3 attempts (exit $status)"
+              exit "$status"
+            fi
+            delay=$((attempt * 15))
+            echo "::warning::Linux packaging failed (exit $status); retrying in ${delay}s"
+            sleep "$delay"
+          done
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          SKIP_NOTARIZATION: 'true'
+
+      - name: Build complete Linux installer and unpacked application
+        if: ${{ !cancelled() && needs.detect-changes.outputs.packaging == 'true' }}
+        working-directory: desktop
+        run: |
+          # electron-builder gzips tar.gz at -mx=9 unless this is set (archive.ts).
+          # The scheduled run keeps 9 so the release compression path stays
+          # exercised; level 3 measured 34x faster than 9 with an identical
+          # unpacked tar, and level 1 was no faster (C7 build-2x C1).
+          # $GITHUB_ENV carries it to the installer census, which records it.
+          if [ "$GITHUB_EVENT_NAME" != 'schedule' ]; then
+            export ELECTRON_BUILDER_COMPRESSION_LEVEL=3
+            echo "ELECTRON_BUILDER_COMPRESSION_LEVEL=3" >> "$GITHUB_ENV"
+          fi
           # @electron/get fetches fresh checksums even for cached Electron zips.
           for attempt in 1 2 3; do
             echo "Linux packaging attempt $attempt/3"
@@ -581,19 +651,19 @@ jobs:
         run: test -d release/linux-unpacked
 
       - name: Prepare complete Linux installer inventory
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.packaging == 'true' }}
         shell: bash
         run: |
           mkdir -p desktop/release-upload
           cp desktop/release/*.tar.gz desktop/release-upload/
 
       - name: Census complete Linux installer bytes (advisory)
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.packaging == 'true' }}
         shell: bash
         run: node scripts/ci/budget-artifacts.mjs --kind installers --report "$RUNNER_TEMP/budget-output/installers.json"
 
       - name: Upload complete installer census
-        if: ${{ always() }}
+        if: ${{ always() && needs.detect-changes.outputs.packaging == 'true' }}
         uses: actions/upload-artifact@v7
         with:
           name: ci-budget-installers

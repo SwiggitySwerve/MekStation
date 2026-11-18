@@ -7,6 +7,8 @@
 // these files match the JSON Schema source via `--check` mode.
 
 import { z } from 'zod';
+
+import { safeParseIssues } from '../safeParseIssues';
 const SchemaRef_0_nativeTechnologyNames = z
   .array(z.string().min(1))
   .min(1)
@@ -67,7 +69,7 @@ export const WeaponContract = z
                     errors: [...errors, ...result.error.issues],
                     failed: failed + 1,
                   }
-                : { errors, failed })(schema.safeParse(x)),
+                : { errors, failed })(safeParseIssues(schema, x)),
           { errors: [], failed: 0 },
         );
         const passed = schemas.length - failed;

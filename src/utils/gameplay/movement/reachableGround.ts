@@ -22,7 +22,12 @@ import {
   calculateGroundPathTurningMpCost,
   facingForPathEnd,
 } from './eventPath';
-import { findPath } from './pathfinding';
+import {
+  type GroundSearchCache,
+  type GroundSearchKind,
+  groundSearchBounds,
+} from './groundSearchCache';
+import { findPath, findPathInSearchSpace } from './pathfinding';
 import {
   blockedRangeHex,
   finalStepCost,
@@ -46,6 +51,8 @@ export interface IGroundRangeHexInput {
   readonly standUpProjection: StandUpProjection;
   readonly hullDownExitProjection: HullDownExitProjection;
   readonly withReservedProjection: ReservedProjectionApplier;
+  /** Shared searches of a whole-overlay projection; absent for one destination. */
+  readonly groundSearches?: GroundSearchCache;
 }
 
 export function deriveGroundRangeHex(
@@ -104,25 +111,31 @@ export function deriveGroundRangeHex(
 function findReachableGroundPath(
   input: IGroundRangeHexInput,
 ): readonly IHexCoordinate[] | null {
-  const directPath = findPath({
-    grid: input.grid,
-    start: input.origin,
-    end: input.hex,
-    maxCost: input.pathBudget,
-    movementType: input.movementMode,
-    context: input.costContext,
-  });
+  const directPath = searchGroundPath(input, 'budget');
   if (directPath || input.maxPathCost <= input.pathBudget) return directPath;
 
-  return findPath({
-    grid: input.grid,
-    start: input.origin,
-    end: input.hex,
-    maxCost: input.maxPathCost,
-    movementType: input.movementMode,
-    context: input.costContext,
-    options: { requirePavementRoadBonusSurface: true },
-  });
+  return searchGroundPath(input, 'roadBonus');
+}
+
+function searchGroundPath(
+  input: IGroundRangeHexInput,
+  kind: GroundSearchKind,
+): readonly IHexCoordinate[] | null {
+  const { maxCost, options } = groundSearchBounds(input, kind);
+  const searches = input.groundSearches?.searchesFor(input);
+  if (!searches) {
+    return findPath({
+      grid: input.grid,
+      start: input.origin,
+      end: input.hex,
+      maxCost,
+      movementType: input.movementMode,
+      context: input.costContext,
+      options,
+    });
+  }
+  if (!searches.mayReach(kind, input.hex)) return null;
+  return findPathInSearchSpace(searches.space, input.hex, maxCost, options);
 }
 
 function deriveBlockedGroundRangeHex(
@@ -148,14 +161,7 @@ function deriveBlockedGroundRangeHex(
     );
   }
 
-  const diagnosticPath = findPath({
-    grid: input.grid,
-    start: input.origin,
-    end: input.hex,
-    maxCost: Number.MAX_SAFE_INTEGER,
-    movementType: input.movementMode,
-    context: input.costContext,
-  });
+  const diagnosticPath = searchGroundPath(input, 'diagnostic');
   if (diagnosticPath && diagnosticPath.length > 0) {
     return deriveOverBudgetGroundRangeHex(input, diagnosticPath);
   }

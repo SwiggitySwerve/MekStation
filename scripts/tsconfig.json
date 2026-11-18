@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "lib": ["es2022", "dom"],
+    "lib": ["es2023", "dom"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "strict": true,
@@ -25,7 +25,8 @@
     "e2e/pin-mech-crew-save-losses.ts",
     "vehicle-aero-bv-delta.ts",
     "unit-bv-parity.ts",
-    "unit-bv-pipeline.ts"
+    "unit-bv-pipeline.ts",
+    "perf/**/*.ts"
   ],
   "exclude": [
     "node_modules",

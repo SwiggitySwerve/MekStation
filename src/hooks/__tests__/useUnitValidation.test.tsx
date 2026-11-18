@@ -207,3 +207,29 @@ test('disabled validation keeps its loading/default UI without calling the valid
     isValidating: false,
   });
 });
+
+test('reports pending in the same render that the registry becomes ready', () => {
+  jest.useFakeTimers();
+  try {
+    const { wrapper } = setup();
+    const renders: boolean[] = [];
+    const { rerender } = renderHook(
+      () => {
+        const state = useUnitValidation();
+        renders.push(state.isValidating);
+        return state;
+      },
+      { wrapper },
+    );
+    expect(renders.every((pending) => !pending)).toBe(true);
+    const before = renders.length;
+    mockReady = true;
+    rerender();
+    // A save control reading this render must already see the check pending.
+    expect(renders[before]).toBe(true);
+    act(() => jest.advanceTimersByTime(300));
+    expect(renders.at(-1)).toBe(false);
+  } finally {
+    jest.useRealTimers();
+  }
+});
