@@ -84,6 +84,8 @@ interface IFakeServer {
   getMode: 'ok' | 'fail';
   /** Runs before a campaign PUT is judged (another writer landing first). */
   onCampaignPut?: () => void;
+  /** Runs before a campaign GET is answered. */
+  onCampaignGet?: () => void;
   /**
    * How many campaign PUTs to refuse for want of a credential (the typed
    * 401 refusal the persistence layer keeps pending: a recoverable save).
@@ -159,6 +161,7 @@ function stubServer(server: IFakeServer): void {
         server.record = { ...body.envelope, version: current + 1 };
         return jsonResponse(200, server.record);
       }
+      server.onCampaignGet?.();
       if (server.getMode === 'fail') {
         throw new TypeError('network down');
       }
@@ -1385,7 +1388,7 @@ describe('T6 co-op: advanceDays and the post-commit install tail (B-3, r8/r9)', 
     [
       'AUTH_REJECTED',
       'campaign-host-intent-requires-host',
-      /only the host player can advance the day\. Nothing was saved\./,
+      /the host didn't accept this request from this session\. Nothing was saved\. Reload or rejoin the campaign, and make sure you are the campaign's host\./,
     ],
     [
       'SOMETHING_NEW',
@@ -1408,6 +1411,32 @@ describe('T6 co-op: advanceDays and the post-commit install tail (B-3, r8/r9)', 
       expect(shown).not.toContain(code);
     },
   );
+
+  it('(NULL-AFTER-REFRESH) the campaign closed once the committed record is read: nothing is installed or saved', async () => {
+    const { store, server, host } = await buildWorld();
+    host.onIntent = (intent) => {
+      if (intent.kind === 'AdvanceDay') host.commit();
+    };
+    // The player closes the campaign just as the refresh finishes.
+    const persistence = useCampaignPersistenceStore.getState();
+    const refresh = persistence.refreshAfterCommittedCommand;
+    jest
+      .spyOn(persistence, 'refreshAfterCommittedCommand')
+      .mockImplementation(async (...args) => {
+        const adopted = await refresh(...args);
+        store.setState({ campaign: null });
+        return adopted;
+      });
+
+    expect(await store.getState().advanceDay()).toBeNull();
+    await settle();
+
+    expect(store.getState().campaign).toBeNull();
+    expect(campaignPuts(server)).toEqual([]);
+    expect(pilotPuts(server)).toEqual([]);
+    expect(currentPilot().xp).toBe(0);
+    expect(vaultAwards()).toBe(0);
+  });
 
   it('(B-3) a day save refused for want of a credential stands; advanceDays stops there, and the next Advance starts D+1 without applying day D twice', async () => {
     const { store, server, host, startDate } = await buildWorld();

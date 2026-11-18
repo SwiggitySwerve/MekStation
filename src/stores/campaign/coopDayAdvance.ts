@@ -13,6 +13,7 @@ import {
   type ICampaignSyncTransport,
 } from '@/lib/campaign/coop/campaignSyncTransport';
 import { ICampaign } from '@/types/campaign/Campaign';
+import { logger } from '@/utils/logger';
 
 import type { IDayAdvanceSnapshot } from './dayAdvanceSnapshot';
 import type { CampaignCommitResult } from './useCampaignStore.types';
@@ -143,6 +144,13 @@ export async function advanceCoopDayThroughHost(
     toastIfRestoreFailed(rollbackDayAdvance(set, get, snapshot));
   const answer = await sendAdvanceDay(transport, base);
   if (answer.kind === 'timeout' || answer.kind === 'unconfirmed') {
+    if (answer.kind === 'unconfirmed') {
+      logger.warn('[coopDayAdvance] AdvanceDay answer unconfirmed', {
+        campaignId: campaign.id,
+        intentId: advanceDayIntentId(base),
+        reason: answer.reason,
+      });
+    }
     discard();
     toastUnconfirmed();
     return null;
@@ -169,7 +177,10 @@ export async function advanceCoopDayThroughHost(
       kind: 'committed',
       state: { campaignId: campaign.id },
     });
-  if (get().campaign?.id !== campaign.id) {
+  // The campaign the refresh left live: gone or another one is the switch
+  // exit.
+  const installedRecord = get().campaign;
+  if (!installedRecord || installedRecord.id !== campaign.id) {
     discard();
     return null;
   }
@@ -211,7 +222,7 @@ export async function advanceCoopDayThroughHost(
     });
     set({
       ...ledgers,
-      campaign: { ...(state.campaign as ICampaign), ...ledgers },
+      campaign: state.campaign && { ...state.campaign, ...ledgers },
     });
     toast({
       message:
@@ -231,7 +242,7 @@ export async function advanceCoopDayThroughHost(
   // that roster carries the day's patches. A roster the refresh replaced is
   // the record's, the day's real start (M5). The vault's is the one from
   // before the compute.
-  const refreshed = captureDayAdvanceSnapshot(get, get().campaign as ICampaign);
+  const refreshed = captureDayAdvanceSnapshot(get, installedRecord);
   const installSnapshot: IDayAdvanceSnapshot = {
     ...refreshed,
     vaultPilots: snapshot.vaultPilots,
@@ -339,7 +350,9 @@ function refusalMessage(code: string): string {
     case 'CAMPAIGN_STALE_HEAD':
       return 'Co-op day advance was refused by the host: the campaign changed on the host. Nothing was saved. Reload the campaign before trying again.';
     case 'AUTH_REJECTED':
-      return 'Co-op day advance was refused by the host: only the host player can advance the day. Nothing was saved.';
+      // Also sent for a session that must rebind and for a credential the
+      // host does not accept, not only for a player who is not the host.
+      return "Co-op day advance was refused by the host: the host didn't accept this request from this session. Nothing was saved. Reload or rejoin the campaign, and make sure you are the campaign's host.";
     default:
       return 'Co-op day advance was refused by the host: the host could not apply it. Nothing was saved.';
   }
@@ -353,6 +366,11 @@ function toastIfRestoreFailed(restoreFailure: string | null): void {
     variant: 'error',
     duration: 7000,
   });
+}
+
+/** The AdvanceDay intent id for the day `campaign` is on. */
+function advanceDayIntentId(campaign: ICampaign): string {
+  return `host-advance-day-${campaign.id}-${campaign.currentDate.toISOString()}`;
 }
 
 /** The host's answer to an AdvanceDay intent, or its absence. */
@@ -376,7 +394,7 @@ function sendAdvanceDay(
   transport: ICampaignSyncTransport,
   campaign: ICampaign,
 ): Promise<AdvanceDayAnswer> {
-  const intentId = `host-advance-day-${campaign.id}-${campaign.currentDate.toISOString()}`;
+  const intentId = advanceDayIntentId(campaign);
   return new Promise((resolve) => {
     const stops: (() => void)[] = [];
     let settled = false;
