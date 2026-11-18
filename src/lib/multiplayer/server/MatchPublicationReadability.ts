@@ -1,7 +1,6 @@
 import type { IGameEvent } from '@/types/gameplay';
 
 import { prepareEventForSerialization } from '@/utils/gameplay/gameEvents/serialization';
-import { logger } from '@/utils/logger';
 
 import type {
   IMatchPublication,
@@ -41,7 +40,7 @@ export async function readReadableRevealedDeclarations(
   try {
     committed = await store.getEvents(matchId, fromSeq);
   } catch (error) {
-    logger.warn(
+    console.warn(
       `[ServerMatchHost ${matchId}] sealed reveal withheld: committed events unreadable from seq=${fromSeq}`,
       error,
     );
@@ -56,7 +55,7 @@ export async function readReadableRevealedDeclarations(
   for (const declaration of selected) {
     const row = byId.get(declaration.id);
     if (!row) {
-      logger.warn(
+      console.warn(
         `[ServerMatchHost ${matchId}] sealed reveal withheld: no committed row for event id=${declaration.id} seq=${declaration.sequence}`,
       );
       continue;
