@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,7 +11,30 @@ import {
   validateRepositoryMetrics,
 } from './budget-metrics.mjs';
 
-export function checkRepositoryMetrics(config, metrics, labels) {
+const ATTRIBUTION_LIMIT = 10;
+const CENSUS_WORDS = {
+  unkeyableTests: 'unkeyable',
+  repoWideKeys: 'repo-wide',
+};
+
+/** Say which PR and which changed tests caused a cache-census breach. */
+function breachAttribution(census, word, { prNumber, changedFiles } = {}) {
+  if (!prNumber) return '';
+  const pr = ` (PR #${prNumber})`;
+  if (!Array.isArray(changedFiles)) return pr;
+  const changed = new Set(changedFiles);
+  const hits = census.filter((entry) => changed.has(entry.file));
+  if (!hits.length)
+    return `${pr}: no changed test is itself ${word}; a shared input changed, see the census artifact ci-budget-repository.`;
+  const named = hits.slice(0, ATTRIBUTION_LIMIT).map((entry) => {
+    const why = [].concat(entry.reasons ?? entry.reason ?? []);
+    return `${entry.file} (${why.slice(0, 3).join('; ')}${why.length > 3 ? `; +${why.length - 3} more` : ''})`;
+  });
+  const more = hits.length - named.length;
+  return `${pr}. Changed in this PR and ${word === 'repo-wide' ? 'keyed repo-wide' : word}: ${named.join(', ')}${more > 0 ? `, +${more} more` : ''}.`;
+}
+
+export function checkRepositoryMetrics(config, metrics, labels, context) {
   validateRepositoryMetrics(metrics);
   exactKeys(
     metrics.workflow.timeouts,
@@ -53,12 +77,48 @@ export function checkRepositoryMetrics(config, metrics, labels) {
     if (!Array.isArray(census) || !metrics.cache.files.length)
       throw new Error(`${id}: missing actual census`);
     if (census.length > config.limits[id])
-      fail(id, `${census.length} > ${config.limits[id]}`);
+      fail(
+        id,
+        `${census.length} > ${config.limits[id]}${breachAttribution(census, CENSUS_WORDS[id], context)}`,
+      );
   }
   violations.push(
     ...dependencyViolations(config, metrics.dependencies, labels),
   );
   return { schema: METRICS_SCHEMA, metrics, violations };
+}
+
+/** Files the PR changed against its base; undefined when that cannot be known. */
+export function changedFilesSince(baseSha, root = process.cwd()) {
+  if (!/^[0-9a-f]{7,64}$/i.test(baseSha ?? '')) return undefined;
+  try {
+    return execFileSync('git', ['diff', '--name-only', `${baseSha}...HEAD`], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .split('\n')
+      .filter(Boolean);
+  } catch {
+    return undefined;
+  }
+}
+
+const annotationData = (text) =>
+  text.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+
+/** Print each violation; on GitHub Actions also surface it as an annotation. */
+export function reportViolations(
+  violations,
+  env = process.env,
+  log = console.error,
+) {
+  for (const { code, message } of violations) {
+    const line = `${code}: ${message}`;
+    log(line);
+    if (env.GITHUB_ACTIONS === 'true')
+      log(`::error title=CI budget::${annotationData(line)}`);
+  }
 }
 
 export function run(argv, root = process.cwd()) {
@@ -79,7 +139,16 @@ export function run(argv, root = process.cwd()) {
         : '[]'),
   );
   const metrics = collectRepositoryMetrics(root, config);
-  const result = checkRepositoryMetrics(config, metrics, labels);
+  const prNumber =
+    process.env.GITHUB_EVENT_NAME === 'pull_request'
+      ? process.env.PR_NUMBER
+      : undefined;
+  const result = checkRepositoryMetrics(config, metrics, labels, {
+    prNumber,
+    changedFiles: prNumber
+      ? changedFilesSince(process.env.BUDGET_BASE_SHA, root)
+      : undefined,
+  });
   if (values.report) {
     const destination = path.resolve(root, values.report);
     fs.mkdirSync(path.dirname(destination), { recursive: true });
@@ -92,8 +161,7 @@ export function run(argv, root = process.cwd()) {
   console.log(
     `Cache: ${metrics.cache.files.length} files, ${metrics.cache.unkeyable.length} unkeyable, ${metrics.cache.repoWide.length} repo-wide`,
   );
-  for (const violation of result.violations)
-    console.error(`${violation.code}: ${violation.message}`);
+  reportViolations(result.violations);
   return result.violations.length ? 1 : 0;
 }
 
