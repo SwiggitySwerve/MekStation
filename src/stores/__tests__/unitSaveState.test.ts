@@ -1,6 +1,7 @@
 import {
   createUnitLibrarySaveReceipt,
   getUnitLibrarySavePatch,
+  LIBRARY_WRITER_VERSION,
   getUnitSaveState,
   isUnitDraftModified,
   transitionUnitSaveState,
@@ -13,6 +14,7 @@ const receipt = {
   version: 3,
   fingerprint: fingerprints.library,
   draftFingerprint: fingerprints.draft,
+  writerVersion: LIBRARY_WRITER_VERSION,
 };
 
 describe('unit save-state owner', () => {
@@ -106,6 +108,37 @@ describe('unit save-state owner', () => {
       state: 'changed',
       receipt,
     });
+  });
+
+  it.each([
+    [undefined, false, 'saved-older-writer'],
+    [0, false, 'saved-older-writer'],
+    [undefined, true, 'changed'],
+    [undefined, undefined, 'changed'],
+    [LIBRARY_WRITER_VERSION, false, 'changed'],
+  ] as const)(
+    'classifies a receipt from writer %s with isModified %s and moved draft and library bytes as %s',
+    (writerVersion, isModified, expected) => {
+      const saved = { ...receipt, writerVersion };
+      expect(
+        getUnitSaveState(
+          { isModified, librarySave: saved },
+          'newer-writer-bytes',
+          'older-editor-draft',
+        ).library,
+      ).toEqual({ state: expected, receipt: saved });
+    },
+  );
+
+  it('matches equal library bytes before consulting the writer version', () => {
+    const { writerVersion: _legacy, ...legacy } = receipt;
+    expect(
+      getUnitSaveState(
+        { isModified: true, librarySave: legacy },
+        fingerprints.library,
+        'edited-draft',
+      ).library,
+    ).toEqual({ state: 'matched', receipt: legacy });
   });
 
   it.each([

@@ -4,10 +4,14 @@ import { createDefaultUnitState, type UnitState } from '@/stores/unitState';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import { UnitContract } from '@/types/contracts';
 import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/temporal/Era';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
-import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
+import {
+  SOURCE_ONLY_FACTS,
+  serializeCustomUnitState,
+} from '@/utils/serialization/CustomUnitSerializer';
 
 type SaveCoverage =
   | { readonly savedAs: readonly (keyof ISerializedUnit | 'lamType')[] }
@@ -16,8 +20,8 @@ type SaveCoverage =
 /**
  * Every BattleMech editor state key: either the saved document key(s) that
  * carry it, or why the save does not write it. Source-only facts (quirks,
- * weapon quirks, publication source) are carried by spreading the loaded
- * source, not by a state key.
+ * weapon quirks, publication source) are carried from the loaded source by
+ * SOURCE_ONLY_FACTS, not by a state key.
  */
 const MECH_STATE_SAVE_COVERAGE: {
   readonly [K in keyof UnitState]-?: SaveCoverage;
@@ -201,7 +205,7 @@ it('never revives a loaded source value for a field the editor cleared', () => {
   }).toEqual({});
 });
 
-it('appends loaded contract facts after the written keys and never library metadata', () => {
+it('appends source-only facts after the written keys and never library metadata', () => {
   const state = fullState();
   const withoutSource = save({ ...state, bvContext: undefined });
   const saved = save({
@@ -224,4 +228,70 @@ it('appends loaded contract facts after the written keys and never library metad
     'quirks',
     'source',
   ]);
+});
+
+/**
+ * BattleMech contract keys the mech writer neither writes nor carries from the
+ * loaded source. Carrying one would save a stale fact after the editor changes
+ * what it describes, or a fact no BattleMech has.
+ */
+const NOT_CARRIED_BY_MECH_WRITER: Readonly<Record<string, string>> = {
+  omniPodHeatSinks:
+    'Aerospace/vehicle pod sink count; a mech carries pod flags on mounts.',
+  baseChassisTurretWeight: 'Vehicle Omni turret allowance; no mech turret.',
+  baseChassisTurret2Weight: 'Vehicle Omni second turret allowance.',
+  baseChassisSponsonPintleWeight: 'Vehicle Omni sponson/pintle allowance.',
+  baseChassisFireConWeight: 'Vehicle Omni fire-control allowance.',
+  transporters: 'Vehicle/aerospace transport bays.',
+  fuel: 'Support vehicle tons or aerospace points.',
+  fuelType: 'Support vehicle fuel type.',
+  isTrailer: 'Vehicle trailer flag.',
+  clanEngine: 'Derived from the engine type the writer owns.',
+  structuralTechRating: 'BLK rating derived from the written structure.',
+  engineTechRating: 'BLK rating derived from the written engine.',
+  armorTechRating: 'BLK rating derived from the written armor.',
+  internalType: 'BLK structure code derived from the written structure.',
+};
+
+it('names every BattleMech contract key as written, source-only or not carried', () => {
+  const contractKeys = Object.keys(UnitContract.options[0].shape);
+  const written = new Set(
+    Object.keys(save({ ...fullState(), bvContext: undefined })),
+  );
+  const sourceOnly = new Set<string>(SOURCE_ONLY_FACTS);
+  const notCarried = new Set(Object.keys(NOT_CARRIED_BY_MECH_WRITER));
+  const unclassified = contractKeys.filter(
+    (key) =>
+      [written, sourceOnly, notCarried].filter((list) => list.has(key))
+        .length !== 1,
+  );
+  expect(unclassified).toEqual([]);
+  expect(
+    [...sourceOnly, ...notCarried].filter((key) => !contractKeys.includes(key)),
+  ).toEqual([]);
+});
+
+it('saves the editor construction, never a stale construction fact from the source', () => {
+  const state = fullState();
+  const sentinel = { stale: true };
+  const saved = save({
+    ...state,
+    bvContext: {
+      ...state.bvContext,
+      // The source says Clan engine; the editor state has an IS engine.
+      source: {
+        ...state.bvContext.source,
+        ...Object.fromEntries(
+          Object.keys(NOT_CARRIED_BY_MECH_WRITER).map((key) => [key, sentinel]),
+        ),
+        clanEngine: true,
+      },
+    },
+  });
+  expect(saved.clanEngine).toBeUndefined();
+  expect(
+    Object.keys(NOT_CARRIED_BY_MECH_WRITER).filter(
+      (key) => saved[key] !== undefined,
+    ),
+  ).toEqual([]);
 });

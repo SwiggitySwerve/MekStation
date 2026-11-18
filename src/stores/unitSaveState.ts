@@ -1,9 +1,18 @@
 /** Plain save-state rules. See unitSaveState.rules.md for compatibility and rollout. */
+
+/**
+ * The library writer that produces receipt fingerprints. Bump it in the same PR
+ * as any change that makes the loader or writer recover or keep more facts.
+ */
+export const LIBRARY_WRITER_VERSION = 1;
+
 export interface ILibrarySaveReceipt {
   readonly id: string;
   readonly version: number;
   readonly fingerprint: string;
   readonly draftFingerprint?: string;
+  /** Absent on receipts written before versioning, which count as 0. */
+  readonly writerVersion?: number;
 }
 
 export interface IUnitSaveFingerprints {
@@ -59,11 +68,19 @@ function libraryState(
   receipt: ILibrarySaveReceipt | undefined,
   current: string,
   currentDraft: string | undefined,
+  isModified: boolean | undefined,
 ): UnitLibrarySaveState {
   if (!receipt) return { state: 'none' };
   if (receipt.draftFingerprint === undefined)
     return { state: 'unknown', receipt };
   if (current === receipt.fingerprint) return { state: 'matched', receipt };
+  // An unedited draft whose receipt an older writer made: the library copy
+  // lacks facts today's writer keeps, not the user's edits.
+  if (
+    (receipt.writerVersion ?? 0) < LIBRARY_WRITER_VERSION &&
+    isModified === false
+  )
+    return { state: 'saved-older-writer', receipt };
   return {
     state:
       currentDraft === receipt.draftFingerprint
@@ -92,6 +109,7 @@ export function getUnitSaveState(
       metadata.librarySave,
       currentLibraryFingerprint,
       currentDraftFingerprint,
+      metadata.isModified,
     ),
   };
 }
@@ -99,11 +117,15 @@ export function getUnitSaveState(
 export function createUnitLibrarySaveReceipt(
   reference: Pick<ILibrarySaveReceipt, 'id' | 'version'>,
   fingerprints: IUnitSaveFingerprints,
-): ILibrarySaveReceipt & { readonly draftFingerprint: string } {
+): ILibrarySaveReceipt & {
+  readonly draftFingerprint: string;
+  readonly writerVersion: number;
+} {
   return {
     ...reference,
     fingerprint: fingerprints.library,
     draftFingerprint: fingerprints.draft,
+    writerVersion: LIBRARY_WRITER_VERSION,
   };
 }
 

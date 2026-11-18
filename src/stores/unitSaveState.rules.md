@@ -18,8 +18,11 @@ not import a store, browser storage, serializers, routing, or UI.
 
 The library comparison has one owner, `libraryState`. A receipt without a draft
 fingerprint is unknown even when its library bytes match. With a saved draft
-baseline, equal library bytes mean matched; different library bytes with equal
-draft content mean saved-older-writer; otherwise the design changed. No stored
+baseline, equal library bytes mean matched. Different library bytes on a
+receipt from an older writer (`writerVersion` below `LIBRARY_WRITER_VERSION`)
+with an unedited draft (`isModified === false`) mean saved-older-writer.
+Otherwise different library bytes with equal draft content mean
+saved-older-writer, and anything else means the design changed. No stored
 receipt, fingerprint algorithm or schema version is rewritten. The adapters pass
 both current fingerprints to this owner. Renderers share the wording and Save
 affordance from UnitSaveStatus; older-writer and unknown states never fall through
@@ -42,9 +45,22 @@ and presented as a confirmed saved baseline.
 
 ## Compatibility boundary
 
-The persisted receipt remains `{ id, version, fingerprint, draftFingerprint? }`.
-`isModified`, existing storage keys, and Zustand envelopes remain readable.
-`SaveState` is an aggregate over those facts, not a new persisted field.
+The persisted receipt is
+`{ id, version, fingerprint, draftFingerprint?, writerVersion? }`.
+`createUnitLibrarySaveReceipt`, the one receipt constructor (library saves and
+versioned custom loads both use it), writes `writerVersion` from
+`LIBRARY_WRITER_VERSION`. A receipt without it was written before versioning
+and counts as 0; it is read as is and never rewritten. `isModified`, existing
+storage keys, and Zustand envelopes remain readable. `SaveState` is an
+aggregate over those facts, not a new persisted field.
+
+### Writer version bump policy
+
+Any change that makes the loader or the library writer recover or keep more
+facts moves library fingerprints for units the user never edited. Such a
+change bumps `LIBRARY_WRITER_VERSION` in the same PR, so those receipts read
+as saved-older-writer, not changed. Version 1 (S1) keeps the loaded BattleMech
+quirks, weapon quirks and publication source.
 
 `unitSaveFingerprints.ts` owns canonical JSON and temporary equipment-ID
 normalization. Its field-extension instructions are part of the persisted

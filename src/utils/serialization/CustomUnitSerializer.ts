@@ -279,28 +279,22 @@ export function serializeCustomUnitState(
         : undefined,
     ...crewSeatSaveFields(state),
   };
-  // Crew seats are omitted when none are authored; this writer still owns them.
-  const owned = new Set([...Object.keys(written), 'crewSeats']);
-  return { ...written, ...sourceOnlyFacts(state.bvContext?.source, owned) };
+  return { ...written, ...sourceOnlyFacts(state.bvContext?.source) };
 }
 
-const MECH_CONTRACT_KEYS: ReadonlySet<string> = new Set(
-  Object.keys(UnitContract.options[0].shape),
-);
-
 /**
- * Loaded source facts the editor never edits (quirks, weapon quirks,
- * publication source): every BattleMech contract key this writer does not
- * own. Library record metadata (version, timestamps) is not a contract key.
+ * Loaded source facts the editor never edits, carried after the written keys.
+ * Every other BattleMech contract key is written above or deliberately not
+ * carried (CustomUnitSerializer.stateCoverage.test.ts names each one).
  */
+export const SOURCE_ONLY_FACTS = ['quirks', 'weaponQuirks', 'source'] as const;
+
 function sourceOnlyFacts(
   source: Readonly<Record<string, unknown>> | undefined,
-  owned: ReadonlySet<string>,
 ): Record<string, unknown> {
   return Object.fromEntries(
-    Object.entries(source ?? {}).filter(
-      ([key, value]) =>
-        value !== undefined && !owned.has(key) && MECH_CONTRACT_KEYS.has(key),
+    SOURCE_ONLY_FACTS.flatMap((key) =>
+      source?.[key] === undefined ? [] : [[key, source[key]]],
     ),
   );
 }
