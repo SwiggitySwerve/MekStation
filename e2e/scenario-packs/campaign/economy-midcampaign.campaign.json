@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "campaignId": "pack:economy-midcampaign:campaign",
-  "savedAt": "2026-10-18T05:39:27.272Z",
-  "originDeviceId": "b1d6e277-b2f1-419b-8d73-5d6eba513ca1",
+  "savedAt": "2026-11-18T20:01:48.371Z",
+  "originDeviceId": "b898cd17-a3a1-4517-a8a3-946f5a4f9de3",
   "version": 1,
   "body": {
     "id": "pack:economy-midcampaign:campaign",
@@ -35,7 +35,7 @@
           "type": "contract",
           "systemId": "Unknown System",
           "scenarioIds": [],
-          "endDate": "3025-06-14T00:00:00.000Z",
+          "endDate": "3025-06-16T00:00:00.000Z",
           "employerId": "fixture-employer",
           "targetId": "fixture-target",
           "paymentTerms": {
@@ -49,8 +49,8 @@
           },
           "salvageRights": "None",
           "commandRights": "House",
-          "createdAt": "2026-10-18T05:39:27.092Z",
-          "updatedAt": "2026-10-18T05:39:27.271Z"
+          "createdAt": "2026-11-18T20:01:48.051Z",
+          "updatedAt": "2026-11-18T20:01:48.367Z"
         }
       ]
     ],
@@ -64,7 +64,7 @@
           "description": "Daily salaries for 4 personnel"
         },
         {
-          "id": "tx-contract-close-fast-forward-fixture-contract-2026-10-18T05:39:27.271Z",
+          "id": "tx-contract-close-fast-forward-fixture-contract-2026-11-18T20:01:48.367Z",
           "type": "income",
           "amount": 300000,
           "date": "3025-06-14T00:00:00.000Z",
@@ -178,7 +178,7 @@
     },
     "campaignType": "mercenary",
     "createdAt": "3025-06-13T00:00:00.000Z",
-    "updatedAt": "2026-10-18T05:39:27.272Z",
+    "updatedAt": "2026-11-18T20:01:48.370Z",
     "unitCombatStates": {
       "player-1-atlas-as7-d": {
         "unitId": "player-1-atlas-as7-d",
@@ -207,7 +207,7 @@
         "ammoRemaining": {},
         "combatReady": true,
         "lastCombatOutcomeId": null,
-        "lastUpdated": "2026-10-18T05:39:27.271Z"
+        "lastUpdated": "2026-11-18T20:01:48.367Z"
       },
       "opponent-1-marauder-mad-3r": {
         "unitId": "opponent-1-marauder-mad-3r",
@@ -236,7 +236,7 @@
         "ammoRemaining": {},
         "combatReady": true,
         "lastCombatOutcomeId": null,
-        "lastUpdated": "2026-10-18T05:39:27.271Z"
+        "lastUpdated": "2026-11-18T20:01:48.367Z"
       }
     },
     "rosterProjection": {
@@ -246,7 +246,7 @@
           "unitId": "ff-roster-unit-1",
           "unitRef": "atlas-as7-d",
           "unitName": "atlas-as7-d",
-          "pilotId": "pilot-e525b957-8d80-4094-bbac-69feea34599b",
+          "pilotId": "pilot-4da6da9f-d29a-47d4-9d01-cd7b38f4e164",
           "chassisVariant": "atlas-as7-d",
           "readiness": "Ready"
         },
@@ -277,11 +277,11 @@
       ],
       "pilots": [
         {
-          "pilotId": "pilot-e525b957-8d80-4094-bbac-69feea34599b",
+          "pilotId": "pilot-4da6da9f-d29a-47d4-9d01-cd7b38f4e164",
           "pilotName": "Fixture Pilot 1",
-          "status": "active",
-          "wounds": 0,
-          "recoveryTime": 0,
+          "status": "wounded",
+          "wounds": 2,
+          "recoveryTime": 14,
           "xp": 1,
           "campaignXpEarned": 1,
           "campaignKills": 0,
@@ -342,9 +342,9 @@
       "missionCount": 0
     },
     "salvageAllocations": {
-      "88fff218-fbc0-462b-9b07-a66184b9f971": {
+      "3f5805ec-08b4-4188-8bcb-f415f3fd8101": {
         "pool": {
-          "battleId": "88fff218-fbc0-462b-9b07-a66184b9f971",
+          "battleId": "3f5805ec-08b4-4188-8bcb-f415f3fd8101",
           "contractId": "fast-forward-fixture-contract",
           "candidates": [],
           "totalEstimatedValue": 0,
@@ -367,8 +367,8 @@
       }
     },
     "salvageReports": {
-      "88fff218-fbc0-462b-9b07-a66184b9f971": {
-        "matchId": "88fff218-fbc0-462b-9b07-a66184b9f971",
+      "3f5805ec-08b4-4188-8bcb-f415f3fd8101": {
+        "matchId": "3f5805ec-08b4-4188-8bcb-f415f3fd8101",
         "contractId": "fast-forward-fixture-contract",
         "candidates": [],
         "totalValueEmployer": 0,
@@ -378,15 +378,14 @@
       }
     },
     "pendingBattleOutcomes": [],
-    "processedBattleIds": ["88fff218-fbc0-462b-9b07-a66184b9f971"],
-    "recentlyAppliedOutcomes": [],
+    "processedBattleIds": ["3f5805ec-08b4-4188-8bcb-f415f3fd8101"],
     "dailyBattleAudit": [
       {
         "date": "3025-06-14",
         "matchesProcessed": 1,
         "matches": [],
         "totalXpAwarded": 1,
-        "pilotsWounded": 0,
+        "pilotsWounded": 1,
         "pilotsKia": 0,
         "pilotsMia": 0,
         "salvageValueSecured": 0,
@@ -409,11 +408,11 @@
         "score": 49,
         "history": [
           {
-            "matchId": "88fff218-fbc0-462b-9b07-a66184b9f971",
+            "matchId": "3f5805ec-08b4-4188-8bcb-f415f3fd8101",
             "delta": -1,
             "scoreAfter": 49,
             "reason": "Defeat, survived intact",
-            "appliedAt": "2026-10-18T05:39:27.271Z"
+            "appliedAt": "2026-11-18T20:01:48.367Z"
           }
         ]
       },
@@ -422,34 +421,28 @@
         "score": 62,
         "history": [
           {
-            "matchId": "88fff218-fbc0-462b-9b07-a66184b9f971",
+            "matchId": "3f5805ec-08b4-4188-8bcb-f415f3fd8101",
             "delta": 12,
             "scoreAfter": 62,
             "reason": "Victory, survived intact",
-            "appliedAt": "2026-10-18T05:39:27.271Z"
+            "appliedAt": "2026-11-18T20:01:48.367Z"
           }
         ]
       }
     ],
-    "moraleState": "elite",
+    "moraleState": "unhappy",
     "moraleTransitions": [
       {
         "from": "steady",
-        "to": "high",
-        "direction": "up",
-        "reason": "Morale rose: pay met",
-        "occurredAt": "3025-06-13T00:00:00.000Z"
-      },
-      {
-        "from": "high",
-        "to": "elite",
-        "direction": "up",
-        "reason": "Morale rose: pay met",
+        "to": "unhappy",
+        "direction": "down",
+        "reason": "Morale fell: 1 recent defeat(s)",
         "occurredAt": "3025-06-14T00:00:00.000Z"
       }
-    ]
+    ],
+    "moraleCountedMatchIds": ["3f5805ec-08b4-4188-8bcb-f415f3fd8101"]
   },
-  "instanceId": "b1d6e277-b2f1-419b-8d73-5d6eba513ca1",
+  "instanceId": "b898cd17-a3a1-4517-a8a3-946f5a4f9de3",
   "authority": {
     "role": "source"
   }
