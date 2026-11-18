@@ -774,3 +774,138 @@ describe('T6 co-op: outcomes that arrive during the host wait (Q2)', () => {
     expect(server.record!.version).toBe(startVersion + 3);
   });
 });
+
+describe('T6 co-op: a retry after the host committed late (r4)', () => {
+  beforeEach(resetWorld);
+  afterEach(resetWorld);
+
+  /** Only AdvanceDay is committed; an outcome's reconcile intent is left pending. */
+  const commitAdvanceOnly =
+    (host: IControlledHost) =>
+    (intent: ICampaignIntent): void => {
+      if (intent.kind === 'AdvanceDay') host.commit();
+    };
+
+  async function expectDayCompletedOnce(
+    world: Awaited<ReturnType<typeof buildWorld>>,
+  ): Promise<void> {
+    const { store, server, startDate } = world;
+    await settle();
+    // Saved at D+1 with the day's work, on top of the host's late commit.
+    expect(dayMs()).toBe(startDate + DAY_MS);
+    expect(recordDayMs(server)).toBe(startDate + DAY_MS);
+    expect(server.record!.version).toBe(world.startVersion + 2);
+    expect(
+      server.record!.body.rosterProjection?.pilots.find(
+        (p) => p.pilotId === PILOT_ID,
+      )?.xp,
+    ).toBe(10);
+    // Processors ran once for the day: one pilot patch, one award, one PUT.
+    expect(currentPilot().xp).toBe(10);
+    expect(vaultAwards()).toBe(1);
+    expect(pilotPuts(server)).toEqual([`PUT /api/pilots/${VAULT_ID}`]);
+    // The outcome queued while dirty was applied exactly once, not dropped.
+    expect(store.getState().processedBattleIds).toEqual(['m-late']);
+    expect(store.getState().pendingBattleOutcomes).toEqual([]);
+    expect(currentPilot().campaignMissions).toBe(1);
+    // No "take server": no conflict was raised and nothing was rolled back.
+    expect(useCampaignPersistenceStore.getState().saveState).not.toBe(
+      'conflict',
+    );
+    expect(toastMessages().join('\n')).not.toMatch(
+      /refused: the campaign changed elsewhere|local change was rolled back/i,
+    );
+  }
+
+  it('(L1) timeout, the host commits late, an outcome makes the campaign dirty, retry: the day completes once', async () => {
+    const world = await buildWorld();
+    const { store, host } = world;
+    jest.useFakeTimers();
+    const first = store.getState().advanceDay();
+    await jest.advanceTimersByTimeAsync(COOP_ADVANCE_TIMEOUT_MS);
+    expect(await first).toBeNull();
+    jest.useRealTimers();
+
+    // The host commits the timed-out intent after all; nobody is listening.
+    host.commit();
+    host.onIntent = commitAdvanceOnly(host);
+    store.getState().enqueueOutcome(outcome('m-late'));
+    // An ordinary unsaved edit as well.
+    store.setState({
+      campaign: { ...store.getState().campaign!, name: 'Edited live' },
+    });
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
+    toast.mockClear();
+
+    const report = await store.getState().advanceDay();
+
+    expect(report).not.toBeNull();
+    const advances = host.sent.filter((i) => i.kind === 'AdvanceDay');
+    expect(advances).toHaveLength(2);
+    expect(advances[1].intentId).toBe(advances[0].intentId);
+    await expectDayCompletedOnce(world);
+    // The dirty edits were saved with the day, not dropped.
+    expect(world.server.record!.body.name).toBe('Edited live');
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
+  });
+
+  it('(L2) the host commits, the player switches away and back, an outcome makes the campaign dirty, retry: the day completes once', async () => {
+    const world = await buildWorld();
+    const { store, host } = world;
+    const original = store.getState().campaign!;
+    host.onIntent = (intent) => {
+      if (intent.kind !== 'AdvanceDay') return;
+      installServerCampaign({
+        ...original,
+        id: 'campaign-elsewhere',
+        coopSession: undefined,
+      });
+      host.commit();
+    };
+    expect(await store.getState().advanceDay()).toBeNull();
+
+    installServerCampaign(original);
+    host.onIntent = commitAdvanceOnly(host);
+    store.getState().enqueueOutcome(outcome('m-late'));
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
+    toast.mockClear();
+
+    const report = await store.getState().advanceDay();
+
+    expect(report).not.toBeNull();
+    const advances = host.sent.filter((i) => i.kind === 'AdvanceDay');
+    expect(advances).toHaveLength(2);
+    expect(advances[1].intentId).toBe(advances[0].intentId);
+    await expectDayCompletedOnce(world);
+  });
+});
+
+describe('T6 co-op: residuals pinned (r4)', () => {
+  beforeEach(resetWorld);
+  afterEach(resetWorld);
+
+  it('(R-RECOMPUTE-THROW) residual: a throw in the recompute after a stale-version commit leaves the host at D+1', async () => {
+    const { store, server, host, startDate } = await buildWorld();
+    host.onIntent = () => {
+      host.commitGuestRename('Renamed by guest');
+      host.commit();
+      // The first compute ran clean; the recompute after the commit throws.
+      throwMode = 'always';
+    };
+
+    const report = await store.getState().advanceDay();
+
+    expect(report).toBeNull();
+    // The host committed D+1 and no processor result was saved with it.
+    expect(recordDayMs(server)).toBe(startDate + DAY_MS);
+    expect(
+      server.record!.body.rosterProjection?.pilots.find(
+        (p) => p.pilotId === PILOT_ID,
+      )?.xp,
+    ).toBe(0);
+    // Locally the failed recompute was rolled back: no patch, no award.
+    expect(currentPilot().xp).toBe(0);
+    expect(vaultAwards()).toBe(0);
+    expect(toastMessages().join('\n')).toMatch(/not saved/i);
+  });
+});

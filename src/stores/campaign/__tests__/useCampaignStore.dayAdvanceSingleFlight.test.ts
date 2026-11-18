@@ -333,6 +333,12 @@ describe('K13 host intent deadline', () => {
     const { store, host } = await coopHostCampaign();
     const processDay = jest.spyOn(getDayPipeline(), 'processDay');
     const start = dayMs();
+    const before = store.getState().campaign;
+    const puts = (): number =>
+      (global.fetch as jest.Mock).mock.calls.filter(
+        (call) => call[1]?.method === 'PUT',
+      ).length;
+    const putsBefore = puts();
     jest.useFakeTimers();
 
     const pending = store.getState().advanceDay();
@@ -342,26 +348,40 @@ describe('K13 host intent deadline', () => {
     await jest.advanceTimersByTimeAsync(50);
 
     // T6 (C8): the day is computed once before the intent is sent, and the
-    // timeout discards it; the late answer runs nothing more.
+    // timeout discards it; the late answer runs nothing more. Nothing is
+    // installed, saved or sent again.
     expect(processDay).toHaveBeenCalledTimes(1);
     expect(dayMs()).toBe(start);
+    expect(store.getState().campaign).toBe(before);
+    expect(puts()).toBe(putsBefore);
+    expect(host.sent).toHaveLength(1);
   });
 
   it('(T7) switching campaigns while the host answers leaves the new campaign alone', async () => {
     const { store, host } = await coopHostCampaign();
     const processDay = jest.spyOn(getDayPipeline(), 'processDay');
     const original = store.getState().campaign!;
+    const puts = (): number =>
+      (global.fetch as jest.Mock).mock.calls.filter(
+        (call) => call[1]?.method === 'PUT',
+      ).length;
+    const putsBefore = puts();
 
     const pending = store.getState().advanceDay();
     const other = { ...original, id: 'other-campaign', coopSession: undefined };
     store.getState().switchCampaign(other);
+    const switched = store.getState().campaign;
     host.commit();
 
     expect(await pending).toBeNull();
     expect(store.getState().campaign?.id).toBe('other-campaign');
     expect(store.getState().campaign?.currentDate).toBe(original.currentDate);
-    // T6 (C8): computed once before the send, then discarded.
+    // T6 (C8): computed once before the send, then discarded: nothing is
+    // installed on the new campaign, saved, or sent again.
     expect(processDay).toHaveBeenCalledTimes(1);
+    expect(store.getState().campaign).toBe(switched);
+    expect(puts()).toBe(putsBefore);
+    expect(host.sent).toHaveLength(1);
   });
 
   it('(T7b) switching campaigns while the committed record is being read, and the read failing, leaves the new campaign alone', async () => {
@@ -387,12 +407,21 @@ describe('K13 host intent deadline', () => {
     while (!reading) await new Promise((resolve) => setTimeout(resolve, 0));
     const other = { ...original, id: 'other-campaign', coopSession: undefined };
     store.getState().switchCampaign(other);
+    const switched = store.getState().campaign;
     releaseRead();
 
     expect(await pending).toBeNull();
     expect(store.getState().campaign?.id).toBe('other-campaign');
-    // T6 (C8): computed once before the send, then discarded.
+    // T6 (C8): computed once before the send, then discarded: nothing is
+    // installed on the new campaign, saved, or sent again.
     expect(processDay).toHaveBeenCalledTimes(1);
+    expect(store.getState().campaign).toBe(switched);
+    expect(
+      (global.fetch as jest.Mock).mock.calls.filter(
+        (call) => call[1]?.method === 'PUT',
+      ),
+    ).toHaveLength(0);
+    expect(host.sent).toHaveLength(1);
   });
 });
 
