@@ -31,7 +31,10 @@ import {
   splitPartners,
 } from '@/utils/construction/slotOperations/splitAllocation';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
-import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
+import {
+  HEAT_SINK_EQUIPMENT_IDS,
+  TARGETING_COMPUTER_IDS,
+} from '@/utils/equipment/equipmentConstants';
 import { createHeatSinkEquipmentList } from '@/utils/equipment/heatSinkEquipmentUtils';
 
 import type {
@@ -346,6 +349,13 @@ const criticalSlotEquipmentRows: ReadonlyMap<
   { readonly spellings: readonly string[]; readonly mountAs?: string }
 > = new Map(vocabulary.criticalSlotEquipment.map((row) => [row.id, row]));
 
+/** `mountAs` id -> the registry-stub id its native cells resolve to. */
+const stubIdByMountAs: ReadonlyMap<string, string> = new Map(
+  [...criticalSlotEquipmentRows].flatMap(([id, row]) =>
+    row.mountAs ? [[row.mountAs, id] as const] : [],
+  ),
+);
+
 /** Exact resolved id AND exact listed native spelling: a spelling the
  * resolver merely maps onto a row id (CLCASE -> IS case) is not admitted. */
 function isVocabularyEquipment(
@@ -607,6 +617,23 @@ export function recoverCriticalSlotEntries(
       });
       const count = criticalEntryCount(sized.criticalSlots, input.tonnage);
       if (count <= 0) return [];
+      // MtfFile.java:1076-1084 (48fcb2f64): one targeting computer per type per
+      // unit, and every cell of that type belongs to it. Recover it only when the
+      // unit's cells total the owner's criticals; the grouping below then needs
+      // all of them in this location (one mount; no cross-location TC).
+      if (TARGETING_COMPUTER_IDS.includes(sized.equipmentId)) {
+        const unitCells = (input.unitEntries ?? input.locationEntries).filter(
+          (cell) => cell.equipmentId === entry.equipmentId,
+        );
+        if (
+          input.equipment.some(
+            (item) => item.equipmentId === sized.equipmentId,
+          ) ||
+          unitCells.length !== count ||
+          unitCells.some((cell) => cell.represented || reserved.has(cell.slot))
+        )
+          return [];
+      }
       const matching = takeMatchingSlots(
         input.locationEntries.map((cell) => ({
           ...cell,
@@ -725,10 +752,13 @@ export function restoreCriticalSlotEquipmentWithDiagnostics(
     }
 
     const claimedAtLocation = claimedSlotsFor(claimed, item.location);
+    // A listed `mountAs` item (targeting computer) owns cells resolved to its stub.
+    const cellIdentity =
+      stubIdByMountAs.get(item.equipmentId) ?? item.equipmentId;
     const matching = takeMatchingSlots(
       resolvedByLocation.get(item.location) ?? [],
       claimedAtLocation,
-      item.equipmentId,
+      cellIdentity,
       item.criticalSlots,
       item.category === EquipmentCategory.AMMUNITION,
     );
@@ -739,7 +769,7 @@ export function restoreCriticalSlotEquipmentWithDiagnostics(
         const rest = takeMatchingSlots(
           resolvedByLocation.get(partner) ?? [],
           claimedAtPartner,
-          item.equipmentId,
+          cellIdentity,
           item.criticalSlots - matching.length,
           item.category === EquipmentCategory.AMMUNITION,
         );
@@ -824,6 +854,7 @@ export function restoreCriticalSlotEquipmentWithDiagnostics(
       locationEntries: cells.filter(
         (cell) => cell.location === current.location,
       ),
+      unitEntries: cells,
       physicalOnly,
       reservedSlots: claimed,
       sourceWeapon,

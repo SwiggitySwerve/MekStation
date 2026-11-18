@@ -13,6 +13,7 @@ import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerial
 
 import gustav from '../../../../../public/data/units/battlemechs/5-civil-war/standard/Schwerer Gustav Unknown.json';
 import temax from '../../../../../public/data/units/battlemechs/5-civil-war/standard/Temax Cat Ninjabolt TMC-NB.json';
+import aresZeus from '../../../../../public/data/units/battlemechs/6-dark-age/experimental/Ares ARS-V1 Zeus.json';
 import poseidon from '../../../../../public/data/units/battlemechs/6-dark-age/experimental/Poseidon PSD-V2.json';
 import triskelion from '../../../../../public/data/units/battlemechs/6-dark-age/experimental/Triskelion TRK-4V.json';
 import celerity from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Celerity CLR-03-O.json';
@@ -313,6 +314,116 @@ describe('exact identity, never substring', () => {
       criticalSlots: { LEFT_TORSO: [token] },
     }).cells;
     expect(cells.map((cell) => cell.kind)).toEqual([kind]);
+  });
+});
+
+// MtfFile.java:1076-1084 (48fcb2f64): a targeting computer is one mount per
+// type per unit; every TC cell attaches to it (hSharedEquip). PR-D1 recovers
+// it only when the unit's TC cells all sit in one location and their total
+// equals the owner's computed criticals; otherwise every cell stays in the
+// residual with its notice.
+describe('targeting computer: one per unit', () => {
+  const lookup = () => getEquipmentLookupService();
+  const placed = (id: string, location: MechLocation, slots: number[]) => {
+    const def = lookup().getById(id)!;
+    return {
+      ...def,
+      instanceId: `${id}@${location}`,
+      equipmentId: def.id,
+      location,
+      slots,
+      isRearMounted: false,
+      isRemovable: true,
+      isOmniPodMounted: false,
+      heat: 0,
+      linkedAmmoId: undefined,
+    };
+  };
+  const withOneMediumLaser = (cells: Record<string, string[]>) =>
+    restoreCriticalSlotEquipmentWithDiagnostics(
+      [{ id: 'medium-laser', slots: [0] }] as never,
+      [placed('medium-laser', L.RIGHT_ARM, [0])] as never,
+      IS.unitTechBase,
+      IS.unitTechBaseMode,
+      { RIGHT_ARM: ['ISMediumLaser'], ...cells },
+      50,
+    );
+  const tcs = (equipment: readonly { equipmentId: string }[]) =>
+    equipment.filter((e) => e.equipmentId === 'targeting-computer');
+
+  it('recovers no TC when the native cells exceed the computed criticals', () => {
+    const result = withOneMediumLaser({
+      LEFT_TORSO: Array(3).fill('ISTargeting Computer'),
+    });
+    expect(tcs(result.equipment)).toEqual([]);
+    expect(result.unrecoveredCriticalSlots.map((c) => c.slot)).toEqual([
+      0, 1, 2,
+    ]);
+  });
+
+  it('recovers no TC from cells in two locations and keeps both in the residual', () => {
+    const result = withOneMediumLaser({
+      LEFT_TORSO: ['ISTargeting Computer'],
+      RIGHT_TORSO: ['ISTargeting Computer'],
+    });
+    expect(tcs(result.equipment)).toEqual([]);
+    expect(
+      result.unrecoveredCriticalSlots.map((c) => [c.location, c.slot]),
+    ).toEqual([
+      [L.LEFT_TORSO, 0],
+      [L.RIGHT_TORSO, 0],
+    ]);
+  });
+
+  it('keeps a TC whose cells match the count but span two locations in the residual', () => {
+    const result = restoreCriticalSlotEquipmentWithDiagnostics(
+      [{ id: 'large-laser', slots: [0, 1] }] as never,
+      [placed('large-laser', L.RIGHT_ARM, [0, 1])] as never,
+      IS.unitTechBase,
+      IS.unitTechBaseMode,
+      {
+        RIGHT_ARM: ['ISLargeLaser', 'ISLargeLaser'],
+        LEFT_TORSO: ['ISTargeting Computer'],
+        RIGHT_TORSO: ['ISTargeting Computer'],
+      },
+      50,
+    );
+    expect(tcs(result.equipment)).toEqual([]);
+    expect(result.unrecoveredCriticalSlots).toHaveLength(2);
+  });
+
+  it('lets a listed TC without slots claim its native cells: one TC, empty residual', () => {
+    const listedTc = {
+      ...placed('targeting-computer', L.LEFT_TORSO, []),
+      slots: undefined,
+    };
+    const result = restoreCriticalSlotEquipmentWithDiagnostics(
+      [{ id: 'large-laser' }, { id: 'targeting-computer' }] as never,
+      [
+        { ...placed('large-laser', L.RIGHT_ARM, []), slots: undefined },
+        listedTc,
+      ] as never,
+      IS.unitTechBase,
+      IS.unitTechBaseMode,
+      {
+        RIGHT_ARM: ['ISLargeLaser', 'ISLargeLaser'],
+        LEFT_TORSO: ['ISTargeting Computer', 'ISTargeting Computer'],
+      },
+      50,
+    );
+    expect(
+      tcs(result.equipment).map((e) => [
+        (e as { location?: string }).location,
+        (e as { slots?: number[] }).slots,
+      ]),
+    ).toEqual([[L.LEFT_TORSO, [0, 1]]]);
+    expect(result.unrecoveredCriticalSlots).toEqual([]);
+  });
+
+  it('keeps the superheavy Ares ARS-V1 Zeus TC: one mount, 2 entries, 4 t', () => {
+    expectBoth(aresZeus, 'targeting-computer', [
+      mount(L.CENTER_TORSO, [9, 10], 4),
+    ]);
   });
 });
 

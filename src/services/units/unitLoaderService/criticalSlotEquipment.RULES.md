@@ -78,3 +78,11 @@ once to superheavy entries. An incomplete group, an unknown id, or a row whose
 owner yields no criticals stays in the unrecovered residual. Omni pod flags use
 the existing final token projection; rear flags come from the cells.
 `CASE II [IS]`/`ISCASEII` identity stays with `resolveEquipmentId` (#3303).
+
+A targeting computer is one mount per type per unit (`MtfFile.java:1076-1084`,
+`hSharedEquip`): it is recovered only when every cell of that type in the unit
+sits in one location and their total equals the owner's computed criticals,
+and never when the unit already holds that TC. A listed TC without slots claims
+the cells that resolve to its stub (the row's `mountAs`). Anything else, a
+count mismatch or cells across locations, stays in the residual with its
+notice.
