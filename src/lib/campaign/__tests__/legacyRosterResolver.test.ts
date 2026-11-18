@@ -247,3 +247,75 @@ describe('resolveLegacyBattleUnitManifest review round 4', () => {
     expect(result.unresolved['player-1-atlas-as7-d']?.reason).toBe('ambiguous');
   });
 });
+
+describe('resolveLegacyBattleUnitManifest closed rule (review round 5)', () => {
+  it('X1: a delta with a pilotRef whose pilot is on no roster unit is unresolved, even with one Atlas left in the force', () => {
+    // roster-b (pilot-p) fought; afterwards roster-b left the roster. The
+    // force record still lists it; pilotless roster-a is the only Atlas left.
+    const result = resolveLegacyBattleUnitManifest(
+      campaignWithTeam(['roster-a', 'roster-b']),
+      roster(['roster-a', 'atlas-as7-d']),
+      {
+        scenarioId: SCENARIO,
+        unitDeltas: [player('player-1-atlas-as7-d', 'atlas-as7-d', 'pilot-p')],
+      },
+    );
+    expect(result.manifest).toEqual({});
+  });
+
+  it('X2: with no force record a pilotless delta is unresolved, even with one Atlas on the roster', () => {
+    const result = resolveLegacyBattleUnitManifest(
+      { forces: new Map() as never },
+      roster(['roster-a', 'atlas-as7-d']),
+      {
+        scenarioId: null,
+        unitDeltas: [player('player-1-atlas-as7-d', 'atlas-as7-d')],
+      },
+    );
+    expect(result.manifest).toEqual({});
+  });
+
+  it('X3: a force record with no units is not evidence', () => {
+    const result = resolveLegacyBattleUnitManifest(
+      campaignWithTeam([]),
+      roster(['roster-a', 'atlas-as7-d']),
+      {
+        scenarioId: SCENARIO,
+        unitDeltas: [player('player-1-atlas-as7-d', 'atlas-as7-d')],
+      },
+    );
+    expect(result.manifest).toEqual({});
+  });
+
+  it('X4: a bridged encounter pointing at a deleted force is no force record, with no fallback', () => {
+    const result = resolveLegacyBattleUnitManifest(
+      {
+        ...campaignWithTeam(['roster-a', 'roster-b']),
+        bridgedEncounters: {
+          [SCENARIO]: { playerForce: { forceId: 'deleted-force' } },
+        } as never,
+      },
+      roster(['roster-a', 'atlas-as7-d']),
+      {
+        scenarioId: SCENARIO,
+        unitDeltas: [player('player-1-atlas-as7-d', 'atlas-as7-d')],
+      },
+    );
+    expect(result.manifest).toEqual({});
+  });
+
+  it('(A) a pilot on a unit of another design is not evidence', () => {
+    const result = resolveLegacyBattleUnitManifest(
+      campaignWithTeam(['roster-a', 'roster-l']),
+      roster(
+        ['roster-a', 'atlas-as7-d'],
+        ['roster-l', 'locust-lct-1v', 'pilot-p'],
+      ),
+      {
+        scenarioId: SCENARIO,
+        unitDeltas: [player('player-1-atlas-as7-d', 'atlas-as7-d', 'pilot-p')],
+      },
+    );
+    expect(result.manifest).toEqual({});
+  });
+});

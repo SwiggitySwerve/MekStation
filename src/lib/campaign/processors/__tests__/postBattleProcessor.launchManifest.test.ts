@@ -719,3 +719,43 @@ describe('postBattleProcessor legacy force evidence (review round 4)', () => {
     useCampaignRosterStore.setState({ units: [] });
   });
 });
+
+describe('postBattleProcessor closed legacy rule (review round 5)', () => {
+  it('X1 at apply: a pilot delta whose pilot is on no roster unit writes nothing, though one Atlas is left in the force', () => {
+    useCampaignRosterStore.setState({
+      units: [
+        { unitId: 'roster-a', unitName: 'Atlas A', unitRef: 'atlas-as7-d' },
+      ] as never,
+    });
+    const battle: ICombatOutcome = {
+      ...outcome([
+        delta(PLAYER_SESSION_ID, GameSide.Player, {
+          unitRef: 'atlas-as7-d',
+          pilotRef: 'pilot-p',
+        }),
+      ]),
+      scenarioId: 'scn-contract-1-3025-06-14-team-force-1',
+    };
+    const result = postBattleProcessor.process(
+      campaignWith({
+        pendingBattleOutcomes: [battle],
+        forces: new Map([
+          [
+            'team-force-1',
+            {
+              id: 'team-force-1',
+              name: 'Team One',
+              subForceIds: [],
+              unitIds: ['roster-a', 'roster-b'],
+            } as never,
+          ],
+        ]),
+      }),
+      new Date('3025-06-15T00:00:00Z'),
+    );
+    const applied = result.campaign as ICampaignWithBattleState;
+    expect(applied.processedBattleIds).toContain(MATCH);
+    expect(applied.unitCombatStates).toEqual({});
+    useCampaignRosterStore.setState({ units: [] });
+  });
+});

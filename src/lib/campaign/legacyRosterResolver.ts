@@ -1,38 +1,38 @@
 /**
  * The one owner of the LEGACY roster-unit match (T1): which roster unit a
- * battle's player unit was, when the battle has no launch manifest entry
- * for it. Used by the load-time migration of session-keyed combat states,
- * by the post-battle apply for battles queued or started before manifests
- * existed, and by the launch recorder for assignments with no roster link.
+ * battle's player unit was, when the battle has no launch-manifest entry
+ * for it. Used by launch-time completion of a manifest, by the post-battle
+ * apply for battles without one, and by the load-time migration of
+ * session-keyed combat states, all through `resolveLegacyBattleUnitManifest`.
  *
- * It never invents an attribution. For each player unit of the battle,
- * with `design` the unit's `unitRef`:
- *   - Pool: roster units of that design; when the mission's force record is
- *     known (`bridgedEncounters[scenarioId]`'s player force, or the team
- *     force whose id ends the scenario id, `scn-<contract>-<date>-<team>`
- *     per `scenarioGenerationProcessor.buildScenarioId`) and holds some of
- *     them, only those.
- *   - A design that fought more than once in this battle resolves only by
- *     each unit's `pilotRef` matching exactly one pool unit's pilot, and
- *     all of that design's units or none.
- *   - A design that fought once resolves to the single pool unit, unless a
- *     real `pilotRef` (not the session builder's `UNKNOWN_PILOT_REF`)
- *     conflicts: the unit now has another pilot, or that pilot is now
- *     linked to another roster unit (the force or roster changed since).
- *     With several pool units it resolves only by pilot.
- *   - Without a real `pilotRef`, a unit resolves only if the mission's force
- *     record (when known) lists no unit that has left the roster: a
- *     removed unit does not change the force record, so it may be the one
- *     that fought.
- *   - Two player units resolving to the same roster unit are both refused.
- * Slot order is never used.
+ * ONE closed rule. A unit maps to a roster unit only on positive evidence
+ * that identifies exactly one unit, with no contradicting evidence;
+ * otherwise it is unresolved. With `design` the unit's `unitRef` and the
+ * battle's force record being `bridgedEncounters[scenarioId]`'s player force
+ * or else the team force whose id ends the scenario id
+ * (`scn-<contract>-<date>-<team>`, `scenarioGenerationProcessor`):
  *
- * Known limit: for a delta with no `pilotRef`, a unit swapped WITHIN the
- * force after the battle (the force edited, every unit still on the
- * roster) is not detectable, and the force record as it is now is used.
- * Only outcomes recorded before `IUnitCombatDelta.pilotRef` was added
- * (2f3bd661e, 2026-07-10) lack a pilot; every later outcome carries the
- * session unit's pilot linkage.
+ * (A) The unit has a real `pilotRef` (not empty, not `UNKNOWN_PILOT_REF`).
+ *     The only evidence is that pilot: it is linked to exactly one roster
+ *     unit, that unit has the same design, and a known non-empty force
+ *     record does not contradict it by omitting that unit. Nothing else
+ *     (force, design) can stand in for or override a real pilot.
+ * (B) The unit has no real `pilotRef` (outcomes recorded before
+ *     `IUnitCombatDelta.pilotRef` was added, 2f3bd661e, 2026-07-10). Only
+ *     the force record, and only if ALL hold: it is known, exists and is
+ *     non-empty; every unit id it lists is still on the roster (a removed
+ *     unit leaves the force record untouched and may be the one that
+ *     fought); it holds exactly one unit of the design; and the design
+ *     fought exactly once in the battle.
+ *
+ * There is no roster-pool fallback: no force record and no pilot means
+ * unresolved. Around (A) and (B): a design that fought more than once is
+ * attributed all or none, and two units resolving to one roster unit are
+ * both refused. Slot order is never used.
+ *
+ * Known limit (B): a unit swapped WITHIN the force after the battle (the
+ * force edited, every unit still on the roster) is not detectable without
+ * a pilot, so the force record as it is now is used.
  */
 
 import type {
@@ -62,15 +62,16 @@ export type LegacyBattleUnit = Pick<
 >;
 
 export type LegacyUnresolvedReason =
-  /** No pool unit, or several and no pilot evidence picks one. */
+  /** No positive evidence identifies exactly one unit. */
   | 'ambiguous'
-  /** The only candidate's current pilot is not the pilot who fought. */
+  /** The pilot who fought points away from the unit the battle names. */
   | 'conflicting-pilot'
   /** Another unit of the same battle resolved to the same roster unit. */
   | 'double-claim';
 
 export interface ILegacyUnresolvedUnit {
   readonly reason: LegacyUnresolvedReason;
+  /** Roster units the player could check by hand (display only). */
   readonly candidates: readonly string[];
 }
 
@@ -94,77 +95,112 @@ type Match =
     }
   | ({ readonly kind: 'unresolved' } & ILegacyUnresolvedUnit);
 
+/** What the battle's force record says, if anything. */
+interface IForceRecordEvidence {
+  /** Unit ids the record lists (non-empty), or undefined when unusable. */
+  readonly members?: ReadonlySet<string>;
+  /** True when it lists a unit no longer on the roster. */
+  readonly listsRemovedUnit: boolean;
+}
+
 function designOf(unit: LegacyBattleUnit): string | undefined {
   return unit.unitRef ?? SESSION_UNIT_ID.exec(unit.unitId)?.[2];
 }
 
-function missionForce(
+function realPilotRef(unit: LegacyBattleUnit): string | undefined {
+  return unit.pilotRef && unit.pilotRef !== UNKNOWN_PILOT_REF
+    ? unit.pilotRef
+    : undefined;
+}
+
+/** The battle's force record: bridged force id first, never a fallback past it. */
+function forceRecord(
   campaign: LegacyCampaignView,
   scenarioId: string | null,
-): { readonly unitIds: readonly string[] } | undefined {
-  if (!scenarioId) return undefined;
+  rosterIds: ReadonlySet<string>,
+): IForceRecordEvidence {
+  if (!scenarioId) return { listsRemovedUnit: false };
   const bridgedForceId =
     campaign.bridgedEncounters?.[scenarioId]?.playerForce?.forceId;
-  if (bridgedForceId) return campaign.forces.get(bridgedForceId);
-  const encoded = [...campaign.forces.values()].filter((force) =>
-    scenarioId.endsWith(`-${force.id}`),
-  );
-  return encoded.length === 1 ? encoded[0] : undefined;
+  let force: { readonly unitIds: readonly string[] } | undefined;
+  if (bridgedForceId) {
+    force = campaign.forces.get(bridgedForceId);
+  } else {
+    const encoded = [...campaign.forces.values()].filter((candidate) =>
+      scenarioId.endsWith(`-${candidate.id}`),
+    );
+    force = encoded.length === 1 ? encoded[0] : undefined;
+  }
+  if (!force || force.unitIds.length === 0) return { listsRemovedUnit: false };
+  return {
+    members: new Set(force.unitIds),
+    listsRemovedUnit: force.unitIds.some((unitId) => !rosterIds.has(unitId)),
+  };
 }
 
 function matchUnit(
   unit: LegacyBattleUnit,
+  design: string,
   timesFought: number,
-  pool: readonly IRosterUnitProjection[],
-  fromForce: boolean,
   rosterUnits: readonly IRosterUnitProjection[],
-  forceListsRemovedUnit: boolean,
+  force: IForceRecordEvidence,
 ): Match {
-  const candidates = pool.map((rosterUnit) => rosterUnit.unitId);
-  const pilotRef =
-    unit.pilotRef && unit.pilotRef !== UNKNOWN_PILOT_REF
-      ? unit.pilotRef
-      : undefined;
-  // Without a pilot, a force record that still lists a unit no longer on
-  // the roster is incomplete evidence: the removed unit may be the one
-  // that fought.
-  if (!pilotRef && forceListsRemovedUnit) {
-    return { kind: 'unresolved', reason: 'ambiguous', candidates };
-  }
-  const byPilot = pilotRef
-    ? pool.filter((rosterUnit) => rosterUnit.pilotId === pilotRef)
+  const ofDesign = rosterUnits.filter(
+    (rosterUnit) => rosterUnit.unitRef === design,
+  );
+  const inForce = force.members
+    ? ofDesign.filter((rosterUnit) => force.members!.has(rosterUnit.unitId))
     : [];
-  if (timesFought === 1 && pool.length === 1) {
-    const only = pool[0];
-    // The pilot who fought is evidence against this unit when the unit now
-    // has another pilot, or that pilot is now linked to another roster unit.
-    const pilotNowElsewhere =
-      pilotRef !== undefined &&
-      rosterUnits.some(
-        (rosterUnit) =>
-          rosterUnit.pilotId === pilotRef && rosterUnit.unitId !== only.unitId,
+  const candidates = (inForce.length > 0 ? inForce : ofDesign).map(
+    (rosterUnit) => rosterUnit.unitId,
+  );
+  const unresolved = (reason: LegacyUnresolvedReason): Match => ({
+    kind: 'unresolved',
+    reason,
+    candidates,
+  });
+
+  const pilotRef = realPilotRef(unit);
+  if (pilotRef) {
+    // (A) the pilot is the only evidence.
+    const holders = rosterUnits.filter(
+      (rosterUnit) => rosterUnit.pilotId === pilotRef,
+    );
+    if (holders.length === 0) {
+      // The pilot is on no unit: nothing identifies the unit. A single
+      // candidate that now has another pilot is evidence against it.
+      return unresolved(
+        candidates.length === 1 &&
+          (inForce[0] ?? ofDesign[0])?.pilotId !== undefined
+          ? 'conflicting-pilot'
+          : 'ambiguous',
       );
-    if (
-      pilotRef &&
-      ((only.pilotId && only.pilotId !== pilotRef) || pilotNowElsewhere)
-    ) {
-      return { kind: 'unresolved', reason: 'conflicting-pilot', candidates };
     }
-    return {
-      kind: 'resolved',
-      rosterUnitId: only.unitId,
-      evidence: fromForce ? 'force' : 'design',
-    };
+    const holder = holders[0];
+    if (
+      holders.length > 1 ||
+      holder.unitRef !== design ||
+      (force.members !== undefined && !force.members.has(holder.unitId))
+    ) {
+      return unresolved('conflicting-pilot');
+    }
+    return { kind: 'resolved', rosterUnitId: holder.unitId, evidence: 'pilot' };
   }
-  // Fought more than once, or several pool units: only the pilot decides.
-  if (byPilot.length === 1) {
-    return {
-      kind: 'resolved',
-      rosterUnitId: byPilot[0].unitId,
-      evidence: 'pilot',
-    };
+
+  // (B) no pilot: the force record alone, only when it is complete.
+  if (
+    !force.members ||
+    force.listsRemovedUnit ||
+    timesFought !== 1 ||
+    inForce.length !== 1
+  ) {
+    return unresolved('ambiguous');
   }
-  return { kind: 'unresolved', reason: 'ambiguous', candidates };
+  return {
+    kind: 'resolved',
+    rosterUnitId: inForce[0].unitId,
+    evidence: 'force',
+  };
 }
 
 /**
@@ -187,49 +223,24 @@ export function resolveLegacyBattleUnitManifest(
     const design = designOf(unit);
     if (design) timesFought.set(design, (timesFought.get(design) ?? 0) + 1);
   }
-  const force = missionForce(campaign, battle.scenarioId);
-  const members = force ? new Set(force.unitIds) : undefined;
   const rosterIds = new Set(rosterUnits.map((rosterUnit) => rosterUnit.unitId));
-  const forceListsRemovedUnit = [...(members ?? [])].some(
-    (unitId) => !rosterIds.has(unitId),
-  );
+  const force = forceRecord(campaign, battle.scenarioId, rosterIds);
 
   const matches = players.map((unit) => {
     const design = designOf(unit);
-    if (!design) {
-      return {
-        unit,
-        design: undefined,
-        match: {
-          kind: 'unresolved',
-          reason: 'ambiguous',
-          candidates: [],
-        } as Match,
-      };
-    }
-    const ofDesign = rosterUnits.filter(
-      (rosterUnit) => rosterUnit.unitRef === design,
-    );
-    const inForce = members
-      ? ofDesign.filter((rosterUnit) => members.has(rosterUnit.unitId))
-      : [];
-    const fromForce = inForce.length > 0;
-    return {
-      unit,
-      design,
-      match: matchUnit(
-        unit,
-        timesFought.get(design) ?? 0,
-        fromForce ? inForce : ofDesign,
-        fromForce,
-        rosterUnits,
-        forceListsRemovedUnit,
-      ),
-    };
+    const match: Match = design
+      ? matchUnit(
+          unit,
+          design,
+          timesFought.get(design) ?? 0,
+          rosterUnits,
+          force,
+        )
+      : { kind: 'unresolved', reason: 'ambiguous', candidates: [] };
+    return { unit, design, match };
   });
 
-  // A design that fought more than once is attributed all or none: one
-  // unmatched unit of it leaves its siblings' matches unproven too.
+  // A design that fought more than once is attributed all or none.
   const designsWithGaps = new Set(
     matches.flatMap(({ design, match }) =>
       design &&
@@ -253,6 +264,7 @@ export function resolveLegacyBattleUnitManifest(
     }
   }
 
+  // Two units resolving to one roster unit are both refused.
   const claims = new Map<string, number>();
   for (const { match } of matches) {
     if (match.kind === 'resolved') {

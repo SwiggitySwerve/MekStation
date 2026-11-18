@@ -116,7 +116,9 @@ describe('migrateSessionKeyedCombatStates on a save from main 3dcb06123', () => 
             {
               matchId: campaign.recentlyAppliedOutcomes![0].matchId,
               rosterUnitId: ROSTER_ID,
-              evidence: 'force',
+              // The fixture delta carries the pilot who fought: under the
+              // closed rule a real pilotRef is the only evidence (A).
+              evidence: 'pilot',
             },
           ],
         },
@@ -344,7 +346,11 @@ describe('migrateSessionKeyedCombatStates leaves and flags what it cannot prove'
   });
 
   it('a roster unit that already has state is left and flagged', () => {
-    const outcome = syntheticOutcome('m-4', [syntheticDelta(PLAYER_KEY, 30)]);
+    // The delta's pilot is the evidence that names roster-a (closed rule
+    // (A)); a pilotless delta with no force record is never attributed.
+    const outcome = syntheticOutcome('m-4', [
+      syntheticDelta(PLAYER_KEY, 30, 'pilot-a'),
+    ]);
     const own = stateFrom(
       syntheticOutcome('m-new', [syntheticDelta('roster-a', 5)]),
     );
@@ -354,7 +360,7 @@ describe('migrateSessionKeyedCombatStates leaves and flags what it cannot prove'
     });
     const result = migrateSessionKeyedCombatStates({
       campaign,
-      rosterUnits: [rosterUnit('roster-a')],
+      rosterUnits: [rosterUnit('roster-a', 'pilot-a')],
       migratedAt: MIGRATED_AT,
     });
     expect(result?.campaign.unitCombatStates).toEqual({ 'roster-a': own });
