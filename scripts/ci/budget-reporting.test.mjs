@@ -137,7 +137,7 @@ test('canonical timing projection adds configured aggregates without inventing a
   assert.equal(after.criticalPathMs, 650000.5);
 });
 
-test('timing relaxations still require the owner label and current-head approval', () => {
+test('timing reporting-cap relaxations are report-only and report their delta (PARITY-PLAN §193.2)', () => {
   const next = configured();
   next.reporting.jobMinutes++;
   const args = {
@@ -150,19 +150,8 @@ test('timing relaxations still require the owner label and current-head approval
     },
     reviews: [],
   };
-  assert.equal(evaluateBudgetRaiseApproval(args).code, 'missing-label');
-  args.pullRequest.labels = [{ name: 'ci-budget-raise' }];
-  assert.equal(evaluateBudgetRaiseApproval(args).allowed, false);
-  args.reviews = [
-    {
-      id: 1,
-      user: args.repositoryOwner,
-      state: 'APPROVED',
-      commit_id: 'a'.repeat(40),
-      submitted_at: '2026-11-06T00:00:00Z',
-    },
-  ];
-  assert.equal(evaluateBudgetRaiseApproval(args).allowed, true);
-  args.reviews[0].commit_id = 'b'.repeat(40);
-  assert.equal(evaluateBudgetRaiseApproval(args).code, 'stale-approval');
+  const result = evaluateBudgetRaiseApproval(args);
+  assert.equal(result.allowed, true, result.message);
+  assert.equal(result.code, 'count-report-only');
+  assert.match(result.message, /reporting\.jobMinutes 60\.25->61\.25 \(\+1\)/);
 });
