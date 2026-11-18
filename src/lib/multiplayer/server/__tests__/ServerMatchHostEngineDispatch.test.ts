@@ -1,5 +1,6 @@
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import { LockState, GameSide, MovementType } from '@/types/gameplay';
 import { createGameSession } from '@/utils/gameplay/gameSession';
 
@@ -177,7 +178,7 @@ describe('dispatchToEngine', () => {
 });
 
 it('refuses a committed physical actor before dispatch', () => {
-  const state = createGameSession(
+  let state = createGameSession(
     { mapRadius: 7, turnLimit: 5, victoryConditions: [], optionalRules: [] },
     [
       {
@@ -191,10 +192,10 @@ it('refuses a committed physical actor before dispatch', () => {
       },
     ],
   );
-  state.currentState.units['player-1'] = {
+  state = withUnitState(state, 'player-1', {
     ...state.currentState.units['player-1'],
     lockState: LockState.Locked,
-  };
+  });
   const applyPhysicalAttack = jest.fn();
   const session = {
     getSession: () => state,

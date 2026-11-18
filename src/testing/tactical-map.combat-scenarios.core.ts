@@ -42,6 +42,21 @@ function tacticalMapGameUnits(
   }));
 }
 
+export function overlayUnitStates(
+  units: IGameState['units'],
+  overrides: IGameState['units'],
+): IGameState['units'] {
+  return {
+    ...units,
+    ...Object.fromEntries(
+      Object.entries(overrides).map(([unitId, unitState]) => [
+        unitId,
+        { ...units[unitId], ...unitState },
+      ]),
+    ),
+  };
+}
+
 export function tacticalMapCombatSession({
   tokens = tacticalMapTokens,
   combatState = tacticalMapCombatState,
@@ -63,21 +78,16 @@ export function tacticalMapCombatSession({
   session = advancePhase(session);
   session = advancePhase(session);
 
-  for (const [unitId, unitState] of Object.entries(combatState.units)) {
-    session.currentState.units[unitId] = {
-      ...session.currentState.units[unitId],
-      ...unitState,
-    };
-  }
-  session = {
+  // A new state, never an edit of the folded one: the overlay is no event's
+  // fold, so the first append refolds from the log and drops it, as before.
+  return {
     ...session,
     currentState: {
       ...session.currentState,
+      units: overlayUnitStates(session.currentState.units, combatState.units),
       ...(combatState.c3State ? { c3State: combatState.c3State } : {}),
     },
   };
-
-  return session;
 }
 
 function weaponStatusToCommitWeapon(status: IWeaponStatus): IWeapon {

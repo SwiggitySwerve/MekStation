@@ -42,7 +42,11 @@ import {
   dispatchVibroClawAttack,
   type VibroClawDispatchResult,
 } from '@/utils/gameplay/battlearmor/vibroClawDispatch';
-import { createGameSession, startGame } from '@/utils/gameplay/gameSession';
+import {
+  createGameSession,
+  dropStaleFoldStamp,
+  startGame,
+} from '@/utils/gameplay/gameSession';
 
 import type { IVolleyGroup } from './InteractiveSession.actions';
 import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.runtime';
@@ -271,7 +275,7 @@ export class InteractiveSession {
       getSession: () => this.session,
       setSession: (session) => {
         const previousSession = this.session;
-        this.session = session;
+        this.session = dropStaleFoldStamp(session);
         if (!this.suppressOutcomePublication)
           persistNewInteractiveSessionEvents(
             this.runtimeContext,

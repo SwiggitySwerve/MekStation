@@ -9,6 +9,7 @@ import type {
   IWeaponStatus,
 } from '@/types/gameplay';
 
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import {
   buildWeaponLookupFromCatalogFiles,
   hydrateAIWeaponsFromFullUnit,
@@ -459,18 +460,18 @@ function setupSessionAtWeaponAttack(): IGameSession {
   session = rollInitiative(session);
   session = advancePhase(session);
   session = advancePhase(session);
-  session.currentState.units.a1 = {
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     position: { q: 0, r: 0 },
     facing: Facing.Southeast,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 2, r: 0 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
-  };
+  });
 
   return session;
 }
@@ -489,18 +490,18 @@ function setupVehicleAttackerSessionAtWeaponAttack(): IGameSession {
   session = rollInitiative(session);
   session = advancePhase(session);
   session = advancePhase(session);
-  session.currentState.units.a1 = {
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     position: { q: 0, r: 0 },
     facing: Facing.Southeast,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 2, r: 0 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
-  };
+  });
   return session;
 }
 
@@ -518,24 +519,24 @@ function setupC3SessionAtWeaponAttack(): IGameSession {
   session = rollInitiative(session);
   session = advancePhase(session);
   session = advancePhase(session);
-  session.currentState.units.a1 = {
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     position: { q: 0, r: 0 },
     facing: Facing.Southeast,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 6, r: 0 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.s1 = {
+  });
+  session = withUnitState(session, 's1', {
     ...session.currentState.units.s1,
     position: { q: 5, r: -1 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
-  };
+  });
 
   const c3Network = createC3MasterSlaveNetwork('test-c3-network', [
     createC3Unit({
@@ -578,18 +579,18 @@ function setupVehicleTargetSessionAtWeaponAttack(): IGameSession {
   session = rollInitiative(session);
   session = advancePhase(session);
   session = advancePhase(session);
-  session.currentState.units.a1 = {
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     position: { q: 0, r: 0 },
     facing: Facing.Southeast,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 2, r: 0 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
-  };
+  });
 
   return session;
 }
@@ -608,24 +609,24 @@ function setupStackedVehicleTargetSessionAtWeaponAttack(): IGameSession {
   session = rollInitiative(session);
   session = advancePhase(session);
   session = advancePhase(session);
-  session.currentState.units.a1 = {
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     position: { q: 0, r: 0 },
     facing: Facing.Southeast,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 2, r: 0 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.v1 = {
+  });
+  session = withUnitState(session, 'v1', {
     ...session.currentState.units.v1,
     position: { q: 2, r: 0 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
-  };
+  });
 
   return session;
 }
@@ -644,25 +645,25 @@ function setupWreckSessionAtWeaponAttack(): IGameSession {
   session = rollInitiative(session);
   session = advancePhase(session);
   session = advancePhase(session);
-  session.currentState.units.a1 = {
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     position: { q: 0, r: 0 },
     facing: Facing.Southeast,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 2, r: 0 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.w1 = {
+  });
+  session = withUnitState(session, 'w1', {
     ...session.currentState.units.w1,
     position: { q: 1, r: 0 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
     destroyed: true,
-  };
+  });
 
   return session;
 }
@@ -681,24 +682,24 @@ function setupIndirectSessionAtWeaponAttack(): IGameSession {
   session = rollInitiative(session);
   session = advancePhase(session);
   session = advancePhase(session);
-  session.currentState.units.a1 = {
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     position: { q: 0, r: 0 },
     facing: Facing.Southeast,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 5, r: 0 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.s1 = {
+  });
+  session = withUnitState(session, 's1', {
     ...session.currentState.units.s1,
     position: { q: 5, r: 1 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
-  };
+  });
 
   return session;
 }
@@ -717,18 +718,18 @@ function setupIndirectNoSpotterSessionAtWeaponAttack(): IGameSession {
   session = rollInitiative(session);
   session = advancePhase(session);
   session = advancePhase(session);
-  session.currentState.units.a1 = {
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     position: { q: 0, r: 0 },
     facing: Facing.Southeast,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 5, r: 0 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
-  };
+  });
 
   return session;
 }
@@ -747,31 +748,31 @@ function setupIndirectWreckSessionAtWeaponAttack(): IGameSession {
   session = rollInitiative(session);
   session = advancePhase(session);
   session = advancePhase(session);
-  session.currentState.units.a1 = {
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     position: { q: 0, r: 0 },
     facing: Facing.Southeast,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 5, r: 0 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.s1 = {
+  });
+  session = withUnitState(session, 's1', {
     ...session.currentState.units.s1,
     position: { q: 5, r: 1 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
-  };
-  session.currentState.units.w1 = {
+  });
+  session = withUnitState(session, 'w1', {
     ...session.currentState.units.w1,
     position: { q: 3, r: 0 },
     facing: Facing.North,
     movementThisTurn: MovementType.Stationary,
     destroyed: true,
-  };
+  });
 
   return session;
 }
@@ -1446,11 +1447,11 @@ it('keeps equal-height building LOS clear between preview and committed attacks'
 });
 
 it('keeps hull-down target cover aligned between preview and committed attacks', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.t1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     hullDown: true,
-  };
+  });
   const grid = makeLowBuildingGrid();
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -1510,11 +1511,11 @@ it('keeps hull-down target cover aligned between preview and committed attacks',
 });
 
 it('keeps hull-down attacker leg-weapon blocks aligned between preview and committed attacks', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     hullDown: true,
-  };
+  });
   const grid = makeClearGrid(3);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -1588,11 +1589,11 @@ it('keeps hull-down attacker leg-weapon blocks aligned between preview and commi
 });
 
 it('keeps hull-down vehicle front-weapon blocks aligned between preview and committed attacks', () => {
-  const session = setupVehicleAttackerSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupVehicleAttackerSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     hullDown: true,
-  };
+  });
   const grid = makeClearGrid(3);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -1668,11 +1669,11 @@ it('keeps hull-down vehicle front-weapon blocks aligned between preview and comm
 });
 
 it('keeps hull-down vehicle front-mounted indirect fire available', () => {
-  const session = setupVehicleAttackerSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupVehicleAttackerSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     hullDown: true,
-  };
+  });
   const grid = makeClearGrid(3);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -1869,11 +1870,11 @@ it('rejects defender AMS selections outside the incoming attack arc before commi
 });
 
 it('rejects already-fired standard AMS defender selections before commit', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.t1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     weaponsFiredThisTurn: ['laser-ams-0'],
-  };
+  });
   const grid = makeClearGrid(3);
 
   const result = applyInteractiveSessionAttack({
@@ -2649,15 +2650,15 @@ it('keeps represented torpedo attacks legal only when the full line stays in wat
 });
 
 it('keeps mixed weapon arc range brackets aligned between preview and committed attacks', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     facing: Facing.North,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 0, r: 3 },
-  };
+  });
   const grid = makeClearGrid(3);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -2744,15 +2745,15 @@ it('keeps mixed weapon arc range brackets aligned between preview and committed 
 });
 
 it('keeps selected-weapon arc rejection aligned between preview and committed attacks', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     facing: Facing.North,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 0, r: 3 },
-  };
+  });
   const grid = makeClearGrid(3);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -2815,15 +2816,15 @@ it('keeps selected-weapon arc rejection aligned between preview and committed at
 });
 
 it('keeps represented multi-arc weapon mounts aligned between preview and committed attacks', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     facing: Facing.North,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: -1, r: 1 },
-  };
+  });
   const grid = makeClearGrid(3);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -2906,15 +2907,15 @@ it('keeps hydrated arm-mounted weapon side-arc coverage aligned between preview 
   expect(hydrated).toHaveLength(1);
   const [armLaser] = hydrated;
 
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     facing: Facing.North,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: -1, r: 1 },
-  };
+  });
   const grid = makeClearGrid(3);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -3064,15 +3065,15 @@ it('uses C3 spotter range brackets in preview and committed attacks', () => {
 });
 
 it('keeps prone attacker and target to-hit modifiers aligned between preview and committed attacks', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     prone: true,
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     prone: true,
-  };
+  });
   const grid = makeIndirectFireWreckGrid();
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -3151,11 +3152,11 @@ it('keeps prone attacker and target to-hit modifiers aligned between preview and
 });
 
 it('keeps shutdown target immobile modifiers aligned between preview and committed attacks', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.t1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     shutdown: true,
-  };
+  });
   const grid = makeIndirectFireWreckGrid();
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -3224,11 +3225,11 @@ it('keeps shutdown target immobile modifiers aligned between preview and committ
 });
 
 it('keeps minimum-range preview penalties aligned with committed to-hit modifiers', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.t1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 3, r: 0 },
-  };
+  });
   const grid = makeIndirectFireWreckGrid();
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -3309,11 +3310,11 @@ it('applies the +1 minimum-range penalty at exactly minimum range in both previe
   // projection previously used a strict `minimum > distance` comparison,
   // so the previewed (and stamped) to-hit silently dropped the +1 the
   // engine's own calculator produces.
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.t1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 6, r: 0 },
-  };
+  });
   const grid = makeClearGrid(8);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -3395,11 +3396,11 @@ it('keeps evading attackers blocked in both preview and committed attacks', () =
   // (declareAttack -> invalidateEvadingAttackerAttack). The projection must
   // refuse the same hexes with the same reason/details instead of
   // previewing an attack the engine will refuse.
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     isEvading: true,
-  };
+  });
   const grid = makeClearGrid(3);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -3461,11 +3462,11 @@ it('keeps evading attackers blocked in both preview and committed attacks', () =
 it('keeps sprinting attackers blocked in both preview and committed attacks', () => {
   // Audit B-2 (W1.2): same agreement contract as the evading gate —
   // declareAttack -> invalidateSprintingAttackerAttack on the engine side.
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     sprintedThisTurn: true,
-  };
+  });
   const grid = makeClearGrid(3);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -3525,11 +3526,11 @@ it('keeps sprinting attackers blocked in both preview and committed attacks', ()
 });
 
 it('keeps extreme-range preview brackets aligned with committed attacks', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.t1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 8, r: 0 },
-  };
+  });
   const grid = makeClearGrid(8);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -3603,15 +3604,15 @@ it('keeps extreme-range preview brackets aligned with committed attacks', () => 
 });
 
 it('keeps airborne aerospace targets exempt from minimum-range preview and committed to-hit modifiers', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.t1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 3, r: 0 },
     combatState: {
       kind: 'aero',
       state: makeAerospaceCombatState(3),
     },
-  };
+  });
   const grid = makeIndirectFireWreckGrid();
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -3844,11 +3845,11 @@ it('keeps LOS-blocked indirect-fire preview aligned with a committed spotter att
 });
 
 it('keeps run-moved indirect-fire spotter ineligibility aligned between preview and commit', () => {
-  const session = setupIndirectSessionAtWeaponAttack();
-  session.currentState.units.s1 = {
+  let session = setupIndirectSessionAtWeaponAttack();
+  session = withUnitState(session, 's1', {
     ...session.currentState.units.s1,
     movementThisTurn: MovementType.Run,
-  };
+  });
   const grid = makeIndirectFireGrid();
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -4023,11 +4024,11 @@ it.each([
 );
 
 it('keeps LOS-blocked semi-guided TAG preview aligned with a committed no-spotter attack', () => {
-  const session = setupIndirectNoSpotterSessionAtWeaponAttack();
-  session.currentState.units.t1 = {
+  let session = setupIndirectNoSpotterSessionAtWeaponAttack();
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     tagDesignated: true,
-  };
+  });
   const grid = makeIndirectFireGrid();
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -4104,13 +4105,13 @@ it('keeps LOS-blocked semi-guided TAG preview aligned with a committed no-spotte
 });
 
 it('keeps moving-target semi-guided TAG to-hit anchored to an independent engine recomputation', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.t1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     movementThisTurn: MovementType.Walk,
     hexesMovedThisTurn: 5,
     tagDesignated: true,
-  };
+  });
   const grid = makeClearGrid(3);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -4255,14 +4256,14 @@ it.each([
 );
 
 it('keeps airborne attacker indirect-fire rejection aligned with committed LOS rejection', () => {
-  const session = setupIndirectSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupIndirectSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     combatState: {
       kind: 'aero',
       state: makeAerospaceCombatState(3),
     },
-  };
+  });
   const grid = makeIndirectFireGrid();
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -4340,14 +4341,14 @@ it('keeps airborne attacker indirect-fire rejection aligned with committed LOS r
 });
 
 it('keeps airborne aerospace spotter ineligibility aligned between preview and commit', () => {
-  const session = setupIndirectSessionAtWeaponAttack();
-  session.currentState.units.s1 = {
+  let session = setupIndirectSessionAtWeaponAttack();
+  session = withUnitState(session, 's1', {
     ...session.currentState.units.s1,
     combatState: {
       kind: 'aero',
       state: makeAerospaceCombatState(3),
     },
-  };
+  });
   const grid = makeIndirectFireGrid();
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -4512,15 +4513,15 @@ it('does not switch to indirect fire solely because a destroyed marker sits betw
 // ---------------------------------------------------------------------------
 
 it('keeps attacker sensor hits and pilot wounds aligned between preview and committed attacks', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     pilotWounds: 1,
     componentDamage: {
       ...buildDefaultComponentDamageState(),
       sensorHits: 2,
     },
-  };
+  });
   const grid = makeClearGrid(3);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -4592,14 +4593,14 @@ it('keeps attacker sensor hits and pilot wounds aligned between preview and comm
 });
 
 it('keeps attacker arm actuator damage aligned between preview and committed attacks', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     componentDamage: {
       ...buildDefaultComponentDamageState(),
       actuators: { [ActuatorType.SHOULDER]: true },
     },
-  };
+  });
   const grid = makeClearGrid(3);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -4667,12 +4668,12 @@ it('keeps attacker arm actuator damage aligned between preview and committed att
 });
 
 it('keeps target evasion bonus aligned between preview and committed attacks', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.t1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     isEvading: true,
     evasionBonus: 2,
-  };
+  });
   const grid = makeClearGrid(3);
   const attackerToken = makeToken({
     unitId: 'a1',
@@ -4739,17 +4740,17 @@ it('keeps target evasion bonus aligned between preview and committed attacks', (
 });
 
 it('keeps attacker gunnery SPA and weapon quirk modifiers aligned between preview and committed attacks', () => {
-  const session = setupSessionAtWeaponAttack();
-  session.currentState.units.a1 = {
+  let session = setupSessionAtWeaponAttack();
+  session = withUnitState(session, 'a1', {
     ...session.currentState.units.a1,
     // Sniper halves the positive range modifier; Accurate weapon quirk -1.
     abilities: ['sniper'],
     weaponQuirks: { 'medium-laser': ['accurate'] },
-  };
-  session.currentState.units.t1 = {
+  });
+  session = withUnitState(session, 't1', {
     ...session.currentState.units.t1,
     position: { q: 4, r: 0 },
-  };
+  });
   const grid = makeClearGrid(4);
   const attackerToken = makeToken({
     unitId: 'a1',

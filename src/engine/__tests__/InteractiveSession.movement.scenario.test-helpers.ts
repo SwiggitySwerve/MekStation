@@ -4,6 +4,7 @@ import type {
   IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
 
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import {
   buildMovementPlan,
   mergeRunMovementRangeHexes,
@@ -99,17 +100,17 @@ function setupSessionAtMovement(
   );
   session = startGame(session, GameSide.Player);
   session = advancePhase(session);
-  session.currentState.units.m1 = {
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     position: { q: 0, r: 0 },
     facing: initialFacing,
     heat: 0,
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 1, r: 0 },
     facing: Facing.South,
-  };
+  });
   return session;
 }
 
@@ -288,15 +289,15 @@ it('rejects a second movement declaration after the unit is locked', () => {
 });
 
 it('keeps shutdown movement preview and commit validation aligned', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     shutdown: true,
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 3 });
 
@@ -348,11 +349,11 @@ it('keeps shutdown movement preview and commit validation aligned', () => {
 });
 
 it('keeps movement preview and commit validation aligned for encoded terrain blockers', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set(
     '1,0',
@@ -419,11 +420,11 @@ it('keeps movement preview and commit validation aligned for encoded terrain blo
 });
 
 it('keeps walking water entry legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('1,0', makeHex(1, 0, TerrainType.Water));
   const movementByUnit = capability({
@@ -481,17 +482,17 @@ it('keeps walking water entry legal between preview and commit validation', () =
 
 it('keeps Playtest2 deep-water MP aligned between preview and commit validation', () => {
   const baseSession = setupSessionAtMovement({ facing: Facing.Southeast });
-  const session: IGameSession = {
+  let session: IGameSession = {
     ...baseSession,
     config: {
       ...baseSession.config,
       optionalRules: ['playtest_2'],
     },
   };
-  session.currentState.units.blocker = {
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set(
     '1,0',
@@ -558,17 +559,17 @@ it('keeps Playtest2 deep-water MP aligned between preview and commit validation'
 
 it('keeps Playtest2 Mek-style run into water aligned after the first step', () => {
   const baseSession = setupSessionAtMovement({ facing: Facing.Southeast });
-  const session: IGameSession = {
+  let session: IGameSession = {
     ...baseSession,
     config: {
       ...baseSession.config,
       optionalRules: ['playtest_2'],
     },
   };
-  session.currentState.units.blocker = {
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('1,0', makeHex(1, 0));
   grid.hexes.set(
@@ -641,11 +642,11 @@ it('keeps Playtest2 Mek-style run into water aligned after the first step', () =
 });
 
 it('keeps UMU deep-water movement legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set(
     '1,0',
@@ -712,11 +713,11 @@ it('keeps UMU deep-water movement legal between preview and commit validation', 
 });
 
 it('keeps Mek swim elevation movement legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set(
     '0,0',
@@ -791,11 +792,11 @@ it('keeps Mek swim elevation movement legal between preview and commit validatio
 });
 
 it('keeps tracked ice-covered water movement legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set(
     '1,0',
@@ -866,11 +867,11 @@ it('keeps tracked ice-covered water movement legal between preview and commit va
 });
 
 it('keeps tracked bridge-covered water movement legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set(
     '1,0',
@@ -938,11 +939,11 @@ it('keeps tracked bridge-covered water movement legal between preview and commit
 });
 
 it('keeps tracked paved-road water movement legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set(
     '1,0',
@@ -1012,11 +1013,11 @@ it('keeps tracked paved-road water movement legal between preview and commit val
 it.each([3, 4] as const)(
   'keeps tracked road level %i water blocked between preview and commit validation',
   (roadLevel) => {
-    const session = setupSessionAtMovement();
-    session.currentState.units.blocker = {
+    let session = setupSessionAtMovement();
+    session = withUnitState(session, 'blocker', {
       ...session.currentState.units.blocker,
       position: { q: 5, r: 0 },
-    };
+    });
     const grid = makeGrid();
     grid.hexes.set(
       '1,0',
@@ -1087,11 +1088,11 @@ it.each([3, 4] as const)(
 );
 
 it('keeps tracked paved-road bonus movement legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   for (const q of [1, 2, 3]) {
     grid.hexes.set(
@@ -1163,17 +1164,17 @@ it('keeps tracked paved-road bonus movement legal between preview and commit val
 
 it('keeps TacOps infantry pavement bonus aligned between preview and commit', () => {
   const baseSession = setupSessionAtMovement({ facing: Facing.Southeast });
-  const session: IGameSession = {
+  let session: IGameSession = {
     ...baseSession,
     config: {
       ...baseSession.config,
       optionalRules: ['tacops_inf_pave_bonus'],
     },
   };
-  session.currentState.units.blocker = {
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   for (const q of [1, 2, 3]) {
     grid.hexes.set(
@@ -1242,11 +1243,11 @@ it('keeps TacOps infantry pavement bonus aligned between preview and commit', ()
 });
 
 it('keeps naval low-bridge clearance blocked between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('0,0', makeHex(0, 0, TerrainType.Water));
   grid.hexes.set(
@@ -1315,11 +1316,11 @@ it('keeps naval low-bridge clearance blocked between preview and commit validati
 });
 
 it('keeps represented naval unit-height bridge clearance blocked between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('0,0', makeHex(0, 0, TerrainType.Water));
   grid.hexes.set(
@@ -1388,15 +1389,15 @@ it('keeps represented naval unit-height bridge clearance blocked between preview
 });
 
 it('keeps runtime unit-height bridge clearance aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
-  session.currentState.units.m1 = {
+  });
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     unitHeight: 1,
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('0,0', makeHex(0, 0, TerrainType.Water));
   grid.hexes.set(
@@ -1465,11 +1466,11 @@ it('keeps runtime unit-height bridge clearance aligned between preview and commi
 });
 
 it('keeps flotation-hull tracked water movement aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set(
     '1,0',
@@ -1535,11 +1536,11 @@ it('keeps flotation-hull tracked water movement aligned between preview and comm
 });
 
 it('keeps Frogman deep-water movement cost aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set(
     '1,0',
@@ -1605,11 +1606,11 @@ it('keeps Frogman deep-water movement cost aligned between preview and commit va
 });
 
 it('keeps flotation-hull tracked first-step run into water aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set(
     '1,0',
@@ -1675,11 +1676,11 @@ it('keeps flotation-hull tracked first-step run into water aligned between previ
 });
 
 it('rejects flotation-hull tracked run into water after the first step in preview and commit validation', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('1,0', makeHex(1, 0, TerrainType.Clear));
   grid.hexes.set(
@@ -1747,11 +1748,11 @@ it('rejects flotation-hull tracked run into water after the first step in previe
 });
 
 it('commits a run-overlay walk fallback as walking when water blocks running', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('1,0', makeHex(1, 0, TerrainType.Clear));
   grid.hexes.set(
@@ -1832,11 +1833,11 @@ it('commits a run-overlay walk fallback as walking when water blocks running', (
 });
 
 it('keeps fully amphibious tracked run into water aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set(
     '1,0',
@@ -1902,11 +1903,11 @@ it('keeps fully amphibious tracked run into water aligned between preview and co
 });
 
 it('keeps hover preview and commit validation aligned when crossing encoded water', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set(
     '1,0',
@@ -1974,11 +1975,11 @@ it('keeps hover preview and commit validation aligned when crossing encoded wate
 });
 
 it('keeps naval preview and commit validation aligned when leaving water is blocked', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('0,0', makeHex(0, 0, TerrainType.Water));
   grid.hexes.set('1,0', makeHex(1, 0, TerrainType.Clear));
@@ -2036,11 +2037,11 @@ it('keeps naval preview and commit validation aligned when leaving water is bloc
 });
 
 it('keeps VTOL preview and commit validation aligned for abrupt elevation changes', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('1,0', makeHex(1, 0, TerrainType.Clear, 4));
   const movementByUnit = capability({
@@ -2097,11 +2098,11 @@ it('keeps VTOL preview and commit validation aligned for abrupt elevation change
 });
 
 it('keeps Battle Armor VTOL movement aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('1,0', makeHex(1, 0, TerrainType.Clear, 4));
   const movementByUnit = capability({
@@ -2162,11 +2163,11 @@ it('keeps Battle Armor VTOL movement aligned between preview and commit validati
 });
 
 it('keeps ProtoMech explicit run MP aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: -5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const destination = { q: 5, r: 0 };
   const movementByUnit = capability({
@@ -2243,11 +2244,11 @@ it('keeps ProtoMech explicit run MP aligned between preview and commit validatio
 });
 
 it('keeps tracked vehicle elevation limits aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('1,0', makeHex(1, 0, TerrainType.Clear, 2));
   const movementByUnit = capability({
@@ -2305,11 +2306,11 @@ it('keeps tracked vehicle elevation limits aligned between preview and commit va
 });
 
 it('keeps downhill elevation costs aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('0,0', makeHex(0, 0, TerrainType.Clear, 2));
   grid.hexes.set('1,0', makeHex(1, 0, TerrainType.Clear, 0));
@@ -2358,11 +2359,11 @@ it('keeps downhill elevation costs aligned between preview and commit validation
 });
 
 it('keeps over-limit downhill elevation rejection aligned with commit validation', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('0,0', makeHex(0, 0, TerrainType.Clear, 3));
   grid.hexes.set('1,0', makeHex(1, 0, TerrainType.Clear, 0));
@@ -2418,11 +2419,11 @@ it('keeps over-limit downhill elevation rejection aligned with commit validation
 });
 
 it('keeps jump preview and commit validation aligned for off-map landings', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: -1, r: 0 },
-  };
+  });
   const grid = createHexGrid({ radius: 1 });
   const movementByUnit = capability({
     walkMP: 2,
@@ -2478,11 +2479,11 @@ it('keeps jump preview and commit validation aligned for off-map landings', () =
 });
 
 it('keeps jump preview and commit validation aligned for too-high landings', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: -1, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('1,0', makeHex(1, 0, TerrainType.Clear, 3));
   const movementByUnit = capability({
@@ -2539,11 +2540,11 @@ it('keeps jump preview and commit validation aligned for too-high landings', () 
 });
 
 it('keeps jump preview and commit validation aligned for blocked jump clearance', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: -1, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set(
     '1,0',
@@ -2613,15 +2614,15 @@ it('keeps jump preview and commit validation aligned for blocked jump clearance'
 // behavior where heat 25 (penalty 5) zeroed a jump-2 capability. The
 // hover preview and commit validation must now AGREE the jump is legal.
 it('keeps overheated jump hover and commit validation aligned (jump MP heat-immune)', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     heat: 25,
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({
     walkMP: 4,
@@ -2668,15 +2669,15 @@ it('keeps overheated jump hover and commit validation aligned (jump MP heat-immu
 });
 
 it('keeps prone stand-up movement preview, commit cost, and unit state aligned', () => {
-  const session = setupSessionAtMovement({ facing: Facing.South });
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement({ facing: Facing.South });
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 3 });
 
@@ -2747,12 +2748,12 @@ it('keeps prone stand-up movement preview, commit cost, and unit state aligned',
 });
 
 it('keeps hull-down GET_UP posture exit preview cost and commit state aligned', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     hullDown: true,
     prone: false,
-  };
+  });
 
   const result = applyInteractiveSessionMovement({
     session,
@@ -2789,12 +2790,12 @@ it('keeps hull-down GET_UP posture exit preview cost and commit state aligned', 
 });
 
 it('commits standing HULL_DOWN as a same-hex 2 MP posture action', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     hullDown: false,
     prone: false,
-  };
+  });
 
   const result = applyInteractiveSessionMovement({
     session,
@@ -2840,8 +2841,8 @@ it('commits standing HULL_DOWN as a same-hex 2 MP posture action', () => {
 });
 
 it('commits prone HULL_DOWN with actuator and hip MP costs', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     hullDown: false,
     prone: true,
@@ -2860,7 +2861,7 @@ it('commits prone HULL_DOWN with actuator and hip MP costs', () => {
       heatSinksDestroyed: 0,
       jumpJetsDestroyed: 0,
     },
-  };
+  });
 
   const result = applyInteractiveSessionMovement({
     session,
@@ -2903,13 +2904,13 @@ it('commits prone HULL_DOWN with actuator and hip MP costs', () => {
 });
 
 it('rejects prone HULL_DOWN when a required support location is destroyed', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     hullDown: false,
     prone: true,
     destroyedLocations: ['left_leg'],
-  };
+  });
 
   const result = applyInteractiveSessionMovement({
     session,
@@ -2941,12 +2942,12 @@ it('rejects prone HULL_DOWN when a required support location is destroyed', () =
 });
 
 it('rejects HULL_DOWN entry for non-Mek-style movement profiles', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     hullDown: false,
     prone: false,
-  };
+  });
 
   const result = applyInteractiveSessionMovement({
     session,
@@ -2986,8 +2987,8 @@ it('rejects HULL_DOWN entry for non-Mek-style movement profiles', () => {
 });
 
 it('rejects HULL_DOWN entry with a destroyed gyro', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     hullDown: false,
     prone: false,
@@ -3002,7 +3003,7 @@ it('rejects HULL_DOWN entry with a destroyed gyro', () => {
       heatSinksDestroyed: 0,
       jumpJetsDestroyed: 0,
     },
-  };
+  });
 
   const result = applyInteractiveSessionMovement({
     session,
@@ -3029,12 +3030,12 @@ it('rejects HULL_DOWN entry with a destroyed gyro', () => {
 });
 
 it('commits hull-down GO_PRONE as a same-hex 0 MP posture action', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     hullDown: true,
     prone: false,
-  };
+  });
 
   const result = applyInteractiveSessionMovement({
     session,
@@ -3080,12 +3081,12 @@ it('commits hull-down GO_PRONE as a same-hex 0 MP posture action', () => {
 });
 
 it('rejects hull-down GO_PRONE for non-Mek-style movement profiles', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     hullDown: true,
     prone: false,
-  };
+  });
 
   const result = applyInteractiveSessionMovement({
     session,
@@ -3125,15 +3126,15 @@ it('rejects hull-down GO_PRONE for non-Mek-style movement profiles', () => {
 });
 
 it('keeps intact quad stand-up preview and commit aligned without rolling a PSR', () => {
-  const session = setupSessionAtMovement({ facing: Facing.South });
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement({ facing: Facing.South });
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({
     walkMP: 4,
@@ -3212,15 +3213,15 @@ it('keeps intact quad stand-up preview and commit aligned without rolling a PSR'
 });
 
 it('stops prone ground movement at the origin when the stand-up PSR fails', () => {
-  const session = setupSessionAtMovement({ facing: Facing.South });
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement({ facing: Facing.South });
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 3 });
 
@@ -3272,16 +3273,16 @@ it('stops prone ground movement at the origin when the stand-up PSR fails', () =
 });
 
 it('keeps runtime conversion careful-stand costs aligned when standing fails', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
     conversionMode: 'airmek',
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({
     walkMP: 1,
@@ -3346,16 +3347,16 @@ it('keeps runtime conversion careful-stand costs aligned when standing fails', (
 });
 
 it('keeps destroyed-leg-and-arms stand-up attempts at the origin as impossible', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
     destroyedLocations: ['left_leg', 'left_arm', 'right_arm'],
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
 
@@ -3406,8 +3407,8 @@ it('keeps destroyed-leg-and-arms stand-up attempts at the origin as impossible',
 });
 
 it('keeps destroyed-gyro stand-up attempts at the origin as impossible', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
     componentDamage: {
@@ -3421,11 +3422,11 @@ it('keeps destroyed-gyro stand-up attempts at the origin as impossible', () => {
       heatSinksDestroyed: 0,
       jumpJetsDestroyed: 0,
     },
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
   const preview = deriveMovementRangeHexForDestination(
@@ -3492,8 +3493,8 @@ it('keeps destroyed-gyro stand-up attempts at the origin as impossible', () => {
 });
 
 it('rejects standing non-tracked movement when the gyro is destroyed', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     componentDamage: {
       engineHits: 0,
@@ -3506,11 +3507,11 @@ it('rejects standing non-tracked movement when the gyro is destroyed', () => {
       heatSinksDestroyed: 0,
       jumpJetsDestroyed: 0,
     },
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
 
   const result = applyInteractiveSessionMovement({
     session,
@@ -3542,8 +3543,8 @@ it('rejects standing non-tracked movement when the gyro is destroyed', () => {
 });
 
 it('allows tracked movement with a destroyed gyro through preview and commit', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     componentDamage: {
       engineHits: 0,
@@ -3556,11 +3557,11 @@ it('allows tracked movement with a destroyed gyro through preview and commit', (
       heatSinksDestroyed: 0,
       jumpJetsDestroyed: 0,
     },
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({
     walkMP: 4,
@@ -3612,8 +3613,8 @@ it('allows tracked movement with a destroyed gyro through preview and commit', (
 });
 
 it('keeps two-hit heavy-duty gyro stand-up projection and commit rollable', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
     gyroType: GyroType.HEAVY_DUTY,
@@ -3628,11 +3629,11 @@ it('keeps two-hit heavy-duty gyro stand-up projection and commit rollable', () =
       heatSinksDestroyed: 0,
       jumpJetsDestroyed: 0,
     },
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
   const preview = deriveMovementRangeHexForDestination(
@@ -3700,14 +3701,14 @@ it('keeps two-hit heavy-duty gyro stand-up projection and commit rollable', () =
 
 it('keeps Playtest3 three-hit heavy-duty gyro stand-up projection and commit rollable', () => {
   const baseSession = setupSessionAtMovement({ facing: Facing.Southeast });
-  const session: IGameSession = {
+  let session: IGameSession = {
     ...baseSession,
     config: {
       ...baseSession.config,
       optionalRules: ['playtest_3'],
     },
   };
-  session.currentState.units.m1 = {
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
     gyroType: GyroType.HEAVY_DUTY,
@@ -3722,11 +3723,11 @@ it('keeps Playtest3 three-hit heavy-duty gyro stand-up projection and commit rol
       heatSinksDestroyed: 0,
       jumpJetsDestroyed: 0,
     },
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
   const preview = deriveMovementRangeHexForDestination(
@@ -3783,16 +3784,16 @@ it('keeps Playtest3 three-hit heavy-duty gyro stand-up projection and commit rol
 });
 
 it('keeps TacOps destroyed-arm stand-up penalties aligned between preview and commit', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
     destroyedLocations: ['right_arm'],
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({
     walkMP: 4,
@@ -3865,21 +3866,21 @@ it('keeps TacOps destroyed-arm stand-up penalties aligned between preview and co
 
 it('keeps Playtest2 trying-to-stand bonus aligned between preview and commit', () => {
   const baseSession = setupSessionAtMovement({ facing: Facing.Southeast });
-  const session: IGameSession = {
+  let session: IGameSession = {
     ...baseSession,
     config: {
       ...baseSession.config,
       optionalRules: ['playtest_2'],
     },
   };
-  session.currentState.units.m1 = {
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
 
@@ -3943,15 +3944,15 @@ it('keeps Playtest2 trying-to-stand bonus aligned between preview and commit', (
 });
 
 it('keeps TacOps arm-actuator stand-up penalties aligned between preview and commit', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({
     walkMP: 4,
@@ -4024,16 +4025,16 @@ it('keeps TacOps arm-actuator stand-up penalties aligned between preview and com
 });
 
 it('keeps no-arms quirk stand-up penalties overriding TacOps arm checks', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
     destroyedLocations: ['right_arm', 'left_arm'],
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({
     walkMP: 4,
@@ -4103,11 +4104,11 @@ it('keeps no-arms quirk stand-up penalties overriding TacOps arm checks', () => 
 });
 
 it('commits standalone stand-up as a zero-hex walk with stand-up MP cost', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
 
@@ -4155,11 +4156,11 @@ it('commits standalone stand-up as a zero-hex walk with stand-up MP cost', () =>
 });
 
 it('commits TacOps careful stand as a whole-turn zero-hex walk with the PSR bonus', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
 
@@ -4202,15 +4203,15 @@ it('commits TacOps careful stand as a whole-turn zero-hex walk with the PSR bonu
 });
 
 it('rejects TacOps careful stand when paired with destination movement', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
 
@@ -4271,11 +4272,11 @@ it('rejects TacOps careful stand when paired with destination movement', () => {
 });
 
 it('keeps a unit prone when standalone stand-up PSR fails after spending MP', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.m1 = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     prone: true,
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({ walkMP: 4, runMP: 6, jumpMP: 0 });
 
@@ -4322,11 +4323,11 @@ it('keeps a unit prone when standalone stand-up PSR fails after spending MP', ()
 });
 
 it('declares legal terrain movement with the same MP and heat cost the validator computed', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('1,0', makeHex(1, 0, TerrainType.LightWoods));
 
@@ -4365,11 +4366,11 @@ it('declares legal terrain movement with the same MP and heat cost the validator
 });
 
 it('keeps non-Mek movement heat aligned between preview and commit', () => {
-  const session = setupSessionAtMovement();
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement();
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const movementByUnit = capability({
     walkMP: 3,
@@ -4418,11 +4419,11 @@ it('keeps non-Mek movement heat aligned between preview and commit', () => {
 });
 
 it('keeps infantry woods movement cost aligned between preview and commit', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   grid.hexes.set('1,0', makeHex(1, 0, TerrainType.LightWoods));
   const movementByUnit = capability({
@@ -4475,11 +4476,11 @@ it('keeps infantry woods movement cost aligned between preview and commit', () =
 });
 
 it('keeps TacOps fast infantry run movement aligned between preview and commit', () => {
-  const session = setupSessionAtMovement({ facing: Facing.Southeast });
-  session.currentState.units.blocker = {
+  let session = setupSessionAtMovement({ facing: Facing.Southeast });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
-  };
+  });
   const grid = makeGrid();
   const destination = { q: 4, r: 0 };
   const movementByUnit = capability({

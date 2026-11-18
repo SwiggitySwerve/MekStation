@@ -1,3 +1,4 @@
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import {
   Facing,
   GameEventType,
@@ -53,12 +54,12 @@ function setupSessionAtMovement(
   );
   session = startGame(session, GameSide.Player);
   session = advancePhase(session);
-  session.currentState.units['lam-1'] = {
+  session = withUnitState(session, 'lam-1', {
     ...session.currentState.units['lam-1'],
     position: { q: 0, r: 0 },
     facing: Facing.North,
     lamAirMekAltitude: 1,
-  };
+  });
   for (const [location, armor] of Object.entries(armorByLocation)) {
     session = appendEvent(
       session,

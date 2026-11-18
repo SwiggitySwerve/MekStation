@@ -1,3 +1,4 @@
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import {
   Facing,
@@ -131,14 +132,14 @@ describe('committed declaration admission', () => {
   it.each([LockState.Locked, LockState.Revealed, LockState.Resolved])(
     'refuses ranged retries in %s without any event or state change',
     (lockState) => {
-      const locked = lockAttack(
+      let locked = lockAttack(
         ranged(sessionAt(GamePhase.WeaponAttack)),
         'attacker',
       );
-      locked.currentState.units.attacker = {
+      locked = withUnitState(locked, 'attacker', {
         ...locked.currentState.units.attacker,
         lockState,
-      };
+      });
       const before = JSON.stringify(locked);
       expect(ranged(locked)).toBe(locked);
       expect(ranged(locked, 'attacker', 'missing-target')).toBe(locked);
@@ -149,17 +150,17 @@ describe('committed declaration admission', () => {
   it.each([LockState.Locked, LockState.Revealed, LockState.Resolved])(
     'refuses physical retries in %s before the existing attack-count refusal',
     (lockState) => {
-      const locked = lockPhysicalAttack(
+      let locked = lockPhysicalAttack(
         physical(sessionAt(GamePhase.PhysicalAttack)),
         'attacker',
       );
       expect(locked.currentState.units.attacker.lockState).toBe(
         LockState.Locked,
       );
-      locked.currentState.units.attacker = {
+      locked = withUnitState(locked, 'attacker', {
         ...locked.currentState.units.attacker,
         lockState,
-      };
+      });
       const before = JSON.stringify(locked);
       expect(physical(locked, 'rightArm')).toBe(locked);
       expect(JSON.stringify(locked)).toBe(before);

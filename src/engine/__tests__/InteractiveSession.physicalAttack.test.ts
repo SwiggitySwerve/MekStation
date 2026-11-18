@@ -2,6 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import type { IWeapon } from '@/simulation/ai/types';
 
+import { replaceInteractiveState } from '@/__tests__/helpers/sessionState';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   Facing,
@@ -107,16 +108,20 @@ function makeSession(
 }
 
 function placeUnitsAdjacent(session: InteractiveSession): void {
-  const attacker = session.getState().units['unit-player'];
-  const target = session.getState().units['unit-opponent'];
-  (attacker as unknown as { position: { q: number; r: number } }).position = {
-    q: 0,
-    r: 5,
-  };
-  (target as unknown as { position: { q: number; r: number } }).position = {
-    q: 0,
-    r: 4,
-  };
+  replaceInteractiveState(session, (state) => ({
+    ...state,
+    units: {
+      ...state.units,
+      'unit-player': {
+        ...state.units['unit-player'],
+        position: { q: 0, r: 5 },
+      },
+      'unit-opponent': {
+        ...state.units['unit-opponent'],
+        position: { q: 0, r: 4 },
+      },
+    },
+  }));
 }
 
 function advanceToPhysicalAttack(session: InteractiveSession): void {
@@ -295,17 +300,21 @@ describe('InteractiveSession.applyPhysicalAttack', () => {
       makeGameUnits(),
     );
     advanceToPlayerPhysicalActivation(session);
-    const attacker = session.getState().units['unit-player'];
-    const target = session.getState().units['unit-opponent'];
-    (attacker as unknown as { position: { q: number; r: number } }).position = {
-      q: 0,
-      r: 5,
-    };
-    (target as unknown as { position: { q: number; r: number } }).position = {
-      q: 0,
-      r: 4,
-    };
-    (attacker as unknown as { unitQuirks: string[] }).unitQuirks = ['low_arms'];
+    replaceInteractiveState(session, (state) => ({
+      ...state,
+      units: {
+        ...state.units,
+        'unit-player': {
+          ...state.units['unit-player'],
+          position: { q: 0, r: 5 },
+          unitQuirks: ['low_arms'],
+        },
+        'unit-opponent': {
+          ...state.units['unit-opponent'],
+          position: { q: 0, r: 4 },
+        },
+      },
+    }));
 
     session.applyPhysicalAttack('unit-player', 'unit-opponent', 'punch');
 

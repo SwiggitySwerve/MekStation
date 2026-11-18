@@ -26,6 +26,7 @@ import {
   startGame,
 } from '@/utils/gameplay/gameSession';
 
+import { overlayUnitStates } from './tactical-map.combat-scenarios.core';
 import {
   createTacticalMapTerrainGrid,
   createTacticalMapUnitState,
@@ -122,16 +123,16 @@ function tacticalMapTargetTerrainCombatSession(): IGameSession {
   session = advancePhase(session);
   session = advancePhase(session);
 
-  for (const [unitId, unitState] of Object.entries(
-    tacticalMapTargetTerrainModifierCombatState.units,
-  )) {
-    session.currentState.units[unitId] = {
-      ...session.currentState.units[unitId],
-      ...unitState,
-    };
-  }
-
-  return session;
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      units: overlayUnitStates(
+        session.currentState.units,
+        tacticalMapTargetTerrainModifierCombatState.units,
+      ),
+    },
+  };
 }
 
 function weaponStatusToCommitWeapon(status: IWeaponStatus): IWeapon {

@@ -20,6 +20,7 @@ import type {
   IGameUnit,
 } from '@/types/gameplay';
 
+import { replaceInteractiveState } from '@/__tests__/helpers/sessionState';
 import { SeededRandom } from '@/simulation/core';
 import {
   buildWeaponLookupFromCatalogFiles,
@@ -160,17 +161,22 @@ function fire(
     session.advancePhase();
   }
   // Fixture-only placement: the attacker faces the target's front arc.
-  const live = session.getSession();
-  live.currentState.units['player-1'] = {
-    ...live.currentState.units['player-1'],
-    position: { q: 0, r: 4 },
-    facing: Facing.North,
-  };
-  live.currentState.units['opponent-1'] = {
-    ...live.currentState.units['opponent-1'],
-    position: { q: 0, r: 4 - distance },
-    facing: Facing.South,
-  };
+  replaceInteractiveState(session, (state) => ({
+    ...state,
+    units: {
+      ...state.units,
+      'player-1': {
+        ...state.units['player-1'],
+        position: { q: 0, r: 4 },
+        facing: Facing.North,
+      },
+      'opponent-1': {
+        ...state.units['opponent-1'],
+        position: { q: 0, r: 4 - distance },
+        facing: Facing.South,
+      },
+    },
+  }));
 
   session.applyAttack('player-1', 'opponent-1', [weapon.id]);
   const resolveFrom = session.getSession().events.length;

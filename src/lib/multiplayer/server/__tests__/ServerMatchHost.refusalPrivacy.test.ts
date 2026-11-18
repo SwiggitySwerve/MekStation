@@ -1,6 +1,9 @@
-/** @spec openspec/changes/fix-mp-refusals-sender-only/specs/multiplayer-server/spec.md */
 import { EventEmitter } from 'node:events';
 
+/** @spec openspec/changes/fix-mp-refusals-sender-only/specs/multiplayer-server/spec.md */
+import type { InteractiveSession } from '@/engine/InteractiveSession';
+
+import { replaceInteractiveState } from '@/__tests__/helpers/sessionState';
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
@@ -394,10 +397,9 @@ const cases: Case[] = [
     name: 'completed match',
     code: 'INVALID_INTENT',
     prepare: ({ host }) => {
-      Reflect.set(
-        host.getSessionForTests().currentState,
-        'status',
-        GameStatus.Completed,
+      replaceInteractiveState(
+        Reflect.get(host, 'session') as InteractiveSession,
+        (state) => ({ ...state, status: GameStatus.Completed }),
       );
     },
   },

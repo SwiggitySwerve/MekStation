@@ -4,6 +4,7 @@ export {
   checkVictoryConditions,
   createInitialGameState,
   createInitialUnitState,
+  deriveFoldedState,
   deriveState,
   deriveStateAtSequence,
   deriveStateAtTurn,

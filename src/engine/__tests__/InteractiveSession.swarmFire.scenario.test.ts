@@ -19,6 +19,7 @@
 import type { IBASwarmFireSquadDef } from '@/lib/combat/baCombat';
 import type { IResolveSwarmFireOptions } from '@/utils/gameplay/battlearmor/swarmFireResolver';
 
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import {
   Facing,
   GameEventType,
@@ -108,10 +109,10 @@ function attachSwarmer(
   const attachedState = { ...cs.state, swarmingUnitId: hostId };
   // Mutate the live currentState -- mirrors how the engine fixture pattern
   // in InteractiveSession.indirectFire.scenario.test.ts seeds initial state.
-  session.currentState.units[squadId] = {
+  session = withUnitState(session, squadId, {
     ...squad,
     combatState: { kind: 'squad', state: attachedState },
-  };
+  });
   return session;
 }
 
@@ -328,10 +329,10 @@ describe('PR-L2 swarm-fire-while-attached -- End-phase trigger', () => {
     session = attachSwarmer(session, 'ba-swarmer', 'locust-host');
 
     // Mark the squad destroyed.
-    session.currentState.units['ba-swarmer'] = {
+    session = withUnitState(session, 'ba-swarmer', {
       ...session.currentState.units['ba-swarmer'],
       destroyed: true,
-    };
+    });
 
     const ref = { session };
     advanceInteractiveSessionPhase(

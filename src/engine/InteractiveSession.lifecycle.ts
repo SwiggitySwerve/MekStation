@@ -17,6 +17,7 @@ import {
   type IGameState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { endGame } from '@/utils/gameplay/gameSession';
+import { markNotFolded } from '@/utils/gameplay/gameState/foldRevision';
 
 import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.runtime';
 
@@ -181,9 +182,13 @@ export function applyCorrectedInteractiveSessionState(
   context: IInteractiveSessionRuntimeContext,
   newState: IGameState,
 ): void {
+  // No event produces this state, so the next append must refuse it rather
+  // than fold onto it (D-8). Copied so a shared state object is not marked.
+  const corrected = { ...newState };
+  markNotFolded(corrected);
   context.setSession({
     ...context.getSession(),
-    currentState: newState,
+    currentState: corrected,
     updatedAt: new Date().toISOString(),
   });
   tryFinalizeAndPublishInteractiveSession(context);

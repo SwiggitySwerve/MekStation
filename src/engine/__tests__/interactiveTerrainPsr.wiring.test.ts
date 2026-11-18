@@ -12,6 +12,7 @@ import { describe, expect, it, jest } from '@jest/globals';
 import type { BotPlayer } from '@/simulation/ai/BotPlayer';
 import type { IWeapon } from '@/simulation/ai/types';
 
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import {
   buildDeclareMovementIntent,
   translateIntentToEvents,
@@ -106,17 +107,17 @@ function sessionAtMovement(m1: Partial<IGameUnit> = {}): IGameSession {
   );
   session = startGame(session, GameSide.Player);
   session = advancePhase(session);
-  session.currentState.units.m1 = {
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     position: ORIGIN,
     facing: Facing.Southeast,
     heat: 0,
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: -4, r: 4 },
     facing: Facing.North,
-  };
+  });
   return session;
 }
 

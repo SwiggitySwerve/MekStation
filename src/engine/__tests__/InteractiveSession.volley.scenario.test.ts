@@ -23,6 +23,7 @@
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IHex, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import {
   GameEventType,
   LockState,
@@ -119,21 +120,21 @@ function setupSessionAtWeaponAttack(): IGameSession {
   // Mutate positions on the FINAL state (advancePhase re-derives
   // currentState from events; earlier mutations would be discarded).
   // Fixture-only path — production state mutates via events.
-  s.currentState.units.a1 = {
+  s = withUnitState(s, 'a1', {
     ...s.currentState.units.a1,
     position: { q: 0, r: 0 },
     movementThisTurn: MovementType.Stationary,
-  };
-  s.currentState.units.t1 = {
+  });
+  s = withUnitState(s, 't1', {
     ...s.currentState.units.t1,
     position: { q: 5, r: 0 },
     facing: Facing.South,
-  };
-  s.currentState.units.t2 = {
+  });
+  s = withUnitState(s, 't2', {
     ...s.currentState.units.t2,
     position: { q: 5, r: 1 },
     facing: Facing.South,
-  };
+  });
   return s;
 }
 
@@ -362,21 +363,21 @@ function setupIndirectSessionWithSpotter(): {
   s = rollInitiative(s);
   s = advancePhase(s); // Initiative → Movement
   s = advancePhase(s); // Movement → WeaponAttack
-  s.currentState.units.a1 = {
+  s = withUnitState(s, 'a1', {
     ...s.currentState.units.a1,
     position: { q: 0, r: 0 },
     movementThisTurn: MovementType.Stationary,
-  };
-  s.currentState.units.t1 = {
+  });
+  s = withUnitState(s, 't1', {
     ...s.currentState.units.t1,
     position: { q: 5, r: 0 },
     facing: Facing.South,
-  };
-  s.currentState.units.s1 = {
+  });
+  s = withUnitState(s, 's1', {
     ...s.currentState.units.s1,
     position: { q: 5, r: 1 },
     movementThisTurn: MovementType.Stationary,
-  };
+  });
 
   const hexes = new Map<string, IHex>();
   for (let q = -5; q <= 12; q++) {
@@ -422,7 +423,7 @@ function setupIndirectSessionWithSpotter(): {
 it.each([LockState.Locked, LockState.Revealed, LockState.Resolved])(
   'refuses single attacks, volleys, and Hold Fire after %s',
   (lockState) => {
-    const session = applyInteractiveSessionVolley(
+    let session = applyInteractiveSessionVolley(
       {
         session: setupSessionAtWeaponAttack(),
         weaponsByUnit: buildWeaponsMap(),
@@ -430,10 +431,10 @@ it.each([LockState.Locked, LockState.Revealed, LockState.Resolved])(
       },
       [{ targetId: 't1', weaponIds: ['w1'], modesByWeaponId: {} }],
     );
-    session.currentState.units.a1 = {
+    session = withUnitState(session, 'a1', {
       ...session.currentState.units.a1,
       lockState,
-    };
+    });
     const before = JSON.stringify(session);
     const base = {
       session,

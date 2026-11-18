@@ -24,6 +24,7 @@ import type {
   IIndirectFireSpotterSelectedPayload,
 } from '@/types/gameplay/IndirectFireInterfaces';
 
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import {
   GameEventType,
   GamePhase,
@@ -139,22 +140,22 @@ function setupSessionAtWeaponAttack(includeSpotter: boolean): IGameSession {
   // Mutate position on the FINAL state (advancePhase re-derives currentState
   // from events, so earlier mutations would be discarded). This is a
   // fixture-only path — production session state mutates via events.
-  s.currentState.units.a1 = {
+  s = withUnitState(s, 'a1', {
     ...s.currentState.units.a1,
     position: { q: 0, r: 0 },
     movementThisTurn: MovementType.Stationary,
-  };
-  s.currentState.units.t1 = {
+  });
+  s = withUnitState(s, 't1', {
     ...s.currentState.units.t1,
     position: { q: 5, r: 0 },
     facing: Facing.South,
-  };
+  });
   if (includeSpotter) {
-    s.currentState.units.s1 = {
+    s = withUnitState(s, 's1', {
       ...s.currentState.units.s1,
       position: { q: 5, r: 1 },
       movementThisTurn: MovementType.Stationary,
-    };
+    });
   }
   return s;
 }
@@ -229,12 +230,12 @@ describe('applyInteractiveSessionAttack — indirect-fire wiring (PR-K5)', () =>
   });
 
   it('POSITIVE: walking Forward Observer spotter emits the cancellation event', () => {
-    const session = setupSessionAtWeaponAttack(true);
-    session.currentState.units.s1 = {
+    let session = setupSessionAtWeaponAttack(true);
+    session = withUnitState(session, 's1', {
       ...session.currentState.units.s1,
       movementThisTurn: MovementType.Walk,
       abilities: ['forward_observer'],
-    };
+    });
     const grid = makeBlockedGrid();
 
     const result = applyInteractiveSessionAttack({
@@ -269,11 +270,11 @@ describe('applyInteractiveSessionAttack — indirect-fire wiring (PR-K5)', () =>
   });
 
   it('POSITIVE: Oblique Attacker reduces indirect-fire declaration penalty', () => {
-    const session = setupSessionAtWeaponAttack(true);
-    session.currentState.units.a1 = {
+    let session = setupSessionAtWeaponAttack(true);
+    session = withUnitState(session, 'a1', {
       ...session.currentState.units.a1,
       abilities: ['oblique-attacker'],
-    };
+    });
     const grid = makeBlockedGrid();
 
     const result = applyInteractiveSessionAttack({

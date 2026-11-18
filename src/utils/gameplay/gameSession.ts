@@ -24,8 +24,10 @@ export {
 
 export {
   assertGameEventBatchAdmissible,
+  dropStaleFoldStamp,
   GameEventIdCollisionError,
   GameEventSequenceError,
+  GameStateRevisionError,
 } from './gameSessionEvents';
 
 export {

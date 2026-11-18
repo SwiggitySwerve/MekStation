@@ -5,6 +5,7 @@ import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 import type { IGameUnit } from '@/types/gameplay';
 
 import { readCatalogFiles } from '@/__tests__/helpers/catalogFiles.test-helpers';
+import { replaceInteractiveState } from '@/__tests__/helpers/sessionState';
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { SeededRandom } from '@/simulation/core';
 import {
@@ -327,18 +328,23 @@ it.each([
         step++
       )
         session.advancePhase();
-      const state = session.getSession().currentState;
       // Place adjacent units on the front arc; all resolution still uses session commands.
-      state.units.player = {
-        ...state.units.player,
-        position: { q: 0, r: 1 },
-        facing: Facing.North,
-      };
-      state.units.target = {
-        ...state.units.target,
-        position: { q: 0, r: 0 },
-        facing: Facing.South,
-      };
+      replaceInteractiveState(session, (state) => ({
+        ...state,
+        units: {
+          ...state.units,
+          player: {
+            ...state.units.player,
+            position: { q: 0, r: 1 },
+            facing: Facing.North,
+          },
+          target: {
+            ...state.units.target,
+            position: { q: 0, r: 0 },
+            facing: Facing.South,
+          },
+        },
+      }));
       session.applyAttack(player.id, target.id, [player.weapons[0].id]);
       // Vehicle D6 adaptation consumes a 2D6 pair for each die, taking its first.
       dice.push(6, 6, 3, 3, 4, 1, 4, 1, 1, 1, 1, 1);

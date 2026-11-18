@@ -4,6 +4,7 @@ import type {
   IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 
+import { replaceInteractiveState } from '@/__tests__/helpers/sessionState';
 import { Faction } from '@/constants/scenario/rats';
 import { digestReplayCheckpointState } from '@/lib/events/replay/ReplayCheckpointCompatibility';
 import {
@@ -971,12 +972,15 @@ it.each([GamePhase.WeaponAttack, GamePhase.PhysicalAttack])(
     interactive.advancePhase();
     interactive.advancePhase();
     if (phase === GamePhase.PhysicalAttack) interactive.advancePhase();
-    const session = interactive.getSession();
-    for (const [unitId, unit] of Object.entries(session.currentState.units))
-      session.currentState.units[unitId] = {
-        ...unit,
-        lockState: LockState.Locked,
-      };
+    const session = replaceInteractiveState(interactive, (state) => ({
+      ...state,
+      units: Object.fromEntries(
+        Object.entries(state.units).map(([unitId, unit]) => [
+          unitId,
+          { ...unit, lockState: LockState.Locked },
+        ]),
+      ),
+    }));
     const before = JSON.stringify(session);
     const bot = new BotPlayer(new SeededRandom(42));
     const ranged = jest.spyOn(bot, 'playAttackPhase');

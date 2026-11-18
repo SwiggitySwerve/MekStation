@@ -38,6 +38,11 @@ import './src/__tests__/helpers/assertions';
 // Set test timeout for database operations
 jest.setTimeout(30000);
 
+// Deep-freeze every folded game state (gameState/foldRevision.ts), so an
+// in-place edit throws at the edit site instead of persisting under the
+// incremental fold. Jest only; dev and production builds never set it.
+globalThis.__MEKSTATION_FREEZE_FOLDED_STATE__ = true;
+
 // Mock Next.js modules that might not be available in test environment
 jest.mock('next/router', () => ({
   useRouter() {

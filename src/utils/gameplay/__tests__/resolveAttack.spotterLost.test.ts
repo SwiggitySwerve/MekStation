@@ -21,6 +21,7 @@ import type { IWeapon } from '@/simulation/ai/types';
 import type { IHex, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 import type { IIndirectFireSpotterLostPayload } from '@/types/gameplay/IndirectFireInterfaces';
 
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import { applyInteractiveSessionAttack } from '@/engine/InteractiveSession.actions';
 import {
   GameEventType,
@@ -145,21 +146,21 @@ function setupSessionWithSpotterEvent(): IGameSession {
   s = advancePhase(s); // → Movement
   s = advancePhase(s); // → WeaponAttack
   // Position units AFTER advancePhase (state re-derives from events)
-  s.currentState.units.a1 = {
+  s = withUnitState(s, 'a1', {
     ...s.currentState.units.a1,
     position: { q: 0, r: 0 },
     movementThisTurn: MovementType.Stationary,
-  };
-  s.currentState.units.t1 = {
+  });
+  s = withUnitState(s, 't1', {
     ...s.currentState.units.t1,
     position: { q: 5, r: 0 },
     facing: Facing.South,
-  };
-  s.currentState.units.s1 = {
+  });
+  s = withUnitState(s, 's1', {
     ...s.currentState.units.s1,
     position: { q: 5, r: 1 },
     movementThisTurn: MovementType.Stationary,
-  };
+  });
 
   // Declare attack — this emits AttackDeclared + IndirectFireSpotterSelected
   s = applyInteractiveSessionAttack({

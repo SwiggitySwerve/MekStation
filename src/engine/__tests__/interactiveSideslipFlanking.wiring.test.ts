@@ -11,6 +11,7 @@
 
 import { describe, expect, it } from '@jest/globals';
 
+import { withUnitState } from '@/__tests__/helpers/sessionState';
 import { commitValidatedMovement } from '@/simulation/runner/phases/movementCommit';
 import {
   Facing,
@@ -85,18 +86,18 @@ function sessionAtMovement(abilities: readonly string[]): IGameSession {
   );
   session = startGame(session, GameSide.Player);
   session = advancePhase(session);
-  session.currentState.units.m1 = {
+  session = withUnitState(session, 'm1', {
     ...session.currentState.units.m1,
     position: ORIGIN,
     facing: Facing.North,
     secondaryFacing: Facing.North,
     heat: 0,
-  };
-  session.currentState.units.blocker = {
+  });
+  session = withUnitState(session, 'blocker', {
     ...session.currentState.units.blocker,
     position: { q: -4, r: 4 },
     facing: Facing.South,
-  };
+  });
   return session;
 }
 
