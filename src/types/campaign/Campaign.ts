@@ -21,6 +21,7 @@ import type { BattleUnitManifest } from './BattleUnitManifest';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { ICoopSession } from './CoopSession';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
+import type { ILegacyCombatStateFlag } from './LegacyCombatStateMigration';
 import type { SalvageRights, CommandRights } from './Mission';
 import type { IPartsInventoryItem } from './PartsInventory';
 import type { IMoraleTransition, IUnitPrestige, MoraleState } from './Prestige';
@@ -184,6 +185,13 @@ export interface ICampaign {
    * `postBattleProcessor` applies the battle.
    */
   readonly battleUnitManifests?: Readonly<Record<string, BattleUnitManifest>>;
+
+  /**
+   * Session-keyed combat states from older saves that the legacy migration
+   * could not attribute to a roster unit. Shown on the dashboard until the
+   * user dismisses them; the original states live outside the payload.
+   */
+  readonly legacyCombatStateFlags?: readonly ILegacyCombatStateFlag[];
 
   /**
    * Approved GM campaign intervention effects retained for audit/replay

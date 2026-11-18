@@ -57,6 +57,7 @@ import type {
   ICampaignSaveRefusal,
 } from './campaignSaveState';
 
+import { ensureCampaignCombatStateMigration } from './campaignCombatStateMigration';
 import {
   INITIAL_CAMPAIGN_SAVE_STATE as INITIAL_STATE,
   isPendingWriteConflict,
@@ -1132,6 +1133,9 @@ async function runLoad(
         record: migrated,
         campaign: loadedCampaign,
       });
+      // T1: migrate legacy session-keyed combat states once the roster is
+      // restored; an ordinary edit after the load, so autosave persists it.
+      if (!guard) await ensureCampaignCombatStateMigration();
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'load failed';

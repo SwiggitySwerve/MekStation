@@ -14,7 +14,7 @@ import {
 import { StorageError } from '../common/errors';
 
 const DB_NAME = 'mekstation';
-const DB_VERSION = 4; // Bumped for campaign instances stores
+const DB_VERSION = 5; // Bumped for the legacy combat-state quarantine store
 
 /**
  * Object store names
@@ -26,6 +26,8 @@ export const STORES = {
   PILOTS: 'pilots',
   CAMPAIGN_UNIT_INSTANCES: 'campaign-unit-instances',
   CAMPAIGN_PILOT_INSTANCES: 'campaign-pilot-instances',
+  /** T1: legacy session-keyed combat states, kept outside the campaign payload. */
+  LEGACY_COMBAT_STATE_QUARANTINE: 'legacy-combat-state-quarantine',
 } as const;
 
 type StoreName = (typeof STORES)[keyof typeof STORES];
@@ -108,6 +110,12 @@ export class IndexedDBService implements IIndexedDBService {
         }
         if (!db.objectStoreNames.contains(STORES.CAMPAIGN_PILOT_INSTANCES)) {
           db.createObjectStore(STORES.CAMPAIGN_PILOT_INSTANCES);
+        }
+        // Legacy combat-state quarantine (added in v5)
+        if (
+          !db.objectStoreNames.contains(STORES.LEGACY_COMBAT_STATE_QUARANTINE)
+        ) {
+          db.createObjectStore(STORES.LEGACY_COMBAT_STATE_QUARANTINE);
         }
       };
     });

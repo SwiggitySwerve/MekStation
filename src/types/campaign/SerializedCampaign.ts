@@ -36,6 +36,7 @@ import type { ICoopSession } from './CoopSession';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
 import type { IForce } from './Force';
 import type { IDailyBattleAuditEntry } from './IDailyBattleAuditEntry';
+import type { ILegacyCombatStateFlag } from './LegacyCombatStateMigration';
 import type {
   IPersonnelMarketOffer,
   IUnitMarketOffer,
@@ -202,6 +203,8 @@ export interface SerializedCampaignBody {
   readonly processedBattleIds?: readonly string[];
   /** T1 launch manifests for battles not yet applied, keyed by match id. */
   readonly battleUnitManifests?: Readonly<Record<string, BattleUnitManifest>>;
+  /** Legacy session-keyed combat states awaiting the user's review. */
+  readonly legacyCombatStateFlags?: readonly ILegacyCombatStateFlag[];
   readonly gmInterventionEvents?: readonly IGmCampaignProjectedEffect[];
   readonly timeCascadeEvents?: readonly IGmTimeCascadeProjectedEffect[];
   readonly recentlyAppliedOutcomes?: readonly IAppliedCombatOutcome[];

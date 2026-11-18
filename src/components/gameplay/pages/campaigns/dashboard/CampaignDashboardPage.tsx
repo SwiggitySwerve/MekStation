@@ -72,6 +72,7 @@ import {
 } from './CampaignDashboardPage.sections';
 import { CampaignSaveStatusCard } from './CampaignSaveStatusCard';
 import { DailyBattleAuditFeed } from './DailyBattleAuditFeed';
+import { LegacyCombatStateFlagsBanner } from './LegacyCombatStateFlagsBanner';
 import { PendingOutcomesBanner } from './PendingOutcomesBanner';
 
 export default function CampaignDashboardPage(): React.ReactElement {
@@ -410,6 +411,13 @@ export default function CampaignDashboardPage(): React.ReactElement {
       <PendingOutcomesBanner
         outcomes={pendingOutcomes}
         applyErrors={applyErrors}
+      />
+
+      <LegacyCombatStateFlagsBanner
+        flags={liveCampaign?.legacyCombatStateFlags}
+        onDismiss={() =>
+          store.getState().updateCampaign({ legacyCombatStateFlags: [] })
+        }
       />
 
       <DailyBattleAuditFeed entries={auditEntries} />

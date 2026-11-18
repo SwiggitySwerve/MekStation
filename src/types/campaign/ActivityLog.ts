@@ -130,7 +130,9 @@ export interface ITechnicalActivityPayload {
     | 'maintenance-pass'
     | 'maintenance-fail'
     | 'repair-complete'
-    | 'refit-commit';
+    | 'refit-commit'
+    /** T1: enemy-unit combat states an earlier bug wrote were removed. */
+    | 'legacy-combat-state-cleanup';
   readonly unitId: string;
   readonly unitName: string;
 }
