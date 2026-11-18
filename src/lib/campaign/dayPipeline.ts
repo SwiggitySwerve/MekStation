@@ -142,9 +142,18 @@ export interface IDayProcessor {
 // =============================================================================
 
 /**
+ * The processor that threw during a day, and what it threw.
+ */
+export interface IDayProcessorFailure {
+  readonly processorId: string;
+  readonly displayName: string;
+  readonly error: unknown;
+}
+
+/**
  * Aggregated result from running all processors for one day.
  */
-export interface IDayPipelineResult {
+export interface IDayPipelineCompleted {
   /** The date that was processed */
   readonly date: Date;
   /** All events from all processors, in processing order */
@@ -153,6 +162,34 @@ export interface IDayPipelineResult {
   readonly campaign: ICampaign;
   /** IDs of processors that were run, in order */
   readonly processorsRun: readonly string[];
+  readonly failure?: undefined;
+}
+
+/**
+ * A day whose processor threw. The day did not happen: `campaign` is the
+ * campaign the day started from, unchanged (date not advanced), and no
+ * event of the processors that ran before the failure is kept.
+ * `processorsRun` lists those processors, for diagnosis only.
+ */
+export interface IDayPipelineFailed {
+  readonly date: Date;
+  readonly events: readonly IDayEvent[];
+  readonly campaign: ICampaign;
+  readonly processorsRun: readonly string[];
+  readonly failure: IDayProcessorFailure;
+}
+
+export type IDayPipelineResult = IDayPipelineCompleted | IDayPipelineFailed;
+
+/** One line naming the failed processor and its error, for the player. */
+export function describeDayProcessorFailure(
+  failure: IDayProcessorFailure,
+): string {
+  const reason =
+    failure.error instanceof Error
+      ? failure.error.message
+      : String(failure.error);
+  return `day processor "${failure.processorId}" (${failure.displayName}) failed: ${reason}`;
 }
 
 // =============================================================================
@@ -166,8 +203,8 @@ export interface IDayPipelineResult {
  * processors are sorted by phase and executed in order. Each processor receives
  * the campaign state from the previous processor (chain pattern).
  *
- * If a processor throws, it is skipped and the pipeline continues with the
- * unchanged campaign state.
+ * If a processor throws, the day fails: processing stops and the result
+ * carries the failure and the campaign the day started from.
  *
  * @example
  * ```typescript
@@ -232,7 +269,10 @@ export class DayPipelineRegistry {
    *
    * Processors are executed in phase order. Each processor receives
    * the campaign state from the previous processor. If a processor throws,
-   * it is skipped and processing continues with the unchanged state.
+   * the day fails: no later processor runs, and the result is a
+   * `IDayPipelineFailed` whose campaign is `campaign` itself, so nothing
+   * an earlier processor returned is kept. Writes a processor made outside
+   * the campaign (another store) are the caller's to undo.
    *
    * The date is advanced by one day AFTER all processors run.
    *
@@ -264,12 +304,21 @@ export class DayPipelineRegistry {
         allEvents.push(...result.events);
         processorsRun.push(processor.id);
       } catch (error) {
-        // Log error but continue pipeline — processor is skipped
         logger.error(
-          `[DayPipeline] Processor "${processor.id}" (${processor.displayName}) failed:`,
+          `[DayPipeline] Processor "${processor.id}" (${processor.displayName}) failed; the day is not advanced:`,
           error,
         );
-        processorsRun.push(processor.id);
+        return {
+          date: processedDate,
+          events: [],
+          campaign,
+          processorsRun,
+          failure: {
+            processorId: processor.id,
+            displayName: processor.displayName,
+            error,
+          },
+        };
       }
     }
 

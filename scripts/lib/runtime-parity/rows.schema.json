@@ -158,6 +158,26 @@
                 ],
                 "additionalProperties": false
               }
+            },
+            "preview": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "bv": {
+                      "type": "number"
+                    },
+                    "cost": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["bv", "cost"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "required": ["observed", "terms", "issues"],

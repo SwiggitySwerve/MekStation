@@ -148,7 +148,8 @@ export function useHexMapDisplayState({
     unitWeapons,
   });
   const derivedCombatRangeLookup = useCombatRangeLookup({
-    selectedToken,
+    // A supplied frame already carries the combat projection (perf P5).
+    selectedToken: suppliedTacticalProjectionFrame ? null : selectedToken,
     friendlySide,
     hasConfiguredWeaponList: isWeaponCombatProjectionEnabled,
     hexes,

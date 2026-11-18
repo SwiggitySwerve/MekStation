@@ -100,17 +100,6 @@ export const excludedEntries: readonly ExcludedScreenEntry[] = [
       'e2e/quick-play.spec.ts already seeds match state for a future pack.',
   },
   {
-    id: 'excluded-gameplay-lobby',
-    class: 'excluded',
-    label: 'gameplay lobby',
-    manifestPaths: ['/gameplay/lobby/[roomCode]'],
-    reason:
-      NO_COVERING_PACK_REASON +
-      ' Lobby routes additionally require live multiplayer runtime state, not just seeded rows.',
-    followUp:
-      'e2e/p2p-sync.spec.ts and e2e/playtest-mp-smoke.spec.ts already exercise lobby state live.',
-  },
-  {
     id: 'excluded-multiplayer-lobby',
     class: 'excluded',
     label: 'multiplayer lobby',

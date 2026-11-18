@@ -1,0 +1,116 @@
+name: Playwright system dependencies (per-image .deb cache)
+description: >-
+  Installs the Linux packages Chromium needs (what `npx playwright install-deps
+  chromium` installs) from a .deb set cached per runner image, so a warm run
+  does no apt-get update and no download. A cache miss, a runner without image
+  metadata, or a failed dpkg install runs the full `install-deps` as before.
+
+# Cache scope: actions/cache entries are readable by the ref that saved them
+# and by its base branch, never the other way round. Main's entry is therefore
+# visible to every PR, while a PR's own entry stays on that PR and cannot seed
+# a set that main later installs.
+#
+# PW_DEPS_CACHE_SALT is an optional env var on the calling job. It is appended
+# to the cache key and exists only to force a miss while proving the miss path.
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve system-deps cache key
+      id: key
+      shell: bash
+      run: |
+        if [ -z "${ImageOS:-}" ] || [ -z "${ImageVersion:-}" ]; then
+          echo "::warning::ImageOS/ImageVersion are not set, so the .deb cache is disabled and the full install-deps will run."
+          echo "enabled=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        playwright="$(node -e "console.log(require('@playwright/test/package.json').version)")"
+        echo "enabled=true" >> "$GITHUB_OUTPUT"
+        echo "key=playwright-system-debs-${ImageOS}-${ImageVersion}-$(uname -m)-playwright${playwright}${PW_DEPS_CACHE_SALT:+-$PW_DEPS_CACHE_SALT}" >> "$GITHUB_OUTPUT"
+        echo "dir=$HOME/.cache/playwright-system-debs" >> "$GITHUB_OUTPUT"
+
+    - name: Restore system-deps .deb cache
+      id: restore
+      if: steps.key.outputs.enabled == 'true'
+      uses: actions/cache/restore@v5
+      with:
+        path: ~/.cache/playwright-system-debs
+        key: ${{ steps.key.outputs.key }}
+
+    - name: Install system dependencies from the cached .deb set
+      id: cached
+      if: steps.restore.outputs.cache-hit == 'true'
+      shell: bash
+      env:
+        DEB_DIR: ${{ steps.key.outputs.dir }}
+        CACHE_KEY: ${{ steps.key.outputs.key }}
+      run: |
+        count="$(find "$DEB_DIR" -maxdepth 1 -name '*.deb' | wc -l)"
+        if [ "$count" -gt 0 ] && sudo dpkg -i "$DEB_DIR"/*.deb; then
+          echo "installed=true" >> "$GITHUB_OUTPUT"
+          echo "Installed $count cached .deb files from $CACHE_KEY (no apt-get update, no download)."
+        else
+          echo "::warning::Installing the cached .deb set failed ($count files from $CACHE_KEY), so the full install-deps runs instead. The cache entry is bad: delete it or change PW_DEPS_CACHE_SALT."
+          sudo dpkg --configure -a || true
+          echo "installed=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Install system dependencies with apt (cache miss or fallback)
+      id: full
+      if: steps.cached.outputs.installed != 'true'
+      shell: bash
+      run: |
+        printf '%s\n' 'APT::Keep-Downloaded-Packages "true";' 'Binary::apt::APT::Keep-Downloaded-Packages "true";' | sudo tee /etc/apt/apt.conf.d/99playwright-keep-debs > /dev/null
+        npx playwright install-deps chromium
+
+    # Stages every archived .deb, not only the ones this run downloaded, so a
+    # package the image already held in /var/cache/apt/archives is not missed.
+    # Only files matching an installed (ii) Package:Architecture=Version are
+    # kept: a stale older version would make `dpkg -i` downgrade on a hit, and
+    # a package that is not installed would change the package set.
+    - name: Stage archived .deb files for the cache
+      id: stage
+      if: steps.key.outputs.enabled == 'true' && steps.restore.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        DEB_DIR: ${{ steps.key.outputs.dir }}
+      run: |
+        mkdir -p "$DEB_DIR"
+        dpkg-query -W -f='${db:Status-Abbrev}|${Package}:${Architecture}=${Version}\n' | awk -F'|' '$1 ~ /^ii/ {print $2}' | sort -u > "$RUNNER_TEMP/dpkg-ii.txt"
+        skipped=0
+        for deb in /var/cache/apt/archives/*.deb; do
+          [ -e "$deb" ] || continue
+          id="$(dpkg-deb -f "$deb" Package):$(dpkg-deb -f "$deb" Architecture)=$(dpkg-deb -f "$deb" Version)"
+          if grep -Fxq "$id" "$RUNNER_TEMP/dpkg-ii.txt"; then
+            cp "$deb" "$DEB_DIR/"
+          else
+            echo "Skipped $(basename "$deb"): $id is not the installed version."
+            skipped=$((skipped + 1))
+          fi
+        done
+        count="$(find "$DEB_DIR" -maxdepth 1 -name '*.deb' | wc -l)"
+        echo "Staged $count .deb files ($skipped archived files skipped):"
+        ls -l "$DEB_DIR"
+        if [ "$count" -eq 0 ]; then
+          echo "::warning::apt fetched no .deb files, so there is nothing to cache."
+          echo "save=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "save=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Save system-deps .deb cache
+      if: steps.stage.outputs.save == 'true'
+      uses: actions/cache/save@v5
+      with:
+        path: ~/.cache/playwright-system-debs
+        key: ${{ steps.key.outputs.key }}
+
+    - name: Report installed package set
+      shell: bash
+      run: |
+        dpkg-query -W -f='${Package} ${Version}\n' | sort > "$RUNNER_TEMP/dpkg-installed.txt"
+        echo "dpkg package set: $(wc -l < "$RUNNER_TEMP/dpkg-installed.txt") packages, sha256 $(sha256sum "$RUNNER_TEMP/dpkg-installed.txt" | cut -d' ' -f1)"
+        echo "::group::dpkg-query -W"
+        cat "$RUNNER_TEMP/dpkg-installed.txt"
+        echo "::endgroup::"

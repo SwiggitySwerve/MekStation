@@ -96,7 +96,7 @@ it.each([
   ['5-civil-war/experimental/Waneta S-WN-1LAM', 4, 10],
   ['5-civil-war/standard/Pwwka S-PW-1LAM', 1, 12],
   ['5-civil-war/standard/Wasp LAM WSP-110', 5, 11],
-  ['5-civil-war/standard/Yurei S-YR-1LAM', 1, 12],
+  ['5-civil-war/standard/Yurei S-YR-1LAM', 1, 11],
   ['2-star-league/advanced/Screamer LAM SCR-1X-LAM', 4, 10],
   ['2-star-league/experimental/Wasp LAM Mk I WSP-100', 5, 10],
   ['2-star-league/standard/Shadow Hawk LAM SHD-X2', 4, 10],

@@ -37,6 +37,16 @@ so `compareRows` works on these rows unchanged. Rows are sorted by (`family`, `p
 - `terms`: exactly `numericTerms(mechBVTerms(breakdown))`, names unchanged (Java-comparable: `structureBV` includes the gyro,
   `defensiveEquipmentBV` = `defEquipBV` + `armoredComponentBV`, `weapon.<n>.<LOC>.<id>` per mount).
 - `issues[]`: every validation issue `{ruleId, channel (errors|warnings|infos), severity, field, message}`; `field` is the raw field.
+- `preview` (optional; `null` = not captured): `{bv, cost}`, the BV and cost the real `PreviewTab` hands to the record-sheet renderer, i.e. the
+  `header.battleValue` and `header.cost` of the real `getRecordSheetService().extractData(unitConfig)` result, read after the status bar in
+  the same store. Only canvas drawing is replaced. Rows written before this field existed still parse.
+  **A failed sheet calculation is never recorded as a value.** The sheet code catches a throw and falls back to `{battleValue: 0, cost: 0}`,
+  and the extractor does `battleValue || 0`, so a failure reaches the sheet as a plain 0. The capture reads the same mechBV calculator probe
+  the status observer uses, and a missing or thrown preview calculation, or a BV that is not the one the sheet was handed, is a harness
+  failure at stage `preview` (infrastructure: the run fails with `CAPTURE_INFRASTRUCTURE_FAILURE`, the unit's record is an `error` row).
+  **Deliberate:** a preview failure errors the WHOLE load row, so all of that unit's load facts become unknown, `bvExact` included, and
+  the gate reads known -> unknown. That is the safe direction; do not "fix" it by isolating the preview from the row, which would let a
+  broken sheet pass as a measured 0.
 
 ## Reopen row (`measure: reopen`, `status: ok`) — `reopen`
 
@@ -104,7 +114,7 @@ Provenance and resource facts live here, never on a row: `repoSha`, `node` (`pro
 (`config/reference/reference-full.jsonl.gz`), `sources.sha256` and `manifest.sha256` (the S0b join inputs as read),
 `rows {count, sha256}` (the rows file this receipt describes), `durationSeconds` (whole invocation), `runs[]` (one entry per
 fresh capture process: `rowsSha256`, `durationSeconds`, and that process's `resources` from `process.resourceUsage()`;
-recorded, never a gate), `deterministic` (every run's rows were byte-identical: the determinism gate) and `scope`
+recorded, never a gate), `captureMode` (`concurrent`, the default when `CI` is set or with `--concurrent`, or `sequential`, the local default or with `--sequential`), `captureOffsetMs` (how much later each concurrent run after the first started than the one before it; 0 for a sequential run) and `captureTimeZones` (each run's `TZ`, in `runs` order: concurrent runs after the first get a different zone from the first, so a row carrying a clock- or zone-derived value still differs between runs; all three optional, so receipts that predate them still validate), `deterministic` (every run's rows were byte-identical: the determinism gate) and `scope`
 (`families`; `populationCount`, the plan length after the family filter and before `--units`; and `unitIds`: `null` is the whole
 joined population, a sorted duplicate-free list is a deliberately narrowed local run). The population is proved, not inferred:
 `validateReceipt` and the summaries require `rows.count === populationCount` for a null scope and `rows.count === unitIds.length`

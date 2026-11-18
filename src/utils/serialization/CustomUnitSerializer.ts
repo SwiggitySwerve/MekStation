@@ -62,6 +62,7 @@ import {
   getMountedSourceArmorSuffix,
   preserveSourceSystemCells,
 } from './CustomUnitSerializer.sourceCells';
+import { sourceOnlyFacts } from './CustomUnitSerializer.sourceFacts';
 import { ARMOR_TYPE, ENGINE_TYPE } from './CustomUnitSerializer.tags';
 import { cloneSerializedStructure } from './structureMetadata';
 
@@ -230,7 +231,7 @@ export function serializeCustomUnitState(
       ? numericMulId
       : state.mulId;
 
-  return {
+  const written = {
     schemaVersion: CURRENT_UNIT_SCHEMA_VERSION,
     id: identity.id,
     chassis: identity.chassis,
@@ -279,6 +280,7 @@ export function serializeCustomUnitState(
         : undefined,
     ...crewSeatSaveFields(state),
   };
+  return { ...written, ...sourceOnlyFacts(state) };
 }
 
 /** Vehicle store -> catalog contract; editor-only facts use a validated extension. */
@@ -457,3 +459,4 @@ export function serializeCustomAerospaceState(
 }
 
 export { serializeCustomSmallUnitState } from './CustomUnitSerializer.smallUnits';
+export { SOURCE_ONLY_FACTS } from './CustomUnitSerializer.sourceFacts';

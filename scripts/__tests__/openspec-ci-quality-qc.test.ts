@@ -570,8 +570,22 @@ describe('OpenSpec CI quality QC validator', () => {
         GATE_JOB,
         (block: string) =>
           block.replace(
-            '        if: failure() && (' + CHANGE_GATE_IF + ')',
+            '        if: (failure() || cancelled()) && (' +
+              CHANGE_GATE_IF +
+              ')',
             '        if: failure()',
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
+        'upload skipped when the job is cancelled',
+        GATE_JOB,
+        (block: string) =>
+          block.replace(
+            '        if: (failure() || cancelled()) && (' +
+              CHANGE_GATE_IF +
+              ')',
+            '        if: failure() && (' + CHANGE_GATE_IF + ')',
           ),
         'workflow-job-condition-invalid',
       ],
@@ -593,6 +607,26 @@ describe('OpenSpec CI quality QC validator', () => {
             '      - name: Cache Playwright chromium browser\n        if: ' +
               CHANGE_GATE_IF,
             '      - name: Cache Playwright chromium browser\n        if: always()',
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
+        'system deps back to raw install-deps',
+        GATE_JOB,
+        (block: string) =>
+          block.replace(
+            '        uses: ./.github/actions/playwright-system-deps',
+            '        run: npx playwright install-deps chromium',
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
+        'system deps cached-action condition',
+        GATE_JOB,
+        (block: string) =>
+          block.replace(
+            /(Install Playwright system dependencies \(browser cached\)\n {8})if: [^\n]*/,
+            '$1if: always()',
           ),
         'workflow-job-condition-invalid',
       ],

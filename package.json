@@ -54,6 +54,7 @@
     "build:profile": "npm run sync:mm-data-config && next build --webpack --profile",
     "build:debug": "npm run sync:mm-data-config && next build --webpack --debug",
     "perf:test": "node scripts/performance/measure-bundle-size.js",
+    "perf:engine": "node --expose-gc --import tsx scripts/perf/engine-harness.ts",
     "convert:mtf": "python scripts/megameklab-conversion/mtf_converter.py",
     "provenance:units": "python -B scripts/megameklab-conversion/source_provenance.py",
     "inventory:units": "python -B scripts/megameklab-conversion/source_inventory.py",

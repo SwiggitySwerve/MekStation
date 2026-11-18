@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
+import type { IGameplayMovementHover } from '@/components/gameplay/GameplayLayout.types';
 import type {
   MapMovementKind,
   MapMovementPointLegendState,
@@ -14,7 +15,6 @@ import {
   type IGameSession,
   type IHexCoordinate,
   type ILocomotionLeg,
-  type IMovementRangeHex,
   MovementType,
 } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
@@ -63,14 +63,15 @@ interface MovementPlanningResult {
   > | null;
   readonly effectiveMovementMps: IEffectiveMovementMps | null;
   readonly isPlayerControlled: boolean;
-  readonly movementRangeHexes: readonly IMovementRangeHex[];
-  readonly hoveredHex: IHexCoordinate | null;
-  readonly hoveredMovementRangeHex: IMovementRangeHex | undefined;
-  readonly hoveredPath: readonly IHexCoordinate[];
-  readonly hoverMpCost: number | undefined;
-  readonly hoverUnreachable: boolean;
+  /**
+   * The movement range, hovered range hex, hover path, hover MP cost and
+   * unreachable flag for a hovered hex. The layout owns the hovered hex and
+   * calls this, so a hover never re-renders the page (perf P2).
+   */
+  readonly resolveMovementHover: (
+    hoveredHex: IHexCoordinate | null,
+  ) => IGameplayMovementHover;
   readonly mpLegend: MapMovementPointLegendState | undefined;
-  readonly setHoveredHex: (hex: IHexCoordinate | null) => void;
   readonly handleHexClick: (hex: IHexCoordinate) => void;
   readonly handleMovementModeSelect: (mode: MapMovementKind) => void;
   /**
@@ -104,7 +105,6 @@ export function useGameMovementPlanning({
   const clearPlannedMovement = useGameplaySelector(
     (state) => state.clearPlannedMovement,
   );
-  const [hoveredHex, setHoveredHex] = useState<IHexCoordinate | null>(null);
 
   const rawMovementCapability = useMemo(
     () => getRawMovementCapability(interactiveSession, selectedUnitId),
@@ -178,9 +178,15 @@ export function useGameMovementPlanning({
     [baseMovementRangeHexes],
   );
 
-  const hoveredMovementProjection = useMemo(
-    () =>
-      deriveHoveredMovementProjection({
+  const baseReachableKeySet = useMemo(
+    () => buildReachableKeySet(baseMovementRangeHexes),
+    [baseMovementRangeHexes],
+  );
+
+  /** Legacy single-mode hover projection, as derived before perf P2. */
+  const resolveLegacyHover = useCallback(
+    (hoveredHex: IHexCoordinate | null) => {
+      const hoveredMovementProjection = deriveHoveredMovementProjection({
         hoveredHex,
         interactiveSession,
         selectedUnitState,
@@ -190,60 +196,53 @@ export function useGameMovementPlanning({
         movementType,
         baseMovementRangeLookup,
         optionalRules,
-      }),
+      });
+      const movementRangeHexes = appendHoveredMovementProjection(
+        baseMovementRangeHexes,
+        hoveredMovementProjection,
+      );
+      const isBaseRange = movementRangeHexes === baseMovementRangeHexes;
+      const reachableKeySet = isBaseRange
+        ? baseReachableKeySet
+        : buildReachableKeySet(movementRangeHexes);
+      const movementRangeLookup = isBaseRange
+        ? baseMovementRangeLookup
+        : buildMovementRangeLookup(movementRangeHexes);
+      const hoveredMovementRangeHex = getHoveredMovementRangeHex(
+        hoveredHex,
+        movementRangeLookup,
+      );
+      return {
+        movementRangeHexes,
+        hoveredMovementRangeHex,
+        hoveredPath: getHoveredPath(
+          hoveredMovementRangeHex,
+          selectedUnitState,
+          phase,
+        ),
+        hoverMpCost: getHoverMpCost(hoveredMovementRangeHex),
+        hoverUnreachable: getHoverUnreachable({
+          canProjectMovement,
+          hoveredHex,
+          movementRangeHexes,
+          reachableKeySet,
+        }),
+      };
+    },
     [
-      hoveredHex,
       interactiveSession,
       selectedUnitState,
       capability,
       movementGrid,
       canProjectMovement,
       movementType,
+      baseMovementRangeHexes,
       baseMovementRangeLookup,
+      baseReachableKeySet,
       optionalRules,
+      phase,
     ],
   );
-
-  const movementRangeHexes = useMemo(
-    () =>
-      appendHoveredMovementProjection(
-        baseMovementRangeHexes,
-        hoveredMovementProjection,
-      ),
-    [baseMovementRangeHexes, hoveredMovementProjection],
-  );
-
-  const reachableKeySet = useMemo(
-    () => buildReachableKeySet(movementRangeHexes),
-    [movementRangeHexes],
-  );
-
-  const movementRangeLookup = useMemo(
-    () => buildMovementRangeLookup(movementRangeHexes),
-    [movementRangeHexes],
-  );
-
-  const hoveredMovementRangeHex = useMemo(
-    () => getHoveredMovementRangeHex(hoveredHex, movementRangeLookup),
-    [hoveredHex, movementRangeLookup],
-  );
-
-  const hoveredPath = useMemo(
-    () => getHoveredPath(hoveredMovementRangeHex, selectedUnitState, phase),
-    [hoveredMovementRangeHex, selectedUnitState, phase],
-  );
-
-  const hoverMpCost = useMemo(
-    () => getHoverMpCost(hoveredMovementRangeHex),
-    [hoveredMovementRangeHex],
-  );
-
-  const hoverUnreachable = getHoverUnreachable({
-    canProjectMovement,
-    hoveredHex,
-    movementRangeHexes,
-    reachableKeySet,
-  });
 
   const mpLegend = useMemo(() => {
     return buildMovementLegendState({
@@ -279,7 +278,6 @@ export function useGameMovementPlanning({
     unit: selectedUnitState,
     capability,
     grid: movementGrid,
-    hoveredHex,
     environmentalConditions,
     optionalRules,
   });
@@ -287,23 +285,33 @@ export function useGameMovementPlanning({
   // Effective map outputs: intent-first when the composer owns the map, legacy
   // single-mode projection otherwise (so the legacy dock / legend still work
   // until phase 4 removes them).
-  const effectiveMovementRangeHexes = composerActive
-    ? intentComposer.envelopeHexes
-    : movementRangeHexes;
-
-  const effectiveHoveredPath = composerActive
-    ? (intentComposer.hoverPreview?.path ?? [])
-    : hoveredPath;
-
-  const effectiveHoverMpCost = composerActive
-    ? intentComposer.hoverPreview && !intentComposer.hoverPreview.unreachable
-      ? intentComposer.hoverPreview.cumulativeMpCost
-      : undefined
-    : hoverMpCost;
-
-  const effectiveHoverUnreachable = composerActive
-    ? Boolean(intentComposer.hoverPreview?.unreachable)
-    : hoverUnreachable;
+  const { envelopeHexes, resolveHoverPreview } = intentComposer;
+  const resolveMovementHover = useCallback(
+    (hoveredHex: IHexCoordinate | null): IGameplayMovementHover => {
+      const legacy = resolveLegacyHover(hoveredHex);
+      if (!composerActive) {
+        return {
+          movementRange: legacy.movementRangeHexes,
+          hoverMovementInfo: legacy.hoveredMovementRangeHex,
+          highlightPath: legacy.hoveredPath,
+          hoverMpCost: legacy.hoverMpCost,
+          hoverUnreachable: legacy.hoverUnreachable,
+        };
+      }
+      const hoverPreview = resolveHoverPreview(hoveredHex);
+      return {
+        movementRange: envelopeHexes,
+        hoverMovementInfo: legacy.hoveredMovementRangeHex,
+        highlightPath: hoverPreview?.path ?? [],
+        hoverMpCost:
+          hoverPreview && !hoverPreview.unreachable
+            ? hoverPreview.cumulativeMpCost
+            : undefined,
+        hoverUnreachable: Boolean(hoverPreview?.unreachable),
+      };
+    },
+    [composerActive, envelopeHexes, resolveHoverPreview, resolveLegacyHover],
+  );
 
   const handleHexClick = useCallback(
     (hex: IHexCoordinate) => {
@@ -317,11 +325,14 @@ export function useGameMovementPlanning({
         return;
       }
 
+      // The composer is inactive here, so no hover projection exists (it
+      // needs the same unit, capability, grid and projection gate) and the
+      // hover-inclusive lookup equals the base lookup.
       const plan = selectMovementPlan({
         hex,
         canProjectMovement,
         selectedUnitState,
-        movementRangeLookup,
+        movementRangeLookup: baseMovementRangeLookup,
         movementType,
       });
       if (plan) {
@@ -340,7 +351,7 @@ export function useGameMovementPlanning({
       intentComposer,
       canProjectMovement,
       selectedUnitState,
-      movementRangeLookup,
+      baseMovementRangeLookup,
       movementType,
       interactiveSession,
       setPlannedMovement,
@@ -389,14 +400,8 @@ export function useGameMovementPlanning({
     capability,
     effectiveMovementMps,
     isPlayerControlled,
-    movementRangeHexes: effectiveMovementRangeHexes,
-    hoveredHex,
-    hoveredMovementRangeHex,
-    hoveredPath: effectiveHoveredPath,
-    hoverMpCost: effectiveHoverMpCost,
-    hoverUnreachable: effectiveHoverUnreachable,
+    resolveMovementHover,
     mpLegend,
-    setHoveredHex,
     handleHexClick,
     handleMovementModeSelect,
     composerActive,

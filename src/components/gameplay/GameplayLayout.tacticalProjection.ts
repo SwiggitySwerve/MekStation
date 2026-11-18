@@ -14,7 +14,7 @@ import type {
 import type { ITacticalMapProjectionFrame } from '@/utils/gameplay/tacticalMapProjection';
 
 import { GamePhase } from '@/types/gameplay';
-import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
+import { deriveSharedCombatRangeHexes } from '@/utils/gameplay/combatProjection.shared';
 import { selectCombatProjectionWeapons } from '@/utils/gameplay/combatProjection.weaponSelection';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { buildTacticalMapHexProjectionLookup } from '@/utils/gameplay/tacticalMapProjection';
@@ -221,7 +221,7 @@ function buildCombatRangeLookup({
   );
   if (weapons.length === 0) return lookup;
 
-  for (const combatInfo of deriveCombatRangeHexes({
+  for (const combatInfo of deriveSharedCombatRangeHexes({
     attacker,
     targetUnitId: activeTargetId,
     hexes,

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 
 import type {
   ILobbyState,
@@ -9,6 +9,8 @@ import type {
 } from '@/types/gameplay/GameLobbyInterfaces';
 import type { IPilot } from '@/types/pilot';
 
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
+import { isModeLaunchDisabled } from '@/lib/multiplayer/modeAvailability';
 import {
   canLaunchLobby,
   getLobbyHostSide,
@@ -51,6 +53,8 @@ export function GameplayLobbyPanel({
   onLaunch,
   onHostSideChange,
 }: GameplayLobbyPanelProps): React.ReactElement {
+  const reasonId = useId();
+  const launchDisabled = isModeLaunchDisabled('p2p');
   const [copied, setCopied] = useState(false);
   const localSide = getLobbySideForPeer(lobbyState, localPeerId);
   const isHost = localSide === 'host';
@@ -87,7 +91,7 @@ export function GameplayLobbyPanel({
       <header className="border-border-theme-subtle mb-6 flex flex-col gap-4 border-b pb-5 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-sm font-medium text-cyan-300">
-            Networked 1v1 Lobby
+            Networked 1v1 Lobby <ModeAvailabilityNotice mode="p2p" compact />
           </p>
           <h1 className="mt-1 text-3xl font-semibold">Room {roomCode}</h1>
           <p className="text-text-theme-secondary mt-2 text-sm">
@@ -235,12 +239,14 @@ export function GameplayLobbyPanel({
             <p className="mt-3 text-sm text-amber-300">{readyBlockReason}</p>
           )}
 
+          <ModeAvailabilityNotice mode="p2p" sentenceId={reasonId} />
+
           {localSide && (
             <button
               type="button"
               disabled={readyBlockReason !== null || closed}
               onClick={() => onReadyChange(!localReady)}
-              className="disabled:bg-surface-raised mt-4 w-full rounded-md bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 disabled:cursor-not-allowed"
+              className="bg-accent text-on-accent hover:bg-accent-hover disabled:bg-surface-raised mt-4 w-full rounded-md px-4 py-2 text-sm font-medium disabled:cursor-not-allowed"
             >
               {localReady ? 'Not Ready' : 'Ready'}
             </button>
@@ -249,15 +255,18 @@ export function GameplayLobbyPanel({
           {isHost && (
             <button
               type="button"
-              disabled={!launchReady}
-              onClick={onLaunch}
+              disabled={!launchReady || launchDisabled}
+              aria-describedby={launchDisabled ? reasonId : undefined}
+              onClick={() => {
+                if (!isModeLaunchDisabled('p2p')) onLaunch();
+              }}
               className="bg-accent text-on-accent hover:bg-accent-hover disabled:bg-surface-raised disabled:text-text-theme-secondary mt-2 w-full rounded-md px-4 py-2 text-sm font-medium disabled:cursor-not-allowed"
             >
               Launch Match
             </button>
           )}
 
-          {!isHost && launchReady && (
+          {!isHost && launchReady && !launchDisabled && (
             <p className="mt-3 text-center text-sm text-cyan-200">
               Waiting for host to launch...
             </p>

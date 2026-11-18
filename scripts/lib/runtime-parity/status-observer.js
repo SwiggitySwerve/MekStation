@@ -41,6 +41,7 @@ import { mechBVTerms } from '@/utils/construction/mechBV/bvTrace';
 
 import { numericTerms } from '../../vehicle-aero-bv-delta';
 import { probe, toasts } from './install-mocks';
+import { ObservationError } from './observation.cjs';
 
 const sha256 = (bytes) =>
   crypto.createHash('sha256').update(bytes).digest('hex');
@@ -51,16 +52,6 @@ const gitBlobId = (bytes) =>
     .update(`blob ${bytes.length}\0`)
     .update(bytes)
     .digest('hex');
-
-/** A failed observation, carrying the stage and whether it is a harness (not product) failure. */
-class ObservationError extends Error {
-  constructor(error, stage, infrastructure) {
-    super(String(error?.message ?? error));
-    this.name = String(error?.name ?? 'Error');
-    this.stage = stage;
-    this.infrastructure = infrastructure;
-  }
-}
 
 const issuesOf = (result) =>
   result.results.flatMap((rule) =>

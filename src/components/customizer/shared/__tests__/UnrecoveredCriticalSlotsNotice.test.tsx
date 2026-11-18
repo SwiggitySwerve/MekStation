@@ -99,10 +99,10 @@ it.each([
 );
 
 it.each([
-  [scarecrow, 13, 7],
-  [celerity, 3, 14],
+  [scarecrow, 9, 7],
+  [celerity, 2, 14],
   [uni, 21, 0],
-  [starLeagueCrab, 2, 14],
+  [starLeagueCrab, 0, 14],
 ] as const)(
   'shows effect groups and counts for $chassis $model',
   (source, other, markers) => {
@@ -123,7 +123,12 @@ it.each([
     const headings = criticalNotice
       .getAllByRole('heading')
       .map((h) => h.textContent);
-    expect(headings[0]).toBe(`Other critical-slot entries (${other})`);
+    if (other)
+      expect(headings[0]).toBe(`Other critical-slot entries (${other})`);
+    else
+      expect(
+        headings.some((h) => h?.startsWith('Other critical-slot entries')),
+      ).toBe(false);
     if (markers)
       expect(headings).toContain(`Placement markers only (${markers})`);
     else

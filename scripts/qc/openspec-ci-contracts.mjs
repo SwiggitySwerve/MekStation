@@ -121,8 +121,12 @@ export const requiredWorkflowTokens = [
       'name: Build Test / ${{ matrix.platform }}',
       'platform: win',
       'platform: mac',
+      'name: Build unpacked Linux application',
+      'npx electron-builder --linux dir --publish never',
       'name: Build complete Linux installer and unpacked application',
       'npx electron-builder --linux tar.gz --publish never',
+      'name: Restore native module cache',
+      'path: desktop/.electron-native-cache',
     ],
   },
 ];
@@ -158,7 +162,9 @@ export const requiredWorkflowJobContracts = [
     skipIf:
       "needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'",
     changeGateIf: E2E_CHANGE_GATE_IF,
-    uploadFailureIf: `failure() && (${E2E_CHANGE_GATE_IF})`,
+    // cancelled() too: a job cut off at its timeout after a failed step must still upload the
+    // trace and screenshot (failure() is false under cancellation; main-push 44249913235).
+    uploadFailureIf: `(failure() || cancelled()) && (${E2E_CHANGE_GATE_IF})`,
     // The gate writes its own report folder (the smoke suites write theirs
     // after it), and the failure upload must carry it.
     uploadPaths: [

@@ -37,6 +37,7 @@ import { PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 import { DayPhase } from '../../dayPipeline';
 import {
   autoAwardsProcessor,
+  persistDayAwardGrants,
   processPostMissionAwards,
   processPostScenarioAwards,
 } from '../autoAwardsProcessor';
@@ -136,7 +137,7 @@ function clearStores(): void {
 }
 
 // ----------------------------------------------------------------------------
-// fetch mock — `applyAwardGrants` fires `updatePilot()` for SQLite
+// fetch mock — `persistPilotAwards` fires `updatePilot()` for SQLite
 // persistence, which calls `fetch('/api/pilots/:id', ...)` and then
 // `loadPilots()` (also a fetch). We resolve every PUT with success and
 // every GET with the current in-memory pilot list so the post-PUT
@@ -312,23 +313,38 @@ describe('autoAwardsProcessor — vault persistence', () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it('fires the REST PUT for SQLite persistence (fire-and-forget)', () => {
+  it('sends no REST PUT from inside the day pipeline (T6)', () => {
     seedStores({ campaignKills: 10 });
     const campaign = createTestCampaign();
 
-    autoAwardsProcessor.process(campaign, FIRST_OF_MONTH);
+    const result = autoAwardsProcessor.process(campaign, FIRST_OF_MONTH);
+
+    expect(result.events.length).toBeGreaterThan(0);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('persistDayAwardGrants fires the REST PUT for the grants of the day (T6)', () => {
+    seedStores({ campaignKills: 10 });
+    const campaign = createTestCampaign();
+    const result = autoAwardsProcessor.process(campaign, FIRST_OF_MONTH);
+
+    persistDayAwardGrants(result.events);
 
     const putCalls = mockFetch.mock.calls.filter(
       (call) => ((call[1] as RequestInit)?.method ?? 'GET') === 'PUT',
     );
-    expect(putCalls.length).toBeGreaterThan(0);
+    // One PUT per pilot, however many awards the pilot earned.
+    expect(putCalls).toHaveLength(1);
     expect(putCalls[0][0]).toBe(`/api/pilots/${PILOT_ID}`);
 
     const body = JSON.parse((putCalls[0][1] as RequestInit).body as string) as {
       awards: Array<{ awardId: string }>;
     };
-    expect(Array.isArray(body.awards)).toBe(true);
-    expect(body.awards.length).toBeGreaterThan(0);
+    expect(body.awards.map((a) => a.awardId).sort()).toEqual(
+      (usePilotStore.getState().pilots[0].awards ?? [])
+        .map((a) => a.awardId)
+        .sort(),
+    );
   });
 
   it('only enabled categories are evaluated', () => {

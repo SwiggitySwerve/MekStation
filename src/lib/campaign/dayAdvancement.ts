@@ -108,7 +108,12 @@ import { Money } from '@/types/campaign/Money';
 import { nextCampaignDay } from './campaignCalendar';
 import { processContracts } from './contractProcessing';
 import { processDailyCosts } from './dailyCostsProcessing';
-import { IDayPipelineResult, IDayEvent } from './dayPipeline';
+import {
+  describeDayProcessorFailure,
+  IDayPipelineCompleted,
+  IDayPipelineResult,
+  IDayEvent,
+} from './dayPipeline';
 import {
   DailyCostBreakdown,
   DayReport,
@@ -237,15 +242,16 @@ export function advanceDays(campaign: ICampaign, count: number): DayReport[] {
 // =============================================================================
 
 /**
- * Convert a registry `IDayPipelineResult` into the legacy `DayReport`
+ * Convert a completed registry day into the legacy `DayReport`
  * shape consumed by the campaign store and UI panels. Filters the typed
- * event stream into the per-category arrays the report exposes.
+ * event stream into the per-category arrays the report exposes. A failed
+ * day has no report; callers check `result.failure` first.
  *
- * @param result - The pipeline result emitted by `DayPipelineRegistry`
+ * @param result - A completed day from `DayPipelineRegistry`
  * @returns A `DayReport` mirroring the legacy `advanceDay` output shape
  */
 export function convertToLegacyDayReport(
-  result: IDayPipelineResult,
+  result: IDayPipelineCompleted,
 ): DayReport {
   const healedPersonnel: HealedPersonEvent[] = result.events
     .filter((e: IDayEvent) => e.type === 'healing')
@@ -303,11 +309,15 @@ export function convertToLegacyDayReport(
  * @param campaign - The campaign to advance
  * @param pipeline - An object exposing `processDay` (the day registry)
  * @returns A legacy `DayReport` for the advanced day
+ * @throws When a day processor threw: the day did not happen
  */
 export function advanceDayViaPipeline(
   campaign: ICampaign,
   pipeline: { processDay(campaign: ICampaign): IDayPipelineResult },
 ): DayReport {
   const result = pipeline.processDay(campaign);
+  if (result.failure) {
+    throw new Error(describeDayProcessorFailure(result.failure));
+  }
   return convertToLegacyDayReport(result);
 }

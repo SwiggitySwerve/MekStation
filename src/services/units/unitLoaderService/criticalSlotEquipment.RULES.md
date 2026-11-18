@@ -61,3 +61,31 @@ The legacy enum fallbacks in `PhysicalWeaponTypes.ts` retain their old guards
 and results; source recovery does not call them. BV formulas in
 `scripts/validate-bv-physical-weapons.ts` measure a separate quantity and stay
 with the BV owner. This extraction changes no source admissions or outputs.
+
+## Crit-only CASE and electronics (PR-D1)
+
+A source cell whose resolved id is an exact `criticalSlotEquipment` row in
+`mtf-component-vocabulary.json`, and whose lookup token is one of that row's
+listed spellings, is admitted (`CLCASE` resolves to IS `case` but is not a
+listed spelling, so it is not mounted at the wrong mass); `classifyCriticalSlotRecoveryKind`
+names it `case` or `electronics` through the one notice table. The dispatcher
+recovers one mount per complete group of unreserved cells of that id at the
+location (`MtfFile.java:1049-1140`, MegaMek 48fcb2f64), after source weapons,
+so a targeting computer sees the recovered weapon list. Mass and criticals come
+from the resolved definition, or from `createCalculatedEquipment` for the
+targeting computer (`mountAs`, `MiscType.java:614-616,1098-1102`), converted
+once to superheavy entries. An incomplete group, an unknown id, or a row whose
+owner yields no criticals stays in the unrecovered residual. Omni pod flags use
+the existing final token projection; rear flags come from the cells.
+`CASE II [IS]`/`ISCASEII` identity stays with `resolveEquipmentId` (#3303).
+
+A targeting computer is one mount per type per unit (`MtfFile.java:1076-1084`,
+`hSharedEquip`); Java attaches every later TC cell, in any location, to it.
+PR-D1 recovers it only when every cell of that type in the unit totals the
+owner's computed criticals and sits in one location, and never when the unit
+already holds that TC. A listed TC without slots claims the cells that resolve
+to its stub (the row's `mountAs`), or to its own id. PR-D1 deliberately leaves
+cells in several locations, more cells than computed, or a superheavy mismatch
+in the residual with their notice (no canonical unit; never mints an extra TC);
+Java would recover one shared TC there. A listed slotless Clan TC over
+IS-spelled TC cells still yields two TCs, as on main (no canonical case).

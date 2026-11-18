@@ -6,10 +6,21 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import {
+  CONCURRENT_START_OFFSET_MS,
+  concurrentTimeZone,
+  inheritedTimeZone,
+  jestCapture,
+  selectCaptureMode,
+} from '../lib/runtime-parity/census.mjs';
+import {
   factsDeriverBlob,
   parseFactsMeta,
 } from '../lib/runtime-parity/facts-provenance.mjs';
-import { parseFacts } from '../lib/runtime-parity/facts.mjs';
+import {
+  FACTS_SCHEMA_VERSION,
+  loadFacts,
+  parseFacts,
+} from '../lib/runtime-parity/facts.mjs';
 import { parseBaseline } from '../lib/runtime-parity/gate.mjs';
 import {
   InputError,
@@ -278,28 +289,32 @@ const record = (
     validity = 'valid',
     terms = { armorBV: 360 },
     allocatedWeight = 50,
+    // What the real PreviewTab hands to the sheet renderer. 'same' = the status BV; null = not captured.
+    preview = 'same',
   } = {},
-) => ({
-  unitId: id,
-  family: 'battlemechs',
-  path: `meks/${id}.mtf`,
-  sha256: hex('a'),
-  catalog: {
-    path: `public/data/units/battlemechs/x/${id}.json`,
-    blob: hex('1', 40),
-  },
-  error: null,
-  infrastructure: false,
-  observed: {
-    bv,
-    validity,
-    weight: 50,
-    allocatedWeight,
-    mp: { walk: 4, run: 6, jump: 0 },
-  },
-  terms,
-  issues: [],
-});
+) =>
+  ({
+    unitId: id,
+    family: 'battlemechs',
+    path: `meks/${id}.mtf`,
+    sha256: hex('a'),
+    catalog: {
+      path: `public/data/units/battlemechs/x/${id}.json`,
+      blob: hex('1', 40),
+    },
+    error: null,
+    infrastructure: false,
+    observed: {
+      bv,
+      validity,
+      weight: 50,
+      allocatedWeight,
+      mp: { walk: 4, run: 6, jump: 0 },
+    },
+    terms,
+    issues: [],
+    preview: preview === 'same' ? { bv: bv ?? 0, cost: 100 } : preview,
+  });
 
 test('capturedToRow maps ok, no-BV and error records to valid rows', () => {
   const ok = capturedToRow(record('a'));
@@ -375,7 +390,7 @@ test('summarize counts agreement with Java and counts every miss', () => {
   assert.equal(summary.units, 5);
   assert.equal(
     summary.headline,
-    'load=Java 2/5 · validity 3/5 · weight owners 4/5',
+    'load=Java 2/5 · validity 3/5 · weight owners 4/5 · sheet=status 3/5',
   );
   assert.deepEqual(
     differences.filter((d) => d.measure === 'bv').map((d) => [d.unitId, d.why]),
@@ -398,6 +413,98 @@ test('summarize counts agreement with Java and counts every miss', () => {
   assert.match(narrowed.summary.headline, /NARROWED SCOPE/);
 });
 
+test('the record sheet BV is counted against the status bar exactly: equal, different (named) and not captured', () => {
+  const rows = [
+    capturedToRow(record('same')),
+    capturedToRow(record('lower', { bv: 1000, preview: { bv: 909, cost: 1 } })),
+    capturedToRow(
+      record('higher', { bv: 1000, preview: { bv: 1268, cost: 1 } }),
+    ),
+    capturedToRow(record('uncaptured', { preview: null })),
+    capturedToRow({
+      ...record('broken'),
+      observed: null,
+      terms: null,
+      issues: null,
+      preview: null,
+      error: { stage: 'open', name: 'E', message: 'm' },
+    }),
+  ];
+  const referenceByPath = new Map(
+    ['same', 'lower', 'higher', 'uncaptured', 'broken'].map((id) =>
+      refRow(id, 1000),
+    ),
+  );
+  const { summary, differences } = summarize({
+    rows,
+    referenceByPath,
+    scope: { families: ['battlemechs'], populationCount: 5, unitIds: null },
+    deterministic: true,
+  });
+  assert.deepEqual(summary.preview, {
+    equalsStatus: 1,
+    different: 2,
+    missing: 2,
+  });
+  assert.match(summary.headline, /sheet=status 1\/5/);
+  assert.deepEqual(
+    differences
+      .filter((d) => d.measure === 'preview')
+      .map((d) => [d.unitId, d.observed, d.preview]),
+    [
+      ['lower', 1000, 909],
+      ['higher', 1000, 1268],
+    ],
+  );
+  // Rows written before the field existed still parse, and count as not captured.
+  const old = capturedToRow(record('old'));
+  delete old.load.preview;
+  assert.equal(parseRows(JSON.stringify(old)).length, 1);
+  assert.equal(
+    capturedToRow({ ...record('old2'), preview: undefined }).load.preview,
+    null,
+  );
+});
+
+test('a failed sheet calculation is a preview-stage infrastructure error: the whole row errors and every load fact is unknown, never previewEqualsStatus false', () => {
+  const failedPreview = capturedToRow({
+    ...record('sheetfail'),
+    observed: null,
+    terms: null,
+    issues: null,
+    preview: null,
+    infrastructure: true,
+    error: {
+      stage: 'preview',
+      name: 'Error',
+      message: "The sheet's BV calculation threw: mutant",
+    },
+  });
+  assert.equal(failedPreview.status, 'error');
+  assert.equal(failedPreview.error.stage, 'preview');
+  const entry = loadFacts(failedPreview, undefined);
+  assert.equal(entry.status, 'error');
+  // Deliberate: every load fact is unknown, bvExact included. The gate reads known -> unknown (the safe direction).
+  assert.deepEqual(
+    Object.values(entry.facts),
+    Object.keys(entry.facts).map(() => null),
+  );
+  assert.notEqual(entry.facts.previewEqualsStatus, false);
+  assert.deepEqual(entry.reported, { previewStatusDistance: null });
+  const { summary } = summarize({
+    rows: [failedPreview],
+    referenceByPath: new Map([refRow('sheetfail', 1000)]),
+    scope: { families: ['battlemechs'], populationCount: 1, unitIds: null },
+    deterministic: true,
+  });
+  assert.deepEqual(summary.errorsByStage, { preview: 1 });
+  assert.deepEqual(summary.preview, {
+    equalsStatus: 0,
+    different: 0,
+    missing: 1,
+  });
+});
+
 test('every gated summary key has a direction and resolves to a count', () => {
   const rows = [capturedToRow(record('a')), capturedToRow(record('b'))];
   const referenceByPath = new Map(['a', 'b'].map((id) => refRow(id, 1000)));
@@ -409,6 +516,7 @@ test('every gated summary key has a direction and resolves to a count', () => {
   });
   assert.deepEqual(Object.keys(summary.gates).sort(), [
     'bv.exact',
+    'preview.equalsStatus',
     'validity.agree',
     'weightOwners.agree',
   ]);
@@ -470,7 +578,14 @@ test('weight owners are compared exactly per unit and a difference is reported, 
 
 // --- main(): the whole flow with an injected capture ---------------------------------------
 const ids = ['alpha', 'beta', 'gamma'];
-function setup({ capture, join: out = emitterOutput(ids) } = {}) {
+// offsetMs: the start stagger between concurrent runs; 0 keeps these tests fast, null uses the real CONCURRENT_START_OFFSET_MS.
+// env: what the census reads for its default capture mode; CI set means concurrent, as on the hosted runner.
+function setup({
+  capture,
+  join: out = emitterOutput(ids),
+  offsetMs = 0,
+  env = { CI: 'true' },
+} = {}) {
   const root = tmp();
   const sources = path.join(root, 'sources');
   writeJoin(sources, out);
@@ -490,6 +605,8 @@ function setup({ capture, join: out = emitterOutput(ids) } = {}) {
         durationSeconds: 1.5,
         resources: { maxRSS: 100 },
       })),
+    captureOffsetMs: offsetMs,
+    env,
   };
   const outDir = path.join(root, 'out');
   const run = (...extra) =>
@@ -666,6 +783,305 @@ test('main fails the run, names the unit and keeps the artifacts when two runs d
   assert.equal(t.exists('rows.ndjson'), true);
 });
 
+// --- concurrent captures: injected async captures, nothing is spawned ----------------------
+const runIndex = (dir) => Number(path.basename(dir).replace('run-', ''));
+const asyncCapture =
+  ({ onStart, onEnd, change = () => ({}) } = {}) =>
+  async ({ plan, dir }) => {
+    const index = runIndex(dir);
+    await onStart?.(index);
+    const result = {
+      records: plan.map((p) => record(p.unitId, change(index, p.unitId))),
+      durationSeconds: index,
+      resources: { maxRSS: index },
+    };
+    await onEnd?.(index);
+    return result;
+  };
+// Resolves once `count` captures have called arrive(); rejects (so a sequential run fails, not hangs) after 2s.
+const barrier = (count) => {
+  let arrived = 0;
+  let release;
+  const open = new Promise((resolve) => (release = resolve));
+  return () => {
+    if (++arrived === count) release();
+    let timer;
+    const timeout = new Promise((_, reject) => {
+      timer = setTimeout(
+        () => reject(new Error('the other capture never started')),
+        2000,
+      );
+    });
+    return Promise.race([open, timeout]).finally(() => clearTimeout(timer));
+  };
+};
+
+test('by default the captures start together: each waits for the other before finishing, and the runs stay in index order', async () => {
+  const arrive = barrier(2);
+  const t = setup({
+    capture: asyncCapture({
+      onStart: arrive,
+      // Run 1 finishes after run 2, yet the receipt lists run 1 first.
+      onEnd: (index) =>
+        index === 1 ? new Promise((resolve) => setTimeout(resolve, 20)) : null,
+    }),
+  });
+  assert.equal(await quietly(() => t.run()), 0);
+  const receipt = validateReceipt(JSON.parse(t.read('receipt.json')));
+  assert.equal(receipt.captureMode, 'concurrent');
+  assert.deepEqual(
+    receipt.runs.map((r) => [r.durationSeconds, r.resources.maxRSS]),
+    [
+      [1, 1],
+      [2, 2],
+    ],
+  );
+  assert.equal(receipt.deterministic, true);
+});
+
+test('the capture mode defaults to concurrent only on CI; --sequential and --concurrent override it', async () => {
+  // The rule itself.
+  assert.equal(selectCaptureMode({}, {}), 'sequential');
+  assert.equal(selectCaptureMode({}, { CI: 'true' }), 'concurrent');
+  assert.equal(selectCaptureMode({ concurrent: true }, {}), 'concurrent');
+  assert.equal(
+    selectCaptureMode({ sequential: true }, { CI: 'true' }),
+    'sequential',
+  );
+  assert.throws(
+    () => selectCaptureMode({ sequential: true, concurrent: true }, {}),
+    /cannot both be given/,
+  );
+  // Only a real CI value counts: CI=false or CI=0 in a shell must not turn on about 6 GB of concurrency.
+  for (const ci of ['false', 'FALSE', '0', '', '  '])
+    assert.equal(selectCaptureMode({}, { CI: ci }), 'sequential', `CI=${ci}`);
+  for (const ci of ['true', '1', 'yes'])
+    assert.equal(selectCaptureMode({}, { CI: ci }), 'concurrent', `CI=${ci}`);
+  // The conflict fails with the other flag checks, before any input is read.
+  await assert.rejects(
+    main(['--out', tmp(), '--sequential', '--concurrent'], {
+      repoRoot: tmp(),
+      env: {},
+      loadReference: () => {
+        throw new Error('inputs were read before the flag check');
+      },
+    }),
+    /cannot both be given/,
+  );
+  // Through main(): what a local census without flags does, and the opt-in.
+  const local = setup({ env: {} });
+  assert.equal(await quietly(() => local.run()), 0);
+  assert.equal(
+    validateReceipt(JSON.parse(local.read('receipt.json'))).captureMode,
+    'sequential',
+  );
+  const optIn = setup({ env: {} });
+  assert.equal(await quietly(() => optIn.run('--concurrent')), 0);
+  assert.equal(
+    validateReceipt(JSON.parse(optIn.read('receipt.json'))).captureMode,
+    'concurrent',
+  );
+});
+
+test('--sequential finishes each capture before starting the next, as before', async () => {
+  const events = [];
+  const t = setup({
+    capture: asyncCapture({
+      onStart: (index) => events.push(`start-${index}`),
+      onEnd: async (index) => {
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        events.push(`end-${index}`);
+      },
+    }),
+  });
+  assert.equal(await quietly(() => t.run('--sequential')), 0);
+  assert.deepEqual(events, ['start-1', 'end-1', 'start-2', 'end-2']);
+  const receipt = validateReceipt(JSON.parse(t.read('receipt.json')));
+  assert.equal(receipt.captureMode, 'sequential');
+  assert.deepEqual(
+    receipt.runs.map((r) => r.durationSeconds),
+    [1, 2],
+  );
+});
+
+test('concurrent runs that differ still fail the run and name the unit', async () => {
+  const arrive = barrier(2);
+  const t = setup({
+    capture: asyncCapture({
+      onStart: arrive,
+      change: (index, id) => (id === 'beta' && index === 2 ? { bv: 1001 } : {}),
+    }),
+  });
+  assert.equal(await quietly(() => t.run()), 1);
+  const failure = JSON.parse(t.read('failure.json'));
+  assert.equal(failure.reason, 'NONDETERMINISTIC_ROWS');
+  assert.deepEqual(failure.units, [['battlemechs', 'meks/beta.mtf']]);
+  assert.equal(JSON.parse(t.read('receipt.json')).deterministic, false);
+});
+
+test('a concurrent capture that fails is reported only after the other has finished', async () => {
+  let secondFinished = false;
+  const t = setup({
+    capture: async ({ plan, dir }) => {
+      if (runIndex(dir) === 1)
+        throw new RunError('CAPTURE_INCOMPLETE', 'jest exited 1');
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      secondFinished = true;
+      return {
+        records: plan.map((p) => record(p.unitId)),
+        durationSeconds: 1,
+        resources: { maxRSS: 1 },
+      };
+    },
+  });
+  assert.equal(await quietly(() => t.run()), 1);
+  assert.equal(secondFinished, true);
+  assert.equal(JSON.parse(t.read('failure.json')).reason, 'CAPTURE_INCOMPLETE');
+});
+
+// --- concurrent captures vary the clock and the time zone on purpose ------------------------
+const inherited = inheritedTimeZone();
+
+test('a concurrent run after the first gets a different TZ; the first, and every --sequential run, inherit', async () => {
+  const seen = {};
+  const capture = async (input) => {
+    seen[runIndex(input.dir)] = input.env;
+    return asyncCapture()(input);
+  };
+  const concurrent = setup({ capture });
+  assert.equal(await quietly(() => concurrent.run()), 0);
+  assert.deepEqual(seen[1], {});
+  assert.deepEqual(seen[2], { TZ: concurrentTimeZone(inherited) });
+  assert.notEqual(seen[2].TZ, inherited);
+  const receipt = validateReceipt(JSON.parse(concurrent.read('receipt.json')));
+  assert.deepEqual(receipt.captureTimeZones, [
+    inherited,
+    concurrentTimeZone(inherited),
+  ]);
+  // Never the same zone twice, whatever the inherited one is.
+  assert.equal(concurrentTimeZone('Pacific/Kiritimati'), 'Pacific/Pago_Pago');
+  assert.equal(concurrentTimeZone('Europe/London'), 'Pacific/Kiritimati');
+
+  const sequential = setup({ capture });
+  assert.equal(await quietly(() => sequential.run('--sequential')), 0);
+  assert.deepEqual([seen[1], seen[2]], [{}, {}]);
+  const seqReceipt = validateReceipt(
+    JSON.parse(sequential.read('receipt.json')),
+  );
+  assert.equal(seqReceipt.captureOffsetMs, 0);
+  assert.deepEqual(seqReceipt.captureTimeZones, [inherited, inherited]);
+});
+
+test('concurrent runs start at least CONCURRENT_START_OFFSET_MS apart; --sequential adds no delay', async () => {
+  const startedAt = {};
+  const capture = async (input) => {
+    startedAt[runIndex(input.dir)] = performance.now();
+    return asyncCapture()(input);
+  };
+  const concurrent = setup({ capture, offsetMs: null });
+  assert.equal(await quietly(() => concurrent.run()), 0);
+  assert.ok(
+    startedAt[2] - startedAt[1] >= CONCURRENT_START_OFFSET_MS - 1,
+    `run 2 started ${startedAt[2] - startedAt[1]} ms after run 1`,
+  );
+  assert.equal(
+    validateReceipt(JSON.parse(concurrent.read('receipt.json')))
+      .captureOffsetMs,
+    CONCURRENT_START_OFFSET_MS,
+  );
+
+  const sequential = setup({ capture, offsetMs: null });
+  const before = performance.now();
+  assert.equal(await quietly(() => sequential.run('--sequential')), 0);
+  assert.ok(performance.now() - before < CONCURRENT_START_OFFSET_MS);
+});
+
+// The captures here run in this process, so they read the zone they were handed (as a capture process would see it in TZ).
+const zoneOf = (env) => env.TZ ?? inherited;
+const localDigits = (timeZone, at = new Date()) =>
+  Number(
+    at
+      .toLocaleString('sv-SE', { timeZone, hourCycle: 'h23' })
+      .replace(/\D/g, '')
+      .slice(0, 10),
+  );
+
+test('a capture whose rows embed the time zone fails the concurrent run as NONDETERMINISTIC_ROWS', async () => {
+  const t = setup({
+    capture: async (input) => {
+      // The local date and hour (YYYYMMDDHH) in the capture's zone, carried into every row's BV.
+      const bv = localDigits(zoneOf(input.env));
+      return asyncCapture({ change: () => ({ bv }) })(input);
+    },
+  });
+  assert.equal(await quietly(() => t.run()), 1);
+  const failure = JSON.parse(t.read('failure.json'));
+  assert.equal(failure.reason, 'NONDETERMINISTIC_ROWS');
+  assert.equal(failure.units.length, ids.length);
+});
+
+test('a capture whose rows embed the clock fails the concurrent run as NONDETERMINISTIC_ROWS', async () => {
+  const t = setup({
+    // Whole seconds: two runs started more than a second apart can never agree.
+    offsetMs: 1100,
+    capture: async (input) => {
+      const bv = Math.floor(Date.now() / 1000);
+      return asyncCapture({ change: () => ({ bv }) })(input);
+    },
+  });
+  assert.equal(await quietly(() => t.run()), 1);
+  assert.equal(
+    JSON.parse(t.read('failure.json')).reason,
+    'NONDETERMINISTIC_ROWS',
+  );
+});
+
+test('jestCapture hands the capture process its extra environment on top of this one', async () => {
+  // A stand-in for node_modules/jest/bin/jest.js that writes the capture outputs, with TZ in each record.
+  const root = tmp();
+  fs.mkdirSync(path.join(root, 'node_modules/jest/bin'), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, 'node_modules/jest/bin/jest.js'),
+    [
+      "const fs = require('node:fs');",
+      "const path = require('node:path');",
+      "const context = JSON.parse(fs.readFileSync(process.env.STUB_CONTEXT, 'utf8'));",
+      "const plan = JSON.parse(fs.readFileSync(context.planFile, 'utf8'));",
+      'const out = (name, text) => fs.writeFileSync(path.join(context.outputDirectory, name), text);',
+      "out('captured.jsonl', plan.map((p) => JSON.stringify({ unitId: p.unitId, tz: process.env.TZ ?? null, home: process.env.STUB_HOME ?? null }) + '\\n').join(''));",
+      "out('capture-summary.json', JSON.stringify({ infrastructureFailures: 0 }));",
+      "out('resources.json', JSON.stringify({ maxRSS: 1 }));",
+    ].join('\n'),
+  );
+  const capture = jestCapture({
+    config: 'unused.js',
+    contextEnv: 'STUB_CONTEXT',
+  });
+  const plan = [{ unitId: 'alpha' }];
+  process.env.STUB_HOME = 'kept';
+  try {
+    const zoned = await capture({
+      repoRoot: root,
+      plan,
+      dir: path.join(root, 'run-2'),
+      env: { TZ: 'Pacific/Kiritimati' },
+    });
+    assert.deepEqual(zoned.records, [
+      { unitId: 'alpha', tz: 'Pacific/Kiritimati', home: 'kept' },
+    ]);
+    const plain = await capture({
+      repoRoot: root,
+      plan,
+      dir: path.join(root, 'run-1'),
+    });
+    assert.deepEqual(plain.records, [
+      { unitId: 'alpha', tz: process.env.TZ ?? null, home: 'kept' },
+    ]);
+  } finally {
+    delete process.env.STUB_HOME;
+  }
+});
+
 test('main fails with a named reason when the census cannot complete', async () => {
   const none = setup({
     join: {
@@ -741,7 +1157,9 @@ test('main writes facts.ndjson beside the rows: bvExact, distance, validity and 
     bvDistance: 0,
     validity: true,
     weightOwners: true,
+    previewEqualsStatus: true,
   });
+  assert.deepEqual(facts[0].reported, { previewStatusDistance: 0 });
   assert.equal(t.exists('failure.json'), false);
   // The rows are not changed by the facts: no field of the row schema was added.
   assert.equal('facts' in parseRows(t.read('rows.ndjson'))[0], false);
@@ -749,7 +1167,7 @@ test('main writes facts.ndjson beside the rows: bvExact, distance, validity and 
   const meta = parseFactsMeta(t.read('facts-meta.json'));
   assert.deepEqual(
     [meta.measure, meta.factsSchemaVersion, meta.referenceSha256],
-    ['load', 1, hex('d')],
+    ['load', FACTS_SCHEMA_VERSION, hex('d')],
   );
   assert.equal(meta.factsDeriverBlob, factsDeriverBlob());
 });
@@ -769,7 +1187,7 @@ test('--write-baseline writes the baseline of a complete run with its SHA, popul
   );
   assert.equal(baseline.sha, hex('c', 40));
   // Provenance: the facts schema, the deriver's git blob and the reference the facts were derived with.
-  assert.equal(baseline.factsSchemaVersion, 1);
+  assert.equal(baseline.factsSchemaVersion, FACTS_SCHEMA_VERSION);
   assert.equal(baseline.factsDeriverBlob, factsDeriverBlob());
   assert.equal(baseline.referenceSha256, hex('d'));
   // The load measure has no set facts, so there is no sidecar.

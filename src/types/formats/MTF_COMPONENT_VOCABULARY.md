@@ -1,7 +1,7 @@
 # MTF component vocabulary
 
 `mtf-component-vocabulary.json` owns the exact source strings an MTF file uses
-for four mech components, and the serialized identity each one resolves to:
+for four mech components, and the serialized identity each one resolves to (armor, below, is a fifth section with its own shape):
 
 | Table                 | MTF line                | Identities                                                                                               |
 | --------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------- |
@@ -77,6 +77,34 @@ alone never proves that the source cell is occupied. Export armor-family names
 remain owned by the export vocabulary; no second slot-marker names table is
 introduced in the loader or notice.
 
+`criticalSlotEquipment` lists the crit-only equipment the loader may recover
+into real mounts (PR-D). Each row is one **resolved equipment id** with the
+native spellings that resolve to it and their pinned `MiscType.java` /
+`Sensor.java` citation. A row carries no kind and no effect: the recovery kind
+comes from `criticalSlotNoticeEffects.ts`, and token-to-id resolution stays with
+`resolveEquipmentId`. Admission needs both the exact resolved id and an exact
+listed spelling, never a name or substring match: a spelling the resolver merely
+maps onto a row id is not admitted (`CLCASE`, Java's 0 t Clan CASE, resolves to
+IS `case` at 0.5 t because the catalog has no Clan CASE identity; it stays in the
+residual).
+
+`mountAs` is identity only, never a kind or effect. **A row carries `mountAs`
+if and only if its resolved id is a registry stub** (`isRegistryEquipment`, the
+imported Java registry records in `equipmentBVCatalogData.ts`): a stub has no
+mountable mass or criticals of its own, so `mountAs` names the real, mountable
+catalog item the recovered mount becomes, sized by that item's existing owner.
+The targeting-computer crit cells resolve to `istargeting-computer-registry` /
+`cltargeting-computer-registry` (0 t, 0 criticals); their rows name
+`targeting-computer` / `clan-targeting-computer`, sized from the recovered
+weapons. Any later section user (for example stub-resolving mobility tokens)
+follows the same rule. `criticalSlotEquipmentVocabulary.test.ts` enforces both
+directions and that every `mountAs` target is a mountable, non-registry item.
+
+The first rows are CASE and
+the electronics whose definitions carry their own mass and criticals; spread
+systems (Chameleon, Null/Void Signature, Blue Shield), sized communications and
+the Drone OS have no row yet and stay in the unrecovered residual.
+
 ## Tripod and the other late cockpit types
 
 Java's table has 19 cockpits (`Mek.java:214-230`). `Tripod Cockpit` / `Tripod`
@@ -85,6 +113,26 @@ is `COCKPIT_TRIPOD` (index 10, `Mek.java:202`), and `CockpitType.TRIPOD`, `DUAL`
 to its own identity. The committed catalog may still hold `STANDARD` for the four
 pinned Tripod Cockpit units until it is regenerated; that is a catalog decision,
 not a vocabulary one.
+
+## Armor identity (`armor`)
+
+The `armor` section is a list, not a name table: one row per unit-contract
+`armor.type` tag (47, the `standardArmorType` enum in `unit-schema.json`). A row
+carries `tag`, `enum` (the `ArmorTypeEnum` member key, or null), `family` (the
+export family: `MTF:mech` or a `BLK:*` family) and, on `MTF:mech` rows only, an
+`mtf` block: `write` (the name the pinned writer emits, `Mek.java:5385-5403`),
+`parse` (the normalised key the TypeScript parser accepts; null for a Clan
+variant it reaches by rule) and `spellings` (the exact strings the Python
+converter accepts; empty when Python never produces that tag).
+
+TypeScript reads it through `ArmorIdentity.ts` and derives the MTF vocabulary,
+the export families and the armor source tags. Python builds `ARMOR_TYPE_MAP`
+from `spellings`. The two accepted-name sets differ and the fold keeps each
+exactly as it was; `test_armor_accepted_names.py` and
+`MTFVocabulary.armorAccepted.test.ts` pin them over one fixture. The literal
+tables that must stay (the serializer tag table, which feeds contract literal
+types, and `BlkArmorCodes.ts`) are proven equal to the rows by
+`armorIdentity.test.ts`; `test_armor_identity_owner.py` is the Python guard.
 
 ## Adding an entry (for 4.1-g.2)
 

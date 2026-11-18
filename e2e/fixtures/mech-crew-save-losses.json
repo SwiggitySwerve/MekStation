@@ -1,29 +1,16 @@
 {
   "groupingSourceCommit": "483c90e6fcada410ddfc77e2503856b399b775f5",
-  "sourceCommit": "954394f1bd3727d938aa882371d0dbd061e4632a",
+  "sourceCommit": "cec94e4f0a803bff930a7b9fc34e238ae634280c",
   "units": {
     "triskelion-trk-4v": {
       "sourcePath": "public/data/units/battlemechs/6-dark-age/experimental/Triskelion TRK-4V.json",
       "noticeGroups": [
         {
-          "title": "Other critical-slot entries",
-          "kinds": [
-            {
-              "title": "Probes and electronics",
-              "entryIndexes": [4, 5, 9, 10, 14, 15, 16]
-            },
-            {
-              "title": "CASE / CASE II",
-              "entryIndexes": [6, 11]
-            }
-          ]
-        },
-        {
           "title": "Placement markers only",
           "kinds": [
             {
               "title": "Armor / structure markers",
-              "entryIndexes": [0, 1, 2, 3, 7, 8, 12, 13, 17, 18, 19, 20, 21, 22]
+              "entryIndexes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
             }
           ]
         }
@@ -50,21 +37,6 @@
           "slot": 7
         },
         {
-          "text": "CLArtemisV",
-          "location": "Left Torso",
-          "slot": 4
-        },
-        {
-          "text": "CLArtemisV",
-          "location": "Left Torso",
-          "slot": 5
-        },
-        {
-          "text": "ISCASEII",
-          "location": "Left Torso",
-          "slot": 8
-        },
-        {
           "text": "IS Endo-Composite",
           "location": "Left Torso",
           "slot": 9
@@ -75,21 +47,6 @@
           "slot": 10
         },
         {
-          "text": "CLArtemisV",
-          "location": "Right Torso",
-          "slot": 4
-        },
-        {
-          "text": "CLArtemisV",
-          "location": "Right Torso",
-          "slot": 5
-        },
-        {
-          "text": "ISCASEII",
-          "location": "Right Torso",
-          "slot": 8
-        },
-        {
           "text": "IS Endo-Composite",
           "location": "Right Torso",
           "slot": 9
@@ -98,21 +55,6 @@
           "text": "Clan Ferro-Fibrous",
           "location": "Right Torso",
           "slot": 10
-        },
-        {
-          "text": "ISGuardianECMSuite",
-          "location": "Center Torso",
-          "slot": 10
-        },
-        {
-          "text": "ISGuardianECMSuite",
-          "location": "Center Torso",
-          "slot": 11
-        },
-        {
-          "text": "ISTargeting Computer",
-          "location": "Head",
-          "slot": 3
         },
         {
           "text": "IS Endo-Composite",
@@ -153,16 +95,8 @@
           "title": "Other critical-slot entries",
           "kinds": [
             {
-              "title": "Probes and electronics",
-              "entryIndexes": [4]
-            },
-            {
-              "title": "CASE / CASE II",
-              "entryIndexes": [5, 7]
-            },
-            {
               "title": "Other",
-              "entryIndexes": [10, 11, 12, 13, 14, 15]
+              "entryIndexes": [7, 8, 9, 10, 11, 12]
             }
           ]
         },
@@ -171,7 +105,7 @@
           "kinds": [
             {
               "title": "Armor / structure markers",
-              "entryIndexes": [0, 1, 2, 3, 6, 8, 9]
+              "entryIndexes": [0, 1, 2, 3, 4, 5, 6]
             }
           ]
         }
@@ -198,24 +132,9 @@
           "slot": 9
         },
         {
-          "text": "ISApollo",
-          "location": "Right Arm",
-          "slot": 6
-        },
-        {
-          "text": "CLCASEII",
-          "location": "Left Torso",
-          "slot": 10
-        },
-        {
           "text": "IS Endo Steel",
           "location": "Left Torso",
           "slot": 11
-        },
-        {
-          "text": "CLCASEII",
-          "location": "Right Torso",
-          "slot": 10
         },
         {
           "text": "IS Endo Steel",
@@ -315,5 +234,6 @@
         }
       ]
     }
-  }
+  },
+  "entriesNote": "entries re-pinned at PR-D1 head cec94e4f0a803bff930a7b9fc34e238ae634280c (scripts/e2e/pin-mech-crew-save-losses.ts); noticeGroups re-indexed by dropping the recovered entries, not regrouped"
 }

@@ -7,6 +7,9 @@ function issue(code, message, details = {}) {
 /** Current Linux contract is ubuntu-latest + default/literal bash. */
 const ALLOWED_RUN_SHELL = 'bash';
 
+const PLAYWRIGHT_SYSTEM_DEPS_ACTION =
+  './.github/actions/playwright-system-deps';
+
 function isUnsafeRunShell(shell) {
   return shell !== undefined && shell !== ALLOWED_RUN_SHELL;
 }
@@ -220,7 +223,7 @@ export function validateJobTokens(workflowJobs, contract, errors) {
     (!uploadStep || uploadStep.if !== contract.uploadFailureIf)
   )
     invalidSteps.push(
-      'upload step must use failure() and the code/e2e condition',
+      'upload step must use failure() || cancelled() and the code/e2e condition',
     );
 
   // Named steps that run under a wider condition than the change gate (a
@@ -239,13 +242,24 @@ export function validateJobTokens(workflowJobs, contract, errors) {
         '(' +
         contract.changeGateIf +
         ") && steps.playwright-cache.outputs.cache-hit != 'true'";
-    else if (step?.run === 'npx playwright install-deps chromium')
+    else if (step?.uses === PLAYWRIGHT_SYSTEM_DEPS_ACTION)
       expectedCondition =
         '(' +
         contract.changeGateIf +
         ") && steps.playwright-cache.outputs.cache-hit == 'true'";
     if (step?.if !== expectedCondition)
       invalidSteps.push(name + ' must use its exact code/e2e condition');
+    // A raw install-deps re-downloads the system packages on every run.
+    if (
+      typeof step?.run === 'string' &&
+      /playwright install-deps/.test(step.run)
+    )
+      invalidSteps.push(
+        name +
+          ' must use ' +
+          PLAYWRIGHT_SYSTEM_DEPS_ACTION +
+          ', not install-deps',
+      );
   }
   const runPositions = contract.requiredRuns.map((required) =>
     steps.findIndex((step) => step?.run === required.run),

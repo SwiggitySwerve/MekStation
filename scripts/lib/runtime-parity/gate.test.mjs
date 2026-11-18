@@ -9,7 +9,12 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { FACTS_META_FILE } from './facts-provenance.mjs';
-import { FACTS_FILE, FACT_DEFS, serializeFacts } from './facts.mjs';
+import {
+  FACTS_FILE,
+  FACTS_SCHEMA_VERSION,
+  FACT_DEFS,
+  serializeFacts,
+} from './facts.mjs';
 import {
   GateError,
   buildBaseline,
@@ -18,6 +23,7 @@ import {
   main,
   parseBaseline,
   populationHash,
+  readBaselineNotes,
   serializeBaseline,
   setHash,
 } from './gate.mjs';
@@ -35,6 +41,7 @@ const loadFacts = (over = {}) => ({
   bvDistance: 0,
   validity: true,
   weightOwners: true,
+  previewEqualsStatus: true,
   ...over,
 });
 const reopenFacts = (over = {}) => ({
@@ -50,16 +57,19 @@ const reopenFacts = (over = {}) => ({
   reopenValid: true,
   ...over,
 });
+let previewStatusDistance = 0;
 const entry = (key, facts, measure = 'load') => {
   const [family, unitId] = key.split('/');
   return {
-    schemaVersion: 1,
+    schemaVersion: FACTS_SCHEMA_VERSION,
     measure,
     family,
     unitId,
     path: `meks/${unitId}.mtf`,
     status: 'ok',
     facts,
+    // Reported, not gated: the record sheet's distance from the status bar (load only).
+    reported: measure === 'load' ? { previewStatusDistance } : {},
   };
 };
 const entries = (units, measure = 'load') =>
@@ -159,6 +169,83 @@ killed(
   },
   { 'bools never regress': ignoring('bool') },
 );
+
+killed(
+  'the record sheet getting worse for one unit exits 1, named: previewEqualsStatus true -> false',
+  (rules) => {
+    const r = evaluateWith(
+      {
+        base: two(loadFacts(), loadFacts()),
+        tonight: two(loadFacts({ previewEqualsStatus: false }), loadFacts()),
+      },
+      rules,
+    );
+    assert.equal(r.exitCode, 1);
+    assert.deepEqual(
+      r.regressions.map((x) => [x.unit, x.fact, x.why]),
+      [[U1, 'previewEqualsStatus', 'pass -> fail']],
+    );
+    // The fix: unequal -> equal is a gain that passes and is listed as unprotected.
+    const base = two(loadFacts({ previewEqualsStatus: false }), loadFacts());
+    const fixed = evaluateWith(
+      { base, tonight: two(loadFacts(), loadFacts()) },
+      rules,
+    );
+    assert.equal(fixed.exitCode, 0);
+    assert.deepEqual(
+      fixed.gains.map((g) => [g.unit, g.fact]),
+      [[U1, 'previewEqualsStatus']],
+    );
+    // Unknown (not captured) after a known value is worse, never a pass.
+    const unknown = evaluateWith(
+      {
+        base: two(loadFacts(), loadFacts()),
+        tonight: two(loadFacts({ previewEqualsStatus: null }), loadFacts()),
+      },
+      rules,
+    );
+    assert.deepEqual(
+      unknown.regressions.map((x) => [x.fact, x.why]),
+      [['previewEqualsStatus', 'known -> unknown']],
+    );
+  },
+  { 'bools never regress': ignoring('bool') },
+);
+
+test('previewStatusDistance is reported and NOT gated: a larger distance never fails the night, and the baseline holds no entry for it', () => {
+  const base = two(loadFacts({ previewEqualsStatus: false }), loadFacts());
+  previewStatusDistance = 91;
+  const files = baselineFiles(base);
+  assert.equal(
+    files.main.includes('previewStatusDistance'),
+    false,
+    'not in the baseline',
+  );
+  // A correct status-bar fix on a unit whose sheet differs raises the distance: the night stays green.
+  previewStatusDistance = 400;
+  const r = evaluateWith({ base, files, tonight: base });
+  previewStatusDistance = 0;
+  assert.equal(r.exitCode, 0);
+  assert.deepEqual(r.regressions, []);
+  // It is reported: per fact, how many units, how many non-zero, the largest.
+  assert.deepEqual(r.reported.previewStatusDistance, {
+    gated: false,
+    known: 2,
+    unknown: 0,
+    nonZero: 2,
+    max: 400,
+  });
+  // A baseline that carries it is malformed: it is not a gated fact.
+  const withIt = JSON.parse(files.main);
+  withIt.units[U1].previewStatusDistance = 91;
+  const bad = evaluateWith({
+    base,
+    files: { main: JSON.stringify(withIt), sets: null },
+    tonight: base,
+  });
+  assert.equal(bad.exitCode, 2);
+  assert.equal(bad.failClosed[0].reason, 'BASELINE_MALFORMED');
+});
 
 killed(
   'a set that gains members is a regression (inclusion rule)',
@@ -728,6 +815,154 @@ const blobOf = ({ main, sets }) =>
     )
     .digest('hex');
 
+test('malformed last-green distance cannot hide the Aquagladius 336 -> 337 regression', () => {
+  const unit = 'battlemechs/aquagladius-aqs-5-mam';
+  const base = { [unit]: loadFacts({ bvDistance: 336 }), [U2]: loadFacts() };
+  const files = baselineFiles(base);
+  const r = evaluateWith({
+    base,
+    files,
+    tonight: { ...base, [unit]: loadFacts({ bvDistance: 337 }) },
+    lastGreen: greenOf(
+      { ...base, [unit]: loadFacts({ bvDistance: 'bad' }) },
+      blobOf(files),
+    ),
+  });
+  assert.equal(r.exitCode, 1);
+  assert.deepEqual(
+    r.regressions.map(({ unit, fact, source }) => [unit, fact, source]),
+    [[unit, 'bvDistance', 'baseline']],
+  );
+  assert.equal(r.lastGreen.status, 'malformed');
+  assert.match(
+    r.lastGreen.detail,
+    /units\.battlemechs\/aquagladius-aqs-5-mam\.bvDistance/,
+  );
+  assert.deepEqual(r.failClosed, []);
+});
+
+for (const [label, override, badPath] of [
+  ['non-numeric distance', { bvDistance: 'bad' }, 'bvDistance'],
+  ['NaN distance', { bvDistance: NaN }, 'bvDistance'],
+  [
+    'Infinity distance from JSON 1e999',
+    { bvDistance: JSON.parse('1e999') },
+    'bvDistance',
+  ],
+  ['negative distance', { bvDistance: -1 }, 'bvDistance'],
+  ['wrong boolean type', { bvExact: 'true' }, 'bvExact'],
+  ['unknown fact key', { surprise: true }, 'surprise'],
+  ['missing fact', { bvExact: undefined }, 'bvExact'],
+])
+  test(`last green with ${label} is discarded wholly without failing the night`, () => {
+    const base = two(loadFacts({ bvExact: false }), loadFacts());
+    const files = baselineFiles(base);
+    const r = evaluateWith({
+      base,
+      files,
+      tonight: base,
+      lastGreen: greenOf(two(loadFacts(), loadFacts(override)), blobOf(files)),
+    });
+    assert.equal(r.exitCode, 0);
+    assert.equal(r.lastGreen.status, 'malformed');
+    assert.ok(r.lastGreen.detail.includes(`units.${U2}.${badPath}`));
+    assert.match(r.lastGreen.detail, /committed baseline alone/);
+    assert.deepEqual(r.regressions, []);
+    assert.deepEqual(r.failClosed, []);
+  });
+
+for (const [label, override, badPath] of [
+  ['wrong measure', { measure: 'other' }, 'measure'],
+  ['wrong schema version', { schemaVersion: 2 }, 'schemaVersion'],
+  ['wrong run SHA', { runSha: 'bad' }, 'runSha'],
+  ['non-string baseline hash', { baselineSha256: 123 }, 'baselineSha256'],
+  ['missing units', { units: undefined }, 'units'],
+  ['array units', { units: [] }, 'units'],
+  ['null unit facts', { units: { [U1]: null } }, `units.${U1}`],
+])
+  test(`malformed last-green envelope: ${label} is reported and ignored`, () => {
+    const base = two(loadFacts(), loadFacts());
+    const files = baselineFiles(base);
+    const r = evaluateWith({
+      base,
+      files,
+      tonight: base,
+      lastGreen: { ...greenOf(base, blobOf(files)), ...override },
+    });
+    assert.equal(r.exitCode, 0);
+    assert.equal(r.lastGreen.status, 'malformed');
+    assert.ok(r.lastGreen.detail.includes(badPath));
+    assert.deepEqual(r.failClosed, []);
+  });
+
+test('a falsy scalar last-green artifact is malformed rather than silently missing', () => {
+  const base = two(loadFacts(), loadFacts());
+  const r = evaluateWith({ base, tonight: base, lastGreen: false });
+  assert.equal(r.exitCode, 0);
+  assert.equal(r.lastGreen.status, 'malformed');
+  assert.match(r.lastGreen.detail, /\(root\)/);
+});
+
+for (const value of ['bad', [123], ['b', 'a'], ['a', 'a']])
+  test(`malformed last-green set ${JSON.stringify(value)} is discarded`, () => {
+    const base = two(reopenFacts(), reopenFacts());
+    const files = baselineFiles(base, 'reopen');
+    const r = evaluateWith({
+      base,
+      files,
+      tonight: base,
+      measure: 'reopen',
+      lastGreen: {
+        ...greenOf(
+          two(reopenFacts({ rawIdentityLosses: value }), reopenFacts()),
+          blobOf(files),
+        ),
+        measure: 'reopen',
+      },
+    });
+    assert.equal(r.exitCode, 0);
+    assert.equal(r.lastGreen.status, 'malformed');
+    assert.ok(r.lastGreen.detail.includes(`units.${U1}.rawIdentityLosses`));
+  });
+
+test('a well-formed last green still tightens distances and sets', () => {
+  for (const measure of ['load', 'reopen']) {
+    const base =
+      measure === 'load'
+        ? two(loadFacts({ bvDistance: 336 }), loadFacts())
+        : two(reopenFacts({ rawIdentityLosses: ['a', 'b'] }), reopenFacts());
+    const green =
+      measure === 'load'
+        ? two(loadFacts({ bvDistance: 335 }), loadFacts())
+        : two(reopenFacts({ rawIdentityLosses: ['a'] }), reopenFacts());
+    const files = baselineFiles(base, measure);
+    const r = evaluateWith({
+      base,
+      files,
+      tonight: base,
+      measure,
+      lastGreen: { ...greenOf(green, blobOf(files)), measure },
+    });
+    assert.equal(r.exitCode, 1);
+    assert.equal(r.lastGreen.status, 'applied');
+    assert.equal(r.regressions[0].source, 'last-green');
+  }
+});
+
+test('baseline rejects a JSON distance of 1e999 instead of accepting Infinity', () => {
+  const base = two(loadFacts(), loadFacts());
+  const files = baselineFiles(base);
+  const r = evaluateWith({
+    base,
+    tonight: base,
+    files,
+    mainOverride: files.main.replace('"bvDistance":0', '"bvDistance":1e999'),
+  });
+  assert.equal(r.exitCode, 2);
+  assert.equal(r.failClosed[0].reason, 'BASELINE_MALFORMED');
+  assert.match(r.failClosed[0].message, /bvDistance/);
+});
+
 killed(
   'last green tightens an unfolded gain, but only while the committed baseline is byte-unchanged',
   (rules) => {
@@ -815,11 +1050,71 @@ test('buildBaseline records a complete run with its SHA, provenance, population 
       units: [U1],
     },
     provenance: PROV,
-    existing: first,
+    existingNotes: first.notes,
   });
   assert.deepEqual(
     second.notes.map((n) => n.reason),
     ['seed', 'A2 locks in the Mad Cats'],
+  );
+});
+
+test('a rebaseline reads the notes of a baseline that predates a new fact; a malformed note or file is refused', () => {
+  // The very rebaseline that adds a fact reads a baseline without it: parseBaseline would call that malformed.
+  const files = baselineFiles(two(loadFacts(), loadFacts()));
+  const old = JSON.parse(files.main);
+  for (const unit of Object.values(old.units)) delete unit.previewEqualsStatus;
+  const text = JSON.stringify(old);
+  assert.throws(
+    () => parseBaseline('load', text, null),
+    /no baseline entry for gated fact previewEqualsStatus/,
+  );
+  const notes = readBaselineNotes(text, 'load');
+  assert.deepEqual(
+    notes.map((n) => n.reason),
+    ['seed'],
+  );
+  // And the notes carry into the new baseline, which has every current fact.
+  const next = buildBaseline({
+    measure: 'load',
+    facts: entries(two(loadFacts(), loadFacts())),
+    sha: RUN_SHA,
+    note: { sha: RUN_SHA, pr: null, reason: 'adds a fact', units: [] },
+    provenance: PROV,
+    existingNotes: notes,
+  });
+  assert.deepEqual(
+    next.notes.map((n) => n.reason),
+    ['seed', 'adds a fact'],
+  );
+  assert.ok(Object.values(next.units).every((u) => 'previewEqualsStatus' in u));
+  // What carries over is still checked.
+  assert.throws(() => readBaselineNotes('{nope', 'load'), /not valid JSON/);
+  assert.throws(
+    () => readBaselineNotes(JSON.stringify({ ...old, notes: [] }), 'load'),
+    /notes are malformed/,
+  );
+  // A misplaced file (the reopen baseline where the load one belongs) cannot lend its notes, even with valid notes.
+  assert.throws(
+    () => readBaselineNotes(text, 'reopen'),
+    (e) =>
+      e instanceof GateError &&
+      e.reason === 'BASELINE_MALFORMED' &&
+      /existing baseline is for load, not reopen/.test(e.message),
+  );
+  assert.throws(
+    () => readBaselineNotes(JSON.stringify({ notes: old.notes }), 'load'),
+    /existing baseline is for undefined, not load/,
+  );
+  assert.throws(
+    () =>
+      readBaselineNotes(
+        JSON.stringify({
+          ...old,
+          notes: [{ sha: 'x', pr: 1, reason: '', units: [] }],
+        }),
+        'load',
+      ),
+    /notes are malformed/,
   );
 });
 

@@ -139,3 +139,92 @@ test('approval revoked during collection is reread before a successful status', 
   assert.equal((await checkBudgetRaise(f.input)).allowed, false);
   assert.equal(f.calls.at(-1).state, 'failure');
 });
+
+// Owner-authored raises read the committed approval record at the PR base.
+const RECORD_PATH = 'config/ci/approved-budget-raises.json';
+const record = {
+  schema: 'mekstation/ci-budget-raise-approvals/v1',
+  approvals: [
+    {
+      pr: 3418,
+      key: 'limits.repoWideKeys',
+      from: 93,
+      to: 94,
+      ruling: { section: 'PARITY-PLAN §185', quote: 'Raise to 94 for PR-O.' },
+    },
+  ],
+};
+function ownerFixture({ recordAt }) {
+  const f = fixture();
+  const owner = { id: 42, login: 'api-owner', type: 'User' };
+  f.pr.number = 3418;
+  f.pr.user = { id: owner.id, login: owner.login };
+  f.reviews.length = 0;
+  f.input.number = 3418;
+  f.input.budgetRaises = () => [
+    { id: 'limits.repoWideKeys', before: 93, after: 94 },
+  ];
+  const blob = (value) => ({
+    data: {
+      encoding: 'base64',
+      content: Buffer.from(JSON.stringify(value)).toString('base64'),
+    },
+  });
+  f.input.github.rest.repos.getContent = async (args) => {
+    f.calls.push(args);
+    if (args.path !== RECORD_PATH) return blob({ ref: args.ref });
+    const at = { base: f.pr.base.sha, head: f.pr.head.sha }[recordAt];
+    if (args.ref !== at)
+      throw Object.assign(new Error('Not Found'), { status: 404 });
+    return blob(record);
+  };
+  return f;
+}
+
+test('an owner-authored raise passes on a matching record read at the PR base', async () => {
+  const f = ownerFixture({ recordAt: 'base' });
+  const result = await checkBudgetRaise(f.input);
+  assert.equal(result.allowed, true, result.message);
+  assert.equal(result.code, 'owner-ruling-record');
+  assert.deepEqual(
+    f.calls.filter((call) => call.path === RECORD_PATH).map((c) => c.ref),
+    [f.pr.base.sha],
+  );
+  assert.equal(f.calls.at(-1).state, 'success');
+  assert.equal(f.calls.at(-1).sha, f.pr.head.sha);
+});
+
+test('a record entry present only at the PR head cannot approve its own raise', async () => {
+  const f = ownerFixture({ recordAt: 'head' });
+  const result = await checkBudgetRaise(f.input);
+  assert.equal(result.allowed, false);
+  assert.equal(result.code, 'self-approval');
+  assert.equal(f.calls.at(-1).state, 'failure');
+});
+
+test('an unreadable base record fails closed as invalid-approval-record', async () => {
+  for (const mode of ['json', 'encoding', 'server']) {
+    const f = ownerFixture({ recordAt: 'base' });
+    const read = f.input.github.rest.repos.getContent;
+    f.input.github.rest.repos.getContent = async (args) => {
+      if (args.path !== RECORD_PATH) return read(args);
+      if (mode === 'server')
+        throw Object.assign(new Error('boom'), { status: 500 });
+      return {
+        data:
+          mode === 'json'
+            ? { encoding: 'base64', content: 'bm90LWpzb24=' }
+            : { encoding: 'none', content: '' },
+      };
+    };
+    const result = await checkBudgetRaise(f.input);
+    assert.equal(result.code, 'invalid-approval-record', mode);
+    assert.equal(f.calls.at(-1).state, 'failure', mode);
+  }
+});
+
+test('a non-owner author never reads the record', async () => {
+  const f = fixture();
+  assert.equal((await checkBudgetRaise(f.input)).code, 'owner-approved');
+  assert.ok(f.calls.every((call) => call.path !== RECORD_PATH));
+});

@@ -346,4 +346,26 @@ export const standalonePrimaryEntries: readonly SweptScreenEntry[] = [
     ],
     quarantine: [],
   },
+  {
+    id: 'gameplay-lobby',
+    class: 'standalone',
+    label: 'peer-to-peer lobby unavailable',
+    manifestPaths: ['/gameplay/lobby/[roomCode]'],
+    goto: '/gameplay/lobby/LAYTXT?host=1',
+    primaryAffordances: [
+      affordance({
+        label: 'back to games',
+        role: 'link',
+        name: 'Back to games',
+      }),
+    ],
+    overlapTargets: [
+      affordance({
+        label: 'back to games',
+        role: 'link',
+        name: 'Back to games',
+      }),
+    ],
+    quarantine: [],
+  },
 ];
