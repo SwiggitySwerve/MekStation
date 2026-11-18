@@ -11,6 +11,7 @@ import type { IMovementCostContext } from '@/utils/gameplay/movement';
 
 import { MovementType } from '@/types/gameplay';
 import { createEnvironmentalConditions } from '@/utils/gameplay/environmentalModifiers';
+import { hexDistance } from '@/utils/gameplay/hexMath';
 import { getMaxMP } from '@/utils/gameplay/movement';
 
 import type { IMove } from '../../ai/types';
@@ -24,8 +25,15 @@ import { moveCandidatesAtBase } from './moveCandidatesAtBase.test-helpers';
  * A* per surviving destination) must return exactly the ordered move list of
  * the unbounded search frozen at bc5090609, on seeded boards of every terrain
  * family, for every movement type, motive mode and cost context.
+ *
+ * Default run: one board per kind, four origins (centre, corner, edge
+ * midpoint, one seeded hex) and every movement type, with motive modes and
+ * contexts rotated so each kind covers all of them. `P6_CORPUS_FULL=1` runs
+ * the full corpus: three boards per kind, thirteen origins, two seeded
+ * draws per movement type. Each test asserts its classes were all covered.
  */
 
+const FULL = process.env.P6_CORPUS_FULL === '1';
 const RADIUS = 7;
 const BOARDS_PER_KIND = 3;
 
@@ -278,6 +286,82 @@ function comparisonsFor(kind: BoardKind): IComparison[] {
   return comparisons;
 }
 
+/**
+ * One board per kind, four origins, every movement type. Motive modes and
+ * contexts rotate with the comparison index, so each kind covers all of them.
+ */
+function defaultComparisonsFor(kind: BoardKind): IComparison[] {
+  const kindIndex = BOARD_KINDS.indexOf(kind);
+  const seed = 6_000 + kindIndex * 100;
+  const random = new SeededRandom(seed + 50);
+  const grid = seededBoard(kind, seed);
+  const [q, r] = pick(random, [...grid.hexes.keys()])
+    .split(',')
+    .map(Number);
+  const origins: IHexCoordinate[] = [
+    { q: 0, r: 0 },
+    { q: RADIUS, r: -RADIUS },
+    { q: 3, r: -RADIUS },
+    { q, r },
+  ];
+  const comparisons: IComparison[] = [];
+  for (const origin of origins) {
+    const boardWithMover = withMover(grid, origin);
+    for (const movementType of MOVEMENT_TYPES) {
+      const index = kindIndex + comparisons.length;
+      const walkMP = 1 + random.nextInt(7);
+      comparisons.push({
+        grid: boardWithMover,
+        position: {
+          unitId: 'mover',
+          coord: origin,
+          facing: random.nextInt(6) as Facing,
+          prone: false,
+        },
+        movementType,
+        capability: {
+          walkMP,
+          runMP: Math.ceil(walkMP * 1.5),
+          jumpMP: 1 + random.nextInt(6),
+          movementMode: MOTIVE_MODES[index % MOTIVE_MODES.length],
+          ...(index % 3 === 0 ? { movementHeatProfile: 'none' } : {}),
+          ...(index % 5 === 0 ? { partialWingJumpBonus: 1 } : {}),
+        },
+        context: CONTEXTS[index % CONTEXTS.length],
+      });
+    }
+  }
+  return comparisons;
+}
+
+function isEdgeHex(coord: IHexCoordinate): boolean {
+  return (
+    Math.max(
+      Math.abs(coord.q),
+      Math.abs(coord.r),
+      Math.abs(coord.q + coord.r),
+    ) === RADIUS
+  );
+}
+
+/** Another unit stands within maxMP of the origin, so occupancy can matter. */
+function hasOccupantInReach(c: IComparison): boolean {
+  const maxMP = getMaxMP(c.capability, c.movementType);
+  for (const hex of c.grid.hexes.values()) {
+    if (hex.occupantId === null || hex.occupantId === 'mover') continue;
+    const distance = hexDistance(c.position.coord, hex.coord);
+    if (distance > 0 && distance <= maxMP) return true;
+  }
+  return false;
+}
+
+/** Per-kind, per-class counts, printed after the run and checked for gaps. */
+const counts: Record<string, Record<string, number>> = {};
+function tally(kind: string, cls: string, by = 1): void {
+  const row = (counts[kind] ??= {});
+  row[cls] = (row[cls] ?? 0) + by;
+}
+
 /** In-bounds, unoccupied hexes of the candidate square with no move in `moves`. */
 function countOpenDestinationsWithoutMove(
   c: IComparison,
@@ -300,12 +384,34 @@ function countOpenDestinationsWithoutMove(
 }
 
 describe('bounded move candidate search equals the unbounded search at bc5090609', () => {
-  it.each(BOARD_KINDS.map((kind) => [kind, comparisonsFor(kind)] as const))(
+  afterAll(() => {
+    process.stdout.write(
+      `[moveCandidateSearch] ${FULL ? 'FULL' : 'default'} ${JSON.stringify(counts)}\n`,
+    );
+  });
+
+  it.each(
+    BOARD_KINDS.map(
+      (kind) =>
+        [
+          kind,
+          FULL ? comparisonsFor(kind) : defaultComparisonsFor(kind),
+        ] as const,
+    ),
+  )(
     '%s boards: ordered candidate lists are deep-equal',
-    (_kind, comparisons) => {
+    (kind, comparisons) => {
       let movesCompared = 0;
       let openDestinationsWithoutMove = 0;
       for (const c of comparisons) {
+        tally(kind, 'lists');
+        tally(kind, `movement:${c.movementType}`);
+        tally(kind, `motive:${c.capability.movementMode}`);
+        tally(kind, `context:${CONTEXTS.indexOf(c.context)}`);
+        tally(kind, `origin:${isEdgeHex(c.position.coord) ? 'edge' : 'inner'}`);
+        if (c.movementType !== MovementType.Jump && hasOccupantInReach(c)) {
+          tally(kind, 'groundWithOccupantInReach');
+        }
         const expected = moveCandidatesAtBase(
           c.grid,
           c.position,
@@ -329,13 +435,27 @@ describe('bounded move candidate search equals the unbounded search at bc5090609
           );
         }
       }
+      tally(kind, 'moves', movesCompared);
+      tally(kind, 'openDestinationsWithoutMove', openDestinationsWithoutMove);
       expect(comparisons.length).toBe(
-        BOARDS_PER_KIND * 13 * MOVEMENT_TYPES.length * 2,
+        FULL
+          ? BOARDS_PER_KIND * 13 * MOVEMENT_TYPES.length * 2
+          : 4 * MOVEMENT_TYPES.length,
       );
       expect(movesCompared).toBeGreaterThan(0);
       // The boards exercise the skip: open hexes in the candidate square that
       // the unbounded search priced and found no move for.
       expect(openDestinationsWithoutMove).toBeGreaterThan(0);
+      const row = counts[kind];
+      const missing = [
+        ...MOVEMENT_TYPES.map((t) => `movement:${t}`),
+        ...MOTIVE_MODES.map((m) => `motive:${m}`),
+        ...CONTEXTS.map((_, i) => `context:${i}`),
+        'origin:edge',
+        'origin:inner',
+        'groundWithOccupantInReach',
+      ].filter((cls) => !row[cls]);
+      expect({ kind, missing }).toEqual({ kind, missing: [] });
     },
   );
 });
