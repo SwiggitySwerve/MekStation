@@ -1,11 +1,40 @@
 import type { ReactElement } from 'react';
 
+import type { IArmorSaveLoss } from '@/services/units/unitLoaderService/armorSaveLoss';
 import type { INameValidationResult } from '@/services/units/UnitNameValidator';
+import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics';
 
 import type { ConstructionValidationState } from './SaveUnitDialogConstructionStatus';
 import type { SaveDialogStatus } from './SaveUnitDialogFooter';
 
 import { DEFERRED_SAVE_WAITING_MESSAGE } from './useDeferredSave';
+
+/** The library unit a save would replace, or undefined for a new save. */
+export function getOverwriteTargetId(
+  status: SaveDialogStatus,
+  validationResult: INameValidationResult | null,
+): string | undefined {
+  return status === 'custom-conflict'
+    ? validationResult?.conflictingUnitId
+    : undefined;
+}
+
+/** Identity of the losses a confirmation shows; consent is bound to it. */
+export function getLossFingerprint(
+  entries: readonly IUnrecoveredCriticalSlot[] | undefined,
+  lossTrackingUnknown: boolean,
+  armorSaveLoss: IArmorSaveLoss | undefined,
+): string {
+  return JSON.stringify({
+    entries: entries?.map((entry) => [entry.text, entry.location, entry.slot]),
+    unknown: lossTrackingUnknown,
+    armor: armorSaveLoss ?? null,
+  });
+}
+
+/** A queued Save anyway never accepts losses the user was not shown. */
+export const LOSS_CONSENT_MESSAGE =
+  'The entries lost on save changed. Review them and press Save anyway again.';
 
 /** A queued save never replaces a library unit the user was not shown. */
 export const OVERWRITE_CONSENT_MESSAGE =

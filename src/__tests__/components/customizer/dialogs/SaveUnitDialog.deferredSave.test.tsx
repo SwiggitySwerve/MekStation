@@ -13,6 +13,7 @@ import {
 } from '@/components/customizer/dialogs/SaveUnitDialog';
 import {
   getSaveBlockedReason,
+  LOSS_CONSENT_MESSAGE,
   OVERWRITE_CONSENT_MESSAGE,
 } from '@/components/customizer/dialogs/SaveUnitDialogSaveProgress';
 import {
@@ -333,6 +334,121 @@ describe('SaveUnitDialog deferred overwrite consent', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(
       OVERWRITE_CONSENT_MESSAGE,
     );
+  });
+});
+
+describe('SaveUnitDialog deferred loss consent', () => {
+  const OTHER_LOSS: readonly IUnrecoveredCriticalSlot[] = [
+    ...LOSS,
+    {
+      text: 'CLDoubleHeatSink (OMNIPOD)',
+      location: MechLocation.CENTER_TORSO,
+      slot: 10,
+    },
+  ];
+
+  it('asks again when the losses change before a queued Save anyway settles', async () => {
+    const { rerender } = render(
+      <SaveUnitDialog {...props({ unrecoveredCriticalSlots: LOSS })} />,
+    );
+    await settleName();
+    fireEvent.click(screen.getByRole('button', { name: 'Overwrite' }));
+    rerender(
+      <SaveUnitDialog
+        {...props({
+          unrecoveredCriticalSlots: LOSS,
+          constructionValidation: PENDING,
+        })}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Save anyway' }));
+    expect(waiting()).toBeInTheDocument();
+    // An edit while pending changes the loss set the user confirmed.
+    rerender(
+      <SaveUnitDialog {...props({ unrecoveredCriticalSlots: OTHER_LOSS })} />,
+    );
+    expect(onSave).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent(LOSS_CONSENT_MESSAGE);
+    // The confirmation stays open and now lists the new loss.
+    expect(
+      screen.getByRole('dialog', {
+        name: 'Save with missing critical-slot entries?',
+      }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Save anyway' }));
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(onSave).toHaveBeenCalledWith('Mad Cat Mk IV', 'A2', 'library-1');
+  });
+});
+
+describe('SaveUnitDialog refusal alerts clear when their cause is fixed', () => {
+  it('clears the overwrite-consent alert once the user renames the unit', async () => {
+    let finish!: () => void;
+    jest.mocked(unitNameValidator.validateUnitName).mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = () =>
+            resolve({
+              isValid: false,
+              isCanonicalConflict: false,
+              isCustomConflict: true,
+              conflictingUnitId: 'library-1',
+            });
+        }),
+    );
+    render(<SaveUnitDialog {...props()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await act(async () => finish());
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      OVERWRITE_CONSENT_MESSAGE,
+    );
+    jest.mocked(unitNameValidator.validateUnitName).mockResolvedValue({
+      isValid: true,
+      isCanonicalConflict: false,
+      isCustomConflict: false,
+    });
+    fireEvent.change(screen.getByLabelText('Variant Designation'), {
+      target: { value: 'A3' },
+    });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 350));
+    });
+    expect(screen.getByText('Name is available')).toBeInTheDocument();
+    expect(screen.queryByText(OVERWRITE_CONSENT_MESSAGE)).toBeNull();
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it('clears a construction refusal once construction becomes valid', async () => {
+    const invalid = { ...SETTLED, isValid: false, errorCount: 1 };
+    const { rerender } = render(
+      <SaveUnitDialog
+        {...props({
+          unrecoveredCriticalSlots: LOSS,
+          constructionValidation: PENDING,
+        })}
+      />,
+    );
+    await settleName();
+    fireEvent.click(screen.getByRole('button', { name: 'Overwrite' }));
+    rerender(
+      <SaveUnitDialog
+        {...props({
+          unrecoveredCriticalSlots: LOSS,
+          constructionValidation: invalid,
+        })}
+      />,
+    );
+    const refusal = () =>
+      screen
+        .queryAllByRole('alert')
+        .filter(
+          (alert) =>
+            alert.textContent === 'Fix the construction errors before saving.',
+        );
+    expect(refusal()).toHaveLength(1);
+    rerender(<SaveUnitDialog {...props({ unrecoveredCriticalSlots: LOSS })} />);
+    expect(refusal()).toHaveLength(0);
+    expect(onSave).not.toHaveBeenCalled();
   });
 });
 

@@ -3,7 +3,13 @@
  * once they settle. A click is never dropped: it either submits, waits with a
  * visible status, or ends with a visible reason.
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 /** A pending check that never settles must not hold a save forever. */
 export const DEFERRED_SAVE_TIMEOUT_MS = 15_000;
@@ -27,12 +33,15 @@ export function useDeferredSave({
   isOpen,
   targetId,
   isPending,
+  resetKey,
   submit,
 }: {
   readonly isOpen: boolean;
   /** The unit being saved; a different target drops any queued save. */
   readonly targetId: string | undefined;
   readonly isPending: boolean;
+  /** What a refusal was about (names, checks, losses); a change clears it. */
+  readonly resetKey: string;
   /** Re-read at settle time so it uses the values the dialog then shows. */
   readonly submit: () => void;
 }): DeferredSave {
@@ -42,8 +51,10 @@ export function useDeferredSave({
   );
   const isQueued = queued !== null && isOpen && queued.target === targetId;
   const [refusal, setRefusal] = useState<string | null>(null);
+  // Updated before any event can run against this commit, so a settle never
+  // uses an earlier render's values.
   const latestSubmit = useRef(submit);
-  useEffect(() => {
+  useLayoutEffect(() => {
     latestSubmit.current = submit;
   });
 
@@ -54,6 +65,13 @@ export function useDeferredSave({
   if (scope.isOpen !== isOpen || scope.targetId !== targetId) {
     setScope({ isOpen, targetId });
     setQueued(null);
+    setRefusal(null);
+  }
+  // A refusal describes the state it was given for; once the user fixes that
+  // state it would be stale, so it clears in the same render.
+  const [refusalKey, setRefusalKey] = useState(resetKey);
+  if (refusalKey !== resetKey) {
+    setRefusalKey(resetKey);
     setRefusal(null);
   }
 
@@ -72,11 +90,13 @@ export function useDeferredSave({
     return () => clearTimeout(timeout);
   }, [isQueued]);
 
+  // The click's own render supplies submit: a click between a commit and its
+  // effects must still use that commit's values.
   const request = useCallback(() => {
     setRefusal(null);
     if (isPending) setQueued({ target: targetId });
-    else latestSubmit.current();
-  }, [isPending, targetId]);
+    else submit();
+  }, [isPending, targetId, submit]);
   const cancel = useCallback(() => setQueued(null), []);
   const refuse = useCallback((reason: string) => setRefusal(reason), []);
 
