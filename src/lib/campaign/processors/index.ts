@@ -14,7 +14,10 @@ export type {
 export { dailyCostsProcessor } from './dailyCostsProcessor';
 export { repairProgressProcessor } from './repairProgressProcessor';
 export { registerAcquisitionProcessor } from './acquisitionProcessor';
-export { autoAwardsProcessor } from './autoAwardsProcessor';
+export {
+  autoAwardsProcessor,
+  persistDayAwardGrants,
+} from './autoAwardsProcessor';
 export { randomEventsProcessor } from './randomEventsProcessor';
 export {
   unitMarketProcessor,

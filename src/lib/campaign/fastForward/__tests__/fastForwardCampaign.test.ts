@@ -22,8 +22,15 @@ import {
   publishCombatOutcome,
 } from '@/engine/combatOutcomeBus';
 import { _resetContractFulfilledBus } from '@/lib/campaign/contractFulfillmentBus';
-import { _resetDayPipeline } from '@/lib/campaign/dayPipeline';
-import { _resetBuiltinRegistration } from '@/lib/campaign/processors';
+import {
+  _resetDayPipeline,
+  DayPhase,
+  getDayPipeline,
+} from '@/lib/campaign/dayPipeline';
+import {
+  _resetBuiltinRegistration,
+  registerBuiltinProcessors,
+} from '@/lib/campaign/processors';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
   resetCampaignStore,
@@ -170,6 +177,32 @@ describe('fastForwardCampaign', () => {
       expect(bridged.bridgedEncounters?.[scenarioId]).toBeDefined();
       expect(bridged.bridgedScenarioIds).toContain(scenarioId);
     }
+  });
+
+  it('fails loud when a day processor throws, instead of skipping it and advancing (T6)', async () => {
+    const fixture = buildFastForwardFixture({ useRoleBasedSalaries: false });
+    registerBuiltinProcessors();
+    const calls: string[] = [];
+    getDayPipeline().register({
+      id: 't6-throws',
+      phase: DayPhase.EVENTS,
+      displayName: 'T6 throws',
+      process(_campaign, date) {
+        calls.push(date.toISOString());
+        throw new Error('t6 processor exploded');
+      },
+    });
+
+    await expect(
+      fastForwardCampaign(fixture.campaign, { days: 3 }),
+    ).rejects.toThrow(/advanceDay\(\) returned null/);
+
+    // The run stopped at the first day; that day was not committed.
+    expect(calls).toHaveLength(1);
+    const storeCampaign = useCampaignStore().getState().getCampaign();
+    expect(storeCampaign?.currentDate.toISOString()).toBe(
+      fixture.campaign.currentDate.toISOString(),
+    );
   });
 
   describe('run-wide launch head (umbrella 10.3)', () => {
