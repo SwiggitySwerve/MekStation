@@ -17,9 +17,10 @@
  * (CAMPAIGN-LIVE-WRITE-1), and the day stands with it.
  *
  * Not restorable, and not tried: the host's committed AdvanceDay (a retry
- * sends the same intent id, so the host replays its receipt), the vault's
- * fire-and-forget award PUT (it sends the full awards array, so the retry's
- * PUT converges to the same row), and toasts already shown.
+ * sends the same intent id, so the host replays its receipt) and toasts
+ * already shown. The vault's award PUT needs no undo: the awards processor
+ * only writes the vault in memory, and the store sends the PUT once the day
+ * stands (persistDayAwardGrants), so a day rolled back here never sent one.
  *
  * The persistence layer rolls a refused co-op save back itself, but only the
  * campaign (switchCampaign, which also swaps in a fresh missions store) and,
@@ -210,7 +211,8 @@ function restoreRoster(snapshot: IDayAdvanceSnapshot): void {
 
 /**
  * The vault is restored whole when untouched since the attempt. When it was
- * replaced meanwhile (the award PUT's own response does that), only the
+ * replaced meanwhile (a pilot edit, or the reload after any pilot PUT, does
+ * that), only the
  * awards the attempt granted are taken back, so the rest of an entry that
  * was edited in the meantime stays.
  */

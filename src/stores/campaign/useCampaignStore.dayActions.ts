@@ -26,7 +26,10 @@ import {
   getDayPipeline,
   type IDayEvent,
 } from '@/lib/campaign/dayPipeline';
-import { registerBuiltinProcessors } from '@/lib/campaign/processors';
+import {
+  persistDayAwardGrants,
+  registerBuiltinProcessors,
+} from '@/lib/campaign/processors';
 import {
   logTravelCommitSucceeded,
   logTravelInvalidAction,
@@ -321,6 +324,11 @@ interface IAppliedDay {
   readonly committedReport: DayReport;
   /** Outcome-apply errors that are new this day; toasted once it is saved. */
   readonly outcomeErrorToasts: readonly string[];
+  /**
+   * The day's events. Its award grants are persisted to the server once the
+   * day stands (persistDayAwardGrants), never from inside the pipeline.
+   */
+  readonly events: readonly IDayEvent[];
 }
 
 /**
@@ -371,6 +379,7 @@ function advanceDayLocally(
     day.outcomeErrorToasts.forEach((message) =>
       toast({ message, variant: 'error' }),
     );
+    persistDayAwardGrants(day.events);
     return result.committed ? day.committedReport : null;
   };
   return isPromiseLike(saveResult)
@@ -449,6 +458,7 @@ function applyDayToStores(
   return {
     committedReport: { ...report, campaign: campaignWithAudit },
     outcomeErrorToasts,
+    events: pipelineResult.events,
   };
 }
 
