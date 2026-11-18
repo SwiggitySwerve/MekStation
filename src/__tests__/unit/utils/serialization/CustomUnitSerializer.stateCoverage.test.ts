@@ -28,7 +28,7 @@ const MECH_STATE_SAVE_COVERAGE: {
 } = {
   bvContext: {
     notSaved:
-      'Load-time source snapshot; the save spreads its persisted facts as the base document.',
+      'Load-time source snapshot; the save appends its SOURCE_ONLY_FACTS after the written keys.',
   },
   unrecoveredCriticalSlots: {
     notSaved: 'Loader-owned loss notice, rebuilt from the cells on every load.',

@@ -4,23 +4,32 @@ import { join } from 'node:path';
 import type { IRawSerializedUnit } from '@/services/units/unitLoaderService/types';
 import type { UnitState } from '@/stores/unitState';
 
+import { restoreLibraryVersionToDraft } from '@/components/customizer/tabs/restoreLibraryVersionToDraft';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import {
   parseUnit,
   UnitLoaderService,
 } from '@/services/units/unitLoaderService';
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
 import { parseCriticalSlotToken } from '@/services/units/unitLoaderService/equipmentResolution';
+import { createLibrarySaveReceipt } from '@/stores/unit/unitEditSnapshot';
+import { clearAllStores, registerStore } from '@/stores/unitStoreRegistry';
+import { createUnitStore } from '@/stores/useUnitStore';
 import { CockpitType } from '@/types/construction/CockpitType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
+import { projectCustomCombatSnapshot } from '@/types/contracts/CustomCombatSnapshot';
 import { Era } from '@/types/temporal/Era';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
 import { getMountedRearSuffix } from '@/utils/serialization/CustomUnitSerializer.sourceCells';
 
+jest.mock('@/services/units/CustomUnitApiService', () => ({
+  customUnitApiService: { getVersion: jest.fn() },
+}));
 jest.mock('@/services/equipment/EquipmentFileReader', () => ({
   readJsonFile: async (file: string) =>
     JSON.parse(
@@ -525,4 +534,147 @@ it('cold saves and reopens Naga II A quirks, weapon quirks and publication sourc
     heatSinks: { count: state.heatSinkCount + 1 },
   });
   expect(coldReopen(edited).bvContext?.source).toMatchObject(facts);
+});
+
+function nagaStore() {
+  return createUnitStore(
+    new UnitLoaderService().mapToUnitState(
+      { ...source(NAGA), isOmni: true },
+      true,
+    ),
+  );
+}
+
+function mountAt(state: UnitState, location: MechLocation, slot: number) {
+  const mount = state.equipment.find(
+    (item) => item.location === location && item.slots?.includes(slot),
+  );
+  if (!mount) throw new Error(`No mount at ${location} ${slot}`);
+  return mount;
+}
+
+function savedWeaponQuirks(state: UnitState) {
+  return (save(state) as { weaponQuirks?: Record<string, string[]> })
+    .weaponQuirks;
+}
+
+describe('weapon quirks follow their weapon (Entity.java:17256-17315)', () => {
+  it('drops the quirk of a removed weapon and keeps the others', () => {
+    const store = nagaStore();
+    const before = savedWeaponQuirks(store.getState());
+    expect(before).toMatchObject({ 'LA:2:CLLBXAC20': ['stable_weapon'] });
+    store
+      .getState()
+      .removeEquipment(
+        mountAt(store.getState(), MechLocation.LEFT_ARM, 2).instanceId,
+      );
+    const after = savedWeaponQuirks(store.getState());
+    expect(after).not.toHaveProperty(['LA:2:CLLBXAC20']);
+    const { 'LA:2:CLLBXAC20': _removed, ...others } = before ?? {};
+    expect(after).toEqual(others);
+  });
+
+  it('drops the quirk of a moved weapon and never re-keys it', () => {
+    const store = nagaStore();
+    const before = savedWeaponQuirks(store.getState()) ?? {};
+    expect(before).toHaveProperty(['RA:10:CLERLargeLaser']);
+    const laser = mountAt(store.getState(), MechLocation.RIGHT_ARM, 10);
+    store
+      .getState()
+      .updateEquipmentLocation(laser.instanceId, MechLocation.RIGHT_ARM, [5]);
+    expect(
+      mountAt(store.getState(), MechLocation.RIGHT_ARM, 5).instanceId,
+    ).toBe(laser.instanceId);
+    const after = savedWeaponQuirks(store.getState()) ?? {};
+    expect(after).not.toHaveProperty(['RA:10:CLERLargeLaser']);
+    expect(Object.keys(after).filter((key) => key.startsWith('RA:5:'))).toEqual(
+      [],
+    );
+    const { 'RA:10:CLERLargeLaser': _moved, ...others } = before;
+    expect(after).toEqual(others);
+  });
+
+  it('drops the quirk when a different weapon takes the quirked cells', () => {
+    const store = nagaStore();
+    store
+      .getState()
+      .removeEquipment(
+        mountAt(store.getState(), MechLocation.LEFT_ARM, 2).instanceId,
+      );
+    const laser = mountAt(store.getState(), MechLocation.RIGHT_ARM, 10);
+    store
+      .getState()
+      .updateEquipmentLocation(laser.instanceId, MechLocation.LEFT_ARM, [2]);
+    expect(
+      mountAt(store.getState(), MechLocation.LEFT_ARM, 2).equipmentId,
+    ).toBe(laser.equipmentId);
+    expect(savedWeaponQuirks(store.getState())).not.toHaveProperty([
+      'LA:2:CLLBXAC20',
+    ]);
+  });
+
+  it('leaves no orphaned key after restoring an older version with another layout', async () => {
+    const store = nagaStore();
+    const draftId = store.getState().id;
+    registerStore(store);
+    try {
+      store.setState({
+        librarySave: createLibrarySaveReceipt(store.getState(), {
+          id: 'library-naga',
+          version: 2,
+        }),
+      });
+      // Version 1 of the library unit had no LA LB 20-X AC.
+      const older = nagaStore();
+      older
+        .getState()
+        .removeEquipment(
+          mountAt(older.getState(), MechLocation.LEFT_ARM, 2).instanceId,
+        );
+      jest.mocked(customUnitApiService.getVersion).mockResolvedValue({
+        version: 1,
+        data: JSON.parse(JSON.stringify(save(older.getState()))),
+      } as Awaited<ReturnType<typeof customUnitApiService.getVersion>>);
+      await restoreLibraryVersionToDraft({
+        store,
+        draftId,
+        libraryId: 'library-naga',
+        version: 1,
+      });
+      // The restored draft keeps the current version's loaded source.
+      expect(store.getState().bvContext?.source.weaponQuirks).toHaveProperty([
+        'LA:2:CLLBXAC20',
+      ]);
+      expect(savedWeaponQuirks(store.getState())).not.toHaveProperty([
+        'LA:2:CLLBXAC20',
+      ]);
+    } finally {
+      clearAllStores();
+    }
+  });
+});
+
+// Deliberate recorded-payload change (S1, parity/s1-mech-serializer-spread):
+// a custom mech saved from a quirked canon unit now records its unit quirks in
+// the GameCreated combat snapshot. Java plays with quirks; the snapshot still
+// omits weapon quirks and the publication source.
+it('records unit quirks, not weapon quirks or source, in the combat snapshot', () => {
+  const original = source('2-star-league/advanced/Sentinel STN-3L.json');
+  expect(original).toMatchObject({
+    quirks: ['imp_com'],
+    weaponQuirks: { 'RT:0:ISStreakSRM2': ['ammo_feed_problems'] },
+    source: 'TR:3050,TR:SW',
+  });
+  const saved = save(new UnitLoaderService().mapToUnitState(original, true));
+  expect(saved).toMatchObject({
+    weaponQuirks: original.weaponQuirks,
+    source: original.source,
+  });
+  const snapshot = projectCustomCombatSnapshot(
+    JSON.parse(JSON.stringify(saved)),
+  );
+  expect(snapshot).not.toBeNull();
+  expect(snapshot?.quirks).toEqual(['imp_com']);
+  expect(snapshot).not.toHaveProperty('weaponQuirks');
+  expect(snapshot).not.toHaveProperty('source');
 });

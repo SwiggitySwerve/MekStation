@@ -16,16 +16,24 @@ not import a store, browser storage, serializers, routing, or UI.
   carry the last confirmed receipt. Original source provenance is not a receipt
   and a receipt does not assert that its version is the latest server version.
 
-The library comparison has one owner, `libraryState`. A receipt without a draft
-fingerprint is unknown even when its library bytes match. With a saved draft
-baseline, equal library bytes mean matched. Different library bytes on a
-receipt from an older writer (`writerVersion` below `LIBRARY_WRITER_VERSION`)
-with an unedited draft (`isModified === false`) mean saved-older-writer.
-The unknown check runs first, so an unknown receipt (no draft fingerprint) is
-deliberately not upgraded to saved-older-writer by this writer-version rule.
-Otherwise different library bytes with equal draft content mean
-saved-older-writer, and anything else means the design changed. No stored
-receipt, fingerprint algorithm or schema version is rewritten. The adapters pass
+The library comparison has one owner, `libraryState`. It decides in this order:
+
+1. No receipt: none.
+2. A receipt without a draft fingerprint: unknown, even when its library bytes
+   match. Because this check runs first, an unknown receipt is deliberately not
+   upgraded to saved-older-writer by rule 4.
+3. Equal library bytes: matched.
+4. Different library bytes on a receipt from an older writer (`writerVersion`
+   below `LIBRARY_WRITER_VERSION`) with an unedited draft
+   (`isModified === false`): saved-older-writer.
+5. Different library bytes with equal draft content: saved-older-writer.
+6. Anything else: the design changed.
+
+Rule 4 relies on every path that changes editor state going through actions
+that set `isModified`. A new path that changes state without setting it would
+let a version-0 receipt read as saved-older-writer and hide the user's change.
+
+No stored receipt, fingerprint algorithm or schema version is rewritten. The adapters pass
 both current fingerprints to this owner. Renderers share the wording and Save
 affordance from UnitSaveStatus; older-writer and unknown states never fall through
 to Changed Since. The pinned canonical editable snapshot guards the mechanism's

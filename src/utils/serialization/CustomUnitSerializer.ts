@@ -62,6 +62,7 @@ import {
   getMountedSourceArmorSuffix,
   preserveSourceSystemCells,
 } from './CustomUnitSerializer.sourceCells';
+import { sourceOnlyFacts } from './CustomUnitSerializer.sourceFacts';
 import { ARMOR_TYPE, ENGINE_TYPE } from './CustomUnitSerializer.tags';
 import { cloneSerializedStructure } from './structureMetadata';
 
@@ -279,24 +280,7 @@ export function serializeCustomUnitState(
         : undefined,
     ...crewSeatSaveFields(state),
   };
-  return { ...written, ...sourceOnlyFacts(state.bvContext?.source) };
-}
-
-/**
- * Loaded source facts the editor never edits, carried after the written keys.
- * Every other BattleMech contract key is written above or deliberately not
- * carried (CustomUnitSerializer.stateCoverage.test.ts names each one).
- */
-export const SOURCE_ONLY_FACTS = ['quirks', 'weaponQuirks', 'source'] as const;
-
-function sourceOnlyFacts(
-  source: Readonly<Record<string, unknown>> | undefined,
-): Record<string, unknown> {
-  return Object.fromEntries(
-    SOURCE_ONLY_FACTS.flatMap((key) =>
-      source?.[key] === undefined ? [] : [[key, source[key]]],
-    ),
-  );
+  return { ...written, ...sourceOnlyFacts(state) };
 }
 
 /** Vehicle store -> catalog contract; editor-only facts use a validated extension. */
@@ -475,3 +459,4 @@ export function serializeCustomAerospaceState(
 }
 
 export { serializeCustomSmallUnitState } from './CustomUnitSerializer.smallUnits';
+export { SOURCE_ONLY_FACTS } from './CustomUnitSerializer.sourceFacts';
