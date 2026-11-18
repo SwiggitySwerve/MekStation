@@ -170,6 +170,13 @@ function applyOutcome(
       unitStates,
       nowIso,
     });
+  // T3: a per-unit failure fails the whole outcome. Throwing here, before
+  // the commit point, keeps it queued and out of `processedBattleIds`
+  // with no state, pilot or finance side effects (D-5 ordering below);
+  // the processor's catch emits the critical event.
+  if (errors.length > 0) {
+    throw new Error(errors.join('; '));
+  }
   // D-5 remediation (2026-06-09 audit): pilot patches are NOT committed
   // here. Every step that can throw (contract delta, prestige) must run
   // first — the roster-store commit happens at the very end of this

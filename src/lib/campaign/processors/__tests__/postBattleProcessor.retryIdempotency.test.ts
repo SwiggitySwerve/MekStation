@@ -257,19 +257,21 @@ describe('postBattleProcessor retry idempotency (D-5)', () => {
     prestigeMock.mockClear();
   });
 
-  it('reports partial unit failures as existing failure events while retaining the applied ledger', () => {
+  it('T3: a failed unit delta keeps the outcome queued with no side effects, and the retry applies once', () => {
     seedRosterEntry('unit-A');
     jest.spyOn(battleHelpers, 'applyUnitDelta').mockImplementationOnce(() => {
       throw new Error('unit data unavailable');
     });
     const outcome = createOutcome('match-partial-unit');
+    const campaign = createTestCampaign({ pendingBattleOutcomes: [outcome] });
     const result = postBattleProcessor.process(
-      createTestCampaign({ pendingBattleOutcomes: [outcome] }),
+      campaign,
       new Date('3025-06-15T00:00:00Z'),
     );
     expect(result.events).toContainEqual(
       expect.objectContaining({
         type: 'post_battle_apply_failed',
+        severity: 'critical',
         data: {
           matchId: outcome.matchId,
           contractId: outcome.contractId,
@@ -277,15 +279,28 @@ describe('postBattleProcessor retry idempotency (D-5)', () => {
         },
       }),
     );
-    expect(
-      (result.campaign as ICampaignWithBattleState).processedBattleIds,
-    ).toContain(outcome.matchId);
-    expect(rosterEntry('unit-A').campaignMissions).toBe(1);
+    const failed = result.campaign as ICampaignWithBattleState;
+    expect(failed.pendingBattleOutcomes).toEqual([outcome]);
+    expect(failed.processedBattleIds ?? []).not.toContain(outcome.matchId);
+    expect(failed.unitCombatStates).toEqual(campaign.unitCombatStates);
+    expect(failed.finances).toBe(campaign.finances);
+    expect(rosterEntry('unit-A').campaignMissions).toBe(0);
+    expect(rosterEntry('unit-A').xp).toBe(0);
+
     const again = postBattleProcessor.process(
-      result.campaign!,
+      failed,
       new Date('3025-06-16T00:00:00Z'),
     );
-    expect(again.events).toEqual([]);
+    const applied = again.campaign as ICampaignWithBattleState;
+    expect(applied.processedBattleIds).toContain(outcome.matchId);
+    expect(applied.pendingBattleOutcomes).toEqual([]);
+    expect(applied.unitCombatStates?.['unit-A']).toBeDefined();
+    expect(rosterEntry('unit-A').campaignMissions).toBe(1);
+    const third = postBattleProcessor.process(
+      applied,
+      new Date('3025-06-17T00:00:00Z'),
+    );
+    expect(third.events).toEqual([]);
     expect(rosterEntry('unit-A').campaignMissions).toBe(1);
   });
 
