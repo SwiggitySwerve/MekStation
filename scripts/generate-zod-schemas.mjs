@@ -35,6 +35,10 @@ import {
   ONCE_DECLARATION,
 } from './hoist-union-branches.js';
 import { createClauseRefiner } from './refine-conditional-clauses.mjs';
+import {
+  routeSafeParseIssues,
+  SAFE_PARSE_ISSUES_IMPORT,
+} from './route-safe-parse-issues.mjs';
 import { prepareSchemaDefinitions } from './schema-local-definitions.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -175,6 +179,14 @@ export const unitSchemaVersionOf = (unit: { readonly schemaVersion?: string }) =
         clauseDeclarations +
         '\n',
     );
+  // Inner parses collect issues without building an Error (see route-safe-parse-issues).
+  const routed = routeSafeParseIssues(body);
+  body = routed.count
+    ? routed.source.replace(
+        /(import[^\n]+\n)/,
+        (importLine) => importLine + SAFE_PARSE_ISSUES_IMPORT,
+      )
+    : routed.source;
   return HEADER(sourceRel) + '\n' + body;
 }
 

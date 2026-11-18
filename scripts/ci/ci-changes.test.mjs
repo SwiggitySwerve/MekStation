@@ -7,10 +7,12 @@ import { fileURLToPath } from 'node:url';
 
 import {
   GATES,
+  PACKAGING_SERVER_INPUTS,
   decide,
   dataSpecsForDiff,
   detect,
   importClosure,
+  packagingServerInputsDrift,
   referencedFiles,
 } from './ci-changes.mjs';
 
@@ -161,6 +163,107 @@ test('runtime data inputs turn their checks on', () => {
 test('desktop changes run the desktop gate', () => {
   assert.equal(decide(root, ['desktop/src/main.ts']).gates.desktop, true);
   assert.equal(decide(root, ['src/utils/uuid.ts']).gates.desktop, false);
+});
+
+test('each packaging input turns the packaging gate on', () => {
+  for (const file of [
+    'desktop/package.json',
+    'desktop/package-lock.json',
+    'desktop/tsconfig.json',
+    'desktop/tsconfig.test.json',
+    'desktop/electron/main.ts',
+    'desktop/scripts/rebuild-next-standalone.js',
+    'desktop/scripts/electron-native-cache.js',
+    'desktop/scripts/electron-native-modules.js',
+    'desktop/scripts/electron-builder/afterPack.js',
+    'desktop/scripts/linux/after-install.sh',
+    'desktop/assets/icons/icon.png',
+    'electron-builder.yml',
+    'LICENSE',
+    'package.json',
+    'package-lock.json',
+    'next.config.ts',
+    'server.js',
+    'scripts/next/run-next.mjs',
+    'scripts/next/deployment-files.mjs',
+    'scripts/next/copy-directory.mjs',
+    'scripts/next/runtime-packages.mjs',
+    'scripts/hydrate-next-standalone-multiplayer-server.mjs',
+    'scripts/mm-data/sync-browser-config.mjs',
+    'config/mm-data-assets.json',
+    'scripts/ci/budget-artifacts.mjs',
+    'scripts/ci/budget-installer.py',
+    '.github/actions/setup-node-and-install/action.yml',
+    '.github/workflows/pr-checks.yml',
+  ]) {
+    assert.equal(decide(root, [file]).gates.packaging, true, file);
+  }
+});
+
+test('a file server.js imports outside src and public turns the packaging gate on', () => {
+  // hydrate copies these into the packed server (capital-bv.json by way of src).
+  assert.equal(
+    decide(root, ['scripts/equipment-catalog/capital-bv.json']).gates.packaging,
+    true,
+  );
+});
+
+test('the committed packaging server inputs match the server.js import closure', () => {
+  const committed = JSON.parse(
+    fs.readFileSync(path.join(root, PACKAGING_SERVER_INPUTS), 'utf8'),
+  );
+  assert.equal(packagingServerInputsDrift(root, committed), null);
+  for (const file of committed) {
+    assert.equal(decide(root, [file]).gates.packaging, true, file);
+  }
+});
+
+test('a packaging server inputs list missing one closure file fails the check', () => {
+  const committed = JSON.parse(
+    fs.readFileSync(path.join(root, PACKAGING_SERVER_INPUTS), 'utf8'),
+  );
+  const dropped = 'scripts/equipment-catalog/capital-bv.json';
+  assert.ok(committed.includes(dropped));
+  const drift = packagingServerInputsDrift(
+    root,
+    committed.filter((file) => file !== dropped),
+  );
+  assert.match(drift ?? '', new RegExp(`missing: ${dropped}`));
+  assert.match(
+    drift ?? '',
+    /Regenerate with node scripts\/ci\/ci-changes\.mjs --write-packaging-server-inputs/,
+  );
+});
+
+test('source, data and documentation changes leave the packaging gate off', () => {
+  for (const files of [
+    ['src/utils/uuid.ts'],
+    ['src/components/x/New.stories.tsx'],
+    ['public/data/units/vehicles/Scapha Hovertank (A).json'],
+    ['public/data/units/units-manifest.json'],
+    ['docs/readme.md', 'openspec/specs/x/spec.md'],
+    ['e2e/some.spec.ts'],
+    ['desktop/docs/notes.md'],
+  ]) {
+    assert.equal(decide(root, files).gates.packaging, false, files.join());
+  }
+});
+
+test('the packaging gate is on outside pull requests and when detection fails', () => {
+  for (const event of ['push', 'schedule', 'workflow_dispatch']) {
+    assert.equal(
+      detect(root, { GITHUB_EVENT_NAME: event }).gates.packaging,
+      true,
+      event,
+    );
+  }
+  const failed = detect(
+    root,
+    { GITHUB_EVENT_NAME: 'pull_request' },
+    'refs/heads/no-such-ref-for-ci-changes',
+    'HEAD',
+  );
+  assert.equal(failed.gates.packaging, true);
 });
 
 test('importClosure follows aliases, relative paths, mocks and side-effect imports', () => {
