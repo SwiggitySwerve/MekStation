@@ -10,6 +10,7 @@ import { hexDistance, hexEquals } from '@/utils/gameplay/hexMath';
 import type { IPendingAltitudeControlMovementCost } from './altitudeControlAccounting';
 import type { IMovementCostContext } from './calculations';
 import type { IPendingConversionMovementCost } from './conversionAccounting';
+import type { GroundSearchCache } from './groundSearchCache';
 import type {
   HullDownExitProjection,
   IMovementProjectionRuleOptions,
@@ -85,6 +86,17 @@ interface IDestinationProjectionContext {
 export function deriveMovementRangeHexForDestination(
   ...args: DeriveMovementRangeHexForDestinationArgs
 ): IMovementRangeHex | null {
+  return projectMovementRangeHexForDestination(args);
+}
+
+/**
+ * `deriveMovementRangeHexForDestination` for one candidate of a whole-overlay
+ * projection, sharing that projection's ground searches.
+ */
+export function projectMovementRangeHexForDestination(
+  args: DeriveMovementRangeHexForDestinationArgs,
+  groundSearches?: GroundSearchCache,
+): IMovementRangeHex | null {
   const [unit, mpType, grid, initialCapability, hex] = args;
   const standUpMode = args[5] ?? 'normal';
   const ruleOptions = args[6] ?? {};
@@ -111,7 +123,7 @@ export function deriveMovementRangeHexForDestination(
     return deriveJumpRangeHex(context);
   }
 
-  return deriveGroundRangeHex(context);
+  return deriveGroundRangeHex({ ...context, groundSearches });
 }
 
 function buildDestinationProjectionContext(input: {
