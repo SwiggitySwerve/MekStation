@@ -1,3 +1,4 @@
+import { IBlkDocument, BLK_UNIT_TYPE_MAP } from '@/types/formats/BlkFormat';
 /**
  * Abstract Unit Type Handler
  *
@@ -7,8 +8,6 @@
  *
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.3.4
  */
-
-import { IBlkDocument, BLK_UNIT_TYPE_MAP } from '@/types/formats/BlkFormat';
 import { IBaseUnit } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
@@ -20,6 +19,7 @@ import {
   getUnitCategory,
 } from '@/types/unit/UnitTypeHandler';
 import { validateAerospaceSource } from '@/utils/construction/aerospace/sourceValidation';
+import { unitOverweightErrors } from '@/utils/validation/unitWeight';
 
 import {
   UnitValidationMessages,
@@ -362,11 +362,8 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit> {
     }
 
     // Check total weight doesn't exceed tonnage
-    if (this.requiresUnitTonnage && unit.totalWeight > unit.tonnage) {
-      errors.push(
-        `Total weight (${unit.totalWeight.toFixed(2)}t) exceeds tonnage (${unit.tonnage}t)`,
-      );
-    }
+    if (this.requiresUnitTonnage)
+      errors.push(...unitOverweightErrors(unit.totalWeight, unit.tonnage));
 
     // Metadata validation
     if (!unit.metadata?.chassis) {

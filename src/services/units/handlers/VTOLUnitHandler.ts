@@ -1,4 +1,3 @@
-import { VTOL_TONNAGE } from '@/services/construction/constructionConstants';
 /**
  * VTOL Unit Handler
  *
@@ -38,7 +37,7 @@ import {
   getVehicleMountFlags,
   getPrimaryVehicleTurretConfiguration,
 } from '@/utils/construction/vehicle/equipmentMounts';
-import { validateCombatVehicleEquipment } from '@/utils/construction/vehicle/vehicleValidation';
+import { validateVehicleSourceRules } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
   AbstractUnitTypeHandler,
@@ -49,11 +48,9 @@ import {
   UnitValidationMessages,
   combineCommonUnitFields,
   createParseMessages,
-  createValidationMessages,
   getRawTagString,
   getVehicleWeightClass,
   mapLocationEquipment,
-  pushTonnageRangeErrors,
   pushSourceLoadNumberErrors,
   withConstructionDiagnostics,
 } from './unitHandlerShared';
@@ -315,35 +312,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
    * Validate VTOL-specific rules
    */
   protected validateTypeSpecificRules(unit: IVTOL): UnitValidationMessages {
-    const { errors, warnings, infos } = createValidationMessages();
-    errors.push(...validateCombatVehicleEquipment(unit, true));
-
-    pushTonnageRangeErrors(errors, unit.tonnage, {
-      label: 'VTOL',
-      min: VTOL_TONNAGE.min,
-      max: VTOL_TONNAGE.max,
-    });
-
-    // Movement validation
-    if (unit.movement.cruiseMP < 1) {
-      errors.push('VTOLs must have at least 1 cruise MP');
-    }
-
-    // Armor validation
-    if (unit.armorLayoutError) errors.push(unit.armorLayoutError);
-    if (unit.totalArmorPoints > unit.maxArmorPoints) {
-      errors.push(
-        `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`,
-      );
-    }
-
-    // Rotor cannot be armored beyond 2 points
-    const rotorArmor = unit.armorByLocation?.[VTOLLocation.ROTOR] || 0;
-    if (rotorArmor > 2) {
-      warnings.push('VTOL rotor armor exceeds typical maximum of 2 points');
-    }
-
-    return { errors, warnings, infos };
+    return validateVehicleSourceRules(unit);
   }
 
   /**
