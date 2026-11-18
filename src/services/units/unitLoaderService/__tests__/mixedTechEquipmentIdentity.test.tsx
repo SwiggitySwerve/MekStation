@@ -757,11 +757,13 @@ describe('source ammo identity round trips', () => {
       const fingerprint = getUnitLibraryFingerprint(loaded);
       // A2 adds only native CT engine cells 0-2 and 7-9. The old hashes were
       // reproduced on main; non-cell facts, draft fingerprints and Java BV stay.
+      // S1 adds only the persisted source quirks, weapon quirks and publication
+      // source; without them the A2 hashes (f7a347a1…, 2b0394a3…) reproduce.
       const writerFingerprints = {
         'sentinel-stn-3l':
-          'f7a347a17721587f85062f8b598c829e977a51e80fc3999099614b26ed7bdd85',
+          'c67a3ddc9c90598532d7576213730a95eca9a2e8933f3bce6d851b47d06a4103',
         'archer-c':
-          '2b0394a3dfab8421a9559d0efd44a379bbf172a3293f2f629b031d656ca8b822',
+          'e28b814b66277bc8bc2c20d0f296077b54c6cde22ddf970f6748dcf624507ec3',
       };
       expect(createHash('sha256').update(fingerprint).digest('hex')).toBe(
         writerFingerprints[id],

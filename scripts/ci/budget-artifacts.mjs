@@ -70,8 +70,26 @@ export function installerMetrics(root) {
     kind: 'installers',
     unit: 'bytes',
     installerBytes: Math.max(...installers.map((f) => f.bytes)),
+    // CI may lower the archive level (pr-checks.yml); release keeps 9. Record
+    // it so CI archive bytes are never read as release bytes, and trend the
+    // unpacked bytes, which the level does not change.
+    compressionLevel:
+      process.env.ELECTRON_BUILDER_COMPRESSION_LEVEL ?? 'default(9)',
+    unpackedBytes: treeBytes(path.join(root, 'desktop/release/linux-unpacked')),
     files,
   };
+}
+
+/** Bytes of regular files under a directory (links not followed), or null. */
+function treeBytes(directory) {
+  if (!fs.existsSync(directory)) return null;
+  let total = 0;
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const file = path.join(directory, entry.name);
+    if (entry.isDirectory()) total += treeBytes(file);
+    else if (entry.isFile()) total += fs.lstatSync(file).size;
+  }
+  return total;
 }
 
 export function run(argv, root = process.cwd()) {
@@ -118,6 +136,8 @@ export function run(argv, root = process.cwd()) {
       JSON.stringify({
         unit: metrics.unit,
         installerBytes: metrics.installerBytes,
+        compressionLevel: metrics.compressionLevel,
+        unpackedBytes: metrics.unpackedBytes,
         installers: metrics.files
           .filter((file) => file.installer)
           .map((file) => ({

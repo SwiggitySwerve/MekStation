@@ -126,6 +126,43 @@ change. G1's trusted workflow must rerun those events and make the approval
 status required through repository policy; these modules alone do not install
 workflow or branch-protection enforcement.
 
+Every PR here is authored under the owner's account, and the owner cannot
+review their own PR, so the review path can never pass for them. An
+owner-authored raise instead passes on a committed owner ruling
+(PARITY-PLAN §186.2): `config/ci/approved-budget-raises.json`, schema
+`mekstation/ci-budget-raise-approvals/v1`, holds
+`approvals: [{ pr, key, from, to, ruling: { section, quote } }]`. `key` is the
+G1 raise id (for example `limits.repoWideKeys`); `section` matches
+`PARITY-PLAN §N` or `§N.M`; `quote` is the owner's words, non-empty. Every raise
+in the PR's delta needs this PR's entry with the same key and the same `from`
+and `to`, and the `ci-budget-raise` label is still required. A missing entry
+(`missing-approval-record`), a different value (`approval-record-mismatch`) or
+a malformed record (`invalid-approval-record`) fails; with no record at all the
+refusal stays `self-approval`. All matched passes as `owner-ruling-record`.
+
+The record never approves itself: `checkBudgetRaise` reads it at the PR's base
+commit (`pr.base.sha`), never its head, so an entry a PR adds for itself is
+invisible to that PR. The base commit is main's tip as of the PR's last head
+push or retarget, not the live tip of main. So once an entry PR has merged, the
+raise PR must merge main and push before its approval check can pass. Likewise,
+removing an entry from main stops it approving an open PR only after that PR's
+next push.
+
+An entry reaches main only through its own separate, reviewed PR, and that PR
+must cite an owner ruling in the parity plan (section and quote); an entry
+without one is not added. The code checks only the citation's form
+(`PARITY-PLAN §N` or `§N.M` and a non-blank quote); the plan is not in this
+repo. The reviewer of an entry PR must therefore check the cited section and
+quote against PARITY-PLAN. The same actor must never both author and merge an
+entry and its raise without that review.
+
+The record cannot approve a raise whose before or after value is `null`: a
+removed key, a newly capped key or a dropped typical profile. Entries hold
+numbers only, so these always refuse as `approval-record-mismatch` (or
+`missing-approval-record`). They need the non-record path: the label and the
+owner's exact-head `APPROVED` review. A non-owner author always uses that path;
+the record plays no part there.
+
 The adapter writes `CI Budget Raise Approval` only to the head it evaluated,
 which `checkBudgetPolicy` binds to the head its run is for (it never writes to
 a newer head). Only trusted

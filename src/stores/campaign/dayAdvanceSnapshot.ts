@@ -17,9 +17,10 @@
  * (CAMPAIGN-LIVE-WRITE-1), and the day stands with it.
  *
  * Not restorable, and not tried: the host's committed AdvanceDay (a retry
- * sends the same intent id, so the host replays its receipt), the vault's
- * fire-and-forget award PUT (it sends the full awards array, so the retry's
- * PUT converges to the same row), and toasts already shown.
+ * sends the same intent id, so the host replays its receipt) and toasts
+ * already shown. The vault's award PUT needs no undo: the awards processor
+ * only writes the vault in memory, and the store sends the PUT once the day
+ * stands (persistDayAwardGrants), so a day rolled back here never sent one.
  *
  * The persistence layer rolls a refused co-op save back itself, but only the
  * campaign (switchCampaign, which also swaps in a fresh missions store) and,
@@ -133,10 +134,6 @@ export function rollbackDayAdvance(
   snapshot: IDayAdvanceSnapshot,
 ): string | null {
   const live = get().campaign;
-  // The player switched campaigns: the one now live is not this attempt's.
-  if (live?.id !== snapshot.campaign.id) {
-    return null;
-  }
   let failure: string | null = null;
   const attempt = (restore: () => void): void => {
     try {
@@ -145,6 +142,15 @@ export function rollbackDayAdvance(
       failure ??= error instanceof Error ? error.message : String(error);
     }
   };
+  // The player switched campaigns: the campaign store now holds another
+  // campaign's state, which is not this attempt's to restore. The day
+  // pipeline's own writes are still taken back - each restore applies only
+  // where nothing has written since - so a retry does not apply them twice.
+  if (live?.id !== snapshot.campaign.id) {
+    attempt(() => restoreRoster(snapshot));
+    attempt(() => restoreVault(snapshot));
+    return failure;
+  }
   // The persistence wiring marks the campaign dirty on every campaign change,
   // restoring included. After a co-op rejection the persistence layer has
   // just cleared it, and the restored campaign is the saved one, so it is
@@ -210,7 +216,8 @@ function restoreRoster(snapshot: IDayAdvanceSnapshot): void {
 
 /**
  * The vault is restored whole when untouched since the attempt. When it was
- * replaced meanwhile (the award PUT's own response does that), only the
+ * replaced meanwhile (a pilot edit, or the reload after any pilot PUT, does
+ * that), only the
  * awards the attempt granted are taken back, so the rest of an entry that
  * was edited in the meantime stays.
  */

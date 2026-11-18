@@ -317,7 +317,7 @@ describe('DayPipelineRegistry', () => {
       expect(result.campaign.currentDate.getUTCDate()).toBe(16);
     });
 
-    it('should skip failing processor and continue pipeline', () => {
+    it('should fail the day when a processor throws (T6)', () => {
       const consoleSpy = logger.error as jest.Mock;
 
       const callOrder: string[] = [];
@@ -330,7 +330,10 @@ describe('DayPipelineRegistry', () => {
         displayName: id,
         process(campaign: ICampaign): IDayProcessorResult {
           callOrder.push(id);
-          return { events: [], campaign };
+          return {
+            events: [{ type: id, description: id, severity: 'info' }],
+            campaign,
+          };
         },
       });
 
@@ -338,24 +341,42 @@ describe('DayPipelineRegistry', () => {
       registry.register(createThrowingProcessor('broken', DayPhase.FACILITIES));
       registry.register(trackingProcessor('after', DayPhase.FINANCES));
 
-      const campaign = createTestCampaign();
+      const campaign = createTestCampaign({
+        currentDate: new Date('3025-06-15T00:00:00Z'),
+      });
       const result = registry.processDay(campaign);
 
-      expect(callOrder).toEqual(['before', 'after']);
-      expect(result.processorsRun).toEqual(['before', 'broken', 'after']);
+      // Nothing after the failed processor runs.
+      expect(callOrder).toEqual(['before']);
+      // The day failed, naming the processor and carrying its error.
+      expect(result.failure).toBeDefined();
+      expect(result.failure?.processorId).toBe('broken');
+      expect(result.failure?.displayName).toBe('Throwing Processor broken');
+      expect(result.failure?.error).toBeInstanceOf(Error);
+      expect((result.failure?.error as Error).message).toBe(
+        'Processor broken failed',
+      );
+      // The returned campaign is the pre-day campaign, unchanged.
+      expect(result.campaign).toBe(campaign);
+      expect(result.campaign.currentDate.toISOString()).toBe(
+        '3025-06-15T00:00:00.000Z',
+      );
+      expect(result.date.toISOString()).toBe('3025-06-15T00:00:00.000Z');
+      // No partial results are kept.
+      expect(result.events).toEqual([]);
       expect(consoleSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('should use unchanged campaign state when processor fails', () => {
-      const consoleSpy = logger.error as jest.Mock;
-
+    it('should not keep an earlier processor change when a later one throws (T6)', () => {
       const mutator: IDayProcessor = {
         id: 'mutator',
         phase: DayPhase.SETUP,
         displayName: 'Mutator',
         process(campaign: ICampaign): IDayProcessorResult {
           return {
-            events: [],
+            events: [
+              { type: 'mutated', description: 'mutated', severity: 'info' },
+            ],
             campaign: { ...campaign, name: 'Before failure' },
           };
         },
@@ -364,21 +385,21 @@ describe('DayPipelineRegistry', () => {
       registry.register(mutator);
       registry.register(createThrowingProcessor('broken', DayPhase.PERSONNEL));
 
-      const verifier: IDayProcessor = {
-        id: 'verifier',
-        phase: DayPhase.FINANCES,
-        displayName: 'Verifier',
-        process(campaign: ICampaign): IDayProcessorResult {
-          expect(campaign.name).toBe('Before failure');
-          return { events: [], campaign };
-        },
-      };
-      registry.register(verifier);
-
       const campaign = createTestCampaign({ name: 'Original' });
       const result = registry.processDay(campaign);
 
-      expect(result.campaign.name).toBe('Before failure');
+      expect(result.failure?.processorId).toBe('broken');
+      expect(result.campaign).toBe(campaign);
+      expect(result.campaign.name).toBe('Original');
+      expect(result.campaign.currentDate).toBe(campaign.currentDate);
+      expect(result.events).toEqual([]);
+      expect(campaign.name).toBe('Original');
+    });
+
+    it('should report no failure on a day whose processors all succeed (T6)', () => {
+      registry.register(createNoopProcessor('a', DayPhase.PERSONNEL));
+      const result = registry.processDay(createTestCampaign());
+      expect(result.failure).toBeUndefined();
     });
 
     it('should handle empty registry', () => {
