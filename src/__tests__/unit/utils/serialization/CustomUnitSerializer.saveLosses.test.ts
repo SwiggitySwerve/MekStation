@@ -23,6 +23,8 @@ import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { projectCustomCombatSnapshot } from '@/types/contracts/CustomCombatSnapshot';
+import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment';
 import { Era } from '@/types/temporal/Era';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
@@ -643,6 +645,105 @@ describe('weapon quirks stay only where their weapon sits', () => {
       );
     },
   );
+
+  // The key's name owns its side (CLFlamer.java:57-59 names only CLFlamer and
+  // Clan Flamer), so a Clan twin in the same cells is not the named weapon.
+  it.each([
+    [
+      '1-age-of-war/standard/Trooper TP-1R.json',
+      TechBaseMode.MIXED,
+      MechLocation.CENTER_TORSO,
+      10,
+      'CT:10:Flamer',
+      'clan-flamer',
+      TechBase.CLAN,
+    ],
+    [
+      '1-age-of-war/standard/Trooper TP-1R.json',
+      TechBaseMode.INNER_SPHERE,
+      MechLocation.RIGHT_ARM,
+      2,
+      'RA:2:Machine Gun',
+      'clan-machine-gun',
+      TechBase.CLAN,
+    ],
+    [
+      NAGA,
+      undefined,
+      MechLocation.LEFT_ARM,
+      2,
+      'LA:2:CLLBXAC20',
+      'lb-20-x-ac',
+      TechBase.INNER_SPHERE,
+    ],
+  ] as const)(
+    "drops %s %s %s %i (%s) when its cells hold the other side's %s",
+    (path, mode, location, slot, key, twin, twinTechBase) => {
+      const store = createUnitStore(
+        new UnitLoaderService().mapToUnitState(
+          { ...source(path), isOmni: path === NAGA },
+          true,
+        ),
+      );
+      if (mode) store.getState().setTechBaseMode(mode);
+      expect(savedWeaponQuirks(store.getState())).toHaveProperty([key]);
+      expect(getEquipmentLookupService().getById(twin)).toBeDefined();
+      const mount = mountAt(store.getState(), location, slot);
+      // Same cells and slots, the other side's item.
+      store.setState({
+        equipment: store
+          .getState()
+          .equipment.map((item) =>
+            item.instanceId === mount.instanceId
+              ? { ...item, equipmentId: twin, techBase: twinTechBase }
+              : item,
+          ),
+      });
+      expect(savedWeaponQuirks(store.getState())).not.toHaveProperty([key]);
+    },
+  );
+
+  // Entity.java:17284-17287: only a weapon or club takes a weapon quirk. The
+  // Streak SRM 6 ammo bin carries its weapon's id, so the id alone would match.
+  it('drops a weapon quirk keyed to a cell that holds ammunition', () => {
+    const original = source(NAGA);
+    const state = new UnitLoaderService().mapToUnitState(
+      {
+        ...original,
+        isOmni: true,
+        weaponQuirks: {
+          ...(original.weaponQuirks as Record<string, string[]>),
+          'LT:4:CLStreakSRM6': ['stable_weapon'],
+        },
+      },
+      true,
+    );
+    const bin = mountAt(state, MechLocation.LEFT_TORSO, 4);
+    expect(bin).toMatchObject({
+      equipmentId: 'clan-streak-srm-6',
+      category: EquipmentCategory.AMMUNITION,
+    });
+    const saved = savedWeaponQuirks(state);
+    expect(saved).not.toHaveProperty(['LT:4:CLStreakSRM6']);
+    expect(saved).toEqual(original.weaponQuirks);
+  });
+
+  // KNOWN DIVERGENCE, pinned on purpose. MegaMek 48fcb2f64 drops this entry on
+  // load: the large shield is F_SHIELD without F_CLUB, so it is "not a weapon"
+  // (Entity.java:17284-17287). The writer cannot tell clubs from other
+  // Miscellaneous items and excludes only ammunition, so it keeps the entry.
+  // Per-item Java weapon/club facts should flip this test deliberately.
+  it('keeps Slagmaiden SLG-X LA:4:ISLargeShield, which Java drops (known divergence)', () => {
+    const original = source('5-civil-war/standard/Slagmaiden SLG-X.json');
+    expect(original.weaponQuirks).toHaveProperty(['LA:4:ISLargeShield']);
+    const saved = savedWeaponQuirks(
+      new UnitLoaderService().mapToUnitState(original, true),
+    );
+    expect(saved).toHaveProperty(
+      ['LA:4:ISLargeShield'],
+      (original.weaponQuirks as Record<string, string[]>)['LA:4:ISLargeShield'],
+    );
+  });
 
   it('leaves no orphaned key after restoring an older version with another layout', async () => {
     const store = nagaStore();

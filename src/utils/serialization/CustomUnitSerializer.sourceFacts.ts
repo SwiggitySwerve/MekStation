@@ -2,9 +2,13 @@ import type { UnitState } from '@/stores/unitState';
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 
 import { mapLocation } from '@/services/conversion/LocationMappings';
-import { resolveEquipmentId } from '@/services/units/unitLoaderService/equipmentResolution';
+import {
+  getTechHintFromToken,
+  resolveEquipmentId,
+} from '@/services/units/unitLoaderService/equipmentResolution';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment';
 import { getSlotParts } from '@/utils/construction/slotOperations/parts';
 
 import { parseNativeWeaponQuirkKey } from './weaponQuirkParsing';
@@ -35,10 +39,21 @@ export function sourceOnlyFacts(state: UnitState): Record<string, unknown> {
 
 /**
  * A native `LOCATION:SLOT:WEAPON_NAME` entry is kept only while a mount in that
- * critical slot is the named weapon, as MegaMek 48fcb2f64 assigns it on load
- * (Entity.java:17256-17315). The name is checked against the mount's own type,
- * whatever the unit's tech base (Entity.java:17289-17297), so an identical twin
- * moved into those cells keeps the entry, as a file load would.
+ * critical slot is the named item, as MegaMek 48fcb2f64 assigns it on load
+ * (Entity.java:17256-17315). Java also requires a WeaponType or a club
+ * (17284-17287). The catalog's categories cannot express that (TAG is
+ * Electronics, clubs are Miscellaneous), so only ammunition is excluded: it is
+ * never a weapon or club, and a bin can carry its weapon's id. Known
+ * divergence: Slagmaiden SLG-X LA:4:ISLargeShield is kept here; Java drops it
+ * (F_SHIELD without F_CLUB is "not a weapon"). Java matches the name
+ * against the mount type's own names (Entity.java:17289-17297), and each name
+ * belongs to one item: the name resolves to the Clan item when it carries a
+ * Clan marker (CLFlamer, Clan Flamer) and to the Inner Sphere item otherwise,
+ * never by the unit's or the mount's mode. So a Clan twin swapped in for an IS
+ * weapon drops the entry, and an identical twin moved into the cells keeps it,
+ * as a file load would. Java reads only the cell's primary mount
+ * (Entity.java:17258-17260); the editor has no primary/secondary cell model, so
+ * any mount in the cell counts. No committed mech has a cell where that differs.
  *
  * Deliberate divergence from MegaMekLab: MML holds quirks on the mount and
  * re-keys them on save from its current location and slot (Mek.java:5241-5247,
@@ -51,15 +66,21 @@ function currentWeaponQuirks(
   state: UnitState,
   quirks: Readonly<Record<string, readonly string[]>>,
 ): Record<string, string[]> | undefined {
-  const isWeapon = (name: string, mount: IMountedEquipmentInstance) =>
-    resolveEquipmentId(
-      name,
-      mount.techBase,
-      mount.techBase === TechBase.CLAN
-        ? TechBaseMode.CLAN
-        : TechBaseMode.INNER_SPHERE,
-      undefined,
-    ).resolvedId === mount.equipmentId;
+  const isWeapon = (name: string, mount: IMountedEquipmentInstance) => {
+    // The name owns its side, independent of any unit or mount mode: a
+    // CL-prefixed or Clan-marked name is the Clan item, any other name the
+    // Inner Sphere item (MML writes getInternalName(); Clan ones are CL-prefixed).
+    const clan = getTechHintFromToken(name) === 'clan';
+    return (
+      mount.category !== EquipmentCategory.AMMUNITION &&
+      resolveEquipmentId(
+        name,
+        clan ? TechBase.CLAN : TechBase.INNER_SPHERE,
+        clan ? TechBaseMode.CLAN : TechBaseMode.INNER_SPHERE,
+        undefined,
+      ).resolvedId === mount.equipmentId
+    );
+  };
   const kept = Object.entries(quirks).filter(([key]) => {
     const native = parseNativeWeaponQuirkKey(key);
     if (!native) return state.equipment.some((mount) => isWeapon(key, mount));
