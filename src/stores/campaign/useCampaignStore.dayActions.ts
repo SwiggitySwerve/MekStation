@@ -183,7 +183,6 @@ async function finishAsyncAdvanceDays(
   return reports.length > 0 ? reports : null;
 }
 
-/** The active host-role transport of `campaign`'s co-op match, or null. */
 function travelToSystemAction(
   set: CampaignSet,
   get: CampaignGet,

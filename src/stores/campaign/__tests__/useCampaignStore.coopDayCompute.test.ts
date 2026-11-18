@@ -19,8 +19,10 @@ import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 import type { IServerMessage } from '@/types/multiplayer/Protocol';
 import type { IPilot } from '@/types/pilot';
 
+import { refreshSavedRecordAfterCommit } from '@/components/campaign/coop/campaignCoopSurfaceHelpers';
 import {
   _resetCampaignSyncTransportsForTest,
+  campaignEventFromMessage,
   registerCampaignSyncTransport,
   type ICampaignSyncTransport,
 } from '@/lib/campaign/coop/campaignSyncTransport';
@@ -40,6 +42,7 @@ import {
   uninstallCampaignPersistenceWiring,
 } from '@/stores/campaign/campaignPersistenceWiring';
 import { installServerCampaign } from '@/stores/campaign/campaignStoreAccessor';
+import { _forgetHeldDayCampaignsForTest } from '@/stores/campaign/coopDayAdvance';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
@@ -80,6 +83,8 @@ interface IFakeServer {
   putMode: 'ok' | 'fail';
   /** 'fail' makes every campaign GET reject, as a dropped connection does. */
   getMode: 'ok' | 'fail';
+  /** Runs before a campaign PUT is judged (another writer landing first). */
+  onCampaignPut?: () => void;
   /** Every request, in order, as `METHOD url`. */
   readonly requests: string[];
   /** The server's pilot rows. */
@@ -114,6 +119,7 @@ function stubServer(server: IFakeServer): void {
         return jsonResponse(200, { success: true });
       }
       if (method === 'PUT') {
+        server.onCampaignPut?.();
         if (server.putMode === 'fail') {
           return jsonResponse(500, { error: 'refused' });
         }
@@ -1067,12 +1073,197 @@ describe('T6 co-op: re-review findings (r5)', () => {
     expect(toastMessages().join('\n')).not.toMatch(/rolled back/i);
   });
 
-  // F3 (C4 OPEN, pre-existing, not T6): in the app the host route surface
-  // (CampaignCoopRouteSurfaceConnected, useCampaignApplicationConsumer)
-  // folds a late CampaignDayAdvanced into the live campaign before the
-  // retry, so the retry's intent id names D+1, the unsettled-intent record
-  // never matches, and day D's processors never run.
-  it.skip('(F3, C4 OPEN) a late commit folded by the host route surface before the retry still loses day D', () => {
-    // Needs the route-surface consumer mounted on the host; owned by C4.
+  // F3 (C4 OPEN, pre-existing, not T6): the host route surface folds a late
+  // CampaignDayAdvanced into the live campaign. In the same session the held
+  // D campaign finishes the day (S1-PIN); after a reload the unsettled intent
+  // and the held campaign are gone (memory only), so the next advance starts
+  // D+1 and day D's processors never run.
+  it.skip('(F3, C4 OPEN) after a reload, a late commit the host surface folded in cannot be finished here', () => {
+    // Needs a persisted unsettled intent; out of T6 scope (C4 atomicity).
+  });
+});
+
+/**
+ * The host route surface's fold of a committed CampaignEvent, as
+ * CampaignCoopRouteSurfaceConnected does it (:198-231): the fold is projected
+ * onto the live campaign - for CampaignDayAdvanced, the date moves to the
+ * fold's day (emulated: the hydrated host fold lives in the component) - and
+ * refreshSavedRecordAfterCommit, the production helper, re-reads the record.
+ */
+function mountHostSurfaceFold(host: IControlledHost): () => void {
+  return host.transport.onFrame((message) => {
+    const event = campaignEventFromMessage(message);
+    if (!event) return;
+    if (event.type === 'CampaignDayAdvanced') {
+      const store = getCampaignStore();
+      const live = store.getState().campaign;
+      if (live?.id === event.campaignId) {
+        store.setState({
+          campaign: {
+            ...live,
+            currentDate: new Date(live.currentDate.getTime() + DAY_MS),
+          },
+        });
+      }
+    }
+    refreshSavedRecordAfterCommit(event);
+  });
+}
+
+describe('T6 co-op: a day the host committed is finished from the held D campaign (r6)', () => {
+  beforeEach(resetWorld);
+  afterEach(resetWorld);
+
+  const commitAdvanceOnly =
+    (host: IControlledHost) =>
+    (intent: ICampaignIntent): void => {
+      if (intent.kind === 'AdvanceDay') host.commit();
+    };
+  const advanceIds = (host: IControlledHost): string[] =>
+    host.sent.filter((i) => i.kind === 'AdvanceDay').map((i) => i.intentId);
+
+  /** Timeout, then the host commits late and the mounted surface folds it. */
+  async function lateCommitFoldedBySurface(
+    world: Awaited<ReturnType<typeof buildWorld>>,
+  ): Promise<void> {
+    const { store, host, startDate } = world;
+    mountHostSurfaceFold(host);
+    jest.useFakeTimers();
+    const first = store.getState().advanceDay();
+    await jest.advanceTimersByTimeAsync(COOP_ADVANCE_TIMEOUT_MS);
+    expect(await first).toBeNull();
+    jest.useRealTimers();
+    host.commit();
+    await settle();
+    // The surface took the commit in: the live campaign is the host's D+1,
+    // with no processor run.
+    expect(dayMs()).toBe(startDate + DAY_MS);
+    expect(currentPilot().xp).toBe(0);
+  }
+
+  it('(C8F1-500) the host commits, the day save fails 500, a retry replays D: day D runs once and D+1 is saved with it', async () => {
+    const world = await buildWorld();
+    const { store, server, host, startDate, startVersion } = world;
+    host.onIntent = (intent) => {
+      if (intent.kind !== 'AdvanceDay') return;
+      host.commit();
+      server.putMode = 'fail';
+    };
+    expect(await store.getState().advanceDay()).toBeNull();
+    expect(currentPilot().xp).toBe(0);
+    expect(vaultAwards()).toBe(0);
+
+    server.putMode = 'ok';
+    host.onIntent = commitAdvanceOnly(host);
+    expect(await store.getState().advanceDay()).not.toBeNull();
+    await settle();
+
+    const ids = advanceIds(host);
+    expect(ids).toHaveLength(2);
+    expect(ids[1]).toBe(ids[0]);
+    expect(dayMs()).toBe(startDate + DAY_MS);
+    expect(recordDayMs(server)).toBe(startDate + DAY_MS);
+    expect(server.record!.version).toBe(startVersion + 2);
+    expect(currentPilot().xp).toBe(10);
+    expect(vaultAwards()).toBe(1);
+    expect(pilotPuts(server)).toEqual([`PUT /api/pilots/${VAULT_ID}`]);
+  });
+
+  it('(C8F1-409) a guest command lands between the refresh and the save, the save is refused 409, a retry replays D: day D runs once, with the guest change', async () => {
+    const world = await buildWorld();
+    const { store, server, host, startDate, startVersion } = world;
+    host.onIntent = (intent) => {
+      if (intent.kind !== 'AdvanceDay') return;
+      host.commit();
+      server.onCampaignPut = () => {
+        server.onCampaignPut = undefined;
+        host.commitGuestRename('Renamed by guest');
+      };
+    };
+    expect(await store.getState().advanceDay()).toBeNull();
+    expect(currentPilot().xp).toBe(0);
+    expect(vaultAwards()).toBe(0);
+
+    host.onIntent = commitAdvanceOnly(host);
+    expect(await store.getState().advanceDay()).not.toBeNull();
+    await settle();
+
+    const ids = advanceIds(host);
+    expect(ids).toHaveLength(2);
+    expect(ids[1]).toBe(ids[0]);
+    expect(dayMs()).toBe(startDate + DAY_MS);
+    expect(recordDayMs(server)).toBe(startDate + DAY_MS);
+    expect(server.record!.version).toBe(startVersion + 3);
+    expect(server.record!.body.name).toBe('Renamed by guest');
+    expect(currentPilot().xp).toBe(10);
+    expect(vaultAwards()).toBe(1);
+  });
+
+  it('(S1-PIN) with the host surface mounted, a late commit it takes in is finished by replaying D from the held campaign', async () => {
+    const world = await buildWorld();
+    const { store, server, host, startDate, startVersion } = world;
+    await lateCommitFoldedBySurface(world);
+    host.onIntent = commitAdvanceOnly(host);
+    store.getState().enqueueOutcome(outcome('m-late'));
+
+    expect(await store.getState().advanceDay()).not.toBeNull();
+    await settle();
+
+    const ids = advanceIds(host);
+    expect(ids).toHaveLength(2);
+    expect(ids[1]).toBe(ids[0]);
+    expect(dayMs()).toBe(startDate + DAY_MS);
+    expect(recordDayMs(server)).toBe(startDate + DAY_MS);
+    expect(server.record!.version).toBe(startVersion + 2);
+    expect(currentPilot().xp).toBe(10);
+    expect(vaultAwards()).toBe(1);
+    expect(store.getState().processedBattleIds).toEqual(['m-late']);
+    expect(currentPilot().campaignMissions).toBe(1);
+  });
+
+  it('(GUEST+1) a guest command landing at exactly +1 over the adopted commit during a replay takes the stale path', async () => {
+    const world = await buildWorld();
+    const { store, server, host, startDate, startVersion } = world;
+    await lateCommitFoldedBySurface(world);
+    expect(useCampaignPersistenceStore.getState().baseVersion).toBe(
+      startVersion + 1,
+    );
+    const processDay = jest.spyOn(getDayPipeline(), 'processDay');
+    host.onIntent = (intent) => {
+      if (intent.kind !== 'AdvanceDay') return;
+      // One version past the commit the client already adopted.
+      host.commitGuestRename('Renamed by guest');
+      host.commit();
+    };
+
+    expect(await store.getState().advanceDay()).not.toBeNull();
+    await settle();
+
+    expect(processDay).toHaveBeenCalledTimes(2);
+    const ids = advanceIds(host);
+    expect(ids[1]).toBe(ids[0]);
+    expect(recordDayMs(server)).toBe(startDate + DAY_MS);
+    expect(server.record!.version).toBe(startVersion + 3);
+    expect(server.record!.body.name).toBe('Renamed by guest');
+    expect(currentPilot().xp).toBe(10);
+    expect(vaultAwards()).toBe(1);
+  });
+
+  it('(HELD-GONE) without the held D campaign, a retry at D+1 does not advance and says the host advanced the day', async () => {
+    const world = await buildWorld();
+    const { store, server, host, startDate, startVersion } = world;
+    await lateCommitFoldedBySurface(world);
+    _forgetHeldDayCampaignsForTest();
+    toast.mockClear();
+
+    expect(await store.getState().advanceDay()).toBeNull();
+
+    expect(advanceIds(host)).toHaveLength(1);
+    expect(dayMs()).toBe(startDate + DAY_MS);
+    expect(server.record!.version).toBe(startVersion + 1);
+    expect(currentPilot().xp).toBe(0);
+    expect(toastMessages().join('\n')).toMatch(
+      /host advanced the day.*not finished here/i,
+    );
   });
 });

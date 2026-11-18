@@ -7,6 +7,7 @@
 import type { DayReport } from '@/lib/campaign/dayAdvancement';
 
 import { toast } from '@/components/shared/Toast';
+import { nextCampaignDay } from '@/lib/campaign/campaignCalendar';
 import {
   campaignEventFromMessage,
   getActiveCampaignSyncTransport,
@@ -27,6 +28,7 @@ import {
   toastNotSaved,
   type CampaignGet,
   type CampaignSet,
+  type DayNotSavedReporter,
   type IComputedDay,
 } from './campaignDayCommit';
 import {
@@ -46,6 +48,7 @@ import { useCampaignRosterStore } from './useCampaignRosterStore';
  */
 export const COOP_ADVANCE_TIMEOUT_MS = 30_000;
 
+/** The active host-role transport of `campaign`'s co-op match, or null. */
 export function coopHostTransport(
   campaign: ICampaign,
 ): ICampaignSyncTransport | null {
@@ -77,27 +80,35 @@ export function coopHostTransport(
  *    committed in between: the computed day is rolled back and the day is
  *    recomputed on the refreshed campaign, then saved.
  *
- * A retry after a late commit (an AdvanceDay that timed out or was committed
- * while the player had switched campaigns, unsettledAdvanceIntents) skips the
- * pre-save: the row has moved, so a co-op save would be refused and would
- * install the host's record - D+1 with no processor run - in place of the
- * live campaign. The day is computed from the live (dirty) campaign instead,
- * the same intent id is sent (the host replays its receipt), and the computed
- * day, carrying the unsaved edits, is installed and saved on the host's row.
+ * An AdvanceDay the host may hold without its day saved here (it timed out,
+ * its answer was a transport error, its committed record could not be read,
+ * the day's save failed, or the player switched away) stays unsettled
+ * (unsettledAdvanceIntents), with the D campaign it was computed from held in
+ * memory. A retry REPLAYS it - the same intent id, so the host replays its
+ * receipt - and never sends a new D+1 intent while it is unsettled:
+ * - The live campaign is still at D: the day is computed from the live
+ *   (perhaps dirty) campaign, and the pre-save is skipped - the host's row
+ *   has moved, so a co-op save would be refused and would install the host's
+ *   D+1 in place of the live campaign.
+ * - The live campaign is at D+1 (a save rollback, a refresh, or the host
+ *   surface's fold installed the host's record, with no processor run): the
+ *   day is computed from the HELD D campaign, never from the host's record.
+ *   Without a held campaign the day is not advanced, and the player is told
+ *   the host advanced it.
  *
- * Accepted residuals (C8 T6 r4):
- * - A roster-only edit does not mark the campaign dirty, so it triggers no
- *   pre-save; the day is computed on the live roster and keeps the edit.
- * - A snapshot-authority campaign's row does not move on a commit, so the
- *   stale-compute check has no version signal there.
+ * Accepted residuals (C8 T6 r6; atomicity is C4's OPEN):
+ * - Reload and fold (S1/F3): the unsettled intent and the held D campaign
+ *   live in memory only, so after a reload a late commit the host surface
+ *   folded in cannot be finished here, and the next advance starts D+1.
  * - A throw in the recompute after a stale-version commit leaves the host at
  *   D+1 with no processor result saved (pinned by R-RECOMPUTE-THROW).
- * - A campaign switch after the host committed leaves the host at D+1 as
- *   before; the day completes on a retry from the campaign's D state.
- * - (F3, C4 OPEN, pre-existing) In the app the host route surface folds a
- *   late CampaignDayAdvanced into the live campaign before the retry, so the
- *   retry names D+1, unsettledAdvanceIntents never matches, and day D's
- *   processors never run.
+ * - A snapshot-authority campaign's row does not move on a commit, so the
+ *   stale-compute check has no version signal there.
+ * - C4's open question: whether the saved record and the journal can
+ *   diverge on balance, consumed offers or roster readiness at commit (the
+ *   AdvanceDay record rewrite re-projects them from the journal).
+ * - A roster-only edit does not mark the campaign dirty, so it triggers no
+ *   pre-save; the day is computed on the live roster and keeps the edit.
  */
 export async function advanceCoopDayThroughHost(
   set: CampaignSet,
@@ -105,13 +116,26 @@ export async function advanceCoopDayThroughHost(
   transport: ICampaignSyncTransport,
   campaign: ICampaign,
 ): Promise<DayReport | null> {
-  const intentId = advanceDayIntentId(campaign);
-  // The signal that the host may already hold this day: this client sent
-  // this very intent (the id names the campaign and the day) and never
-  // installed its commit. The row the host committed is then at D+1, and only
-  // a replay of the same intent finishes the day.
-  const lateCommitPossible =
-    unsettledAdvanceIntents.get(campaign.id) === intentId;
+  // The signal that the host may already hold a day: this client sent its
+  // intent (the id names the campaign and the day) and never saved the day.
+  const unsettled = unsettledAdvanceIntents.get(campaign.id);
+  const replayAtD = unsettled?.intentId === advanceDayIntentId(campaign);
+  const replayAtNextDay =
+    unsettled !== undefined &&
+    !replayAtD &&
+    campaign.currentDate.getTime() === nextCampaignDay(unsettled.day).getTime();
+  if (replayAtNextDay && !unsettled.held) {
+    toast({
+      message:
+        "The host advanced the day, but it was not finished here. Reload the campaign to see the host's state.",
+      variant: 'error',
+      duration: 7000,
+    });
+    return null;
+  }
+  const lateCommitPossible = replayAtD || replayAtNextDay;
+  const hostMayHoldDay: DayNotSavedReporter = (reason, restoreFailure) =>
+    toastHostMayHoldDay(reason, restoreFailure);
   // Awaited only when there is something to save, so a clean campaign's
   // intent goes out in the same tick as the call.
   if (
@@ -125,29 +149,43 @@ export async function advanceCoopDayThroughHost(
     lateCommitPossible && useCampaignPersistenceStore.getState().dirty;
   // The awaits here and below are windows in which the player can switch
   // campaigns; the day belongs to the campaign it was started on.
-  const base = get().campaign;
-  if (!base || base.id !== campaign.id) {
+  const live = get().campaign;
+  if (!live || live.id !== campaign.id) {
     return null;
   }
-  const savedVersion = useCampaignPersistenceStore.getState().baseVersion;
+  // Day D, from the held D campaign when the live one already shows the
+  // host's D+1. The intent sent is D's either way.
+  const base = replayAtNextDay ? (unsettled.held as ICampaign) : live;
+  const intentId = advanceDayIntentId(base);
+  // The version the day is checked against is the one its FIRST attempt was
+  // computed on: a replay must find the record exactly where the host's
+  // AdvanceDay commit took it from there, however much of it this client
+  // has adopted since.
+  const savedVersion = lateCommitPossible
+    ? unsettled.savedVersion
+    : useCampaignPersistenceStore.getState().baseVersion;
   const snapshot = captureDayAdvanceSnapshot(get, base);
   let day: IComputedDay;
   try {
     day = computeDay(get, base, snapshot);
   } catch (error) {
-    toastNotSaved(
-      'day advance',
-      errorMessage(error),
-      rollbackDayAdvance(set, get, snapshot),
-    );
+    const restoreFailure = rollbackDayAdvance(set, get, snapshot);
+    if (lateCommitPossible) hostMayHoldDay(errorMessage(error), restoreFailure);
+    else toastNotSaved('day advance', errorMessage(error), restoreFailure);
     return null;
   }
   const discard = (): void =>
     toastIfRestoreFailed(rollbackDayAdvance(set, get, snapshot));
   const answer = await sendAdvanceDay(transport, base);
   if (answer.kind !== 'refused') {
-    // Committed, or perhaps committed late: unsettled until the day is saved.
-    unsettledAdvanceIntents.set(campaign.id, intentId);
+    // Committed, or perhaps committed late: unsettled until the day is
+    // saved. A replay keeps the first attempt's record.
+    unsettledAdvanceIntents.set(
+      campaign.id,
+      lateCommitPossible
+        ? unsettled
+        : { intentId, day: base.currentDate, savedVersion, held: base },
+    );
   } else if (lateCommitPossible) {
     unsettledAdvanceIntents.delete(campaign.id);
   }
@@ -155,7 +193,7 @@ export async function advanceCoopDayThroughHost(
     discard();
     toast({
       message:
-        "The host didn't answer the day advance in time. Nothing was saved. Retrying is safe.",
+        "The host didn't answer the day advance in time; it may still advance the day. Nothing was saved here. Retrying is safe: it finishes the same day.",
       variant: 'error',
       duration: 7000,
     });
@@ -203,12 +241,15 @@ export async function advanceCoopDayThroughHost(
     toastUnconfirmed('the committed record could not be read');
     return null;
   }
-  // The version check: a journal-native campaign's AdvanceDay commit rewrites
-  // its record at exactly savedVersion + 1 (campaignRecordJournalState
+  // The version check, against the version the day's FIRST attempt was
+  // computed on (savedVersion). A journal-native campaign's AdvanceDay commit
+  // rewrites its record at exactly savedVersion + 1 (campaignRecordJournalState
   // rewriteCampaignRecordAfterCommand runs once per committed command or
-  // combat outcome); a snapshot-authority campaign's commit does not touch
-  // the row, so it stays at savedVersion. Any other version means another
-  // command committed after the day was computed.
+  // combat outcome), and a replay of the same intent does not move it again;
+  // a snapshot-authority campaign's commit does not touch the row, so it
+  // stays at savedVersion - the blind spot. Anything else - another command
+  // committed after the day was computed, including a guest command one
+  // version past a commit this client already adopted - is stale.
   if (!isOnlyAdvanceDayCommitted(savedVersion)) {
     discard();
     if (unsavedEditsCarried) {
@@ -242,15 +283,18 @@ export async function advanceCoopDayThroughHost(
     return settleAdvanceIntent(
       campaign.id,
       intentId,
-      await advanceDayLocally(set, get, recomputeFrom),
+      await advanceDayLocally(set, get, recomputeFrom, hostMayHoldDay),
     );
   }
-  // Taken after the refresh, as the day's starting point if its save fails.
-  // The vault's starting point is the one from before the compute, and so is
-  // the roster's when the refresh left the computed roster in place (a
-  // snapshot-authority row the cache already names): that roster carries
-  // the day's patches, and restoring it would let a retry patch again. A
+  // What a failed save puts back. Its campaign is `base`, the D campaign the
+  // day was computed from (the persistence layer's own rollback usually
+  // installs the host's record first, and a live copy that is not the one
+  // this attempt stored is kept). Its battle ledgers and roster are read
+  // after the refresh; the roster is the pre-compute one instead when the
+  // refresh left the computed roster in place (a snapshot-authority row the
+  // cache already names), since that roster carries the day's patches. A
   // roster the refresh replaced is the record's, the day's real start (M5).
+  // The vault's is the one from before the compute.
   const refreshed = captureDayAdvanceSnapshot(get, base);
   const installSnapshot: IDayAdvanceSnapshot = {
     ...refreshed,
@@ -260,28 +304,53 @@ export async function advanceCoopDayThroughHost(
         ? snapshot.rosterPilots
         : refreshed.rosterPilots,
   };
-  const report = await commitDay(set, get, installSnapshot, () => {
-    // The refresh adopted the record the day was computed from (the save
-    // above made it the live state), so the computed roster replaces it.
-    useCampaignRosterStore
-      .getState()
-      .replacePilotsForCampaign(
-        snapshot.rosterCampaignId,
-        snapshot.appliedRosterPilots,
-      );
-    recordPipelineWrites(installSnapshot, day.report.campaign.missions);
-    return installDay(set, get, day, installSnapshot, queuedBeforeRefresh);
-  });
+  const report = await commitDay(
+    set,
+    get,
+    installSnapshot,
+    () => {
+      // The refresh adopted the record the day was computed from (the save
+      // above made it the live state), so the computed roster replaces it.
+      useCampaignRosterStore
+        .getState()
+        .replacePilotsForCampaign(
+          snapshot.rosterCampaignId,
+          snapshot.appliedRosterPilots,
+        );
+      recordPipelineWrites(installSnapshot, day.report.campaign.missions);
+      return installDay(set, get, day, installSnapshot, queuedBeforeRefresh);
+    },
+    hostMayHoldDay,
+  );
   return settleAdvanceIntent(campaign.id, intentId, report);
+}
+
+/** An AdvanceDay the host may hold without its day saved here. */
+interface IUnsettledAdvance {
+  /** The intent id, which names the campaign and day D. */
+  readonly intentId: string;
+  /** Day D. */
+  readonly day: Date;
+  /** The record version day D's first attempt was computed on. */
+  readonly savedVersion: number;
+  /** The D campaign that attempt was computed from; null once forgotten. */
+  readonly held: ICampaign | null;
 }
 
 /**
  * AdvanceDay intents the host may have committed without this client having
- * saved their day: one that timed out (it can still commit late) or that
- * committed while the day could not be installed. Keyed by campaign id; the
- * value is the intent id, which names the campaign and the day.
+ * saved their day: one that timed out (it can still commit late), one whose
+ * answer could not be confirmed, or one that committed while the day could
+ * not be saved here. Keyed by campaign id; in memory only.
  */
-const unsettledAdvanceIntents = new Map<string, string>();
+const unsettledAdvanceIntents = new Map<string, IUnsettledAdvance>();
+
+/** Test seam: the held D campaigns are lost (a reload keeps nothing). */
+export function _forgetHeldDayCampaignsForTest(): void {
+  unsettledAdvanceIntents.forEach((entry, campaignId) =>
+    unsettledAdvanceIntents.set(campaignId, { ...entry, held: null }),
+  );
+}
 
 /** The AdvanceDay intent id for the day `campaign` is on. */
 function advanceDayIntentId(campaign: ICampaign): string {
@@ -294,7 +363,10 @@ function settleAdvanceIntent(
   intentId: string,
   report: DayReport | null,
 ): DayReport | null {
-  if (report && unsettledAdvanceIntents.get(campaignId) === intentId) {
+  if (
+    report &&
+    unsettledAdvanceIntents.get(campaignId)?.intentId === intentId
+  ) {
     unsettledAdvanceIntents.delete(campaignId);
   }
   return report;
@@ -336,10 +408,28 @@ async function saveBeforeComputingDay(get: CampaignGet): Promise<boolean> {
   return false;
 }
 
-/** The host's answer could not be confirmed; nothing was saved. */
+/** The host's answer could not be confirmed; nothing was saved here. */
 function toastUnconfirmed(reason: string): void {
   toast({
-    message: `The day advance could not be confirmed with the host (${reason}). Nothing was saved. Retrying is safe.`,
+    message: `The day advance could not be confirmed with the host (${reason}); the host may have advanced the day. Nothing was saved here. Retrying is safe: it finishes the same day.`,
+    variant: 'error',
+    duration: 7000,
+  });
+}
+
+/**
+ * A day the host may already hold was not saved here (its save failed, or
+ * its replay's compute threw): the campaign may show the host's next day,
+ * so "restored" would not be true.
+ */
+function toastHostMayHoldDay(
+  reason: string,
+  restoreFailure: string | null,
+): void {
+  toast({
+    message: restoreFailure
+      ? `The day advance was not saved here (${reason}), and restoring the campaign failed (${restoreFailure}). The host may have advanced the day. Reload the campaign before you go on.`
+      : `The day advance was not saved here (${reason}). The host may have advanced the day; retry to finish it.`,
     variant: 'error',
     duration: 7000,
   });

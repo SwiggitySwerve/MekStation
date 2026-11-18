@@ -214,6 +214,20 @@ export function toastNotSaved(
   });
 }
 
+/**
+ * Reports a day that was not saved, after its rollback: `restoreFailure` is
+ * the message of the first restore that failed. The default tells the player
+ * the campaign was restored; the co-op host, whose host may already hold the
+ * day, says that instead.
+ */
+export type DayNotSavedReporter = (
+  reason: string,
+  restoreFailure: string | null,
+) => void;
+
+const reportDayNotSaved: DayNotSavedReporter = (reason, restoreFailure) =>
+  toastNotSaved('day advance', reason, restoreFailure);
+
 /** What the day wrote to the stores, ready to be committed or rolled back. */
 export interface IAppliedDay {
   readonly committedReport: DayReport;
@@ -257,10 +271,15 @@ export function advanceDayLocally(
   set: CampaignSet,
   get: CampaignGet,
   campaign: ICampaign,
+  notSaved: DayNotSavedReporter = reportDayNotSaved,
 ): MaybePromise<DayReport | null> {
   const snapshot = captureDayAdvanceSnapshot(get, campaign);
-  return commitDay(set, get, snapshot, () =>
-    installDay(set, get, computeDay(get, campaign, snapshot), snapshot),
+  return commitDay(
+    set,
+    get,
+    snapshot,
+    () => installDay(set, get, computeDay(get, campaign, snapshot), snapshot),
+    notSaved,
   );
 }
 
@@ -274,13 +293,10 @@ export function commitDay(
   get: CampaignGet,
   snapshot: IDayAdvanceSnapshot,
   install: () => IAppliedDay,
+  notSaved: DayNotSavedReporter = reportDayNotSaved,
 ): MaybePromise<DayReport | null> {
   const fail = (reason: string): null => {
-    toastNotSaved(
-      'day advance',
-      reason,
-      rollbackDayAdvance(set, get, snapshot),
-    );
+    notSaved(reason, rollbackDayAdvance(set, get, snapshot));
     return null;
   };
   let day: IAppliedDay;
