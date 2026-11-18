@@ -9,11 +9,17 @@
  */
 
 import { MechLocation } from '@/types/construction';
+import { EngineType } from '@/types/construction/EngineType';
+import { GyroType } from '@/types/construction/GyroType';
+import { TechBase } from '@/types/enums';
+import { EquipmentCategory } from '@/types/equipment';
 import {
   LocationRestriction,
   isValidLocationForEquipment,
   PLACEMENT_RULES,
 } from '@/types/equipment/EquipmentPlacement';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+import { getEquipmentSlotIssues } from '@/utils/construction/slotOperations/placement';
 
 describe('Location Restrictions', () => {
   // ===========================================================================
@@ -318,5 +324,87 @@ describe('Location Restrictions', () => {
         expect(isValid).toBe(true);
       });
     });
+  });
+});
+
+// Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587, TestMek.isValidMekLocation
+// (TestMek.java:1658-1810): IS CASE must be in a torso location, centre torso
+// included (`mek.locationIsTorso`, :1752-1760); no rule restricts Guardian ECM.
+describe('pinned Java mek locations', () => {
+  const BIPED = [
+    MechLocation.HEAD,
+    MechLocation.CENTER_TORSO,
+    MechLocation.LEFT_TORSO,
+    MechLocation.RIGHT_TORSO,
+    MechLocation.LEFT_ARM,
+    MechLocation.RIGHT_ARM,
+    MechLocation.LEFT_LEG,
+    MechLocation.RIGHT_LEG,
+  ];
+  const TORSOS = [
+    MechLocation.CENTER_TORSO,
+    MechLocation.LEFT_TORSO,
+    MechLocation.RIGHT_TORSO,
+  ];
+
+  it.each(BIPED)('IS CASE in %s is valid only in a torso', (location) => {
+    expect(isValidLocationForEquipment('case', location)).toBe(
+      TORSOS.includes(location),
+    );
+  });
+
+  it.each(BIPED)('Guardian ECM may be mounted in %s', (location) => {
+    expect(isValidLocationForEquipment('guardian-ecm', location)).toBe(true);
+  });
+
+  const mount = (
+    equipmentId: string,
+    name: string,
+    location: MechLocation,
+    slots: number[],
+  ) => ({
+    instanceId: `${equipmentId}@${location}`,
+    equipmentId,
+    name,
+    category: EquipmentCategory.MISC_EQUIPMENT,
+    weight: 1,
+    criticalSlots: slots.length,
+    heat: 0,
+    techBase: TechBase.INNER_SPHERE,
+    location,
+    slots,
+    isRearMounted: false,
+    linkedAmmoId: undefined,
+    isRemovable: true,
+    isOmniPodMounted: false,
+  });
+  const placementIssues = (equipment: ReturnType<typeof mount>[]) =>
+    getEquipmentSlotIssues(
+      equipment,
+      MechConfiguration.BIPED,
+      EngineType.STANDARD,
+      GyroType.STANDARD,
+    ).filter((issue) => issue.message.includes('cannot be placed'));
+
+  it('raises no placement issue for CASE in the centre torso or ECM in an arm', () => {
+    expect(
+      placementIssues([
+        mount('case', 'CASE', MechLocation.CENTER_TORSO, [10]),
+        mount(
+          'guardian-ecm',
+          'Guardian ECM Suite',
+          MechLocation.LEFT_ARM,
+          [4, 5],
+        ),
+      ]),
+    ).toEqual([]);
+  });
+
+  it('still rejects IS CASE in an arm', () => {
+    expect(
+      placementIssues([mount('case', 'CASE', MechLocation.LEFT_ARM, [4])]).map(
+        (issue) => issue.message,
+      ),
+    ).toEqual(['CASE cannot be placed in Left Arm.']);
   });
 });
