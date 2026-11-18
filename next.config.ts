@@ -217,6 +217,10 @@ const nextConfig = (phase: string): NextConfig => ({
 
   // Optimize images
   images: {
+    // No runtime image optimization in the standalone server or Electron:
+    // assets are pre-sized, and sharp is excluded from every deployment image
+    // (its libvips never shipped; PARITY-PLAN 1.0.53).
+    unoptimized: true,
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 31536000, // 1 year
   },
