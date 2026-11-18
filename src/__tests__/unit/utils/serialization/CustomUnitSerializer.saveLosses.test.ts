@@ -21,6 +21,7 @@ import { CockpitType } from '@/types/construction/CockpitType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
+import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { projectCustomCombatSnapshot } from '@/types/contracts/CustomCombatSnapshot';
 import { Era } from '@/types/temporal/Era';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
@@ -558,7 +559,9 @@ function savedWeaponQuirks(state: UnitState) {
     .weaponQuirks;
 }
 
-describe('weapon quirks follow their weapon (Entity.java:17256-17315)', () => {
+// MegaMek's load rule (Entity.java:17256-17315). Dropping a moved weapon's
+// entry deliberately diverges from MegaMekLab, which re-keys it on save.
+describe('weapon quirks stay only where their weapon sits', () => {
   it('drops the quirk of a removed weapon and keeps the others', () => {
     const store = nagaStore();
     const before = savedWeaponQuirks(store.getState());
@@ -574,7 +577,7 @@ describe('weapon quirks follow their weapon (Entity.java:17256-17315)', () => {
     expect(after).toEqual(others);
   });
 
-  it('drops the quirk of a moved weapon and never re-keys it', () => {
+  it('drops the quirk of a moved weapon and never re-keys it (deliberate divergence from MML)', () => {
     const store = nagaStore();
     const before = savedWeaponQuirks(store.getState()) ?? {};
     expect(before).toHaveProperty(['RA:10:CLERLargeLaser']);
@@ -612,6 +615,34 @@ describe('weapon quirks follow their weapon (Entity.java:17256-17315)', () => {
       'LA:2:CLLBXAC20',
     ]);
   });
+
+  it.each([
+    ['1-age-of-war/standard/Trooper TP-1R.json', 4],
+    ['1-age-of-war/standard/Crossbow CRS-6B.json', 2],
+  ] as const)(
+    'keeps every quirk of %s when the unit switches from Inner Sphere to Clan',
+    (path, entries) => {
+      const original = source(path);
+      expect(Object.keys(original.weaponQuirks ?? {})).toHaveLength(entries);
+      const store = createUnitStore(
+        new UnitLoaderService().mapToUnitState(original, true),
+      );
+      const mounts = (state: UnitState) =>
+        state.equipment.map(({ equipmentId, location, slots }) => ({
+          equipmentId,
+          location,
+          slots,
+        }));
+      const before = mounts(store.getState());
+      store.getState().setTechBaseMode(TechBaseMode.CLAN);
+      expect(store.getState().techBaseMode).toBe(TechBaseMode.CLAN);
+      // The weapons never moved; only the unit's tech base changed.
+      expect(mounts(store.getState())).toEqual(before);
+      expect(savedWeaponQuirks(store.getState())).toEqual(
+        original.weaponQuirks,
+      );
+    },
+  );
 
   it('leaves no orphaned key after restoring an older version with another layout', async () => {
     const store = nagaStore();
