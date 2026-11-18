@@ -205,8 +205,9 @@ it('keeps pinned draft and source-cell save fingerprints independent of residual
   const state = loader.mapToUnitState(parseUnit(scarecrow), true);
   expect(state.unrecoveredCriticalSlots).toHaveLength(20);
   expect(getUnitDraftFingerprint(state)).toBe(SCARECROW_DRAFT_LITERAL);
-  // The A2 fixture differs from the retained pre-A2 library literal only in
-  // twelve native engine cells. Keep the old literal for receipt compatibility.
+  // The fixture differs from the retained pre-A2 library literal only in
+  // twelve native engine cells (A2) and the persisted source quirks and
+  // publication source (S1). Keep the old literal for receipt compatibility.
   expect(getUnitLibraryFingerprint(state)).toBe(
     scarecrowSourceCells.libraryFingerprint,
   );
