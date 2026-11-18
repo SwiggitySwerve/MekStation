@@ -35,6 +35,7 @@ import schema from '../../../../public/data/equipment/_schema/unit-schema.json';
 import { mapArmorType as bvArmorKey } from '../../../../scripts/validate-bv-unit-derived';
 import { ARMOR_IDENTITY_ROWS, armorTagForEnumKey } from '../ArmorIdentity';
 import blkArmorCodes from '../blk-armor-codes.json';
+import vocabulary from '../mtf-component-vocabulary.json';
 
 const rows = ARMOR_IDENTITY_ROWS;
 const memberKeys = Object.keys(ArmorTypeEnum);
@@ -305,6 +306,53 @@ describe('the BV armor mapper agrees with pinned Java on every mech armor tag', 
         JAVA_BV_MULTIPLIER[row.tag] ?? 1.0,
       ])
       .filter(([, actual, expected]) => actual !== expected);
+    expect(wrong).toEqual([]);
+  });
+});
+
+describe("the owner file's critical-slot armor markers agree with the armor rows", () => {
+  // criticalSlotMarkers (o3a) restates each armor marker's material and tech side. Every armor
+  // marker must name an owner row: its material is that row's enum value (the Clan side of a type
+  // whose Clan variant has its own row resolves to that row), and its tech side matches the row.
+  const markers = (
+    vocabulary as unknown as {
+      criticalSlotMarkers: Record<
+        string,
+        { kind: string; material: string; techBase: 'INNER_SPHERE' | 'CLAN' }
+      >;
+    }
+  ).criticalSlotMarkers;
+  const rowForMarker = (material: string, techBase: string) => {
+    const byValue = (value: string) =>
+      enumRows.find((row) => valueOf(row.enum!) === value);
+    if (techBase === 'CLAN') {
+      const clanRow = enumRows.find(
+        (row) =>
+          row.tag.endsWith('_CLAN') &&
+          byValue(material)?.tag + '_CLAN' === row.tag,
+      );
+      if (clanRow) return clanRow;
+    }
+    return byValue(material);
+  };
+
+  it('every armor marker resolves to an owner row on the same tech side', () => {
+    const wrong = Object.entries(markers)
+      .filter(([, marker]) => marker.kind === 'armor-marker')
+      .filter(([name, marker]) => {
+        // The marker's native name carries its side ("IS …" / "Clan …"); the field must agree.
+        if (name.startsWith('Clan ') !== (marker.techBase === 'CLAN'))
+          return true;
+        const row = rowForMarker(marker.material, marker.techBase);
+        if (!row) return true;
+        const clanSide =
+          row.tag.endsWith('_CLAN') || valueOf(row.enum!).includes('(Clan)');
+        const clanOnlyType = ['FERRO_LAMELLOR'].includes(row.tag);
+        return marker.techBase === 'CLAN'
+          ? !(clanSide || clanOnlyType)
+          : clanSide;
+      })
+      .map(([name]) => name);
     expect(wrong).toEqual([]);
   });
 });

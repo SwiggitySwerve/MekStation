@@ -58,6 +58,14 @@ class ArmorIdentityOwnerTest(unittest.TestCase):
         self.assertEqual([t for t in shared.values() if t not in tags], [])
         self.assertEqual([t for t in BLK_ARMOR_CODE_MAP.values() if t not in tags], [])
 
+    def test_large_craft_code_overrides_name_only_owner_tags(self):
+        # A deliberate large-craft table (blk_aerospace_tables.py) that overrides five shared codes with
+        # aerospace armor; kept as a literal, but every tag it names must be an owner tag.
+        import blk_aerospace_tables
+        tags = {row['tag'] for row in OWNER}
+        self.assertEqual([t for t in blk_aerospace_tables.LARGE_CRAFT_ARMOR_CODE_MAP.values() if t not in tags], [])
+        self.assertEqual([t for t in blk_aerospace_tables.SC_ARMOR_CODE_MAP.values() if t not in tags], [])
+
     def test_enum_member_keys_are_unique_and_only_enum_rows_carry_one(self):
         keys = [row['enum'] for row in OWNER if row['enum'] is not None]
         self.assertEqual(len(keys), len(set(keys)))
