@@ -8,9 +8,17 @@ import type {
 } from '@/types/gameplay';
 import type { ICombatProjectionInput } from '@/utils/gameplay/combatProjection.types';
 
-import { Facing, GameSide, MovementType, TerrainType } from '@/types/gameplay';
+import {
+  Facing,
+  GameSide,
+  MovementType,
+  TerrainType,
+  TokenUnitType,
+  VehicleMotionType,
+} from '@/types/gameplay';
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
 
+import { deriveCombatRangeHexes } from '../../combatProjection.rangeHex';
 import { deriveSharedCombatRangeHexes } from '../../combatProjection.shared';
 import { coordToKey } from '../../hexMath';
 import {
@@ -21,6 +29,18 @@ import {
   type IUnitSpec,
 } from './fixtures';
 import { referenceDeriveCombatRangeHexes } from './rangeHex.reference';
+
+jest.mock('../../combatProjection.rangeHex', () => {
+  const actual = jest.requireActual('../../combatProjection.rangeHex');
+  return {
+    ...actual,
+    deriveCombatRangeHexes: jest.fn(actual.deriveCombatRangeHexes),
+  };
+});
+
+const coreProjection = deriveCombatRangeHexes as jest.MockedFunction<
+  typeof deriveCombatRangeHexes
+>;
 
 /**
  * Each input the projection reads must reach the cache key: priming the
@@ -193,4 +213,150 @@ describe('shared projection cache key (perf P5)', () => {
     expect(shared).toBe(primed);
     expect(shared).toStrictEqual(referenceDeriveCombatRangeHexes(flagged));
   });
+
+  describe('same state object, one non-flag token field changed (C4 S1)', () => {
+    // Every IUnitToken field except the interaction flags, across all token
+    // variants. The mapped type makes a new token field a type error here
+    // until it gets a case, so no field can silently fall out of the key.
+    // These fields can change while the combat state object stays the same
+    // (lastKnownPosition comes from client fog memory, for example).
+    const FIELD_CHANGES: { readonly [K in NonFlagTokenField]: unknown } = {
+      unitId: 'enemy-renamed',
+      name: 'Renamed',
+      side: GameSide.Player,
+      position: { q: 1, r: -2 },
+      lastKnownPosition: { q: 2, r: 1 },
+      facing: Facing.North,
+      fogStatus: 'hidden',
+      sensorRange: 7,
+      isDestroyed: true,
+      isProne: true,
+      designation: 'ZZZ',
+      unitType: TokenUnitType.Vehicle,
+      weightClass: 'assault',
+      chassisArchetype: 'humanoid',
+      isQuad: true,
+      isLAM: true,
+      armorPipState: { front: 1 },
+      vehicleMotionType: VehicleMotionType.Hover,
+      turretFacing: 3,
+      altitude: 5,
+      velocity: 4,
+      mountedOn: 'enemy-a',
+      passengerBadge: { hostTokenId: 'enemy-a', slot: 'back' },
+      trooperCount: 3,
+      jumpActive: true,
+      infantryCount: 20,
+      platoonCount: 1,
+      infantryMotiveType: 'jump',
+      infantrySpecialization: 'anti_mech',
+      protoCount: 5,
+      isGlider: true,
+      hasMainGun: true,
+    };
+
+    // enemy-c is a last-known ghost so its lastKnownPosition is read.
+    function ghostBase(): ReturnType<typeof baseInput> {
+      const base = baseInput();
+      return {
+        ...base,
+        tokens: withToken(base.tokens, 'enemy-c', {
+          fogStatus: 'lastKnown',
+          lastKnownPosition: { q: -2, r: 3 },
+        }),
+      };
+    }
+
+    function expectChanged(
+      token: IUnitToken,
+      field: NonFlagTokenField,
+      value: unknown,
+    ): void {
+      expect(
+        isDeepStrictEqual(
+          (token as unknown as Record<string, unknown>)[field],
+          value,
+        ),
+      ).toBe(false);
+    }
+
+    function expectMissMatchingReference(
+      primedInput: ICombatProjectionInput,
+      changed: ICombatProjectionInput,
+    ): {
+      primed: readonly ICombatRangeHex[];
+      actual: readonly ICombatRangeHex[];
+    } {
+      const primed = deriveSharedCombatRangeHexes(primedInput);
+      expect(deriveSharedCombatRangeHexes(primedInput)).toBe(primed);
+      coreProjection.mockClear();
+      const actual = deriveSharedCombatRangeHexes(changed);
+      // A miss: the uncached projection ran over the whole map again.
+      expect(
+        coreProjection.mock.calls.filter(
+          ([input]) => input.hexes.length === changed.hexes.length,
+        ),
+      ).toHaveLength(1);
+      expect(actual).toStrictEqual(referenceDeriveCombatRangeHexes(changed));
+      return { primed, actual };
+    }
+
+    it.each(Object.keys(FIELD_CHANGES) as NonFlagTokenField[])(
+      'enemy token field %s',
+      (field) => {
+        const base = ghostBase();
+        const enemy = base.tokens.find((token) => token.unitId === 'enemy-c')!;
+        expectChanged(enemy, field, FIELD_CHANGES[field]);
+        expectMissMatchingReference(base, {
+          ...base,
+          tokens: withToken(base.tokens, 'enemy-c', {
+            [field]: FIELD_CHANGES[field],
+          } as Partial<IUnitToken>),
+        });
+      },
+    );
+
+    it.each(Object.keys(FIELD_CHANGES) as NonFlagTokenField[])(
+      'attacker token field %s',
+      (field) => {
+        const base = ghostBase();
+        // The attacker is already on the player side.
+        const value =
+          field === 'side' ? GameSide.Opponent : FIELD_CHANGES[field];
+        expectChanged(base.attacker, field, value);
+        const attacker = { ...base.attacker, [field]: value } as IUnitToken;
+        expectMissMatchingReference(base, {
+          ...base,
+          attacker,
+          tokens: [attacker, ...base.tokens.slice(1)],
+        });
+      },
+    );
+
+    it.each([
+      ['isDestroyed', 'enemy-a', { isDestroyed: true }],
+      ['lastKnownPosition', 'enemy-c', { lastKnownPosition: { q: 2, r: 1 } }],
+      ['side', 'enemy-a', { side: GameSide.Player }],
+      ['fogStatus', 'enemy-a', { fogStatus: 'lastKnown' }],
+    ] as const)(
+      '%s changes the projection, so a stale hit would be wrong',
+      (_field, unitId, change) => {
+        const base = ghostBase();
+        const { primed, actual } = expectMissMatchingReference(base, {
+          ...base,
+          tokens: withToken(base.tokens, unitId, change as Partial<IUnitToken>),
+        });
+        expect(isDeepStrictEqual(actual, primed)).toBe(false);
+      },
+    );
+  });
 });
+
+type InteractionFlag =
+  | 'isSelected'
+  | 'isValidTarget'
+  | 'isActiveTarget'
+  | 'isSecondaryTarget'
+  | 'attackInfeasibleReason';
+type KeysOfUnion<T> = T extends unknown ? keyof T : never;
+type NonFlagTokenField = Exclude<KeysOfUnion<IUnitToken>, InteractionFlag>;

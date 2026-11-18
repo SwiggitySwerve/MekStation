@@ -61,6 +61,12 @@ function withoutInteractionFlags(token: IUnitToken): Record<string, unknown> {
   );
 }
 
+/**
+ * The key is JSON, so every keyed input must be plain data. JSON.stringify
+ * throws on a BigInt or a cyclic object, and a class instance serializes as
+ * its own enumerable fields only. A token, weapon or grid field that is not
+ * plain data needs an explicit case in `exactReplacer` before it is added.
+ */
 function projectionKey(
   input: ICombatProjectionInput & { readonly attacker: IUnitToken },
 ): string {
