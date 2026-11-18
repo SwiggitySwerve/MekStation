@@ -1,6 +1,7 @@
 import type { UnitState } from '@/stores/unitState';
 
 import { stringifyUnitSaveFingerprint } from '@/stores/unitSaveFingerprints';
+import { LIBRARY_WRITER_VERSION } from '@/stores/unitSaveState';
 import {
   clearAllStores,
   getUnitStore,
@@ -114,6 +115,7 @@ it.each(fixture.cases)(
     expect(store.getState().librarySave).toEqual({
       ...state.librarySave,
       draftFingerprint: getUnitDraftFingerprint(hydrated),
+      writerVersion: LIBRARY_WRITER_VERSION,
     });
     clearAllStores();
     expect(getUnitStore(state.id)).toBeUndefined();
