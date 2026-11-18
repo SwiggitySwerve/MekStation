@@ -1,3 +1,4 @@
+import { useState } from 'react';
 /**
  * JoinMatchForm — render the join-by-room-code form on the multiplayer hub.
  *
@@ -9,7 +10,7 @@
  * input itself is case-tolerant for paste convenience.
  */
 
-import { useState } from 'react';
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 
 // =============================================================================
 // Props
@@ -18,6 +19,7 @@ import { useState } from 'react';
 export interface IJoinMatchFormProps {
   readonly onSubmit: (roomCode: string) => void | Promise<void>;
   readonly busy?: boolean;
+  readonly compactAvailability?: boolean;
   readonly error?: string | null;
 }
 
@@ -38,6 +40,10 @@ export function JoinMatchForm(props: IJoinMatchFormProps): React.ReactElement {
       }}
       className="space-y-4"
     >
+      <ModeAvailabilityNotice
+        mode="hosted"
+        compact={props.compactAvailability}
+      />
       <div>
         <label
           htmlFor="jm-roomCode"

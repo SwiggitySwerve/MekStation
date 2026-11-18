@@ -14,7 +14,7 @@ export interface IUnitSaveFingerprints {
 export type UnitLibrarySaveState =
   | { readonly state: 'none' }
   | {
-      readonly state: 'matched' | 'changed';
+      readonly state: 'matched' | 'saved-older-writer' | 'changed' | 'unknown';
       readonly receipt: ILibrarySaveReceipt;
     };
 
@@ -38,6 +38,7 @@ export type UnitSaveEvent =
       readonly type: 'unitChanged';
       readonly isModified: boolean;
       readonly libraryFingerprint: string;
+      readonly draftFingerprint: string;
     }
   | {
       readonly type: 'librarySaved';
@@ -57,19 +58,26 @@ export function isUnitDraftModified(
 function libraryState(
   receipt: ILibrarySaveReceipt | undefined,
   current: string,
+  currentDraft: string | undefined,
 ): UnitLibrarySaveState {
-  return receipt
-    ? {
-        state: current === receipt.fingerprint ? 'matched' : 'changed',
-        receipt,
-      }
-    : { state: 'none' };
+  if (!receipt) return { state: 'none' };
+  if (receipt.draftFingerprint === undefined)
+    return { state: 'unknown', receipt };
+  if (current === receipt.fingerprint) return { state: 'matched', receipt };
+  return {
+    state:
+      currentDraft === receipt.draftFingerprint
+        ? 'saved-older-writer'
+        : 'changed',
+    receipt,
+  };
 }
 
 /** Read compatibility fields without inventing a successful write or receipt. */
 export function getUnitSaveState(
   metadata: IUnitSaveMetadata,
   currentLibraryFingerprint: string,
+  currentDraftFingerprint: string | undefined,
   draft: SaveState['draft'] = 'pending',
 ): SaveState {
   return {
@@ -80,7 +88,11 @@ export function getUnitSaveState(
           ? 'modified'
           : 'clean',
     draft,
-    library: libraryState(metadata.librarySave, currentLibraryFingerprint),
+    library: libraryState(
+      metadata.librarySave,
+      currentLibraryFingerprint,
+      currentDraftFingerprint,
+    ),
   };
 }
 
@@ -125,12 +137,14 @@ export function transitionUnitSaveState(
             state.library.state === 'none' ? undefined : state.library.receipt,
         },
         event.libraryFingerprint,
+        event.draftFingerprint,
         state.draft,
       );
     case 'librarySaved':
       return getUnitSaveState(
         getUnitLibrarySavePatch(event.receipt, event.current.draft),
         event.current.library,
+        event.current.draft,
         state.draft,
       );
     case 'librarySaveFailed':

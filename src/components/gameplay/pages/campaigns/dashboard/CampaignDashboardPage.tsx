@@ -4,6 +4,7 @@ import { useStore } from 'zustand';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 
+import { CampaignAvailabilityFooter } from '@/components/campaign/CampaignAvailabilityFooter';
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { CampaignCoopRouteSurfaceConnected } from '@/components/campaign/coop';
 import { CampaignDashboard } from '@/components/campaign/dashboard/CampaignDashboard';
@@ -483,6 +484,10 @@ export default function CampaignDashboardPage(): React.ReactElement {
         campaignName={campaign.name}
         onCancel={() => setShowDeleteConfirm(false)}
         onConfirm={handleDeleteCampaign}
+      />
+      <CampaignAvailabilityFooter
+        campaignId={campaign.id}
+        coopSession={campaign.coopSession}
       />
     </PageLayout>
   );

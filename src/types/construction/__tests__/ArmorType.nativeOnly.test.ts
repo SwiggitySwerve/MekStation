@@ -20,10 +20,14 @@ import {
   encodeBlkArmorType,
 } from '@/services/conversion/BlkArmorCodes';
 import { mapArmorType } from '@/services/units/unitLoaderService/componentMappers';
-import vocabulary from '@/types/formats/mtf-component-vocabulary.json';
+import { ARMOR_IDENTITY_ROWS } from '@/types/formats/ArmorIdentity';
 import { getNativeArmorBVMultiplier } from '@/utils/construction/battleValueDefensive';
 import { getAvailableArmorTypes } from '@/utils/construction/techBaseValidation';
 import { ARMOR_TYPE } from '@/utils/serialization/CustomUnitSerializer.tags';
+import {
+  getValidArmorTypes,
+  isArmorTypeValid,
+} from '@/utils/techBaseValidation';
 
 import { createISComponentTechBases } from '../../../__tests__/helpers/storeTestHelpers';
 import { RulesLevel } from '../../enums/RulesLevel';
@@ -152,9 +156,14 @@ const UNIFORM: readonly Expected[] = [
   },
 ];
 
+// The two Clan variants (constants in ArmorType.clanReactiveReflective.test.ts)
+// share their BLK codes with the Inner Sphere members, so they are checked here
+// only for the "can be named, nothing uses them" behaviour.
 const ALL_NATIVE_ONLY = [
   ...UNIFORM.map((e) => e.type),
   ArmorTypeEnum.PATCHWORK,
+  ArmorTypeEnum.REACTIVE_CLAN,
+  ArmorTypeEnum.REFLECTIVE_CLAN,
 ] as const;
 
 describe('uniform native-only armor constants', () => {
@@ -218,7 +227,7 @@ describe('Patchwork is per location', () => {
 });
 
 describe('behaviour is unchanged: the types can only be named', () => {
-  it('flags exactly the seven types as native-only', () => {
+  it('flags exactly the nine types as native-only', () => {
     for (const type of Object.values(ArmorTypeEnum)) {
       expect(isNativeOnlyArmor(type)).toBe(
         ALL_NATIVE_ONLY.includes(type as never),
@@ -252,9 +261,17 @@ describe('behaviour is unchanged: the types can only be named', () => {
       ...getAvailableArmorTypes(TechBase.INNER_SPHERE, true),
       ...getAvailableArmorTypes(TechBase.CLAN, true),
     ];
+    // The mech valid-armor validator (techBaseValidation.filters.ts filterArmorTypes)
+    const valid = [
+      ...getValidArmorTypes(TechBase.INNER_SPHERE),
+      ...getValidArmorTypes(TechBase.CLAN),
+    ];
     for (const type of ALL_NATIVE_ONLY) {
       expect(offered).not.toContain(type);
       expect(available).not.toContain(type);
+      expect(valid).not.toContain(type);
+      expect(isArmorTypeValid(type, TechBase.INNER_SPHERE)).toBe(false);
+      expect(isArmorTypeValid(type, TechBase.CLAN)).toBe(false);
     }
   });
 
@@ -303,27 +320,22 @@ describe('names agree with the wire contract and the shared vocabulary', () => {
     expect(contractTags.has(tag)).toBe(true);
   });
 
-  it('agrees with the shared MTF vocabulary armor names once the vocabulary carries them', () => {
-    // mtf-component-vocabulary.json has no `armor` section at this base (the
-    // names are still in MTFVocabulary.ts ARMOR_NAMES and enum_mapping_tables.py
-    // ARMOR_TYPE_MAP). When C3 adds one this compares it instead of passing blind.
-    const armor = (vocabulary as { armor?: Record<string, string> }).armor;
-    if (armor === undefined) return;
-    const tagsInVocabulary = new Set(Object.values(armor));
-    const nativeTags = new Set<string>(
-      ALL_NATIVE_ONLY.map(
-        (t) =>
-          (t === ArmorTypeEnum.PATCHWORK
-            ? PATCHWORK_ARMOR
-            : getArmorDefinition(t)
-          )?.sourceTag as string,
-      ),
-    );
-    for (const tag of nativeTags) expect(tagsInVocabulary.has(tag)).toBe(true);
-    for (const tag of tagsInVocabulary) {
-      if (nativeTags.has(tag)) continue;
-      // every other vocabulary armor tag must be an existing enum identity
-      expect(Object.values(ARMOR_TYPE)).toContain(tag);
-    }
-  });
+  it.each(ALL_NATIVE_ONLY)(
+    '%s has an armor identity owner row with its tag and enum key',
+    (type) => {
+      // The owner is the `armor` row list in mtf-component-vocabulary.json
+      // (one row per unit-contract armor.type; `enum` is the ArmorTypeEnum key).
+      const tag = (
+        type === ArmorTypeEnum.PATCHWORK
+          ? PATCHWORK_ARMOR
+          : getArmorDefinition(type)
+      )?.sourceTag as string;
+      const enumKey = Object.entries(ArmorTypeEnum).find(
+        ([, value]) => value === type,
+      )?.[0];
+      const row = ARMOR_IDENTITY_ROWS.find((r) => r.tag === tag);
+      expect(row).toBeDefined();
+      expect(row?.enum).toBe(enumKey);
+    },
+  );
 });

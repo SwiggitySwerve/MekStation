@@ -1,3 +1,4 @@
+import React, { useCallback, useEffect, useState } from 'react';
 /**
  * MatchBrowser — the match-discovery surface on the multiplayer hub.
  *
@@ -16,9 +17,9 @@
  * @spec openspec/changes/add-matchmaking-and-spectator/specs/multiplayer-matchmaking/spec.md
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
-
 import type { IJoinableLobby } from '@/lib/multiplayer/server/joinableLobbies';
+
+import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 
 // =============================================================================
 // Constants
@@ -39,6 +40,7 @@ export interface IMatchBrowserProps {
    * multiplayer endpoint.
    */
   readonly wireToken: string | null;
+  readonly compactAvailability?: boolean;
   /**
    * Navigate the player into a lobby by room code. Wired to
    * `router.push('/multiplayer/lobby/<code>')` by the hub page; injected
@@ -87,6 +89,7 @@ function occupancyLabel(lobby: IJoinableLobby): string {
 export function MatchBrowser({
   wireToken,
   onJoinLobby,
+  compactAvailability,
   fetchImpl,
   refreshMs = MATCH_BROWSER_REFRESH_MS,
 }: IMatchBrowserProps): React.ReactElement {
@@ -147,8 +150,9 @@ export function MatchBrowser({
         className="border-border-theme bg-surface-deep rounded-lg border p-6"
       >
         <h2 className="mb-2 text-lg font-semibold text-sky-300">
-          Browse matches
+          Browse Matches
         </h2>
+        <ModeAvailabilityNotice mode="hosted" compact={compactAvailability} />
         <p className="text-text-theme-secondary text-sm">
           Unlock your vault to browse open lobbies.
         </p>
@@ -162,7 +166,7 @@ export function MatchBrowser({
       className="border-border-theme bg-surface-deep rounded-lg border p-6"
     >
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-sky-300">Browse matches</h2>
+        <h2 className="text-lg font-semibold text-sky-300">Browse Matches</h2>
         <button
           type="button"
           data-testid="match-browser-refresh"
@@ -176,6 +180,7 @@ export function MatchBrowser({
         </button>
       </div>
 
+      <ModeAvailabilityNotice mode="hosted" compact={compactAvailability} />
       {state === 'error' && error && (
         <div
           role="alert"

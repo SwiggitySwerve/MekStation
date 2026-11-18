@@ -12,6 +12,32 @@ MekStation is a comprehensive toolkit for browsing, building, and battling with 
 
 ---
 
+## Multiplayer Availability
+
+<!-- multiplayer:hosted:start -->
+
+**Hosted Matches: Preview**
+
+You cannot yet select enemy targets, and some matches stop before they finish.
+
+<!-- multiplayer:hosted:end -->
+
+<!-- multiplayer:coop:start -->
+
+**Co-op Campaigns: Preview**
+
+Some campaign changes can be lost after saving or reloading.
+
+<!-- multiplayer:coop:end -->
+
+<!-- multiplayer:p2p:start -->
+
+**Peer-to-Peer Matches: Preview**
+
+Peer-to-peer lobbies can't connect because the connection service they use is unavailable. Battles also do not yet stay in sync between two players.
+
+<!-- multiplayer:p2p:end -->
+
 ## Features
 
 ### Compendium

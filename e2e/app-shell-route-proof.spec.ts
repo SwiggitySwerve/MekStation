@@ -566,6 +566,7 @@ function installRouteMonitor(
   const pageErrors: string[] = [];
   const failedRequests: string[] = [];
   const badResponses: string[] = [];
+  const baseURL = test.info().project.use.baseURL ?? 'http://localhost:3600';
 
   page.on('console', (message) => {
     if (message.type() !== 'error') return;
@@ -593,7 +594,7 @@ function installRouteMonitor(
     const status = response.status();
     if (
       status >= 500 &&
-      url.startsWith('http://localhost:3600') &&
+      url.startsWith(baseURL) &&
       !url.includes('/__playwright_e2e_ready__')
     ) {
       badResponses.push(`${status} ${url}`);

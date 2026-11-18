@@ -220,7 +220,7 @@ export function validateJobTokens(workflowJobs, contract, errors) {
     (!uploadStep || uploadStep.if !== contract.uploadFailureIf)
   )
     invalidSteps.push(
-      'upload step must use failure() and the code/e2e condition',
+      'upload step must use failure() || cancelled() and the code/e2e condition',
     );
 
   // Named steps that run under a wider condition than the change gate (a

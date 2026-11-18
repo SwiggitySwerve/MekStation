@@ -163,6 +163,7 @@ export class GameEngine {
     let session = createGameSession(
       gameConfig,
       gameUnitsWithAdaptedCombatSeeds(gameUnits, playerUnits, opponentUnits),
+      { encounterMeta: linkage.encounterMeta, quickMeta: linkage.quickMeta },
     );
     session = startGame(session, GameSide.Player);
 

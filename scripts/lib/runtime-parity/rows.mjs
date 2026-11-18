@@ -107,6 +107,15 @@ const loadBlock = z.strictObject({
   observed: observation,
   terms,
   issues: z.array(issue),
+  /**
+   * The BV and cost the real PreviewTab hands to the record-sheet renderer (what extractData returns as
+   * header.battleValue and header.cost), read after the status bar in the same store. null = not captured.
+   * Optional so rows written before this field existed still parse.
+   */
+  preview: z
+    .strictObject({ bv: z.number(), cost: z.number() })
+    .nullable()
+    .optional(),
 });
 
 const ownerBucket = z.enum(OWNER_BUCKETS);

@@ -5,61 +5,16 @@
  * Family readers: BLKBattleArmorFile.java:141-146,
  * BLKAeroSpaceFighterFile.java:148-164, BLKProtoMekFile.java:123-133,
  * BLKFile.java:493-525 (support-vehicle BAR).
- * The contract test compares every entry with the loader's canonical enum.
+ * The families are owned by the `armor` section of the shared vocabulary file
+ * (src/types/formats/ArmorIdentity.ts reads it); this module only exposes them
+ * keyed by tag. The contract test compares every entry with the loader's
+ * canonical enum, and armorIdentity.test.ts checks the rows themselves.
  */
-type ArmorExportFamily =
-  | 'MTF:mech'
-  | 'BLK:battle-armor'
-  | 'BLK:aerospace'
-  | 'BLK:protomech'
-  | 'BLK:support-vehicle-BAR';
+import {
+  ARMOR_IDENTITY_ROWS,
+  type ArmorExportFamily,
+} from '@/types/formats/ArmorIdentity';
 
-export const ARMOR_EXPORT_FAMILIES = {
-  STANDARD: 'MTF:mech',
-  FERRO_FIBROUS: 'MTF:mech',
-  FERRO_FIBROUS_CLAN: 'MTF:mech',
-  LIGHT_FERRO_FIBROUS: 'MTF:mech',
-  HEAVY_FERRO_FIBROUS: 'MTF:mech',
-  STEALTH: 'MTF:mech',
-  REACTIVE: 'MTF:mech',
-  REFLECTIVE: 'MTF:mech',
-  HARDENED: 'MTF:mech',
-  PRIMITIVE: 'MTF:mech',
-  INDUSTRIAL: 'MTF:mech',
-  HEAVY_INDUSTRIAL: 'MTF:mech',
-  COMMERCIAL: 'MTF:mech',
-  IMPACT_RESISTANT: 'MTF:mech',
-  FERRO_LAMELLOR: 'MTF:mech',
-  FIRE_RESISTANT: 'BLK:battle-armor',
-  MIMETIC: 'BLK:battle-armor',
-  STEALTH_IMPROVED: 'BLK:battle-armor',
-  STEALTH_PROTOTYPE: 'BLK:battle-armor',
-  REACTIVE_CLAN: 'MTF:mech',
-  REFLECTIVE_CLAN: 'MTF:mech',
-  BAR_2: 'BLK:support-vehicle-BAR',
-  BAR_4: 'BLK:support-vehicle-BAR',
-  BAR_5: 'BLK:support-vehicle-BAR',
-  BAR_6: 'BLK:support-vehicle-BAR',
-  BAR_7: 'BLK:support-vehicle-BAR',
-  BAR_9: 'BLK:support-vehicle-BAR',
-  BAR: 'BLK:support-vehicle-BAR',
-  AEROSPACE: 'BLK:aerospace',
-  PATCHWORK: 'MTF:mech',
-  FERRO_ALUMINUM: 'BLK:aerospace',
-  HEAVY_FERRO_ALUMINUM: 'BLK:aerospace',
-  PRIMITIVE_AERO: 'BLK:aerospace',
-  ANTI_PENETRATIVE_ABLATION: 'MTF:mech',
-  BALLISTIC_REINFORCED: 'MTF:mech',
-  BA_STANDARD_ADVANCED: 'BLK:battle-armor',
-  BA_STANDARD_PROTOTYPE: 'BLK:battle-armor',
-  BA_STEALTH_BASIC: 'BLK:battle-armor',
-  ELECTRIC_DISCHARGE: 'BLK:protomech',
-  FERRO_ALUMINUM_PROTO: 'BLK:aerospace',
-  FERRO_CARBIDE: 'BLK:aerospace',
-  FERRO_FIBROUS_PROTO: 'MTF:mech',
-  HEAT_DISSIPATING: 'MTF:mech',
-  IMPROVED_FERRO_ALUMINUM: 'BLK:aerospace',
-  LAMELLOR_FERRO_CARBIDE: 'BLK:aerospace',
-  LIGHT_FERRO_ALUMINUM: 'BLK:aerospace',
-  STANDARD_PROTOMEK: 'BLK:protomech',
-} as const satisfies Readonly<Record<string, ArmorExportFamily>>;
+export const ARMOR_EXPORT_FAMILIES: Readonly<
+  Record<string, ArmorExportFamily>
+> = Object.fromEntries(ARMOR_IDENTITY_ROWS.map((row) => [row.tag, row.family]));

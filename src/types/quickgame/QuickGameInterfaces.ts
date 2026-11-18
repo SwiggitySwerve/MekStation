@@ -352,7 +352,9 @@ export function createQuickGameUnit(
 /**
  * Calculate force totals.
  */
-export function calculateForceTotals(units: readonly IQuickGameUnit[]): {
+export function calculateForceTotals(
+  units: readonly Pick<IQuickGameUnit, 'bv' | 'tonnage'>[],
+): {
   totalBV: number;
   totalTonnage: number;
 } {

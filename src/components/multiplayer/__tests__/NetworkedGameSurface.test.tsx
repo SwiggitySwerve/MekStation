@@ -1,3 +1,5 @@
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { axe } from 'jest-axe';
 /**
  * NetworkedGameSurface component tests.
  *
@@ -10,10 +12,7 @@
  *
  * @spec openspec/changes/complete-multiplayer-game-surface/specs/multiplayer-game-surface/spec.md
  */
-
 import '@testing-library/jest-dom';
-import { act, fireEvent, render, screen } from '@testing-library/react';
-
 import type { IMatchPausedInfo } from '@/hooks/useMultiplayerSession';
 import type { IClientLifecycleState } from '@/lib/multiplayer/client';
 import type { ICommandCommitResult } from '@/types/command-screen';
@@ -25,6 +24,7 @@ import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 
 import { buildPlayerSafeCommandResultEvent } from '@/lib/command-screen';
 import { buildMirrorSession } from '@/lib/multiplayer/mirrorMatchSession';
+import { modeAvailability } from '@/lib/multiplayer/modeAvailability';
 import { GamePhase, GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import {
   advancePhase,
@@ -550,4 +550,33 @@ describe('NetworkedGameSurface — intent emission', () => {
       expect(link).not.toHaveAttribute('href', '/gameplay');
     }
   });
+});
+
+describe('hosted board availability', () => {
+  afterEach(() => jest.restoreAllMocks());
+  it.each(['preview', 'available'] as const)(
+    'discloses the %s board',
+    (status) => {
+      jest.replaceProperty(modeAvailability.hosted, 'status', status);
+      renderSurface();
+      if (status === 'available')
+        expect(
+          screen.queryByText(modeAvailability.hosted.sentence),
+        ).not.toBeInTheDocument();
+      else
+        expect(
+          screen.getByText(modeAvailability.hosted.sentence),
+        ).toBeVisible();
+    },
+  );
+});
+
+it('keeps the standalone hosted board notice accessible', async () => {
+  renderSurface();
+  // This component fixture has no Layout landmark; full-page entry scans
+  // keep the region and landmark rules enabled.
+  expect(
+    (await axe(document.body, { rules: { region: { enabled: false } } }))
+      .violations,
+  ).toEqual([]);
 });

@@ -194,11 +194,11 @@ describe('buildEncounterManifestEntry', () => {
     expect(entry.bvTotal).toBe(3200);
   });
 
-  it('falls back to bvTotal=0 when no GameCreated event present', () => {
+  it('records unknown BV when no GameCreated event is present', () => {
     const entry = buildEncounterManifestEntry(
       makeBaseInput({ events: [turnStartedEvent(0, 1)] }),
     );
-    expect(entry.bvTotal).toBe(0);
+    expect(entry.bvTotal).toBeNull();
   });
 });
 
@@ -366,7 +366,26 @@ describe('persistEncounterGame (Node env)', () => {
   });
 
   it('manifest entry shape: replaySource=encounter, all source-specific fields populated correctly', async () => {
-    const events: IGameEvent[] = [gameCreatedEvent([unit('p1', 2000)])];
+    const created = gameCreatedEvent([
+      {
+        id: 'p1',
+        name: 'Locust',
+        side: GameSide.Player,
+        unitRef: 'locust-lct-1v',
+        pilotRef: 'pilot',
+        gunnery: 4,
+        piloting: 5,
+      },
+    ]);
+    const events: IGameEvent[] = [
+      {
+        ...created,
+        payload: {
+          ...(created.payload as IGameCreatedPayload),
+          quickMeta: { bvTotal: 2000 },
+        },
+      },
+    ];
     const result = await persistEncounterGame({
       ...makeBaseInput({
         events,
