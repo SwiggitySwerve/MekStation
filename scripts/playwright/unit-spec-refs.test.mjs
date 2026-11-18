@@ -196,7 +196,7 @@ test('the workflow transports the generated JSON to all existing shard invocatio
     jobs.e2e.env.CI_E2E_DATA_SPECS,
     "${{ needs.detect-changes.outputs.data-specs || '[]' }}",
   );
-  assert.deepEqual(jobs.e2e.strategy.matrix.shard, [1, 2]);
+  assert.deepEqual(jobs.e2e.strategy.matrix.shard, [1, 2, 3, 4]);
   assert.equal(jobs.e2e['timeout-minutes'], 15);
   const data = jobs.e2e.steps.find(
     ({ name }) => name === 'Run data-keyed unit regression specs',
@@ -207,7 +207,7 @@ test('the workflow transports the generated JSON to all existing shard invocatio
   );
   assert.equal(
     data.run,
-    'node scripts/playwright/run-ci-e2e.mjs test --data-specs --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/data',
+    'node scripts/playwright/run-ci-e2e.mjs test --data-specs --project=chromium --workers=1 --shard=${{ matrix.shard }}/4 --output=test-results/data',
   );
   assert.equal(
     data.env.MEKSTATION_E2E_SERVER_COMMAND,

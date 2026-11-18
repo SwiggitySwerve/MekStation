@@ -79,15 +79,15 @@ test('typical event census retains omitted, synchronize, ready and mixed types; 
 
 test('event-aware census preserves the deployed main profile counts and included files', () => {
   const expected = {
-    docs: 9,
-    source: 10,
-    data: 10,
-    browser: 9,
-    desktop: 12,
-    ci: 12,
-    budgets: 11,
-    bootstrap: 13,
-    dependency: 13,
+    docs: 11,
+    source: 12,
+    data: 12,
+    browser: 11,
+    desktop: 14,
+    ci: 14,
+    budgets: 13,
+    bootstrap: 15,
+    dependency: 15,
   };
   for (const profile of workflowMetrics(root, config).profiles) {
     assert.equal(profile.active, expected[profile.id], profile.id);
@@ -393,7 +393,7 @@ test('matrix template metadata and soft timing projection share expanded names',
     'Build Test / mac',
   ]);
   assert.equal(
-    projectTimingLimits(config, workflow).jobsMs['E2E (1/2)'],
+    projectTimingLimits(config, workflow).jobsMs['E2E (1/4)'],
     config.timeouts.e2e.minutes * 60000,
   );
 });
@@ -401,8 +401,8 @@ test('matrix template metadata and soft timing projection share expanded names',
 test('expanded count includes matrix legs, detector, aggregator and induced trusted guard', () => {
   const metrics = workflowMetrics(root, config);
   const source = metrics.profiles.find((p) => p.id === 'source');
-  assert.equal(source.active, 10); // 9 PR Checks + the automatically induced guard
-  assert.equal(source.expanded, 12); // also exposes the 2 gated packaging legs
+  assert.equal(source.active, 12); // 11 PR Checks + the automatically induced guard
+  assert.equal(source.expanded, 14); // also exposes the 2 gated packaging legs
   assert.equal(
     source.census.filter((j) => j.file === 'lint-and-test-guard.yml').length,
     1,
@@ -415,7 +415,7 @@ test('expanded count includes matrix legs, detector, aggregator and induced trus
     ).violations.some((v) => v.code === 'typicalPrJobs'),
   );
   const graph = expandedJobGraph(workflow);
-  assert.ok(graph['Lint and Test'].includes('E2E (2/2)'));
+  assert.ok(graph['Lint and Test'].includes('E2E (4/4)'));
   assert.ok(graph['Lint and Test'].includes('Build Test / win'));
   assert.ok(
     inducedWorkflowCensus(root, ['src/utils/uuid.ts']).files.includes(
