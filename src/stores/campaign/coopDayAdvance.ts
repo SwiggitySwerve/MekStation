@@ -94,6 +94,10 @@ export function coopHostTransport(
  *   D+1 with no processor result saved (pinned by R-RECOMPUTE-THROW).
  * - A campaign switch after the host committed leaves the host at D+1 as
  *   before; the day completes on a retry from the campaign's D state.
+ * - (F3, C4 OPEN, pre-existing) In the app the host route surface folds a
+ *   late CampaignDayAdvanced into the live campaign before the retry, so the
+ *   retry names D+1, unsettledAdvanceIntents never matches, and day D's
+ *   processors never run.
  */
 export async function advanceCoopDayThroughHost(
   set: CampaignSet,
@@ -157,6 +161,13 @@ export async function advanceCoopDayThroughHost(
     });
     return null;
   }
+  if (answer.kind === 'unconfirmed') {
+    // A transport error: the host may have committed, so the intent stays
+    // unsettled for the retry, as after a timeout.
+    discard();
+    toastUnconfirmed(answer.reason);
+    return null;
+  }
   if (answer.kind === 'refused') {
     discard();
     toast({
@@ -173,12 +184,23 @@ export async function advanceCoopDayThroughHost(
   // The refresh installs the server's battle queue; an outcome queued while
   // the host answered is carried over to the next day from here.
   const queuedBeforeRefresh = get().pendingBattleOutcomes;
-  await useCampaignPersistenceStore.getState().refreshAfterCommittedCommand({
-    kind: 'committed',
-    state: { campaignId: campaign.id },
-  });
+  const adopted = await useCampaignPersistenceStore
+    .getState()
+    .refreshAfterCommittedCommand({
+      kind: 'committed',
+      state: { campaignId: campaign.id },
+    });
   if (get().campaign?.id !== campaign.id) {
     discard();
+    return null;
+  }
+  if (!adopted) {
+    // The record the host's commit produced was not read, so its version is
+    // unknown: a save now would go out at the old version and be refused,
+    // and the refusal would install the host's D+1 with no processor run.
+    // Nothing is saved; the intent stays unsettled and a retry replays it.
+    discard();
+    toastUnconfirmed('the committed record could not be read');
     return null;
   }
   // The version check: a journal-native campaign's AdvanceDay commit rewrites
@@ -223,11 +245,20 @@ export async function advanceCoopDayThroughHost(
       await advanceDayLocally(set, get, recomputeFrom),
     );
   }
-  // Taken after the refresh, as the day's starting point if its save fails;
-  // the vault's starting point is the one from before the compute.
+  // Taken after the refresh, as the day's starting point if its save fails.
+  // The vault's starting point is the one from before the compute, and so is
+  // the roster's when the refresh left the computed roster in place (a
+  // snapshot-authority row the cache already names): that roster carries
+  // the day's patches, and restoring it would let a retry patch again. A
+  // roster the refresh replaced is the record's, the day's real start (M5).
+  const refreshed = captureDayAdvanceSnapshot(get, base);
   const installSnapshot: IDayAdvanceSnapshot = {
-    ...captureDayAdvanceSnapshot(get, base),
+    ...refreshed,
     vaultPilots: snapshot.vaultPilots,
+    rosterPilots:
+      refreshed.rosterPilots === snapshot.appliedRosterPilots
+        ? snapshot.rosterPilots
+        : refreshed.rosterPilots,
   };
   const report = await commitDay(set, get, installSnapshot, () => {
     // The refresh adopted the record the day was computed from (the save
@@ -305,6 +336,15 @@ async function saveBeforeComputingDay(get: CampaignGet): Promise<boolean> {
   return false;
 }
 
+/** The host's answer could not be confirmed; nothing was saved. */
+function toastUnconfirmed(reason: string): void {
+  toast({
+    message: `The day advance could not be confirmed with the host (${reason}). Nothing was saved. Retrying is safe.`,
+    variant: 'error',
+    duration: 7000,
+  });
+}
+
 /** Tell the player when putting a discarded day back failed. */
 function toastIfRestoreFailed(restoreFailure: string | null): void {
   if (!restoreFailure) return;
@@ -319,15 +359,17 @@ function toastIfRestoreFailed(restoreFailure: string | null): void {
 type AdvanceDayAnswer =
   | { readonly kind: 'committed' }
   | { readonly kind: 'refused'; readonly reason: string }
+  | { readonly kind: 'unconfirmed'; readonly reason: string }
   | { readonly kind: 'timeout' };
 
 /**
  * Send the AdvanceDay host intent for the day `campaign` is on and resolve
  * with the host's answer on `transport`: committed when a CampaignDayAdvanced
  * event of the campaign arrives, refused with the reason (or, without one,
- * the code) of the Error frame carrying the intent's id or with the message
- * of a transport error or of a send that threw, or timeout when nothing
- * answered within COOP_ADVANCE_TIMEOUT_MS. The listeners and the timer are
+ * the code) of the Error frame carrying the intent's id, unconfirmed with the
+ * message of a transport error or of a send that threw (the host may still
+ * have committed), or timeout when nothing answered within
+ * COOP_ADVANCE_TIMEOUT_MS. The listeners and the timer are
  * dropped on the first answer, so a frame that arrives later is ignored.
  */
 function sendAdvanceDay(
@@ -346,6 +388,8 @@ function sendAdvanceDay(
     };
     const refuse = (reason: string): void =>
       answer({ kind: 'refused', reason });
+    const unconfirmed = (reason: string): void =>
+      answer({ kind: 'unconfirmed', reason });
     stops.push(
       transport.onFrame((message) => {
         if (message.kind === 'Error' && message.intentId === intentId) {
@@ -364,7 +408,9 @@ function sendAdvanceDay(
         }
       }),
       transport.onError((error) =>
-        refuse(error instanceof Error ? error.message : 'campaign sync error'),
+        unconfirmed(
+          error instanceof Error ? error.message : 'campaign sync error',
+        ),
       ),
     );
     const timer = setTimeout(
@@ -380,7 +426,7 @@ function sendAdvanceDay(
         payload: { days: 1 },
       });
     } catch (error) {
-      refuse(error instanceof Error ? error.message : 'co-op push failed');
+      unconfirmed(error instanceof Error ? error.message : 'co-op push failed');
     }
   });
 }

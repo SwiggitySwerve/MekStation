@@ -78,6 +78,8 @@ interface IFakeServer {
   record: SerializedCampaign | null;
   /** 'fail' refuses every campaign PUT. */
   putMode: 'ok' | 'fail';
+  /** 'fail' makes every campaign GET reject, as a dropped connection does. */
+  getMode: 'ok' | 'fail';
   /** Every request, in order, as `METHOD url`. */
   readonly requests: string[];
   /** The server's pilot rows. */
@@ -121,13 +123,21 @@ function stubServer(server: IFakeServer): void {
         };
         const current = server.record?.version ?? 0;
         if (body.baseVersion !== current) {
+          // The item route's typed conflict body (pages/api/campaigns/[id].ts).
           return jsonResponse(409, {
             kind: 'conflict',
+            reason: 'base-state-unavailable',
+            recoveryAction: 'resync-to-active-head',
+            conflictingFields: [],
+            currentVersion: current,
             current: server.record,
           });
         }
         server.record = { ...body.envelope, version: current + 1 };
         return jsonResponse(200, server.record);
+      }
+      if (server.getMode === 'fail') {
+        throw new TypeError('network down');
       }
       return server.record
         ? jsonResponse(200, server.record)
@@ -156,6 +166,13 @@ interface IControlledHost {
    * again and the record is not rewritten - as the host journal does.
    */
   readonly commit: () => void;
+  /**
+   * The host commits the latest AdvanceDay on a snapshot-authority campaign:
+   * the event is sent and the record is not rewritten.
+   */
+  readonly commitWithoutRecordRewrite: () => void;
+  /** The transport reports an error (a dropped socket). */
+  readonly transportError: (message: string) => void;
   /** The host commits a guest proposal: the record moves a version. */
   readonly commitGuestRename: (name: string) => void;
   readonly refuse: (reason: string) => void;
@@ -165,8 +182,26 @@ function controlledHost(server: IFakeServer): IControlledHost {
   const handlers = new Set<(message: IServerMessage) => void>();
   const sent: ICampaignIntent[] = [];
   const committedIntentIds = new Set<string>();
+  const errorHandlers = new Set<(error: unknown) => void>();
   const emit = (message: IServerMessage): void =>
     [...handlers].forEach((handler) => handler(message));
+  const emitDayAdvanced = (): void => {
+    const ts = new Date().toISOString();
+    emit({
+      kind: 'CampaignEvent',
+      matchId: MATCH_ID,
+      ts,
+      event: {
+        sequence: 3,
+        campaignId: sent[sent.length - 1].campaignId,
+        ts,
+        authorPlayerId: 'host-player',
+        type: 'CampaignDayAdvanced',
+        scope: 'campaign',
+        payload: { newDay: sent.length },
+      },
+    } as IServerMessage);
+  };
   const host: IControlledHost = {
     sent,
     onIntent: () => undefined,
@@ -203,6 +238,9 @@ function controlledHost(server: IFakeServer): IControlledHost {
         },
       } as IServerMessage);
     },
+    commitWithoutRecordRewrite: () => emitDayAdvanced(),
+    transportError: (message) =>
+      [...errorHandlers].forEach((handler) => handler(new Error(message))),
     commitGuestRename: (name) => {
       const record = server.record as SerializedCampaign;
       server.record = {
@@ -236,7 +274,12 @@ function controlledHost(server: IFakeServer): IControlledHost {
           handlers.delete(handler);
         };
       },
-      onError: () => () => undefined,
+      onError: (handler) => {
+        errorHandlers.add(handler);
+        return () => {
+          errorHandlers.delete(handler);
+        };
+      },
       close: jest.fn(),
       lastSeq: () => -1,
     },
@@ -432,6 +475,7 @@ async function buildWorld(pending: readonly ICombatOutcome[] = []) {
   const server: IFakeServer = {
     record: null,
     putMode: 'ok',
+    getMode: 'ok',
     requests: [],
     pilots: new Map([[VAULT_ID, vault]]),
   };
@@ -907,5 +951,128 @@ describe('T6 co-op: residuals pinned (r4)', () => {
     expect(currentPilot().xp).toBe(0);
     expect(vaultAwards()).toBe(0);
     expect(toastMessages().join('\n')).toMatch(/not saved/i);
+  });
+});
+
+describe('T6 co-op: re-review findings (r5)', () => {
+  beforeEach(resetWorld);
+  afterEach(resetWorld);
+
+  const commitAdvanceOnly =
+    (host: IControlledHost) =>
+    (intent: ICampaignIntent): void => {
+      if (intent.kind === 'AdvanceDay') host.commit();
+    };
+
+  it('(F1a) snapshot-authority: the host commits, the save fails, and a retry patches each pilot once', async () => {
+    const { store, server, host, startDate } = await buildWorld();
+    host.onIntent = (intent) => {
+      if (intent.kind !== 'AdvanceDay') return;
+      // The row does not move on a snapshot-authority commit.
+      host.commitWithoutRecordRewrite();
+      server.putMode = 'fail';
+    };
+
+    expect(await store.getState().advanceDay()).toBeNull();
+    expect(currentPilot().xp).toBe(0);
+    expect(vaultAwards()).toBe(0);
+
+    server.putMode = 'ok';
+    host.onIntent = (intent) => {
+      if (intent.kind === 'AdvanceDay') host.commitWithoutRecordRewrite();
+    };
+    expect(await store.getState().advanceDay()).not.toBeNull();
+    await settle();
+
+    expect(dayMs()).toBe(startDate + DAY_MS);
+    expect(currentPilot().xp).toBe(10);
+    expect(vaultAwards()).toBe(1);
+    expect(pilotPuts(server)).toEqual([`PUT /api/pilots/${VAULT_ID}`]);
+  });
+
+  it('(F1b, F2) journal-native: the refresh after the commit fails, nothing is saved, the intent stays unsettled, and a dirty retry finishes day D once', async () => {
+    const world = await buildWorld();
+    const { store, server, host, startDate, startVersion } = world;
+    host.onIntent = (intent) => {
+      if (intent.kind !== 'AdvanceDay') return;
+      host.commit();
+      server.getMode = 'fail';
+    };
+
+    expect(await store.getState().advanceDay()).toBeNull();
+    expect(campaignPuts(server)).toEqual([]);
+    expect(dayMs()).toBe(startDate);
+    expect(currentPilot().xp).toBe(0);
+    expect(vaultAwards()).toBe(0);
+    expect(toastMessages().join('\n')).toMatch(
+      /could not be confirmed with the host/i,
+    );
+
+    // The retry is dirty: only a kept intent skips the pre-save, which the
+    // row the host moved would refuse.
+    server.getMode = 'ok';
+    host.onIntent = commitAdvanceOnly(host);
+    store.getState().enqueueOutcome(outcome('m-late'));
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
+    toast.mockClear();
+
+    expect(await store.getState().advanceDay()).not.toBeNull();
+    await settle();
+
+    expect(dayMs()).toBe(startDate + DAY_MS);
+    expect(recordDayMs(server)).toBe(startDate + DAY_MS);
+    expect(server.record!.version).toBe(startVersion + 2);
+    expect(currentPilot().xp).toBe(10);
+    expect(vaultAwards()).toBe(1);
+    expect(store.getState().processedBattleIds).toEqual(['m-late']);
+    expect(useCampaignPersistenceStore.getState().saveState).not.toBe(
+      'conflict',
+    );
+    expect(toastMessages().join('\n')).not.toMatch(/rolled back/i);
+  });
+
+  it('(F4) a transport error after a late commit keeps the intent unsettled: a dirty retry finishes the day once, with no conflict', async () => {
+    const world = await buildWorld();
+    const { store, server, host, startDate, startVersion } = world;
+    jest.useFakeTimers();
+    const first = store.getState().advanceDay();
+    await jest.advanceTimersByTimeAsync(COOP_ADVANCE_TIMEOUT_MS);
+    expect(await first).toBeNull();
+    jest.useRealTimers();
+    host.commit();
+
+    // The next retry hits a dropped socket.
+    host.onIntent = (intent) => {
+      if (intent.kind === 'AdvanceDay') host.transportError('socket closed');
+    };
+    expect(await store.getState().advanceDay()).toBeNull();
+    expect(currentPilot().xp).toBe(0);
+
+    host.onIntent = commitAdvanceOnly(host);
+    store.getState().enqueueOutcome(outcome('m-late'));
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
+    toast.mockClear();
+
+    expect(await store.getState().advanceDay()).not.toBeNull();
+    await settle();
+
+    expect(dayMs()).toBe(startDate + DAY_MS);
+    expect(server.record!.version).toBe(startVersion + 2);
+    expect(currentPilot().xp).toBe(10);
+    expect(vaultAwards()).toBe(1);
+    expect(store.getState().processedBattleIds).toEqual(['m-late']);
+    expect(useCampaignPersistenceStore.getState().saveState).not.toBe(
+      'conflict',
+    );
+    expect(toastMessages().join('\n')).not.toMatch(/rolled back/i);
+  });
+
+  // F3 (C4 OPEN, pre-existing, not T6): in the app the host route surface
+  // (CampaignCoopRouteSurfaceConnected, useCampaignApplicationConsumer)
+  // folds a late CampaignDayAdvanced into the live campaign before the
+  // retry, so the retry's intent id names D+1, the unsettled-intent record
+  // never matches, and day D's processors never run.
+  it.skip('(F3, C4 OPEN) a late commit folded by the host route surface before the retry still loses day D', () => {
+    // Needs the route-surface consumer mounted on the host; owned by C4.
   });
 });
