@@ -10,6 +10,10 @@ import {
   pruneDeploymentFiles,
 } from './next/deployment-files.mjs';
 import {
+  assertNativeBindingsLoad,
+  NATIVE_CHECK_SKIP_ENV,
+} from './next/native-bindings.mjs';
+import {
   collectRuntimePackages,
   collectTurbopackExternals,
   createPackageSourcePreflight,
@@ -479,6 +483,16 @@ async function main() {
         `Runtime package ${request} resolved outside standalone output: ${resolved}`,
       );
     }
+  }
+
+  // Every native binding left in the image must load with the libraries the
+  // image carries (PARITY-PLAN 1.0.53: sharp shipped without libvips).
+  if (process.env[NATIVE_CHECK_SKIP_ENV] === '1') {
+    console.log(
+      `[hydrate] native load check skipped (${NATIVE_CHECK_SKIP_ENV}=1, fixture only)`,
+    );
+  } else {
+    assertNativeBindingsLoad(standaloneDir);
   }
 
   const hydratedServer = fs.readFileSync(generatedServerPath, 'utf8');

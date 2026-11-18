@@ -281,7 +281,7 @@ export async function fastForwardCampaign(
     const outcome = await resolveMaybePromise(store.getState().advanceDay());
     if (!outcome) {
       throw new Error(
-        'fastForwardCampaign: advanceDay() returned null — the campaign failed to commit (no campaign loaded, or saveCampaign() rejected the write)',
+        'fastForwardCampaign: advanceDay() returned null — the campaign failed to commit (no campaign loaded, a day processor threw, or saveCampaign() rejected the write)',
       );
     }
     dayReports.push(outcome);

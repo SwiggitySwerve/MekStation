@@ -4,23 +4,35 @@ import { join } from 'node:path';
 import type { IRawSerializedUnit } from '@/services/units/unitLoaderService/types';
 import type { UnitState } from '@/stores/unitState';
 
+import { restoreLibraryVersionToDraft } from '@/components/customizer/tabs/restoreLibraryVersionToDraft';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import {
   parseUnit,
   UnitLoaderService,
 } from '@/services/units/unitLoaderService';
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
 import { parseCriticalSlotToken } from '@/services/units/unitLoaderService/equipmentResolution';
+import { createLibrarySaveReceipt } from '@/stores/unit/unitEditSnapshot';
+import { clearAllStores, registerStore } from '@/stores/unitStoreRegistry';
+import { createUnitStore } from '@/stores/useUnitStore';
 import { CockpitType } from '@/types/construction/CockpitType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
+import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import { projectCustomCombatSnapshot } from '@/types/contracts/CustomCombatSnapshot';
+import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment';
 import { Era } from '@/types/temporal/Era';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
 import { getMountedRearSuffix } from '@/utils/serialization/CustomUnitSerializer.sourceCells';
 
+jest.mock('@/services/units/CustomUnitApiService', () => ({
+  customUnitApiService: { getVersion: jest.fn() },
+}));
 jest.mock('@/services/equipment/EquipmentFileReader', () => ({
   readJsonFile: async (file: string) =>
     JSON.parse(
@@ -477,4 +489,324 @@ it('does not rebuild missing engine cells or armored state when opening an old s
   expect(reopenedSource(unarmoredLegacy).criticalSlots).toEqual(
     unarmoredLegacy.criticalSlots,
   );
+});
+
+// Catalog files omit the Omni declaration an MTF import supplies
+// (MTFParserService.ts `isOmni: header.isOmni`), so declare it as an import would.
+const NAGA = '3-succession-wars/advanced/Naga II A.json';
+
+it('cold saves and reopens Naga II A quirks, weapon quirks and publication source', () => {
+  const original: IRawSerializedUnit = { ...source(NAGA), isOmni: true };
+  const facts = {
+    quirks: original.quirks,
+    weaponQuirks: original.weaponQuirks,
+    source: original.source,
+  };
+  expect(facts).toEqual({
+    quirks: ['ext_twist', 'bad_rep_clan'],
+    weaponQuirks: expect.objectContaining({
+      'LA:2:CLLBXAC20': ['stable_weapon'],
+    }),
+    source: expect.any(String),
+  });
+  const podMounts = (unit: UnitState) =>
+    unit.equipment
+      .filter((mount) => mount.isOmniPodMounted)
+      .map(({ equipmentId, location, slots }) => ({
+        equipmentId,
+        location,
+        slots,
+      }));
+  const state = new UnitLoaderService().mapToUnitState(original, true);
+  expect(podMounts(state)).toHaveLength(9);
+
+  const saved = save(state);
+  expect(saved).toMatchObject(facts);
+  const reopened = coldReopen(saved);
+  expect(reopened.bvContext?.source).toMatchObject(facts);
+  expect(reopened.isOmni).toBe(true);
+  expect(podMounts(reopened)).toEqual(podMounts(state));
+
+  // A later edit and a second save keep the reopened facts.
+  const edited = save({
+    ...reopened,
+    heatSinkCount: reopened.heatSinkCount + 1,
+  });
+  expect(edited).toMatchObject({
+    ...facts,
+    heatSinks: { count: state.heatSinkCount + 1 },
+  });
+  expect(coldReopen(edited).bvContext?.source).toMatchObject(facts);
+});
+
+function nagaStore() {
+  return createUnitStore(
+    new UnitLoaderService().mapToUnitState(
+      { ...source(NAGA), isOmni: true },
+      true,
+    ),
+  );
+}
+
+function mountAt(state: UnitState, location: MechLocation, slot: number) {
+  const mount = state.equipment.find(
+    (item) => item.location === location && item.slots?.includes(slot),
+  );
+  if (!mount) throw new Error(`No mount at ${location} ${slot}`);
+  return mount;
+}
+
+function savedWeaponQuirks(state: UnitState) {
+  return (save(state) as { weaponQuirks?: Record<string, string[]> })
+    .weaponQuirks;
+}
+
+// MegaMek's load rule (Entity.java:17256-17315). Dropping a moved weapon's
+// entry deliberately diverges from MegaMekLab, which re-keys it on save.
+describe('weapon quirks stay only where their weapon sits', () => {
+  it('drops the quirk of a removed weapon and keeps the others', () => {
+    const store = nagaStore();
+    const before = savedWeaponQuirks(store.getState());
+    expect(before).toMatchObject({ 'LA:2:CLLBXAC20': ['stable_weapon'] });
+    store
+      .getState()
+      .removeEquipment(
+        mountAt(store.getState(), MechLocation.LEFT_ARM, 2).instanceId,
+      );
+    const after = savedWeaponQuirks(store.getState());
+    expect(after).not.toHaveProperty(['LA:2:CLLBXAC20']);
+    const { 'LA:2:CLLBXAC20': _removed, ...others } = before ?? {};
+    expect(after).toEqual(others);
+  });
+
+  it('drops the quirk of a moved weapon and never re-keys it (deliberate divergence from MML)', () => {
+    const store = nagaStore();
+    const before = savedWeaponQuirks(store.getState()) ?? {};
+    expect(before).toHaveProperty(['RA:10:CLERLargeLaser']);
+    const laser = mountAt(store.getState(), MechLocation.RIGHT_ARM, 10);
+    store
+      .getState()
+      .updateEquipmentLocation(laser.instanceId, MechLocation.RIGHT_ARM, [5]);
+    expect(
+      mountAt(store.getState(), MechLocation.RIGHT_ARM, 5).instanceId,
+    ).toBe(laser.instanceId);
+    const after = savedWeaponQuirks(store.getState()) ?? {};
+    expect(after).not.toHaveProperty(['RA:10:CLERLargeLaser']);
+    expect(Object.keys(after).filter((key) => key.startsWith('RA:5:'))).toEqual(
+      [],
+    );
+    const { 'RA:10:CLERLargeLaser': _moved, ...others } = before;
+    expect(after).toEqual(others);
+  });
+
+  it('drops the quirk when a different weapon takes the quirked cells', () => {
+    const store = nagaStore();
+    store
+      .getState()
+      .removeEquipment(
+        mountAt(store.getState(), MechLocation.LEFT_ARM, 2).instanceId,
+      );
+    const laser = mountAt(store.getState(), MechLocation.RIGHT_ARM, 10);
+    store
+      .getState()
+      .updateEquipmentLocation(laser.instanceId, MechLocation.LEFT_ARM, [2]);
+    expect(
+      mountAt(store.getState(), MechLocation.LEFT_ARM, 2).equipmentId,
+    ).toBe(laser.equipmentId);
+    expect(savedWeaponQuirks(store.getState())).not.toHaveProperty([
+      'LA:2:CLLBXAC20',
+    ]);
+  });
+
+  it.each([
+    ['1-age-of-war/standard/Trooper TP-1R.json', 4],
+    ['1-age-of-war/standard/Crossbow CRS-6B.json', 2],
+  ] as const)(
+    'keeps every quirk of %s when the unit switches from Inner Sphere to Clan',
+    (path, entries) => {
+      const original = source(path);
+      expect(Object.keys(original.weaponQuirks ?? {})).toHaveLength(entries);
+      const store = createUnitStore(
+        new UnitLoaderService().mapToUnitState(original, true),
+      );
+      const mounts = (state: UnitState) =>
+        state.equipment.map(({ equipmentId, location, slots }) => ({
+          equipmentId,
+          location,
+          slots,
+        }));
+      const before = mounts(store.getState());
+      store.getState().setTechBaseMode(TechBaseMode.CLAN);
+      expect(store.getState().techBaseMode).toBe(TechBaseMode.CLAN);
+      // The weapons never moved; only the unit's tech base changed.
+      expect(mounts(store.getState())).toEqual(before);
+      expect(savedWeaponQuirks(store.getState())).toEqual(
+        original.weaponQuirks,
+      );
+    },
+  );
+
+  // The key's name owns its side (CLFlamer.java:57-59 names only CLFlamer and
+  // Clan Flamer), so a Clan twin in the same cells is not the named weapon.
+  it.each([
+    [
+      '1-age-of-war/standard/Trooper TP-1R.json',
+      TechBaseMode.MIXED,
+      MechLocation.CENTER_TORSO,
+      10,
+      'CT:10:Flamer',
+      'clan-flamer',
+      TechBase.CLAN,
+    ],
+    [
+      '1-age-of-war/standard/Trooper TP-1R.json',
+      TechBaseMode.INNER_SPHERE,
+      MechLocation.RIGHT_ARM,
+      2,
+      'RA:2:Machine Gun',
+      'clan-machine-gun',
+      TechBase.CLAN,
+    ],
+    [
+      NAGA,
+      undefined,
+      MechLocation.LEFT_ARM,
+      2,
+      'LA:2:CLLBXAC20',
+      'lb-20-x-ac',
+      TechBase.INNER_SPHERE,
+    ],
+  ] as const)(
+    "drops %s %s %s %i (%s) when its cells hold the other side's %s",
+    (path, mode, location, slot, key, twin, twinTechBase) => {
+      const store = createUnitStore(
+        new UnitLoaderService().mapToUnitState(
+          { ...source(path), isOmni: path === NAGA },
+          true,
+        ),
+      );
+      if (mode) store.getState().setTechBaseMode(mode);
+      expect(savedWeaponQuirks(store.getState())).toHaveProperty([key]);
+      expect(getEquipmentLookupService().getById(twin)).toBeDefined();
+      const mount = mountAt(store.getState(), location, slot);
+      // Same cells and slots, the other side's item.
+      store.setState({
+        equipment: store
+          .getState()
+          .equipment.map((item) =>
+            item.instanceId === mount.instanceId
+              ? { ...item, equipmentId: twin, techBase: twinTechBase }
+              : item,
+          ),
+      });
+      expect(savedWeaponQuirks(store.getState())).not.toHaveProperty([key]);
+    },
+  );
+
+  // Entity.java:17284-17287: only a weapon or club takes a weapon quirk. The
+  // Streak SRM 6 ammo bin carries its weapon's id, so the id alone would match.
+  it('drops a weapon quirk keyed to a cell that holds ammunition', () => {
+    const original = source(NAGA);
+    const state = new UnitLoaderService().mapToUnitState(
+      {
+        ...original,
+        isOmni: true,
+        weaponQuirks: {
+          ...(original.weaponQuirks as Record<string, string[]>),
+          'LT:4:CLStreakSRM6': ['stable_weapon'],
+        },
+      },
+      true,
+    );
+    const bin = mountAt(state, MechLocation.LEFT_TORSO, 4);
+    expect(bin).toMatchObject({
+      equipmentId: 'clan-streak-srm-6',
+      category: EquipmentCategory.AMMUNITION,
+    });
+    const saved = savedWeaponQuirks(state);
+    expect(saved).not.toHaveProperty(['LT:4:CLStreakSRM6']);
+    expect(saved).toEqual(original.weaponQuirks);
+  });
+
+  // KNOWN DIVERGENCE, pinned on purpose. MegaMek 48fcb2f64 drops this entry on
+  // load: the large shield is F_SHIELD without F_CLUB, so it is "not a weapon"
+  // (Entity.java:17284-17287). The writer cannot tell clubs from other
+  // Miscellaneous items and excludes only ammunition, so it keeps the entry.
+  // Per-item Java weapon/club facts should flip this test deliberately.
+  it('keeps Slagmaiden SLG-X LA:4:ISLargeShield, which Java drops (known divergence)', () => {
+    const original = source('5-civil-war/standard/Slagmaiden SLG-X.json');
+    expect(original.weaponQuirks).toHaveProperty(['LA:4:ISLargeShield']);
+    const saved = savedWeaponQuirks(
+      new UnitLoaderService().mapToUnitState(original, true),
+    );
+    expect(saved).toHaveProperty(
+      ['LA:4:ISLargeShield'],
+      (original.weaponQuirks as Record<string, string[]>)['LA:4:ISLargeShield'],
+    );
+  });
+
+  it('leaves no orphaned key after restoring an older version with another layout', async () => {
+    const store = nagaStore();
+    const draftId = store.getState().id;
+    registerStore(store);
+    try {
+      store.setState({
+        librarySave: createLibrarySaveReceipt(store.getState(), {
+          id: 'library-naga',
+          version: 2,
+        }),
+      });
+      // Version 1 of the library unit had no LA LB 20-X AC.
+      const older = nagaStore();
+      older
+        .getState()
+        .removeEquipment(
+          mountAt(older.getState(), MechLocation.LEFT_ARM, 2).instanceId,
+        );
+      jest.mocked(customUnitApiService.getVersion).mockResolvedValue({
+        version: 1,
+        data: JSON.parse(JSON.stringify(save(older.getState()))),
+      } as Awaited<ReturnType<typeof customUnitApiService.getVersion>>);
+      await restoreLibraryVersionToDraft({
+        store,
+        draftId,
+        libraryId: 'library-naga',
+        version: 1,
+      });
+      // The restored draft keeps the current version's loaded source.
+      expect(store.getState().bvContext?.source.weaponQuirks).toHaveProperty([
+        'LA:2:CLLBXAC20',
+      ]);
+      expect(savedWeaponQuirks(store.getState())).not.toHaveProperty([
+        'LA:2:CLLBXAC20',
+      ]);
+    } finally {
+      clearAllStores();
+    }
+  });
+});
+
+// Deliberate recorded-payload change (S1, parity/s1-mech-serializer-spread):
+// a custom mech saved from a quirked canon unit now records its unit quirks in
+// the GameCreated combat snapshot. Java plays with quirks; the snapshot still
+// omits weapon quirks and the publication source.
+it('records unit quirks, not weapon quirks or source, in the combat snapshot', () => {
+  const original = source('2-star-league/advanced/Sentinel STN-3L.json');
+  expect(original).toMatchObject({
+    quirks: ['imp_com'],
+    weaponQuirks: { 'RT:0:ISStreakSRM2': ['ammo_feed_problems'] },
+    source: 'TR:3050,TR:SW',
+  });
+  const saved = save(new UnitLoaderService().mapToUnitState(original, true));
+  expect(saved).toMatchObject({
+    weaponQuirks: original.weaponQuirks,
+    source: original.source,
+  });
+  const snapshot = projectCustomCombatSnapshot(
+    JSON.parse(JSON.stringify(saved)),
+  );
+  expect(snapshot).not.toBeNull();
+  expect(snapshot?.quirks).toEqual(['imp_com']);
+  expect(snapshot).not.toHaveProperty('weaponQuirks');
+  expect(snapshot).not.toHaveProperty('source');
 });

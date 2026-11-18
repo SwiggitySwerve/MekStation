@@ -28,6 +28,7 @@ import { getEraForYear } from '@/utils/temporal/eraUtils';
 
 import {
   getLibrarySaveDisabledReason,
+  NO_LIBRARY_SAVE_TARGET_REASON,
   getLibrarySaveEditor,
   getLibrarySaveStore,
 } from './MultiUnitTabsUnitState';
@@ -208,10 +209,12 @@ export function useDialogHandlers(
 
   const handleSaveDialogSave = useCallback(
     async (chassis: string, variant: string, overwriteId?: string) => {
-      if (saveInFlight.current || !saveDialog.isOpen || !saveDialog.tabId) {
+      // The disabled Saving... button says why a re-entry does nothing.
+      if (saveInFlight.current) return;
+      if (!saveDialog.isOpen || !saveDialog.tabId) {
+        showToast({ message: NO_LIBRARY_SAVE_TARGET_REASON, variant: 'error' });
         return;
       }
-
       const disabledReason = getLibrarySaveDisabledReason(
         getTabById(saveDialog.tabId),
       );

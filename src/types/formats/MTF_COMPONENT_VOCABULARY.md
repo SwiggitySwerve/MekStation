@@ -1,7 +1,7 @@
 # MTF component vocabulary
 
 `mtf-component-vocabulary.json` owns the exact source strings an MTF file uses
-for four mech components, and the serialized identity each one resolves to:
+for four mech components, and the serialized identity each one resolves to (armor, below, is a fifth section with its own shape):
 
 | Table                 | MTF line                | Identities                                                                                               |
 | --------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------- |
@@ -85,6 +85,26 @@ is `COCKPIT_TRIPOD` (index 10, `Mek.java:202`), and `CockpitType.TRIPOD`, `DUAL`
 to its own identity. The committed catalog may still hold `STANDARD` for the four
 pinned Tripod Cockpit units until it is regenerated; that is a catalog decision,
 not a vocabulary one.
+
+## Armor identity (`armor`)
+
+The `armor` section is a list, not a name table: one row per unit-contract
+`armor.type` tag (47, the `standardArmorType` enum in `unit-schema.json`). A row
+carries `tag`, `enum` (the `ArmorTypeEnum` member key, or null), `family` (the
+export family: `MTF:mech` or a `BLK:*` family) and, on `MTF:mech` rows only, an
+`mtf` block: `write` (the name the pinned writer emits, `Mek.java:5385-5403`),
+`parse` (the normalised key the TypeScript parser accepts; null for a Clan
+variant it reaches by rule) and `spellings` (the exact strings the Python
+converter accepts; empty when Python never produces that tag).
+
+TypeScript reads it through `ArmorIdentity.ts` and derives the MTF vocabulary,
+the export families and the armor source tags. Python builds `ARMOR_TYPE_MAP`
+from `spellings`. The two accepted-name sets differ and the fold keeps each
+exactly as it was; `test_armor_accepted_names.py` and
+`MTFVocabulary.armorAccepted.test.ts` pin them over one fixture. The literal
+tables that must stay (the serializer tag table, which feeds contract literal
+types, and `BlkArmorCodes.ts`) are proven equal to the rows by
+`armorIdentity.test.ts`; `test_armor_identity_owner.py` is the Python guard.
 
 ## Adding an entry (for 4.1-g.2)
 

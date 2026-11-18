@@ -44,10 +44,13 @@ export function isLibrarySaveSupported(unitType?: UnitType): boolean {
   );
 }
 
+export const NO_LIBRARY_SAVE_TARGET_REASON =
+  'Select a unit before saving it to the library.';
+
 export function getLibrarySaveDisabledReason(
   tab: Pick<TabInfo, 'unitType'> | null | undefined,
 ): string | null {
-  if (!tab) return 'Select a unit before saving it to the library.';
+  if (!tab) return NO_LIBRARY_SAVE_TARGET_REASON;
   if (isLibrarySaveSupported(tab.unitType)) return null;
 
   return `Library save is not available for ${tab.unitType} units yet. Your browser draft remains open.`;
