@@ -52,40 +52,28 @@ type PendingManifests = Readonly<Record<string, IPendingBattleUnitManifest>>;
 
 /**
  * Drop the manifests of battles that never produced an outcome: a match
- * that is not pending is pruned once its mission/scenario is launched again
- * (`relaunch`, the new match itself kept) or once it is older than the
- * retained-outcome window in CAMPAIGN days. Returns the same object when
- * nothing is pruned.
+ * that is not pending is pruned once it is older than the retained-outcome
+ * window in CAMPAIGN days. A relaunch of the same mission prunes nothing,
+ * because the earlier battle may still be in progress; a battle that
+ * finishes after its manifest aged out applies through the legacy path.
+ * Returns the same object when nothing is pruned.
  */
 export function prunePendingBattleUnitManifests(
   manifests: PendingManifests,
   {
     pendingMatchIds,
     asOf,
-    relaunch,
   }: {
     readonly pendingMatchIds: ReadonlySet<string>;
     readonly asOf: Date;
-    readonly relaunch?: {
-      readonly launchKey: string;
-      readonly matchId: string;
-    };
   },
 ): PendingManifests {
-  const kept = Object.entries(manifests).filter(([matchId, entry]) => {
-    if (pendingMatchIds.has(matchId)) return true;
-    if (
-      relaunch &&
-      matchId !== relaunch.matchId &&
-      entry.launchKey === relaunch.launchKey
-    ) {
-      return false;
-    }
-    return (
+  const kept = Object.entries(manifests).filter(
+    ([matchId, entry]) =>
+      pendingMatchIds.has(matchId) ||
       campaignDaysBetween(new Date(entry.recordedOn), asOf) <=
-      APPLIED_OUTCOME_RETENTION_DAYS
-    );
-  });
+        APPLIED_OUTCOME_RETENTION_DAYS,
+  );
   return kept.length === Object.keys(manifests).length
     ? manifests
     : Object.fromEntries(kept);

@@ -1,8 +1,8 @@
 /**
  * T1: launch manifests of battles that never produced an outcome are pruned
- * once the same mission/scenario is launched again, or once they are older
- * than the retained-outcome window in CAMPAIGN days. A pending match keeps
- * its manifest regardless.
+ * once they are older than the retained-outcome window in CAMPAIGN days. A
+ * relaunch of the same mission prunes nothing: the earlier battle may still
+ * be in progress. A pending match keeps its manifest regardless.
  */
 import { APPLIED_OUTCOME_RETENTION_DAYS } from '../appliedOutcomes';
 import { prunePendingBattleUnitManifests } from '../battleUnitManifest';
@@ -33,35 +33,14 @@ describe('prunePendingBattleUnitManifests', () => {
     ).toEqual({ edge: manifests.edge });
   });
 
-  it('never prunes a pending match, however old or relaunched', () => {
+  it('never prunes a pending match, however old', () => {
     const manifests = { pending: entry('3024-01-01T00:00:00.000Z', 'scn-a') };
     expect(
       prunePendingBattleUnitManifests(manifests, {
         pendingMatchIds: new Set(['pending']),
         asOf: ASOF,
-        relaunch: { launchKey: 'scn-a', matchId: 'new' },
       }),
     ).toBe(manifests);
-  });
-
-  it('prunes non-pending entries of a relaunched mission or scenario only', () => {
-    const manifests = {
-      abandoned: entry('3025-06-14T00:00:00.000Z', 'scn-a'),
-      other: entry('3025-06-14T00:00:00.000Z', 'scn-b'),
-      unkeyed: entry('3025-06-14T00:00:00.000Z', null),
-      relaunch: entry('3025-06-15T00:00:00.000Z', 'scn-a'),
-    };
-    expect(
-      prunePendingBattleUnitManifests(manifests, {
-        pendingMatchIds: new Set(),
-        asOf: ASOF,
-        relaunch: { launchKey: 'scn-a', matchId: 'relaunch' },
-      }),
-    ).toEqual({
-      other: manifests.other,
-      unkeyed: manifests.unkeyed,
-      relaunch: manifests.relaunch,
-    });
   });
 
   it('returns the same object when nothing is pruned', () => {

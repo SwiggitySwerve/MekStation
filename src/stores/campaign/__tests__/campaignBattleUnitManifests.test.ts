@@ -39,7 +39,7 @@ function seed(extra: Record<string, unknown>) {
 describe('recordCampaignBattleUnitManifest', () => {
   afterEach(() => resetCampaignStore());
 
-  it('stamps the campaign date and launch key, and prunes an abandoned launch of the same scenario', () => {
+  it('stamps the campaign date and keeps an earlier launch of the same scenario that may still be in progress', () => {
     const abandoned = {
       units,
       recordedOn: '3025-06-14T00:00:00.000Z',
@@ -60,6 +60,7 @@ describe('recordCampaignBattleUnitManifest', () => {
 
     expect(useCampaignStore().getState().campaign?.battleUnitManifests).toEqual(
       {
+        abandoned,
         pending: pendingLaunch,
         relaunch: {
           units,

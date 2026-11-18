@@ -14,8 +14,8 @@ import { useCampaignStore } from './useCampaignStore';
 
 /**
  * Records `units` for `matchId`, stamped with the campaign date and the
- * launch key, and prunes earlier manifests of the same launch key (and any
- * aged out) whose battle never produced an outcome. Returns false (and
+ * launch key, and prunes manifests that aged out without their battle
+ * producing an outcome. Returns false (and
  * logs) when the live campaign is not `campaignId`: the outcome then has no
  * recorded manifest, and the apply falls back to the legacy match.
  */
@@ -52,7 +52,6 @@ export function recordCampaignBattleUnitManifest(
     {
       pendingMatchIds,
       asOf: campaign.currentDate,
-      ...(launchKey === null ? {} : { relaunch: { launchKey, matchId } }),
     },
   );
   state.updateCampaign({
