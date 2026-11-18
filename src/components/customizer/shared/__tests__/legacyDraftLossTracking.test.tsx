@@ -129,13 +129,68 @@ it('waits for the one catalog refresh before saving and ignores its result after
     </>,
   );
   await waitFor(() => expect(mockReadCanonical).toHaveBeenCalledTimes(1));
-  expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  // The refresh never disables Save: the click waits for it, visibly.
+  fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+  expect(
+    screen.getByText(
+      'Checking the design… the save will continue when the check finishes.',
+    ),
+  ).toBeInTheDocument();
+  expect(save).not.toHaveBeenCalled();
   view.unmount();
   await act(async () => {
     finish(scarecrow);
   });
   expect(store.getState().unrecoveredCriticalSlots).toBeUndefined();
   expect(save).not.toHaveBeenCalled();
+});
+
+it('ends a save that waits on a source that never loads with a visible error', async () => {
+  const sample = fixture.cases[0];
+  const raw = sample.rawDraft.replaceAll('fixture-source', 'scarecrow-ucu-f4');
+  const envelope = JSON.parse(raw) as { state: { id: string } };
+  localStorage.setItem(`megamek-unit-${envelope.state.id}`, raw);
+  const store = hydrateOrCreateUnit(envelope.state.id, {
+    name: 'Fallback',
+    tonnage: 50,
+    techBase: TechBase.INNER_SPHERE,
+  });
+  mockReadCanonical.mockImplementation(() => new Promise(() => undefined));
+  const save = jest.fn();
+  render(
+    <>
+      <UnitStoreContext.Provider value={store}>
+        <EditorLoadDiagnostics />
+      </UnitStoreContext.Provider>
+      <TargetedSaveUnitDialog
+        isOpen
+        currentUnitId={envelope.state.id}
+        initialChassis="Old"
+        initialVariant="X"
+        onSave={save}
+        onCancel={jest.fn()}
+      />
+    </>,
+  );
+  await waitFor(() => expect(mockReadCanonical).toHaveBeenCalledTimes(1));
+  jest.useFakeTimers();
+  try {
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(
+      screen.getByText(
+        'Checking the design… the save will continue when the check finishes.',
+      ),
+    ).toBeInTheDocument();
+    act(() => jest.advanceTimersByTime(15_000));
+    expect(
+      screen.getByText(
+        'The design check did not finish, so the unit was not saved. Try saving again.',
+      ),
+    ).toHaveAttribute('role', 'alert');
+    expect(save).not.toHaveBeenCalled();
+  } finally {
+    jest.useRealTimers();
+  }
 });
 
 it('hydrates a literal U3 pre-PR draft and recomputes an absent list from its catalog id through the real loader', async () => {

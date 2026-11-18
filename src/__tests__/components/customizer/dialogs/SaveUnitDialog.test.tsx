@@ -179,7 +179,7 @@ describe('SaveUnitDialog', () => {
     );
   });
 
-  it('should disable save button when validating', () => {
+  it('accepts Save while the name is validating and waits for the result', () => {
     (unitNameValidator.validateUnitName as jest.Mock).mockImplementation(
       () => new Promise(() => {}), // Never resolves
     );
@@ -187,8 +187,13 @@ describe('SaveUnitDialog', () => {
     render(<SaveUnitDialog {...defaultProps} />);
 
     const saveButton = screen.getByRole('button', { name: /Save/i });
-    // Save button starts disabled before validation completes
-    expect(saveButton).toBeDisabled();
+    // A pending check never disables Save; the click waits for it instead.
+    expect(saveButton).toBeEnabled();
+    fireEvent.click(saveButton);
+    expect(defaultProps.onSave).not.toHaveBeenCalled();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Checking the design… the save will continue when the check finishes.',
+    );
   });
 
   it('should enable save button when name is valid', async () => {
@@ -230,10 +235,12 @@ describe('SaveUnitDialog', () => {
     const variantInput = screen.getByDisplayValue('AS7-D');
     await user.type(variantInput, 'X');
 
-    // Wait for validation to complete - button should remain disabled
+    // Wait for the settled conflict - the button is then disabled
     await waitFor(
       () => {
-        expect(unitNameValidator.validateUnitName).toHaveBeenCalled();
+        expect(
+          screen.getByText('Conflicts with official unit'),
+        ).toBeInTheDocument();
       },
       { timeout: 2000 },
     );
@@ -260,13 +267,13 @@ describe('SaveUnitDialog', () => {
     // Wait for validation to complete and button to be enabled
     await waitFor(
       () => {
-        const saveButton = screen.getByRole('button', { name: /Save/i });
-        expect(saveButton).not.toBeDisabled();
+        expect(screen.getByText('Name is available')).toBeInTheDocument();
       },
       { timeout: 2000 },
     );
 
     const saveButton = screen.getByRole('button', { name: /Save/i });
+    expect(saveButton).not.toBeDisabled();
     await user.click(saveButton);
 
     expect(defaultProps.onSave).toHaveBeenCalledWith('Atlas', 'AS7-D');
@@ -308,24 +315,22 @@ describe('SaveUnitDialog', () => {
     expect(defaultProps.onSave).not.toHaveBeenCalled();
   });
 
-  it('blocks save while construction validation is pending', async () => {
+  it('queues save while construction validation is pending and saves when it settles', async () => {
     const user = userEvent.setup();
     (unitNameValidator.validateUnitName as jest.Mock).mockResolvedValue({
       isValid: true,
       isCanonicalConflict: false,
       isCustomConflict: false,
     });
+    const pending = {
+      isValid: true,
+      isLoading: false,
+      isValidating: true,
+      errorCount: 0,
+    };
 
-    render(
-      <SaveUnitDialog
-        {...defaultProps}
-        constructionValidation={{
-          isValid: true,
-          isLoading: false,
-          isValidating: true,
-          errorCount: 0,
-        }}
-      />,
+    const { rerender } = render(
+      <SaveUnitDialog {...defaultProps} constructionValidation={pending} />,
     );
 
     const variantInput = screen.getByDisplayValue('AS7-D');
@@ -338,7 +343,16 @@ describe('SaveUnitDialog', () => {
     expect(
       screen.getByText('Checking construction readiness...'),
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(defaultProps.onSave).not.toHaveBeenCalled();
+    rerender(
+      <SaveUnitDialog
+        {...defaultProps}
+        constructionValidation={{ ...pending, isValidating: false }}
+      />,
+    );
+    expect(defaultProps.onSave).toHaveBeenCalledTimes(1);
+    expect(defaultProps.onSave).toHaveBeenCalledWith('Atlas', 'AS7-DX');
   });
 
   it('should handle custom conflict by allowing save with overwrite', async () => {
@@ -450,9 +464,11 @@ describe('SaveUnitDialog', () => {
     fireEvent.change(screen.getByDisplayValue('AS7-D'), {
       target: { value: 'NEW-1' },
     });
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    // A click while the new name is checked waits, then saves the new name.
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(defaultProps.onSave).not.toHaveBeenCalled();
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled(),
+      expect(defaultProps.onSave).toHaveBeenCalledWith('Atlas', 'NEW-1'),
     );
     await act(async () => {
       finishInitial({
@@ -466,16 +482,16 @@ describe('SaveUnitDialog', () => {
       screen.queryByText(/Conflicts with official unit/),
     ).not.toBeInTheDocument();
   });
-  it('keeps Save disabled on the first visible paint when reopening', async () => {
+  it('never saves the previous name result from the first visible paint when reopening', async () => {
     const painted: boolean[] = [];
     function PaintProbe({ open }: { open: boolean }) {
       React.useLayoutEffect(() => {
-        if (open)
-          painted.push(
-            screen
-              .getByRole('button', { name: 'Save' })
-              .hasAttribute('disabled'),
-          );
+        if (open) {
+          // Click on the very first paint: it must wait for the new check.
+          const save = screen.getByRole('button', { name: 'Save' });
+          painted.push(save.hasAttribute('disabled'));
+          fireEvent.click(save);
+        }
       }, [open]);
       return <SaveUnitDialog {...defaultProps} isOpen={open} />;
     }
@@ -492,7 +508,12 @@ describe('SaveUnitDialog', () => {
     jest
       .mocked(unitNameValidator.validateUnitName)
       .mockImplementation(() => new Promise(() => undefined));
+    jest.mocked(defaultProps.onSave).mockClear();
     rerender(<PaintProbe open />);
-    expect(painted.at(-1)).toBe(true);
+    expect(painted.at(-1)).toBe(false);
+    expect(defaultProps.onSave).not.toHaveBeenCalled();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Checking the design… the save will continue when the check finishes.',
+    );
   });
 });
