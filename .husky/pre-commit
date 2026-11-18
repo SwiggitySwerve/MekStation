@@ -1,7 +1,9 @@
 #!/usr/bin/env sh
 # Pre-commit gate.
 #
-# Runs lint-staged (package.json "lint-staged") on the staged files: oxfmt
+# Runs the local node_modules/lint-staged/bin/lint-staged.js directly (no npx),
+# refusing a missing install or a moved entry point before running any tasks.
+# lint-staged (package.json "lint-staged") runs on the staged files: oxfmt
 # --write on each matching file and oxlint --fix on staged *.ts/tsx/js/jsx.
 # Then, when a *.ts or *.tsx file is staged, `npm run typecheck` checks both the
 # root and scoped scripts projects, once per commit. The hook runs no production
@@ -19,8 +21,16 @@
 # lint-staged's hiding step loses unstaged edits (see the script). There the
 # script refuses a commit with a partially staged file, or prints
 # --no-hide-partially-staged when there is none. Elsewhere it prints nothing.
+if [ ! -d node_modules/lint-staged ]; then
+  echo "pre-commit: no local lint-staged install; junction the reference node_modules or run the project install." >&2
+  exit 1
+fi
+if [ ! -f node_modules/lint-staged/bin/lint-staged.js ]; then
+  echo "pre-commit: installed lint-staged has no bin/lint-staged.js; a version change probably moved its entry point, so the hook path needs updating." >&2
+  exit 1
+fi
 hide_flag=$(node scripts/lib/check-partial-stage.mjs) || exit $?
-npx lint-staged --no-stash $hide_flag || exit $?
+node node_modules/lint-staged/bin/lint-staged.js --no-stash $hide_flag || exit $?
 # Reject ignored-parent restaging failures even if lint-staged returned zero.
 node scripts/lib/check-staged-parents.mjs || exit $?
 # Typecheck once per commit, outside lint-staged. lint-staged 16 splits a large

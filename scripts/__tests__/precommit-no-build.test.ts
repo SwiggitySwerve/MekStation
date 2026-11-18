@@ -3,7 +3,11 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-import { copyHookScripts, hookScripts } from './support/hook-scripts';
+import {
+  copyHookScripts,
+  hookScripts,
+  linkLintStaged,
+} from './support/hook-scripts';
 import { spawnHookShell } from './support/spawn-hook-shell';
 
 // Pins owner decision OD-precommit-drop-full-build: .husky/pre-commit runs no
@@ -25,7 +29,42 @@ function hookCommandLines(): string[] {
     .map(({ line, number }) => `${number}: ${line}`);
 }
 
+function expectInstalledEntryPoint(manifestPath: string): void {
+  const manifest: { bin: string | Record<string, string> } = JSON.parse(
+    fs.readFileSync(manifestPath, 'utf8'),
+  );
+  const bin =
+    typeof manifest.bin === 'string'
+      ? manifest.bin
+      : manifest.bin['lint-staged'];
+  const invocation = hookCommandLines()
+    .map((line) => line.replace(/^\d+: /, ''))
+    .find((line) => /^node node_modules\/lint-staged\//.test(line));
+  expect(invocation).toBe(
+    `node node_modules/lint-staged/${bin} --no-stash $hide_flag || exit $?`,
+  );
+}
+
 describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
+  it('pins the hook path to the installed package bin entry', () => {
+    expectInstalledEntryPoint(
+      path.join(repoRoot, 'node_modules/lint-staged/package.json'),
+    );
+  });
+
+  it('would catch an installed package whose bin entry moved', () => {
+    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'precommit-bin-'));
+    try {
+      const manifest = path.join(cwd, 'package.json');
+      fs.writeFileSync(
+        manifest,
+        JSON.stringify({ bin: { 'lint-staged': 'dist/cli.js' } }),
+      );
+      expect(() => expectInstalledEntryPoint(manifest)).toThrow();
+    } finally {
+      fs.rmSync(cwd, { recursive: true, force: true });
+    }
+  });
   it('runs neither `npm run build` nor `next build` on any command line', () => {
     // `build` must end the script name, so `npm run build:x` does not match.
     const buildCommand =
@@ -35,10 +74,10 @@ describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
     ).toEqual([]);
   });
 
-  it('keeps `npx lint-staged --no-stash`; no lint-staged task typechecks', () => {
+  it('keeps the local lint-staged --no-stash call; no lint-staged task typechecks', () => {
     expect(
       hookCommandLines().some((line) =>
-        /^\d+: npx lint-staged --no-stash \$hide_flag \|\| exit \$\?$/.test(
+        /^\d+: node node_modules\/lint-staged\/bin\/lint-staged\.js --no-stash \$hide_flag \|\| exit \$\?$/.test(
           line,
         ),
       ),
@@ -71,7 +110,7 @@ describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
     const at = (pattern: RegExp) =>
       lines.findIndex((line) => pattern.test(line));
     const partial = at(/check-partial-stage\.mjs/);
-    const lintStaged = at(/^npx lint-staged /);
+    const lintStaged = at(/^node node_modules\/lint-staged\//);
     const parents = at(
       /^node scripts\/lib\/check-staged-parents\.mjs \|\| exit \$\?$/,
     );
@@ -99,15 +138,128 @@ describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
   });
 });
 
+describe('pre-commit hook requires a local lint-staged install', () => {
+  const noInstall = 'pre-commit: no local lint-staged install';
+  const movedEntryPoint =
+    'pre-commit: installed lint-staged has no bin/lint-staged.js';
+
+  function refusal(
+    packageExists: boolean,
+    hook = fs.readFileSync(hookPath, 'utf8'),
+  ) {
+    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'precommit-noinstall-'));
+    try {
+      const init = spawnSync('git', ['init', '--quiet'], {
+        cwd,
+        encoding: 'utf8',
+      });
+      expect(init.status).toBe(0);
+      fs.writeFileSync(path.join(cwd, '.git/hooks/pre-commit'), hook, {
+        mode: 0o755,
+      });
+      copyHookScripts(cwd);
+      fs.writeFileSync(path.join(cwd, 'probe.ts'), 'export const probe = 1;\n');
+      const add = spawnSync('git', ['add', 'probe.ts'], {
+        cwd,
+        encoding: 'utf8',
+      });
+      expect(add.status).toBe(0);
+      if (packageExists) {
+        fs.mkdirSync(path.join(cwd, 'node_modules/lint-staged'), {
+          recursive: true,
+        });
+        fs.writeFileSync(
+          path.join(cwd, 'node_modules/lint-staged/package.json'),
+          JSON.stringify({ name: 'lint-staged', bin: 'dist/cli.js' }),
+        );
+      }
+      const bin = path.join(cwd, 'bin');
+      fs.mkdirSync(bin);
+      for (const command of ['npx', 'npm']) {
+        fs.writeFileSync(
+          path.join(bin, command),
+          `#!/bin/sh\necho ${command} >> "$PWD/launchers.log"\nexit 1\n`,
+          { mode: 0o755 },
+        );
+      }
+      const result = spawnHookShell(
+        [
+          '-c',
+          'export PATH="$PWD/bin:$PATH"; ' +
+            'export GIT_AUTHOR_NAME=Fixture GIT_AUTHOR_EMAIL=fixture@example.invalid ' +
+            'GIT_COMMITTER_NAME=Fixture GIT_COMMITTER_EMAIL=fixture@example.invalid; ' +
+            'exec git commit -m refusal',
+        ],
+        { cwd, encoding: 'utf8', timeout: 60_000 },
+      );
+      const head = spawnSync('git', ['rev-parse', '--verify', 'HEAD'], {
+        cwd,
+        encoding: 'utf8',
+      });
+      const log = path.join(cwd, 'launchers.log');
+      return {
+        status: result.status,
+        output: result.stdout + result.stderr,
+        committed: head.status === 0,
+        invoked: fs.existsSync(log)
+          ? fs.readFileSync(log, 'utf8').trim().split('\n')
+          : [],
+      };
+    } finally {
+      fs.rmSync(cwd, { recursive: true, force: true });
+    }
+  }
+
+  function expectRefusal(
+    run: ReturnType<typeof refusal>,
+    packageExists: boolean,
+  ): void {
+    expect(run.status).toBe(1);
+    expect(run.output).toContain(packageExists ? movedEntryPoint : noInstall);
+    expect(run.output).not.toContain(
+      packageExists ? noInstall : movedEntryPoint,
+    );
+    if (packageExists) {
+      expect(run.output).toContain(
+        'version change probably moved its entry point',
+      );
+      expect(run.output).toContain('hook path needs updating');
+      expect(run.output).not.toMatch(/junction|project install/);
+    } else {
+      expect(run.output).toContain(
+        'junction the reference node_modules or run the project install',
+      );
+    }
+    expect(run.committed).toBe(false);
+    expect(run.invoked).not.toContain('npx');
+    expect(run.invoked).not.toContain('npm');
+  }
+
+  it.each([false, true])(
+    'refuses before npm or npx (package directory exists: %s)',
+    (packageExists) => {
+      expectRefusal(refusal(packageExists), packageExists);
+    },
+  );
+
+  it.each(['npx', 'npm'])(
+    'would catch a refusal that invoked %s first',
+    (command) => {
+      const hook = fs
+        .readFileSync(hookPath, 'utf8')
+        .replace('\n', `\n${command} --version || :\n`);
+      const run = refusal(false, hook);
+      expect(run.invoked).toEqual([command]);
+      expect(() => expectRefusal(run, false)).toThrow();
+    },
+  );
+});
+
 // Linked worktrees share one stash stack. lint-staged's default backup stores
 // a stash and later applies or drops it by an index it looked up a moment
 // earlier, so a concurrent stash in another worktree can make it drop someone
 // else's entry. The hook must leave the stash stack alone entirely.
 describe('pre-commit hook leaves the shared stash stack alone', () => {
-  const lintStagedCli = path.join(
-    repoRoot,
-    'node_modules/lint-staged/bin/lint-staged.js',
-  );
   const posixPath = (value: string) => value.replaceAll('\\', '/');
 
   function git(args: string[], cwd: string, input?: string): string {
@@ -148,14 +300,7 @@ describe('pre-commit hook leaves the shared stash stack alone', () => {
       }),
     );
     copyHookScripts(cwd);
-    // Only the npx launcher is local; it runs the installed lint-staged CLI.
-    const bin = path.join(cwd, 'bin');
-    fs.mkdirSync(bin);
-    fs.writeFileSync(
-      path.join(bin, 'npx'),
-      `#!/bin/sh\nshift\nexec "${posixPath(process.execPath)}" "${posixPath(lintStagedCli)}" "$@"\n`,
-      { mode: 0o755 },
-    );
+    linkLintStaged(cwd);
     return cwd;
   }
 
@@ -163,13 +308,11 @@ describe('pre-commit hook leaves the shared stash stack alone', () => {
   function gitCommandsRun(hook: string): string[] {
     const cwd = fixture();
     const trace = path.join(cwd, 'git-trace.log');
-    // The environment is inherited untouched. The inner shell prepends the
-    // fixture's bin (as $PWD/bin, valid in POSIX and MSYS shells) and turns
-    // on git's command trace for the hook only.
+    // The environment is inherited untouched; only the hook gets git tracing.
     const result = spawnHookShell(
       [
         '-c',
-        'PATH="$PWD/bin:$PATH" GIT_TRACE="$PWD/git-trace.log" exec sh -e "$1"',
+        'GIT_TRACE="$PWD/git-trace.log" exec sh -e "$1"',
         'sh',
         posixPath(hook),
       ],
@@ -198,11 +341,15 @@ describe('pre-commit hook leaves the shared stash stack alone', () => {
       'pre-commit',
     );
     const hook = fs.readFileSync(hookPath, 'utf8');
-    const command = 'npx lint-staged --no-stash $hide_flag ||';
+    const command =
+      'node node_modules/lint-staged/bin/lint-staged.js --no-stash $hide_flag ||';
     expect(hook).toContain(command);
     fs.writeFileSync(
       mutant,
-      hook.replace(command, 'npx lint-staged $hide_flag ||'),
+      hook.replace(
+        command,
+        'node node_modules/lint-staged/bin/lint-staged.js $hide_flag ||',
+      ),
     );
     expect(gitCommandsRun(mutant).filter(usesStash).length).toBeGreaterThan(0);
   });
