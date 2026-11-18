@@ -328,7 +328,8 @@ number rather than list position, so a peer opening or closing cannot move a
 continuously eligible PR between buckets while S stays constant. While S stays
 constant for S consecutive runs, every continuously eligible non-draft PR is
 visited within S runs, provided its bucket finishes within the request/time
-budget. The staleness period is ceil(N/5) runs as a function of N (60 PRs: 12
+budget. A run replaced while pending (see the concurrency group below)
+extends that bucket's gap to at most 2S - 1 runs. The staleness period is ceil(N/5) runs as a function of N (60 PRs: 12
 runs; two PRs: S = 1 and both selected every run). S changes only when N crosses
 a multiple of five. Under adversarial churn that flips S every run there is
 no hard bound. Unreached PRs are explicitly reported on every completed run.
@@ -398,8 +399,9 @@ in the complete policy log. Runs are serialized in the workflow-level
 `ci-budget-reconcile` group with `cancel-in-progress: false`: without it, a
 manual dispatch during a scheduled run, or a delayed cron run, could overwrite
 the running sweep's write and turn that run's readback red. A running sweep is
-never cancelled; GitHub may replace a waiting run, which is harmless because the
-next sweep covers its bucket and event publishers stay unqueued. Cost is about one one-minute
+never cancelled; GitHub may replace a waiting run, which is harmless because
+buckets rotate by run number: the replaced run's bucket is covered on the next
+rotation, up to S runs later, and event publishers stay unqueued. Cost is about one one-minute
 public-repository job per hour; actual duration depends on the open PR census.
 The workflow appears under `otherEvents` in the census and budget report and
 does not consume `typicalPrJobs`.

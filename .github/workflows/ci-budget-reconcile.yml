@@ -9,8 +9,8 @@ permissions: {}
 
 # Runs are serialized: a manual dispatch or a delayed cron run waits for the
 # running sweep, so one run cannot overwrite another's write and turn that
-# run's readback red. A replaced pending run is harmless; the next sweep
-# covers its bucket.
+# run's readback red. A replaced pending run is harmless: buckets rotate by
+# run number, so its bucket is covered on the next rotation, up to S runs later.
 concurrency:
   group: ci-budget-reconcile
   cancel-in-progress: false
