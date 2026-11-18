@@ -37,6 +37,10 @@ import {
 } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import {
+  legacyCombatStateFlagKey,
+  pendingQuarantineKey,
+} from '@/types/campaign/LegacyCombatStateMigration';
 import { createMission as createCampaignMission } from '@/types/campaign/Mission';
 
 import type {
@@ -415,8 +419,23 @@ export default function CampaignDashboardPage(): React.ReactElement {
 
       <LegacyCombatStateFlagsBanner
         flags={liveCampaign?.legacyCombatStateFlags}
-        onDismiss={() =>
-          store.getState().updateCampaign({ legacyCombatStateFlags: [] })
+        pendingQuarantineKeys={
+          new Set(
+            (liveCampaign?.pendingQuarantineRecords ?? []).map(
+              pendingQuarantineKey,
+            ),
+          )
+        }
+        onDismiss={(dismissed) =>
+          store.getState().updateCampaign({
+            legacyCombatStateFlags: (
+              liveCampaign?.legacyCombatStateFlags ?? []
+            ).filter(
+              (flag) =>
+                legacyCombatStateFlagKey(flag) !==
+                legacyCombatStateFlagKey(dismissed),
+            ),
+          })
         }
       />
 

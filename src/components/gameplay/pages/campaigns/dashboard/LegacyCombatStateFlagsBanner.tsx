@@ -1,10 +1,15 @@
 /**
  * Legacy Combat State Flags Banner (T1)
  *
- * Older saves recorded battle damage under session unit ids. The load-time
- * migration moves what it can prove onto roster units; anything it could
- * not attribute is listed here until the player dismisses it. The original
- * states are kept on this device, outside the campaign save.
+ * Lists battle damage the campaign could not attribute to a roster unit:
+ * - `combat-state`: damage an older save recorded under a battle-session id
+ *   that the load migration could not match to a roster unit;
+ * - `unapplied-delta`: damage from a battle that was not applied to any
+ *   unit because no evidence names the unit.
+ * A copy is claimed to be kept on this device only once it is confirmed:
+ * older-save records are stored before the migration is adopted, and an
+ * unapplied delta once its pending quarantine write has resolved. Each
+ * entry is dismissed on its own.
  *
  * Pure presentational — the dashboard wires the live campaign to it.
  */
@@ -30,11 +35,37 @@ const REASON_TEXT: Record<LegacyCombatStateFlagReason, string> = {
 
 export interface LegacyCombatStateFlagsBannerProps {
   readonly flags: readonly ILegacyCombatStateFlag[] | undefined;
-  readonly onDismiss: () => void;
+  /** `matchId|sessionUnitId` of unapplied deltas whose copy is not confirmed yet. */
+  readonly pendingQuarantineKeys: ReadonlySet<string>;
+  readonly onDismiss: (flag: ILegacyCombatStateFlag) => void;
+}
+
+function describeFlag(
+  flag: ILegacyCombatStateFlag,
+  pendingQuarantineKeys: ReadonlySet<string>,
+): string {
+  const lead =
+    flag.kind === 'combat-state'
+      ? `Damage recorded for ${flag.sessionUnitId} in an older save could not be matched to a roster unit`
+      : `Damage from battle ${flag.matchIds.join(', ')} to ${flag.sessionUnitId} could not be matched to a unit and was not applied`;
+  const candidates =
+    flag.candidateRosterUnitIds.length > 0
+      ? ` (possible units: ${flag.candidateRosterUnitIds.join(', ')})`
+      : '';
+  const confirmed =
+    flag.kind === 'combat-state' ||
+    flag.matchIds.every(
+      (matchId) =>
+        !pendingQuarantineKeys.has(`${matchId}|${flag.sessionUnitId}`),
+    );
+  return `${lead}: ${REASON_TEXT[flag.reason]}${candidates}.${
+    confirmed ? ' A copy is kept on this device.' : ''
+  }`;
 }
 
 export function LegacyCombatStateFlagsBanner({
   flags,
+  pendingQuarantineKeys,
   onDismiss,
 }: LegacyCombatStateFlagsBannerProps): React.ReactElement | null {
   if (!flags || flags.length === 0) return null;
@@ -44,46 +75,38 @@ export function LegacyCombatStateFlagsBanner({
       data-testid="legacy-combat-state-flags"
       role="status"
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="text-text-theme-primary">
-          <p className="text-sm font-semibold">
-            {flags.length} unit damage record{flags.length === 1 ? '' : 's'}{' '}
-            from an older save could not be matched to a roster unit
-          </p>
-          <ul className="text-text-theme-secondary mt-1 text-xs">
-            {flags.map((flag) => (
-              <li
-                key={legacyCombatStateFlagKey(flag)}
+      <p className="text-text-theme-primary text-sm font-semibold">
+        {flags.length} unit damage record{flags.length === 1 ? '' : 's'} could
+        not be matched to a roster unit
+      </p>
+      <ul className="mt-2 space-y-2">
+        {flags.map((flag) => {
+          const key = legacyCombatStateFlagKey(flag);
+          return (
+            <li key={key} className="flex items-start justify-between gap-4">
+              <p
+                className="text-text-theme-secondary text-xs"
                 data-testid={`legacy-combat-state-flag-${
-                  flag.kind === 'combat-state'
-                    ? flag.sessionUnitId
-                    : legacyCombatStateFlagKey(flag)
+                  flag.kind === 'combat-state' ? flag.sessionUnitId : key
                 }`}
               >
-                <span className="font-mono">{flag.sessionUnitId}</span>
-                {flag.kind === 'unapplied-delta'
-                  ? ` (battle ${flag.matchIds.join(', ')}): damage not applied to any unit, because `
-                  : ': '}
-                {REASON_TEXT[flag.reason]}
-                {flag.candidateRosterUnitIds.length > 0 &&
-                  ` (possible units: ${flag.candidateRosterUnitIds.join(', ')})`}
-              </li>
-            ))}
-          </ul>
-          <p className="text-text-theme-secondary mt-1 text-xs">
-            Check these units&apos; damage by hand. The original records are
-            kept on this device.
-          </p>
-        </div>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={onDismiss}
-          data-testid="legacy-combat-state-flags-dismiss"
-        >
-          Dismiss
-        </Button>
-      </div>
+                {describeFlag(flag, pendingQuarantineKeys)}
+              </p>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => onDismiss(flag)}
+                data-testid={`legacy-combat-state-flag-dismiss-${key}`}
+              >
+                Dismiss
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="text-text-theme-secondary mt-2 text-xs">
+        Check these units&apos; damage by hand.
+      </p>
     </div>
   );
 }

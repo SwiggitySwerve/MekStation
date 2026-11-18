@@ -1,5 +1,8 @@
 import type { ICoopSession } from '@/types/campaign/CoopSession';
-import type { ILegacyCombatStateFlag } from '@/types/campaign/LegacyCombatStateMigration';
+import type {
+  ILegacyCombatStateFlag,
+  IUnappliedDeltaQuarantineRecord,
+} from '@/types/campaign/LegacyCombatStateMigration';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
 export interface CampaignDashboardCampaign {
@@ -30,6 +33,8 @@ export interface CampaignDashboardCampaign {
   coopSession?: ICoopSession;
   /** T1: legacy combat states awaiting the player's review. */
   legacyCombatStateFlags?: readonly ILegacyCombatStateFlag[];
+  /** Unapplied deltas whose device copy is not confirmed yet. */
+  pendingQuarantineRecords?: readonly IUnappliedDeltaQuarantineRecord[];
 }
 
 /**
