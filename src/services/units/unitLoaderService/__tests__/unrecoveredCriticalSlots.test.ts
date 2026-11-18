@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import type { UnitState } from '@/stores/unitState';
 import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics';
 
 import { equipmentNameResolver } from '@/services/conversion/EquipmentNameResolver';
@@ -16,6 +17,7 @@ import {
   normalizeUnitSaveEquipmentIds,
   stringifyUnitSaveFingerprint,
 } from '@/stores/unitSaveFingerprints';
+import { LIBRARY_WRITER_VERSION } from '@/stores/unitSaveState';
 import { getEditorSaveState } from '@/stores/unitSaveStateAdapters';
 import {
   clearAllStores,
@@ -24,11 +26,15 @@ import {
 import { createUnitStore } from '@/stores/useUnitStore';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { Era } from '@/types/temporal/Era';
-import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
+import {
+  SOURCE_ONLY_FACTS,
+  serializeCustomUnitState,
+} from '@/utils/serialization/CustomUnitSerializer';
 
 import type { IRawSerializedUnit } from '../types';
 
 import crab from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/King Crab KGC-0000.json';
+import rifleman from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/Rifleman RFL-3N (Legend Killer 2).json';
 import celerity from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Celerity CLR-03-O.json';
 import scarecrow from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Scarecrow UCU-F4.json';
 import uni from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Uni ATAE-70 ArtilleryMech.json';
@@ -204,8 +210,10 @@ it('keeps pinned draft and source-cell save fingerprints independent of residual
   const state = loader.mapToUnitState(parseUnit(scarecrow), true);
   expect(state.unrecoveredCriticalSlots).toHaveLength(16);
   expect(getUnitDraftFingerprint(state)).toBe(SCARECROW_DRAFT_LITERAL);
-  // The A2 fixture differs from the retained pre-A2 library literal only in
-  // twelve native engine cells. Keep the old literal for receipt compatibility.
+  // The fixture differs from the retained pre-A2 library literal only in
+  // twelve native engine cells (A2), the persisted source quirks and
+  // publication source (S1), and the recovered Bloodhound and IS CASE II
+  // mounts (PR-D1). Keep the old literal for receipt compatibility.
   expect(getUnitLibraryFingerprint(state)).toBe(
     scarecrowSourceCells.libraryFingerprint,
   );
@@ -248,7 +256,13 @@ it('recognizes an unchanged pre-A2 receipt through the real source-cell writer c
   expect(
     getEditorSaveState({
       store: 'battlemech',
-      state: { ...state, model: 'UCU-F4 edited', librarySave: receipt },
+      // A store edit sets isModified, as every editor action does.
+      state: {
+        ...state,
+        model: 'UCU-F4 edited',
+        isModified: true,
+        librarySave: receipt,
+      },
     }).library.state,
   ).toBe('changed');
   const current = createLibrarySaveReceipt(state, {
@@ -268,4 +282,84 @@ it('recognizes an unchanged pre-A2 receipt through the real source-cell writer c
       state: { ...state, librarySave: legacy },
     }).library.state,
   ).toBe('unknown');
+});
+
+/** The pre-S1 writer: the same unit without the source facts S1 keeps. */
+function withoutSourceOnlyFacts(state: UnitState): UnitState {
+  const source = state.bvContext?.source;
+  if (!source) throw new Error('Expected a loaded source');
+  return {
+    ...state,
+    bvContext: {
+      ...state.bvContext,
+      source: Object.fromEntries(
+        Object.entries(source).filter(
+          ([key]) => !(SOURCE_ONLY_FACTS as readonly string[]).includes(key),
+        ),
+      ) as typeof source,
+    },
+  };
+}
+
+describe('library receipts from before the S1 writer version', () => {
+  const opened = () => loader.mapToUnitState(parseUnit(scarecrow), false);
+  const libraryState = (state: UnitState) =>
+    getEditorSaveState({ store: 'battlemech', state }).library.state;
+  /** A receipt the pre-S1 writer made: no writerVersion, no source facts. */
+  const legacyReceipt = (
+    state: UnitState,
+    draftFingerprint = getUnitDraftFingerprint(state),
+  ) => ({
+    id: 'pre-s1-library-copy',
+    version: 4,
+    fingerprint: getUnitLibraryFingerprint(withoutSourceOnlyFacts(state)),
+    draftFingerprint,
+  });
+
+  it('(a) reads a freshly opened unit whose saved form gains quirks as saved-older-writer', () => {
+    const state = opened();
+    expect(state.isModified).toBe(false);
+    expect(state.bvContext?.source.quirks).toEqual(scarecrow.quirks);
+    const receipt = legacyReceipt(state);
+    expect(getUnitLibraryFingerprint(state)).not.toBe(receipt.fingerprint);
+    expect(libraryState({ ...state, librarySave: receipt })).toBe(
+      'saved-older-writer',
+    );
+    // Also when the receipt's draft baseline came from an older editor.
+    expect(
+      libraryState({
+        ...state,
+        librarySave: legacyReceipt(state, 'older-editor-draft'),
+      }),
+    ).toBe('saved-older-writer');
+  });
+
+  it('(b) reads the same receipt after a real edit as changed', () => {
+    const store = createUnitStore(opened());
+    const receipt = legacyReceipt(store.getState());
+    store.setState({ librarySave: receipt });
+    store.getState().setHeatSinkCount(store.getState().heatSinkCount + 1);
+    expect(store.getState().isModified).toBe(true);
+    expect(libraryState(store.getState())).toBe('changed');
+  });
+
+  it('(c) reads a receipt from this writer as matched', () => {
+    const state = opened();
+    const receipt = createLibrarySaveReceipt(state, {
+      id: 'current-library-copy',
+      version: 5,
+    });
+    expect(receipt.writerVersion).toBe(LIBRARY_WRITER_VERSION);
+    expect(libraryState({ ...state, librarySave: receipt })).toBe('matched');
+  });
+
+  it('(d) reads a legacy receipt on a unit S1 does not change as matched', () => {
+    const state = loader.mapToUnitState(parseUnit(rifleman), false);
+    expect(
+      SOURCE_ONLY_FACTS.filter((key) => state.bvContext?.source[key]),
+    ).toEqual([]);
+    const receipt = legacyReceipt(state);
+    expect(receipt.fingerprint).toBe(getUnitLibraryFingerprint(state));
+    expect(libraryState({ ...state, librarySave: receipt })).toBe('matched');
+  });
 });
