@@ -200,7 +200,7 @@ with its name and all three event types, without adding counted jobs.
 
 After every actual success write (approval or final `Lint and Test`), the
 publisher re-reads through its recording client and checks the triggering PR's
-head/base/labels, then re-lists and re-evaluates all open exact-head associated
+head/base/labels/state, then re-lists and re-evaluates all open exact-head associated
 PRs into `main`, including fresh owner reviews. Any refusal or changed triggering snapshot corrects that context to failure
 on the same evaluated SHA. A head change found after success fails the job,
 without the pure superseded-head exemption. The log identifies each PR so
@@ -263,7 +263,7 @@ applied. The two contexts have different meanings:
 | `Lint and Test` policy status | Policy passes; head-bound primary run and fresh aggregator check completed successfully | Success                                                          |
 | `Lint and Test` policy status | Policy passes; head-bound primary run completed unsuccessfully                          | Failure                                                          |
 | `Lint and Test` policy status | Policy passes; primary pending/in progress, or no proven completed verdict yet          | No write; `skipped: checks in progress`                          |
-| Either                        | Head/base/labels change during evaluation or verification                               | Failure requested on the evaluated head only; never the new head |
+| Either                        | Head/base/labels/state change during evaluation or verification                         | Failure requested on the evaluated head only; never the new head |
 | Either                        | Ineligible, unbound, or superseded before evaluation starts                             | No evaluation or write                                           |
 
 | Context                       | Current state | Wanted failure | Wanted success                                     |

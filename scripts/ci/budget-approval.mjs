@@ -118,8 +118,10 @@ export async function checkBudgetPolicy({
   // head; the new head carries no status from this run, so the required
   // `Lint and Test` context is absent there (blocked) until its own run reports.
   // On a label or base change with the same head, evaluated and current are the
-  // same SHA, so a revoked label still fails that head.
+  // same SHA, so a revoked label still fails that head. A PR that closes
+  // during evaluation is a changed context too, so it never gets a success.
   const changedContext = (current, message) =>
+    current.state !== initial.state ||
     current.head.sha !== initial.head.sha ||
     current.base.sha !== initial.base.sha ||
     labelKey(current) !== labelKey(initial)
@@ -212,8 +214,10 @@ export async function checkBudgetPolicy({
   phase = 'after';
   const { data: fresh } = await readPr(parameters);
   result =
-    changedContext(fresh, 'PR head/base/labels changed; rerun required') ??
-    result;
+    changedContext(
+      fresh,
+      'PR head/base/labels/state changed; rerun required',
+    ) ?? result;
   if (publish) {
     // Commit statuses are shared by all PRs at this SHA. Evaluate every open
     // associated PR into main, not only the event's PR, using the same policy.
