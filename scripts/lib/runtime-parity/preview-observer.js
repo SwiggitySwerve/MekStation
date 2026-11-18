@@ -25,7 +25,11 @@
 // Relative imports only, and in this order (they sort that way): ./install-mocks registers the mocks before ./preview-view
 // loads the product modules. install-mocks.test-order guards it.
 import { probe } from './install-mocks';
-import { checkSheetCalculation, previewFailure } from './observation.cjs';
+import {
+  checkCanvasMockCleared,
+  checkSheetCalculation,
+  previewFailure,
+} from './observation.cjs';
 import {
   cleanup,
   getRecordSheetService,
@@ -49,6 +53,8 @@ export function createPreviewObserver() {
   async function observe(store) {
     extracted.length = 0;
     probe.bv = null; // the mechBV calculator probe: what the preview's own calculation did
+    // The previous unit's canvases were released (see the finally below and checkCanvasMockCleared).
+    checkCanvasMockCleared(HTMLCanvasElement.prototype.getContext);
     try {
       await renderPreviewTab(store);
       const data = extracted.at(-1);
@@ -69,6 +75,9 @@ export function createPreviewObserver() {
       return checkSheetCalculation(header, probe.bv);
     } finally {
       cleanup();
+      // The getContext jest.fn from jest.setup.js records every canvas, which keeps this unit's unmounted PreviewTab
+      // tree reachable. Setup's beforeEach clear runs once for the capture's one test, so clear it per unit.
+      HTMLCanvasElement.prototype.getContext.mockClear?.();
     }
   }
 

@@ -13,15 +13,14 @@ import {
 } from '../dayPipeline';
 
 /**
- * Apply auto-award grants to the canonical vault `IPilot.awards`.
+ * Apply auto-award grants to the canonical vault `IPilot.awards`, in memory
+ * only. Returns the ids of the vault pilots that gained awards; the caller
+ * persists them with `persistPilotAwards` once the grants stand.
  *
  * Council #2 ruling: vault is the single source of truth for awards. We
  * write directly to `usePilotStore` via `setState` (mirrors the pattern
  * used by `useCampaignRosterStore.applyPilotPatches`) so the change is
- * observable synchronously by selectors and tests; we then fire the REST
- * `updatePilot` action to persist the new awards to SQLite. The REST call
- * is fire-and-forget — the in-memory state is already correct, so a
- * transient network failure will not regress the day-tick UI banner.
+ * observable synchronously by selectors and tests.
  *
  * Idempotency: `processAutoAwards` already filters out non-stackable
  * awards a pilot already owns via `pilotHasAward(pilot, awardId)`, so a
@@ -38,11 +37,11 @@ import {
  * canonical; ICampaignRosterEntry has no `awards` field today and adding
  * one would duplicate state.
  */
-function applyAwardGrants(
+function writeAwardGrants(
   campaign: ICampaign,
   grantEvents: IAwardGrantEvent[],
-): ICampaign {
-  if (grantEvents.length === 0) return campaign;
+): readonly string[] {
+  if (grantEvents.length === 0) return [];
 
   // Group new awards by personId so a pilot earning multiple awards in
   // one tick gets a single concatenated update (rather than N PUTs).
@@ -79,17 +78,49 @@ function applyAwardGrants(
     }),
   }));
 
-  // Async fire-and-forget REST persistence. Snapshots the post-setState
-  // state so the PUT body carries the merged awards array. We deliberately
-  // do not await — the day pipeline is sync, and a SQLite hiccup must not
-  // block the day tick.
-  const pilotStore = usePilotStore.getState();
-  grantsByPilotId.forEach((_newAwards, pilotId) => {
-    const pilot = pilotStore.pilots.find((p) => p.id === pilotId);
-    if (!pilot) return;
-    void pilotStore.updatePilot(pilotId, { awards: pilot.awards });
-  });
+  return [...grantsByPilotId.keys()];
+}
 
+/**
+ * Persist the vault awards of `pilotIds` through the REST `updatePilot`
+ * action (SQLite). Fire-and-forget: the in-memory vault is already right,
+ * so a transient network failure does not regress the UI. Each PUT carries
+ * the pilot's whole current awards array, so a repeat converges.
+ *
+ * Never call this from inside the day pipeline: a day that fails after it
+ * would be rolled back in memory while the server kept the award, and the
+ * PUT's reload would bring it back. The store calls `persistDayAwardGrants`
+ * once the day stands.
+ */
+function persistPilotAwards(pilotIds: Iterable<string>): void {
+  const pilotStore = usePilotStore.getState();
+  for (const pilotId of new Set(pilotIds)) {
+    const pilot = pilotStore.pilots.find((p) => p.id === pilotId);
+    if (!pilot) continue;
+    void pilotStore.updatePilot(pilotId, { awards: pilot.awards });
+  }
+}
+
+/**
+ * Persist the awards a day granted (its `award_granted` events). Called by
+ * the store after the day's save, never by the pipeline.
+ */
+export function persistDayAwardGrants(events: readonly IDayEvent[]): void {
+  const pilotIds: string[] = [];
+  for (const event of events) {
+    if (event.type !== 'award_granted') continue;
+    const personId = event.data?.personId;
+    if (typeof personId === 'string') pilotIds.push(personId);
+  }
+  persistPilotAwards(pilotIds);
+}
+
+/** Grant outside the day pipeline: write the vault, then persist at once. */
+function applyAwardGrants(
+  campaign: ICampaign,
+  grantEvents: IAwardGrantEvent[],
+): ICampaign {
+  persistPilotAwards(writeAwardGrants(campaign, grantEvents));
   return campaign;
 }
 
@@ -102,8 +133,10 @@ export const autoAwardsProcessor: IDayProcessor = {
       return { events: [], campaign };
     }
 
+    // In memory only: the store persists the grants (persistDayAwardGrants)
+    // once the day is saved, so a failed day leaves nothing on the server.
     const grantEvents = processAutoAwards(campaign, 'monthly');
-    const updatedCampaign = applyAwardGrants(campaign, grantEvents);
+    writeAwardGrants(campaign, grantEvents);
 
     const dayEvents: IDayEvent[] = grantEvents.map((event) => ({
       type: 'award_granted',
@@ -117,7 +150,7 @@ export const autoAwardsProcessor: IDayProcessor = {
       },
     }));
 
-    return { events: dayEvents, campaign: updatedCampaign };
+    return { events: dayEvents, campaign };
   },
 };
 

@@ -608,7 +608,7 @@ describe('K13 rollback of an unsaved day', () => {
     expect(usePilotStore.getState().pilots[0].name).toBe('Renamed');
   });
 
-  it('(R8) a processor that throws inside the pipeline is still skipped, with no rollback', async () => {
+  it('(R8) a processor that throws fails the day: nothing saved, every store restored, the failure shown (T6)', async () => {
     const throwing: IDayProcessor = {
       id: 'k13-throws',
       phase: DayPhase.EVENTS,
@@ -618,13 +618,79 @@ describe('K13 rollback of an unsaved day', () => {
       },
     };
     const world = await buildWorld(false, [throwing]);
+    const before = observe(world);
+    const save = jest.fn(world.store.getState().saveCampaign);
+    world.store.setState({ saveCampaign: save });
 
-    const report = world.store.getState().advanceDay();
+    let report: unknown;
+    expect(() => {
+      report = world.store.getState().advanceDay();
+    }).not.toThrow();
 
-    expect(report).not.toBeNull();
+    expect(report).toBeNull();
+    expect(save).not.toHaveBeenCalled();
+    const after = observe(world);
+    expect(after.campaign).toBe(before.campaign);
+    expect(after.pending).toBe(before.pending);
+    expect(after.processed).toBe(before.processed);
+    expect(after.errors).toBe(before.errors);
+    expect(after.activityLog).toBe(before.activityLog);
+    // The roster and vault writes of the processors that ran before it are
+    // taken back too.
+    expect(after.pilots).toBe(before.pilots);
+    expect(after.vault).toBe(before.vault);
+    expect([...(after.missions?.keys() ?? [])]).toEqual([]);
+    expect(after.cache).toBe(before.cache);
+    expect(currentPilot().xp).toBe(0);
+    expect(world.store.getState().dayAdvanceInFlight).toBe(false);
+    const shown = toastMessages().join('\n');
+    expect(shown).toMatch(/not saved/i);
+    expect(shown).toMatch(/k13-throws/);
+    expect(shown).toMatch(/processor exploded/);
+    expect(shown).not.toMatch(/Battle m-bad/);
+  });
+
+  it('(R8b) advanceDays(3) with day 2 failing keeps day 1 and stops at day 2 (T6)', async () => {
+    const processedDates: string[] = [];
+    let failOn: number | null = null;
+    const failsOnDayTwo: IDayProcessor = {
+      id: 'k13-day-two',
+      phase: DayPhase.EVENTS,
+      displayName: 'K13 day two',
+      process(campaign, date) {
+        processedDates.push(date.toISOString());
+        if (failOn === null) failOn = date.getTime() + DAY_MS;
+        if (date.getTime() === failOn) {
+          throw new Error('day two exploded');
+        }
+        return { campaign, events: [] };
+      },
+    };
+    const world = await buildWorld(false, [failsOnDayTwo]);
+    const start = world.store.getState().campaign!.currentDate.getTime();
+    const save = jest.fn(world.store.getState().saveCampaign);
+    world.store.setState({ saveCampaign: save });
+
+    const reports = await world.store.getState().advanceDays(3);
+
+    expect(reports).not.toBeNull();
+    expect(reports!.map((r) => r.date.getTime())).toEqual([start]);
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(world.store.getState().campaign!.currentDate.getTime()).toBe(
+      start + DAY_MS,
+    );
+    // Day 1 stands; day 3 never ran.
+    expect(processedDates).toEqual([
+      new Date(start).toISOString(),
+      new Date(start + DAY_MS).toISOString(),
+    ]);
     expect(currentPilot().xp).toBe(10);
     expect(world.store.getState().processedBattleIds).toEqual(['m-1']);
-    expect(toastMessages().join('\n')).not.toMatch(/not saved/i);
+    expect(world.store.getState().dayAdvanceInFlight).toBe(false);
+    const shown = toastMessages().join('\n');
+    expect(shown).toMatch(/not saved/i);
+    expect(shown).toMatch(/k13-day-two/);
+    expect(shown).toMatch(/day two exploded/);
   });
 });
 
