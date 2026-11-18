@@ -91,6 +91,8 @@ interface IFakeServer {
   credentialRefusals?: number;
   /** Every request, in order, as `METHOD url`. */
   readonly requests: string[];
+  /** The campaign date each campaign PUT carried, in order. */
+  readonly putDates: string[];
   /** The server's pilot rows. */
   readonly pilots: Map<string, IPilot>;
 }
@@ -141,6 +143,7 @@ function stubServer(server: IFakeServer): void {
           envelope: SerializedCampaign;
           baseVersion: number;
         };
+        server.putDates.push(body.envelope.body.currentDate);
         const current = server.record?.version ?? 0;
         if (body.baseVersion !== current) {
           // The item route's typed conflict body (pages/api/campaigns/[id].ts).
@@ -197,7 +200,7 @@ interface IControlledHost {
   readonly transportError: (message: string) => void;
   /** The host commits a guest proposal: the record moves a version. */
   readonly commitGuestRename: (name: string) => void;
-  readonly refuse: (reason: string) => void;
+  readonly refuse: (reason: string, code?: string) => void;
 }
 
 function controlledHost(server: IFakeServer): IControlledHost {
@@ -276,11 +279,11 @@ function controlledHost(server: IFakeServer): IControlledHost {
         body: { ...record.body, name },
       };
     },
-    refuse: (reason) => {
+    refuse: (reason, code = 'INVALID_INTENT') => {
       emit({
         kind: 'Error',
         intentId: sent[sent.length - 1].intentId,
-        code: 'refused',
+        code,
         reason,
       } as unknown as IServerMessage);
     },
@@ -504,6 +507,7 @@ async function buildWorld(pending: readonly ICombatOutcome[] = []) {
     putMode: 'ok',
     getMode: 'ok',
     requests: [],
+    putDates: [],
     pilots: new Map([[VAULT_ID, vault]]),
   };
   stubServer(server);
@@ -587,7 +591,9 @@ describe('T6 co-op host computes the day before the host commits it', () => {
     expect(dayMs()).toBe(startDate);
     expect(currentPilot().xp).toBe(0);
     expect(vaultAwards()).toBe(0);
-    expect(toastMessages().join('\n')).toMatch(/refused by the host: not now/);
+    expect(toastMessages().join('\n')).toMatch(
+      /refused by the host: the host could not apply it\. Nothing was saved\./,
+    );
 
     host.onIntent = () => host.commit();
     expect(await store.getState().advanceDay()).not.toBeNull();
@@ -1136,7 +1142,8 @@ describe('T6 co-op: re-review findings (r5)', () => {
   // and the held campaign are gone (memory only), so the next advance starts
   // D+1 and day D's processors never run.
   it.skip('[C4 atomicity OPEN: reload] (F3) after a reload, a late commit the host surface folded in cannot be finished here', () => {
-    // Needs a persisted unsettled intent; out of T6 scope (C4 atomicity).
+    // Once C4's OPEN lands: after a reload, a late commit the surface folded
+    // in still runs day D's processors exactly once.
   });
 });
 
@@ -1355,16 +1362,54 @@ describe('T6 co-op: a day the host committed is finished from the held D campaig
   });
 
   it.skip('[C4 atomicity OPEN: retry confirmation] (HELD-GONE) without the held D campaign, a retry at D+1 does not advance and says the host advanced the day', () => {
-    // The held D campaign and its unsettled intent were removed in r8: there
-    // is no retry to finish the day until the host confirms a resent intent.
+    // Once C4's OPEN lands: with the host's D+1 live and day D unfinished
+    // here, Advance does not start D+1 and says the host advanced the day.
   });
 });
 
-describe('T6 co-op: advanceDays after a recoverable day save (B-3, r8)', () => {
+describe('T6 co-op: advanceDays and the post-commit install tail (B-3, r8/r9)', () => {
   beforeEach(resetWorld);
   afterEach(resetWorld);
 
-  it('(B-3) a day save refused for want of a credential stands; advanceDays\u2019 extra attempt advances the next day and never applies day D twice', async () => {
+  it.each([
+    [
+      'CAMPAIGN_NOT_CONVERGED',
+      'participants-behind guest-player:0; requiredRevision 1',
+      /not every player has caught up with the campaign yet\. Nothing was saved here\. The host may already have advanced the day; reload the campaign before trying again\./,
+    ],
+    [
+      'CAMPAIGN_STALE_HEAD',
+      'stale-head',
+      /the campaign changed on the host\. Nothing was saved\. Reload the campaign before trying again\./,
+    ],
+    [
+      'AUTH_REJECTED',
+      'campaign-host-intent-requires-host',
+      /only the host player can advance the day\. Nothing was saved\./,
+    ],
+    [
+      'SOMETHING_NEW',
+      'raw-server-detail',
+      /the host could not apply it\. Nothing was saved\./,
+    ],
+  ])(
+    '(REFUSAL-WORDS) a %s refusal is shown in plain words, never the raw server reason',
+    async (code, reason, words) => {
+      const { store, host } = await buildWorld();
+      host.onIntent = (intent) => {
+        if (intent.kind === 'AdvanceDay') host.refuse(reason, code);
+      };
+
+      expect(await store.getState().advanceDay()).toBeNull();
+
+      const shown = toastMessages().join(' | ');
+      expect(shown).toMatch(words);
+      expect(shown).not.toContain(reason);
+      expect(shown).not.toContain(code);
+    },
+  );
+
+  it('(B-3) a day save refused for want of a credential stands; advanceDays stops there, and the next Advance starts D+1 without applying day D twice', async () => {
     const { store, server, host, startDate } = await buildWorld();
     const days: string[] = [];
     const processDay = getDayPipeline().processDay;
@@ -1374,8 +1419,20 @@ describe('T6 co-op: advanceDays after a recoverable day save (B-3, r8)', () => {
         days.push(campaign.currentDate.toISOString());
         return processDay(campaign);
       });
+    // The host commits each intent once; a resent (already committed) intent
+    // is refused at once, so a recompute of day D fails this test on its own
+    // assertions instead of waiting out the host deadline.
+    const committed = new Set<string>();
+    const replayed: string[] = [];
     host.onIntent = (intent) => {
-      if (intent.kind === 'AdvanceDay') host.commit();
+      if (intent.kind !== 'AdvanceDay') return;
+      if (committed.has(intent.intentId)) {
+        replayed.push(intent.intentId);
+        host.refuse('replayed');
+        return;
+      }
+      committed.add(intent.intentId);
+      host.commit();
     };
     // The first day's save is refused for want of a credential; the
     // persistence layer keeps it pending and the day stands here.
@@ -1386,16 +1443,85 @@ describe('T6 co-op: advanceDays after a recoverable day save (B-3, r8)', () => {
 
     const d = new Date(startDate).toISOString();
     const next = new Date(startDate + DAY_MS).toISOString();
-    // Day D once, then the next day - never D again.
+    // The run stops on the day that was not committed.
+    expect(reports).toBeNull();
+    expect(days).toEqual([d]);
+    expect(dayMs()).toBe(startDate + DAY_MS);
+    expect(currentPilot().xp).toBe(10);
+    expect(vaultAwards()).toBe(1);
+
+    // The next Advance saves the pending day first and starts D+1.
+    expect(await store.getState().advanceDay()).not.toBeNull();
+    await settle();
+
     expect(days).toEqual([d, next]);
+    expect(replayed).toEqual([]);
     expect(
       host.sent.filter((i) => i.kind === 'AdvanceDay').map((i) => i.intentId),
     ).toEqual([expect.stringContaining(d), expect.stringContaining(next)]);
-    expect(reports).toHaveLength(1);
     expect(dayMs()).toBe(startDate + 2 * DAY_MS);
-    // Two days' patches and awards: one for D, one for D+1.
     expect(currentPilot().xp).toBe(20);
     expect(vaultAwards()).toBe(2);
     expect(pilotPuts(server)).toHaveLength(2);
+  });
+
+  it('(ADVDAYS-STOP) advanceDays(3) stops after a day the host committed but this client could not save: no further AdvanceDay', async () => {
+    const { store, server, host, startDate } = await buildWorld();
+    host.onIntent = (intent) => {
+      if (intent.kind !== 'AdvanceDay') return;
+      host.commit();
+      // Every day save after the commit fails.
+      server.putMode = 'fail';
+    };
+
+    const reports = await store.getState().advanceDays(3);
+    await settle();
+
+    expect(reports).toBeNull();
+    expect(host.sent.filter((i) => i.kind === 'AdvanceDay')).toHaveLength(1);
+    expect(recordDayMs(server)).toBe(startDate + DAY_MS);
+    expect(currentPilot().xp).toBe(0);
+    expect(vaultAwards()).toBe(0);
+    expect(toastMessages().join('\n')).toMatch(
+      /but the host has advanced the day\. Reload the campaign before you go on\./,
+    );
+  });
+
+  it('(XTHROW) a throw in the install tail after the commit leaves the host record live: the next Advance never saves day D over D+1', async () => {
+    const { store, server, host, startDate } = await buildWorld();
+    host.onIntent = (intent) => {
+      if (intent.kind === 'AdvanceDay') host.commit();
+    };
+    // The day's own save throws synchronously, after the day was installed.
+    const save = store.getState().saveCampaign;
+    let throwOnce = true;
+    store.setState({
+      saveCampaign: () => {
+        if (throwOnce) {
+          throwOnce = false;
+          throw new Error('install tail exploded');
+        }
+        return save();
+      },
+    });
+
+    expect(await store.getState().advanceDay()).toBeNull();
+    // The live campaign is the host's D+1 record, not the pre-commit D.
+    expect(dayMs()).toBe(startDate + DAY_MS);
+    expect(currentPilot().xp).toBe(0);
+    expect(vaultAwards()).toBe(0);
+
+    const putsBefore = server.putDates.length;
+    expect(await store.getState().advanceDay()).not.toBeNull();
+    await settle();
+
+    // No save carried day D after the host's commit.
+    expect(
+      server.putDates
+        .slice(putsBefore)
+        .filter((date) => Date.parse(date) === startDate),
+    ).toEqual([]);
+    expect(recordDayMs(server)).toBe(startDate + 2 * DAY_MS);
+    expect(currentPilot().xp).toBe(10);
   });
 });

@@ -261,8 +261,13 @@ describe('U96 co-op host day advance: the command first, then the save', () => {
     expect(run.reportReturned).toBe(false);
     expect(run.dateAfter).toBe(run.dateBefore);
     expect(run.record).toEqual({ version: 1, currentDate: run.dateBefore });
+    // T6 (C8 r9): the refusal is reported in plain words, never the raw
+    // server reason.
     expect(run.toasts).toEqual([
-      expect.stringContaining('progression-blocked-behind'),
+      expect.stringContaining(
+        'not every player has caught up with the campaign yet',
+      ),
     ]);
+    expect(run.toasts.join(' ')).not.toContain('progression-blocked-behind');
   });
 });

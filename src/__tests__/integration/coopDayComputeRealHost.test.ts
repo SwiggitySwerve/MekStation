@@ -2,9 +2,16 @@
  * T6 against the real co-op host: the day is computed before AdvanceDay is
  * sent, the real CampaignHostRegistry / bindCampaignSyncConnection commits it
  * once, and the computed day is saved at the version the host's commit
- * left the record at. No processor runs twice. A resend of the committed
- * intent is replayed by the host from its receipt with no answer frame
- * (B-1), which is why T6 makes no retry promise.
+ * left the record at. No processor runs twice.
+ *
+ * A resend of the committed intent is never committed again, and the host
+ * answers it by one of two paths, each proved by its own case:
+ * - convergence gate: the guest has not acknowledged the commit's revision,
+ *   so refuseUnconvergedProgression refuses the resend with an Error frame
+ *   (CAMPAIGN_NOT_CONVERGED) carrying the intent id;
+ * - receipt replay: the guest has acknowledged it, so applyHostIntent
+ *   replays the resend from its receipt and sends no frame at all (B-1).
+ * Neither answers with a commit, which is why T6 makes no retry promise.
  *
  * The campaign record server is a fetch stub, as in
  * coopMutationPersistence.test.ts. The host here has no SQLite record, so
@@ -135,11 +142,29 @@ describe('T6 compute-first against the real co-op host', () => {
   afterEach(resetWorld);
 
   it.each([
-    ['snapshot-authority (the record does not move on the commit)', false],
-    ['journal-native (the commit rewrites the record at +1, emulated)', true],
-  ])(
+    [
+      'snapshot-authority, resend refused by the convergence gate',
+      false,
+      'convergence-gate',
+    ],
+    [
+      'journal-native (record rewrite emulated), resend refused by the convergence gate',
+      true,
+      'convergence-gate',
+    ],
+    [
+      'snapshot-authority, resend replayed from the receipt',
+      false,
+      'receipt-replay',
+    ],
+    [
+      'journal-native (record rewrite emulated), resend replayed from the receipt',
+      true,
+      'receipt-replay',
+    ],
+  ] as const)(
     '%s: computed before the send, one AdvanceDay committed, saved at the host version, no processor twice',
-    async (_name, journalNative) => {
+    async (_name, journalNative, resendPath) => {
       const store = useCampaignStore();
       store.getState().createCampaign('T6 Real Host', 'mercenary', undefined, {
         coopSession: createHostCoopSession(ROOM_CODE, MATCH_ID),
@@ -285,11 +310,43 @@ describe('T6 compute-first against the real co-op host', () => {
         campaign.currentDate.getTime() + DAY_MS,
       );
 
-      // B-1: the real host replays a resent committed intent from its
-      // receipt and answers nothing; the day is not committed again.
+      // The resend of the committed intent.
+      if (resendPath === 'receipt-replay') {
+        // The guest acknowledges the revision of the commit it applied, so
+        // the convergence gate lets the resend through to the receipt.
+        const applied = [...guestSocket.sent].reverse().find(isDayAdvanced) as
+          | { readonly event: { readonly sequence: number } }
+          | undefined;
+        expect(applied).toBeDefined();
+        guestSocket.inbound({
+          kind: 'CampaignAck',
+          matchId: MATCH_ID,
+          ts: new Date().toISOString(),
+          playerId: GUEST_PLAYER_ID,
+          campaignId: campaign.id,
+          revision: applied!.event.sequence,
+        });
+        await flushAsyncHandlers();
+      }
+      const before = hostSocket.sent.length;
       transport.sendHostIntent(lastIntent as never);
       await flushAsyncHandlers();
       await new Promise((resolve) => setTimeout(resolve, 20));
+      const answer = hostSocket.sent.slice(before);
+      if (resendPath === 'convergence-gate') {
+        // refuseUnconvergedProgression (bindCampaignSyncConnection).
+        expect(answer).toEqual([
+          expect.objectContaining({
+            kind: 'Error',
+            code: 'CAMPAIGN_NOT_CONVERGED',
+            intentId: (lastIntent as unknown as { intentId: string }).intentId,
+          }),
+        ]);
+      } else {
+        // applyHostIntent's receipt replay: no answer frame at all (B-1).
+        expect(answer).toEqual([]);
+      }
+      // Either way the day is not committed again.
       expect(hostSocket.sent.filter(isDayAdvanced)).toHaveLength(1);
       expect(entry.host.getState().day).toBe(hostDayBefore + 1);
       expect(trail.filter((step) => step.startsWith('compute'))).toHaveLength(

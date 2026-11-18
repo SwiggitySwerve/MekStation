@@ -41,8 +41,11 @@ import { useCampaignRosterStore } from './useCampaignRosterStore';
  * How long the co-op host has to answer an AdvanceDay intent. The host's own
  * commit is a local journal append; half a minute is past any healthy answer.
  * The intent id derives from the campaign's current date, so sending it again
- * is the same command: the host replays it from its receipt and does not
- * commit a second day - and sends no answer frame, so the resend times out.
+ * is the same command, and the host never commits a second day for it. It
+ * answers a resend in one of two ways: while a joined participant has not
+ * acknowledged the commit, its convergence gate refuses it
+ * (CAMPAIGN_NOT_CONVERGED with the intent id); once all have, it replays it
+ * from its receipt and sends no answer frame, so the resend times out.
  */
 export const COOP_ADVANCE_TIMEOUT_MS = 30_000;
 
@@ -147,7 +150,7 @@ export async function advanceCoopDayThroughHost(
   if (answer.kind === 'refused') {
     discard();
     toast({
-      message: `Co-op day advance was refused by the host: ${answer.reason}. Nothing was saved.`,
+      message: refusalMessage(answer.code),
       variant: 'error',
       duration: 7000,
     });
@@ -218,16 +221,17 @@ export async function advanceCoopDayThroughHost(
     });
     return null;
   }
-  // What a failed save puts back. Its campaign is `base`, the D campaign the
-  // day was computed from (the persistence layer's own rollback usually
-  // installs the host's record first, and a live copy that is not the one
-  // this attempt stored is kept). Its battle ledgers and roster are read
-  // after the refresh; the roster is the pre-compute one instead when the
-  // refresh left the computed roster in place (a snapshot-authority row the
-  // cache already names), since that roster carries the day's patches. A
-  // roster the refresh replaced is the record's, the day's real start (M5).
-  // The vault's is the one from before the compute.
-  const refreshed = captureDayAdvanceSnapshot(get, base);
+  // What a failed save puts back. The host has committed, so its campaign is
+  // the record the refresh installed (the host's D+1 with this client's
+  // battle ledgers), never the pre-commit D: a D left live over a baseVersion
+  // naming the host's D+1 row would be saved over it by the next Advance's
+  // pre-save. Its battle ledgers and roster are read after the refresh; the
+  // roster is the pre-compute one instead when the refresh left the computed
+  // roster in place (a snapshot-authority row the cache already names), since
+  // that roster carries the day's patches. A roster the refresh replaced is
+  // the record's, the day's real start (M5). The vault's is the one from
+  // before the compute.
+  const refreshed = captureDayAdvanceSnapshot(get, get().campaign as ICampaign);
   const installSnapshot: IDayAdvanceSnapshot = {
     ...refreshed,
     vaultPilots: snapshot.vaultPilots,
@@ -322,6 +326,25 @@ const toastHostAdvancedNotSaved: DayNotSavedReporter = (
     duration: 7000,
   });
 
+/**
+ * The player's words for a host refusal of AdvanceDay, by the Error frame's
+ * code (bindCampaignSyncConnection handleCampaignHostIntent). The raw server
+ * reason is not shown. The convergence gate also refuses a resend the host
+ * may already have committed, so that message says so.
+ */
+function refusalMessage(code: string): string {
+  switch (code) {
+    case 'CAMPAIGN_NOT_CONVERGED':
+      return 'Co-op day advance was refused by the host: not every player has caught up with the campaign yet. Nothing was saved here. The host may already have advanced the day; reload the campaign before trying again.';
+    case 'CAMPAIGN_STALE_HEAD':
+      return 'Co-op day advance was refused by the host: the campaign changed on the host. Nothing was saved. Reload the campaign before trying again.';
+    case 'AUTH_REJECTED':
+      return 'Co-op day advance was refused by the host: only the host player can advance the day. Nothing was saved.';
+    default:
+      return 'Co-op day advance was refused by the host: the host could not apply it. Nothing was saved.';
+  }
+}
+
 /** Tell the player when putting a discarded day back failed. */
 function toastIfRestoreFailed(restoreFailure: string | null): void {
   if (!restoreFailure) return;
@@ -335,15 +358,15 @@ function toastIfRestoreFailed(restoreFailure: string | null): void {
 /** The host's answer to an AdvanceDay intent, or its absence. */
 type AdvanceDayAnswer =
   | { readonly kind: 'committed' }
-  | { readonly kind: 'refused'; readonly reason: string }
+  | { readonly kind: 'refused'; readonly code: string }
   | { readonly kind: 'unconfirmed'; readonly reason: string }
   | { readonly kind: 'timeout' };
 
 /**
  * Send the AdvanceDay host intent for the day `campaign` is on and resolve
  * with the host's answer on `transport`: committed when a CampaignDayAdvanced
- * event of the campaign arrives, refused with the reason (or, without one,
- * the code) of the Error frame carrying the intent's id, unconfirmed with the
+ * event of the campaign arrives, refused with the code of the Error frame
+ * carrying the intent's id, unconfirmed with the
  * message of a transport error or of a send that threw (the host may still
  * have committed), or timeout when nothing answered within
  * COOP_ADVANCE_TIMEOUT_MS. The listeners and the timer are
@@ -363,14 +386,13 @@ function sendAdvanceDay(
       stops.forEach((stop) => stop());
       resolve(result);
     };
-    const refuse = (reason: string): void =>
-      answer({ kind: 'refused', reason });
+    const refuse = (code: string): void => answer({ kind: 'refused', code });
     const unconfirmed = (reason: string): void =>
       answer({ kind: 'unconfirmed', reason });
     stops.push(
       transport.onFrame((message) => {
         if (message.kind === 'Error' && message.intentId === intentId) {
-          refuse(message.reason ?? message.code);
+          refuse(message.code);
           return;
         }
         const event =

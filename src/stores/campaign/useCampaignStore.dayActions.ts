@@ -172,9 +172,13 @@ async function finishAsyncAdvanceDays(
   count: number,
 ): Promise<DayReport[] | null> {
   const firstReport = await firstPending;
-  if (firstReport) {
-    reports.push(firstReport);
+  // A day that did not save - refused, unconfirmed, or committed by the
+  // co-op host but not saved here - ends the run, as in the synchronous
+  // loop: going on would advance the host again with no processor run here.
+  if (!firstReport) {
+    return reports.length > 0 ? reports : null;
   }
+  reports.push(firstReport);
   for (let i = nextIndex; i < count; i++) {
     const report = await advanceOneDay(set, get);
     if (!report) break;
