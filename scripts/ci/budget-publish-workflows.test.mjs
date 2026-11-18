@@ -6,7 +6,7 @@ import { parse } from 'yaml';
 const read = (file) =>
   parse(fs.readFileSync(`.github/workflows/${file}`, 'utf8'));
 
-test('no budget publisher queues evaluations; only the Guard report workflow has concurrency', () => {
+test('no event budget publisher queues evaluations; only the Guard and serialized reconciliation have concurrency', () => {
   const publishers = [];
   for (const file of fs
     .readdirSync('.github/workflows')
@@ -16,6 +16,10 @@ test('no budget publisher queues evaluations; only the Guard report workflow has
       let publishes = false;
       for (const step of job.steps ?? []) {
         const code = step.with?.script ?? step.run ?? '';
+        if (/budget-reconcile\.mjs|reconcileBudgetStatuses/.test(code)) {
+          publishes = true;
+          continue;
+        }
         if (!/budget-approval\.mjs|checkBudgetPolicy/.test(code)) continue;
         const calls = [
           ...code.matchAll(/checkBudgetPolicy\(\{([\s\S]*?)\}\)/g),
@@ -40,6 +44,11 @@ test('no budget publisher queues evaluations; only the Guard report workflow has
             'ci-report-${{ github.repository }}-${{ github.event.workflow_run.head_branch }}',
           'cancel-in-progress': false,
         });
+      else if (file === 'ci-budget-reconcile.yml')
+        assert.deepEqual(workflow.concurrency, {
+          group: 'ci-budget-reconcile',
+          'cancel-in-progress': false,
+        });
       else
         assert.equal(
           workflow.concurrency,
@@ -51,6 +60,7 @@ test('no budget publisher queues evaluations; only the Guard report workflow has
   assert.deepEqual(publishers.sort(), [
     'ci-budget-approval.yml/approval',
     'ci-budget-label-approval.yml/approval',
+    'ci-budget-reconcile.yml/reconcile',
     'lint-and-test-guard.yml/guard',
   ]);
   assert.equal(read('ci-budget-approval.yml').concurrency, undefined);
@@ -58,6 +68,58 @@ test('no budget publisher queues evaluations; only the Guard report workflow has
     read('lint-and-test-guard.yml').concurrency.group,
     'ci-report-${{ github.repository }}-${{ github.event.workflow_run.head_branch }}',
   );
+});
+
+test('hourly reconciliation is default-branch only, trusted, bounded and grants no new permissions', () => {
+  const workflow = read('ci-budget-reconcile.yml');
+  assert.equal(workflow.name, 'CI Budget Reconciliation');
+  assert.deepEqual(workflow.on, {
+    schedule: [{ cron: '17 * * * *' }],
+    workflow_dispatch: null,
+  });
+  assert.deepEqual(workflow.permissions, {});
+  // Serialized so overlapping runs cannot overwrite each other's writes.
+  assert.deepEqual(workflow.concurrency, {
+    group: 'ci-budget-reconcile',
+    'cancel-in-progress': false,
+  });
+  assert.deepEqual(Object.keys(workflow.jobs), ['reconcile']);
+  const job = workflow.jobs.reconcile;
+  assert.equal(
+    job.if,
+    "github.ref == format('refs/heads/{0}', github.event.repository.default_branch)",
+  );
+  assert.equal(job['runs-on'], 'ubuntu-latest');
+  assert.equal(job['timeout-minutes'], 10);
+  assert.deepEqual(
+    job.permissions,
+    read('ci-budget-approval.yml').jobs.approval.permissions,
+  );
+  assert.equal(job.steps.length, 2, 'No PR install or code execution');
+  assert.equal(job.steps[0].uses, 'actions/checkout@v6');
+  assert.equal(
+    job.steps[0].with.ref,
+    '${{ github.event.repository.default_branch }}',
+  );
+  assert.equal(job.steps[0].with['persist-credentials'], false);
+  assert.equal(job.steps[1].uses, 'actions/github-script@v8');
+  const code = job.steps[1].with.script;
+  assert.match(
+    code,
+    /import\(`\$\{process.env.GITHUB_WORKSPACE\}\/scripts\/ci\/budget-reconcile.mjs`\)/,
+  );
+  assert.match(
+    code,
+    /reconcileBudgetStatuses\(\{ github, \.\.\.context.repo, runNumber: context.runNumber, core \}\)/,
+  );
+  const source = fs.readFileSync('scripts/ci/budget-reconcile.mjs', 'utf8');
+  assert.match(source, /expectedHead:\s*head,\s*reconcile:\s*true/);
+  assert.match(source, /core.info\(policyOutcomeLine\(number, result\)\)/);
+  assert.doesNotMatch(
+    source,
+    /if \(outcome.fail\) core.setFailed\(outcome.line\)/,
+  );
+  assert.match(source, /unverified or uncorrected write/);
 });
 
 test('label and base reevaluation is unfiltered, trusted, head-bound and uses the shared outcome', () => {

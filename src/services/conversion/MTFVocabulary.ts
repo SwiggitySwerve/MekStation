@@ -1,3 +1,4 @@
+import { ARMOR_IDENTITY_ROWS } from '@/types/formats/ArmorIdentity';
 import vocabulary from '@/types/formats/mtf-component-vocabulary.json';
 
 /** MTF adapter vocabulary, not a replacement for the canonical wire schema.
@@ -57,34 +58,18 @@ export function isMTFCriticalSlotSystemName(name: string): boolean {
   return getMTFCriticalSlotSystemIdentity(name) !== undefined;
 }
 
-const ARMOR_NAMES = [
-  ['standard', 'STANDARD', 'Standard(Inner Sphere)'],
-  ['ferro-fibrous', 'FERRO_FIBROUS', 'Ferro-Fibrous'],
-  ['light ferro-fibrous', 'LIGHT_FERRO_FIBROUS', 'Light Ferro-Fibrous'],
-  ['heavy ferro-fibrous', 'HEAVY_FERRO_FIBROUS', 'Heavy Ferro-Fibrous'],
-  ['stealth', 'STEALTH', 'Stealth'],
-  ['reactive', 'REACTIVE', 'Reactive'],
-  ['reflective', 'REFLECTIVE', 'Reflective'],
-  ['hardened', 'HARDENED', 'Hardened'],
-  ['primitive', 'PRIMITIVE', 'Primitive'],
-  ['industrial', 'INDUSTRIAL', 'Industrial'],
-  ['heavy industrial', 'HEAVY_INDUSTRIAL', 'Heavy Industrial'],
-  ['commercial', 'COMMERCIAL', 'Commercial'],
-  ['impact-resistant', 'IMPACT_RESISTANT', 'Impact-Resistant'],
-  ['ferro-lamellor', 'FERRO_LAMELLOR', 'Ferro-Lamellor'],
-  // MegaMek 48fcb2f64 ArmorType.java:521,1051,1108,1139,2069;
-  // Mek.java:5385-5403 writes these exact names, including Patchwork's
-  // distinct global header (its location records require additional context).
-  ['ferro-fibrous prototype', 'FERRO_FIBROUS_PROTO', 'Ferro-Fibrous Prototype'],
-  ['ballistic-reinforced', 'BALLISTIC_REINFORCED', 'Ballistic-Reinforced'],
-  ['heat-dissipating', 'HEAT_DISSIPATING', 'Heat-Dissipating'],
-  [
-    'anti-penetrative ablation',
-    'ANTI_PENETRATIVE_ABLATION',
-    'Anti-Penetrative Ablation',
-  ],
-  ['patchwork', 'PATCHWORK', 'Patchwork'],
-] as const;
+// Armor names are owned by the `armor` section of the shared vocabulary file
+// (src/types/formats/ArmorIdentity.ts reads it); nothing here retypes them.
+// MegaMek 48fcb2f64 ArmorType.java:521,1051,1108,1139,2069; Mek.java:5385-5403
+// writes the `write` names, including Patchwork's distinct global header (its
+// location records require additional context).
+const ARMOR_MTF_ROWS = ARMOR_IDENTITY_ROWS.flatMap((row) =>
+  row.mtf ? [{ tag: row.tag, enumKey: row.enum, mtf: row.mtf }] : [],
+);
+/** [parse key, tag, write name] for the rows the TypeScript parser reaches by name. */
+const ARMOR_NAMES = ARMOR_MTF_ROWS.flatMap(({ tag, mtf }) =>
+  mtf.parse === null ? [] : [[mtf.parse, tag, mtf.write] as const],
+);
 
 const ENGINE_PARSE_NAMES: Record<string, string> = Object.fromEntries(
   ENGINE_NAMES.map(([name, type]) => [name, type]),
@@ -103,23 +88,26 @@ const ENGINE_EXPORT_ALIASES: Record<string, string> = {
   XL_IS: 'XL',
   XL_CLAN: 'CLAN_XL',
 };
-const CLAN_ARMOR_TYPES = ['FERRO_FIBROUS', 'REACTIVE', 'REFLECTIVE'];
+// A tag with a `<tag>_CLAN` row in the owner has a Clan variant the parser
+// reaches by the word "clan" in the name.
+const CLAN_ARMOR_TYPES = ARMOR_MTF_ROWS.filter(({ tag }) =>
+  tag.endsWith('_CLAN'),
+).map(({ tag }) => tag.slice(0, -'_CLAN'.length));
 const ARMOR_EXPORT_NAMES: Record<string, string> = Object.fromEntries(
-  ARMOR_NAMES.map(([, type, name]) => [type, name]),
+  ARMOR_MTF_ROWS.map(({ tag, mtf }) => [tag, mtf.write]),
 );
-for (const type of CLAN_ARMOR_TYPES) {
-  ARMOR_EXPORT_NAMES[`${type}_CLAN`] = `${ARMOR_EXPORT_NAMES[type]}(Clan)`;
-}
 
 /** Canonical MTF armor identities; deliberate legacy aliases are separate. */
 export function getMTFArmorIdentities(): readonly string[] {
   return Object.keys(ARMOR_EXPORT_NAMES);
 }
-const ARMOR_EXPORT_ALIASES: Record<string, string> = {
-  FERRO_FIBROUS_IS: 'FERRO_FIBROUS',
-  LIGHT_FERRO: 'LIGHT_FERRO_FIBROUS',
-  HEAVY_FERRO: 'HEAVY_FERRO_FIBROUS',
-};
+// Deliberate legacy export aliases: the editor enum member key where it differs
+// from the wire tag (FERRO_FIBROUS_IS, LIGHT_FERRO, HEAVY_FERRO).
+const ARMOR_EXPORT_ALIASES: Record<string, string> = Object.fromEntries(
+  ARMOR_MTF_ROWS.flatMap(({ tag, enumKey }) =>
+    enumKey !== null && enumKey !== tag ? [[enumKey, tag]] : [],
+  ),
+);
 // Export accepts wire identities and deliberate legacy aliases, never parser
 // normalization or unknown fallbacks. Own-property checks also reject inherited
 // Object names supplied as external component identities.
