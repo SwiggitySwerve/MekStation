@@ -168,10 +168,11 @@ revocation fails the existing required context without needing a new required
 context setting. Default-branch trusted publishing begins after bootstrap lands;
 the bootstrap PR itself runs the required primary policy check read-only.
 
-Budget publishers have no job or workflow concurrency queue. GitHub replaces
-older pending work within a group, so no branch/repository/SHA key can ensure
-every PR's label revocation is evaluated. The Guard alone retains its existing
-workflow-level `ci-report-<repository>-<branch>` group for report ordering. Label
+Event-driven budget publishers have no job or workflow concurrency queue.
+GitHub replaces older pending work within a group, so no branch/repository/SHA
+key can ensure every PR's label revocation is evaluated. The Guard retains its
+existing workflow-level `ci-report-<repository>-<branch>` group for report
+ordering, and hourly reconciliation is serialized in its own group (below). Label
 evaluations run independently of that report group, and every actual budget
 success from the Guard uses the same verification below.
 
@@ -393,9 +394,12 @@ job outcomes when no write remains unresolved; a failed PR-list read also
 reports that the census is incomplete. A partially evaluated PR remains unreached. Only
 repository metadata and immutable SHA-addressed blobs are cached within a run;
 PR, review, association and status reads stay live, including every verify read
-in the complete policy log. There is no concurrency group. A delayed run that
-overlaps the next hour runs independently under the same binding and verification
-protocol, without replacing pending evaluations. Cost is about one one-minute
+in the complete policy log. Runs are serialized in the workflow-level
+`ci-budget-reconcile` group with `cancel-in-progress: false`: without it, a
+manual dispatch during a scheduled run, or a delayed cron run, could overwrite
+the running sweep's write and turn that run's readback red. A running sweep is
+never cancelled; GitHub may replace a waiting run, which is harmless because the
+next sweep covers its bucket and event publishers stay unqueued. Cost is about one one-minute
 public-repository job per hour; actual duration depends on the open PR census.
 The workflow appears under `otherEvents` in the census and budget report and
 does not consume `typicalPrJobs`.

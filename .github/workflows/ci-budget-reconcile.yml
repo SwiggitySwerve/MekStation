@@ -7,8 +7,14 @@ on:
 
 permissions: {}
 
-# No publisher queue: overlapping runs independently use head-bound
-# write-then-verify, just like the event-driven budget publishers.
+# Runs are serialized: a manual dispatch or a delayed cron run waits for the
+# running sweep, so one run cannot overwrite another's write and turn that
+# run's readback red. A replaced pending run is harmless; the next sweep
+# covers its bucket.
+concurrency:
+  group: ci-budget-reconcile
+  cancel-in-progress: false
+
 jobs:
   reconcile:
     if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)

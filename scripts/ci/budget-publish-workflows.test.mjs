@@ -6,7 +6,7 @@ import { parse } from 'yaml';
 const read = (file) =>
   parse(fs.readFileSync(`.github/workflows/${file}`, 'utf8'));
 
-test('no budget publisher queues evaluations; only the Guard report workflow has concurrency', () => {
+test('no event budget publisher queues evaluations; only the Guard and serialized reconciliation have concurrency', () => {
   const publishers = [];
   for (const file of fs
     .readdirSync('.github/workflows')
@@ -44,6 +44,11 @@ test('no budget publisher queues evaluations; only the Guard report workflow has
             'ci-report-${{ github.repository }}-${{ github.event.workflow_run.head_branch }}',
           'cancel-in-progress': false,
         });
+      else if (file === 'ci-budget-reconcile.yml')
+        assert.deepEqual(workflow.concurrency, {
+          group: 'ci-budget-reconcile',
+          'cancel-in-progress': false,
+        });
       else
         assert.equal(
           workflow.concurrency,
@@ -73,6 +78,11 @@ test('hourly reconciliation is default-branch only, trusted, bounded and grants 
     workflow_dispatch: null,
   });
   assert.deepEqual(workflow.permissions, {});
+  // Serialized so overlapping runs cannot overwrite each other's writes.
+  assert.deepEqual(workflow.concurrency, {
+    group: 'ci-budget-reconcile',
+    'cancel-in-progress': false,
+  });
   assert.deepEqual(Object.keys(workflow.jobs), ['reconcile']);
   const job = workflow.jobs.reconcile;
   assert.equal(
