@@ -522,17 +522,18 @@ test('the Nightly suite lists each census file once, sorted, on one worker', () 
   ]);
 });
 
-test('Nightly invocations are exactly --suite-set nightly --shard=<i>[/<n>]', () => {
+test('Nightly invocations are exactly --suite-set nightly --shard=<i>/<n>', () => {
   const parse = (...argv) => parseNightlyInvocation(argv);
   assert.deepEqual(parse('--suite-set', 'nightly', '--shard=2/3'), {
     suite: { name: 'nightly' },
     shardIndex: 2,
     shardCount: 3,
   });
-  assert.equal(parse('--suite-set', 'nightly', '--shard=1').shardCount, 3);
   assert.equal(parse('--suite-set', 'nightly', '--shard=7/9').shardCount, 9);
   for (const bad of [
     ['--suite-set', 'nightly'],
+    // The shard count is always explicit, so a workflow typo cannot change it.
+    ['--suite-set', 'nightly', '--shard=1'],
     ['--suite-set', 'pr', '--shard=1/3'],
     ['--suite-set', 'nightly', '--shard=0/3'],
     ['--suite-set', 'nightly', '--shard=4/3'],

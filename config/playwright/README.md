@@ -45,7 +45,7 @@ collections per shard) as well as browser/server time and job setup.
 `ci-e2e-plan.mjs` also owns the Nightly suite (`nightlySuites`): one single-worker
 suite over every spec file in the Chromium census with `@E2E-19|@E2E-25`
 excluded. `node scripts/playwright/run-ci-e2e.mjs --suite-set nightly --shard=I/N`
-(N defaults to 3) plans that census with the same planner, using
+(N is required) plans that census with the same planner, using
 `nightly-durations.json`, then runs shard I. Each shard re-derives the plan and
 fails if the N shard plans do not partition the census, if its own shard plans
 zero tests, or if it executes zero tests or a different set than planned.

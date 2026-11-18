@@ -113,14 +113,17 @@ export const nightlyTaskArgs = (suite, list) => [
   `--output=test-results/${suite.name}`,
 ];
 
-/** Nightly mode: `--suite-set nightly --shard=<i>[/<n>]` and nothing else. */
+/**
+ * Nightly mode: `--suite-set nightly --shard=<i>/<n>` and nothing else. The
+ * shard count is always explicit, so a workflow typo cannot change it.
+ */
 export function parseNightlyInvocation(argv) {
   const [flag, name, shard, ...rest] = argv;
-  const match = /^--shard=(\d+)(?:\/(\d+))?$/.exec(shard ?? '');
+  const match = /^--shard=(\d+)\/(\d+)$/.exec(shard ?? '');
   if (flag !== '--suite-set' || name !== 'nightly' || !match || rest.length)
-    throw new Error('Expected --suite-set nightly --shard=<i>[/<n>]');
+    throw new Error('Expected --suite-set nightly --shard=<i>/<n>');
   const shardIndex = Number(match[1]);
-  const shardCount = match[2] === undefined ? 3 : Number(match[2]);
+  const shardCount = Number(match[2]);
   if (!(shardCount >= 1 && shardIndex >= 1 && shardIndex <= shardCount))
     throw new Error(`Invalid Nightly shard ${shardIndex}/${shardCount}`);
   // The full suite needs the census, so the runner builds it after listing.
