@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "measure": "reopen",
-  "sha": "fec64fc4e26df40c0b5e5ac97bdcbf57ce6b2f95",
+  "sha": "7d46a687b39fdc81387c738e1cce3b770b1c0ee9",
   "factsSchemaVersion": 2,
   "factsDeriverBlob": "c9e04dcedb7f09ed70d6f9ead2ca7ff122ca1b50",
   "referenceSha256": "bb1c1bf38eedf821ddd665a441c9c949a1ae255ceecfebc81d6fa2ed5cff0f77",
@@ -11,7 +11,8 @@
     {"sha":"43968eee4a754e834667f42a3050e28ed0850116","pr":null,"reason":"seed: first committed reopen baseline (gate PR, head 43968eee4); reopen=load 2,060/4,263, before 379","units":[]},
     {"sha":"c395d800c3ab4716c3b5384b8f128afcdf90f94a","pr":3392,"reason":"A2 (#3392): sealed prediction d9978bc7a8a93e8b8ac70752da52779f46c27bb0f5ec8af60994f7cd5118532c; Mad Cat Mk IV A/Prime reopenLoad + rawIdentityLosses members (39,087 removed, 0 added, 4,263 units; 33 reopen distance gains), matched exactly by gate-before on c395d800c","units":[]},
     {"sha":"117ad0914465cbdac65b28566e907eb9d68df896","pr":3393,"reason":"merge of main 79efd5968 (A2 #3392) into #3393: deriver blob only (facts.mjs isFactValue), no unit fact changes","units":[]},
-    {"sha":"fec64fc4e26df40c0b5e5ac97bdcbf57ce6b2f95","pr":null,"reason":"PR-P: previewBV load-port facts (previewEqualsStatus gated, distance reported); facts schema 1->2","units":[]}
+    {"sha":"fec64fc4e26df40c0b5e5ac97bdcbf57ce6b2f95","pr":null,"reason":"PR-P: previewBV load-port facts (previewEqualsStatus gated, distance reported); facts schema 1->2","units":[]},
+    {"sha":"7d46a687b39fdc81387c738e1cce3b770b1c0ee9","pr":null,"reason":"PR-O: one owner for the projection input; record sheet BV = status bar for 4,263 (2,609 previewEqualsStatus gains locked)","units":[]}
   ],
   "units": {
     "battlemechs/agrotera-agt-1a": {"reopenLoad":false,"reopenJava":false,"reopenJavaDistance":269,"reopenLoadDistance":269,"noLossConfirmationBefore":false,"noticeResidual":{"n":30,"h":"00f87bb665d18d84"},"noticeMismatch":{"n":0,"h":"e3b0c44298fc1c14"},"rawIdentityLosses":{"n":64,"h":"e24551990a80c0bc"},"loadedMountLosses":{"n":0,"h":"e3b0c44298fc1c14"},"reopenValid":true},
