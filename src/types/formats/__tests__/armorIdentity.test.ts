@@ -98,6 +98,15 @@ describe('owner rows against the MTF names', () => {
 });
 
 describe('owner rows against ArmorTypeEnum and its tag tables', () => {
+  it("never uses an enum key that is another row's tag (export aliases would shadow it)", () => {
+    const tags = new Set(rows.map((row) => row.tag));
+    expect(
+      enumRows
+        .filter((row) => row.enum !== row.tag && tags.has(row.enum!))
+        .map((row) => row.tag),
+    ).toEqual([]);
+  });
+
   it('has a row for every enum member and an enum member for every row', () => {
     expect(enumRows.map((row) => row.enum).sort()).toEqual(
       [...memberKeys].sort(),
@@ -195,14 +204,39 @@ describe('the loader mappers never map an owner tag to a different member', () =
   // The legacy ValueMappings.mapArmorType is deliberately not asserted: its
   // substring fallback (ValueMappings.ts:475-480) maps FERRO_LAMELLOR to
   // Ferro-Fibrous (IS), an existing defect recorded as OPEN in the fold's PR.
-  it('EnumParserRegistry.parseArmorType gives the owner member or Standard, never another member', () => {
-    const wrong = enumRows
-      .filter((row) => {
-        const result = registryParse(row.tag);
-        return result !== memberFor(row) && result !== ArmorTypeEnum.STANDARD;
-      })
-      .map((row) => row.tag);
-    expect(wrong).toEqual([]);
+  // Pinned exactly: these tags already fall back to Standard in the legacy registry
+  // (EnumParserRegistry.ts armor map). That is an existing defect recorded OPEN in the
+  // fold's PR; the list is pinned so a further tag losing its member fails here.
+  const REGISTRY_STANDARD_FALLBACK_TAGS: readonly string[] = [
+    'BALLISTIC_REINFORCED',
+    'COMMERCIAL',
+    'FERRO_LAMELLOR',
+  ];
+
+  it('EnumParserRegistry.parseArmorType gives the owner member, except the pinned Standard fallbacks', () => {
+    const results = enumRows
+      .filter((row) => !isNativeOnlyArmor(memberFor(row)))
+      .map((row) => ({ tag: row.tag, result: registryParse(row.tag) }));
+    expect(
+      results
+        .filter(
+          ({ tag, result }) =>
+            result !== memberFor(enumRows.find((r) => r.tag === tag)!) &&
+            result !== ArmorTypeEnum.STANDARD,
+        )
+        .map(({ tag }) => tag),
+    ).toEqual([]);
+    expect(
+      results
+        .filter(
+          ({ tag, result }) =>
+            result === ArmorTypeEnum.STANDARD &&
+            memberFor(enumRows.find((r) => r.tag === tag)!) !==
+              ArmorTypeEnum.STANDARD,
+        )
+        .map(({ tag }) => tag)
+        .sort(),
+    ).toEqual([...REGISTRY_STANDARD_FALLBACK_TAGS]);
   });
 });
 
@@ -210,13 +244,33 @@ describe('other tag lists name only owner tags', () => {
   const ownerTags = new Set(rows.map((row) => row.tag));
   const codeToTag = blkArmorCodes as Record<string, string>;
 
-  it('the recorded combat snapshot accepts a subset of the owner tags (deliberately narrower: no Patchwork or native-only mech types)', () => {
+  // The snapshot list is an older hand-kept prefix of the contract enum, not a designed
+  // subset: it includes some native-only and BattleArmor tags and lacks a selectable mech
+  // type. The missing selectable tags are pinned here and recorded OPEN (owner C3).
+  const SNAPSHOT_MISSING_SELECTABLE_MECH_TAGS: readonly string[] = [
+    'FERRO_FIBROUS_PROTO',
+  ];
+
+  it('the recorded combat snapshot names only owner tags, and lacks only the pinned selectable mech tags', () => {
     expect(BATTLEMECH_ARMOR_TYPES.filter((tag) => !ownerTags.has(tag))).toEqual(
       [],
     );
     expect(new Set(BATTLEMECH_ARMOR_TYPES).size).toBe(
       BATTLEMECH_ARMOR_TYPES.length,
     );
+    const snapshot = new Set<string>(BATTLEMECH_ARMOR_TYPES);
+    const missingSelectable = mechRows
+      .filter(
+        (row) =>
+          row.enum !== null &&
+          !isNativeOnlyArmor(valueOf(row.enum)) &&
+          !snapshot.has(row.tag),
+      )
+      .map((row) => row.tag)
+      .sort();
+    expect(missingSelectable).toEqual([
+      ...SNAPSHOT_MISSING_SELECTABLE_MECH_TAGS,
+    ]);
   });
 
   it('the capital-ship view maps owner tags to the BLK code that blk-armor-codes.json gives them', () => {
