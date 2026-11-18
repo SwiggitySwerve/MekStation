@@ -315,10 +315,15 @@ describe('K13 host intent deadline', () => {
         (call) => call[1]?.method === 'PUT',
       ),
     ).toHaveLength(putsBefore);
-    const expiry = toastMessages().find((m) => /didn't answer/i.test(m));
+    // T6 (C8 r8): the host replays a resent committed intent from its
+    // receipt without answering, so the toast no longer promises a safe
+    // retry; it says the host may have advanced and to reload first.
+    const expiry = toastMessages().find((m) =>
+      /didn't confirm the day advance/i.test(m),
+    );
     expect(expiry).toBeDefined();
-    expect(expiry).toMatch(/retry/i);
-    expect(expiry).toMatch(/safe/i);
+    expect(expiry).toMatch(/may already have advanced/i);
+    expect(expiry).toMatch(/reload the campaign before trying again/i);
 
     jest.useRealTimers();
     const retry = store.getState().advanceDay();

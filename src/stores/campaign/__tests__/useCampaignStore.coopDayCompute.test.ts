@@ -42,7 +42,6 @@ import {
   uninstallCampaignPersistenceWiring,
 } from '@/stores/campaign/campaignPersistenceWiring';
 import { installServerCampaign } from '@/stores/campaign/campaignStoreAccessor';
-import { _forgetHeldDayCampaignsForTest } from '@/stores/campaign/coopDayAdvance';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
@@ -85,6 +84,11 @@ interface IFakeServer {
   getMode: 'ok' | 'fail';
   /** Runs before a campaign PUT is judged (another writer landing first). */
   onCampaignPut?: () => void;
+  /**
+   * How many campaign PUTs to refuse for want of a credential (the typed
+   * 401 refusal the persistence layer keeps pending: a recoverable save).
+   */
+  credentialRefusals?: number;
   /** Every request, in order, as `METHOD url`. */
   readonly requests: string[];
   /** The server's pilot rows. */
@@ -120,6 +124,16 @@ function stubServer(server: IFakeServer): void {
       }
       if (method === 'PUT') {
         server.onCampaignPut?.();
+        if ((server.credentialRefusals ?? 0) > 0) {
+          server.credentialRefusals = (server.credentialRefusals ?? 0) - 1;
+          return jsonResponse(401, {
+            error: 'refused',
+            kind: 'refused',
+            code: 'HOST_SESSION_EXPIRED',
+            reason: 'expired',
+            matchId: MATCH_ID,
+          });
+        }
         if (server.putMode === 'fail') {
           return jsonResponse(500, { error: 'refused' });
         }
@@ -168,8 +182,10 @@ interface IControlledHost {
   onIntent: (sent: ICampaignIntent) => void;
   /**
    * The host commits the latest AdvanceDay: rewrite the record and send the
-   * event. An intent id it already committed is replayed - the event is sent
-   * again and the record is not rewritten - as the host journal does.
+   * event. An intent id it already committed is replayed from the host's
+   * receipt: nothing is rewritten and NO frame is sent, as the real host does
+   * (bindCampaignSyncConnection handleCampaignHostIntent; pinned on main by
+   * CampaignMatchHost.test.ts and bindCampaignSyncConnection.test.ts).
    */
   readonly commit: () => void;
   /**
@@ -215,20 +231,19 @@ function controlledHost(server: IFakeServer): IControlledHost {
       const ts = new Date().toISOString();
       const advance = [...sent].reverse().find((i) => i.kind === 'AdvanceDay');
       const intentId = advance?.intentId ?? '';
-      if (!committedIntentIds.has(intentId)) {
-        committedIntentIds.add(intentId);
-        const record = server.record as SerializedCampaign;
-        server.record = {
-          ...record,
-          version: record.version + 1,
-          body: {
-            ...record.body,
-            currentDate: new Date(
-              Date.parse(record.body.currentDate) + DAY_MS,
-            ).toISOString(),
-          },
-        };
-      }
+      if (committedIntentIds.has(intentId)) return;
+      committedIntentIds.add(intentId);
+      const record = server.record as SerializedCampaign;
+      server.record = {
+        ...record,
+        version: record.version + 1,
+        body: {
+          ...record.body,
+          currentDate: new Date(
+            Date.parse(record.body.currentDate) + DAY_MS,
+          ).toISOString(),
+        },
+      };
       emit({
         kind: 'CampaignEvent',
         matchId: MATCH_ID,
@@ -244,7 +259,13 @@ function controlledHost(server: IFakeServer): IControlledHost {
         },
       } as IServerMessage);
     },
-    commitWithoutRecordRewrite: () => emitDayAdvanced(),
+    commitWithoutRecordRewrite: () => {
+      const advance = [...sent].reverse().find((i) => i.kind === 'AdvanceDay');
+      const intentId = advance?.intentId ?? '';
+      if (committedIntentIds.has(intentId)) return;
+      committedIntentIds.add(intentId);
+      emitDayAdvanced();
+    },
     transportError: (message) =>
       [...errorHandlers].forEach((handler) => handler(new Error(message))),
     commitGuestRename: (name) => {
@@ -596,7 +617,9 @@ describe('T6 co-op host computes the day before the host commits it', () => {
       store.getState().pendingBattleOutcomes.map((o) => o.matchId),
     ).toEqual(['m-1']);
     expect(store.getState().processedBattleIds).toEqual([]);
-    expect(toastMessages().join('\n')).toMatch(/didn't answer/i);
+    expect(toastMessages().join('\n')).toMatch(
+      /didn't confirm the day advance\. It may already have advanced\. Reload the campaign before trying again\./,
+    );
 
     host.onIntent = () => host.commit();
     expect(await store.getState().advanceDay()).not.toBeNull();
@@ -638,8 +661,8 @@ describe('T6 co-op host computes the day before the host commits it', () => {
     );
   });
 
-  it('(C6, cond 7) a campaign switch while the host answers rolls the computed day back; a retry patches once', async () => {
-    const { store, host, startDate } = await buildWorld();
+  it('(C6, cond 7) a campaign switch while the host answers rolls the computed day back and saves nothing', async () => {
+    const { store, server, host } = await buildWorld();
     const original = store.getState().campaign!;
     // The page installs another campaign's server row (no edit, not dirty).
     host.onIntent = () => {
@@ -655,16 +678,8 @@ describe('T6 co-op host computes the day before the host commits it', () => {
 
     expect(currentPilot().xp).toBe(0);
     expect(vaultAwards()).toBe(0);
-
-    installServerCampaign(original);
-    // The retry sends the same intent id; the host replays its receipt.
-    host.onIntent = () => host.commit();
-    expect(await store.getState().advanceDay()).not.toBeNull();
-    expect(host.sent).toHaveLength(2);
-    expect(host.sent[1].intentId).toBe(host.sent[0].intentId);
-    expect(dayMs()).toBe(startDate + DAY_MS);
-    expect(currentPilot().xp).toBe(10);
-    expect(vaultAwards()).toBe(1);
+    expect(campaignPuts(server)).toEqual([]);
+    expect(store.getState().campaign!.id).toBe('campaign-elsewhere');
   });
 });
 
@@ -762,7 +777,7 @@ describe('T6 co-op: a stale compute is refused (cond 9, C4 ruling (b))', () => {
     expect(vaultAwards()).toBe(0);
     expect(pilotPuts(server)).toEqual([]);
     expect(toastMessages().join('\n')).toMatch(
-      /Another player changed the campaign while the day advanced/,
+      /The campaign changed on the host while the day advanced/,
     );
   });
 });
@@ -832,7 +847,7 @@ describe('T6 co-op: outcomes that arrive during the host wait (Q2)', () => {
     expect(currentPilot().xp).toBe(0);
     expect(server.record!.version).toBe(startVersion + 2);
     expect(toastMessages().join('\n')).toMatch(
-      /Another player changed the campaign while the day advanced/,
+      /The campaign changed on the host while the day advanced/,
     );
   });
 });
@@ -879,7 +894,7 @@ describe('T6 co-op: a retry after the host committed late (r4)', () => {
     );
   }
 
-  it('(L1) timeout, the host commits late, an outcome makes the campaign dirty, retry: the day completes once', async () => {
+  it.skip('[C4 atomicity OPEN: retry confirmation] (L1) timeout, the host commits late, an outcome makes the campaign dirty, retry: the day completes once', async () => {
     const world = await buildWorld();
     const { store, host } = world;
     jest.useFakeTimers();
@@ -911,7 +926,7 @@ describe('T6 co-op: a retry after the host committed late (r4)', () => {
     expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
   });
 
-  it('(L2) the host commits, the player switches away and back, an outcome makes the campaign dirty, retry: the day completes once', async () => {
+  it.skip('[C4 atomicity OPEN: retry confirmation] (L2) the host commits, the player switches away and back, an outcome makes the campaign dirty, retry: the day completes once', async () => {
     const world = await buildWorld();
     const { store, host } = world;
     const original = store.getState().campaign!;
@@ -967,7 +982,7 @@ describe('T6 co-op: residuals pinned', () => {
     expect(currentPilot().xp).toBe(0);
     expect(vaultAwards()).toBe(0);
     expect(toastMessages().join('\n')).toMatch(
-      /Another player changed the campaign while the day advanced/,
+      /The campaign changed on the host while the day advanced/,
     );
   });
 });
@@ -982,8 +997,8 @@ describe('T6 co-op: re-review findings (r5)', () => {
       if (intent.kind === 'AdvanceDay') host.commit();
     };
 
-  it('(F1a) snapshot-authority: the host commits, the save fails, and a retry patches each pilot once', async () => {
-    const { store, server, host, startDate } = await buildWorld();
+  it('(F1a) snapshot-authority: the host commits and the day save fails: the roster and vault writes are taken back', async () => {
+    const { store, server, host } = await buildWorld();
     host.onIntent = (intent) => {
       if (intent.kind !== 'AdvanceDay') return;
       // The row does not move on a snapshot-authority commit.
@@ -992,23 +1007,53 @@ describe('T6 co-op: re-review findings (r5)', () => {
     };
 
     expect(await store.getState().advanceDay()).toBeNull();
+    await settle();
     expect(currentPilot().xp).toBe(0);
     expect(vaultAwards()).toBe(0);
-
-    server.putMode = 'ok';
-    host.onIntent = (intent) => {
-      if (intent.kind === 'AdvanceDay') host.commitWithoutRecordRewrite();
-    };
-    expect(await store.getState().advanceDay()).not.toBeNull();
-    await settle();
-
-    expect(dayMs()).toBe(startDate + DAY_MS);
-    expect(currentPilot().xp).toBe(10);
-    expect(vaultAwards()).toBe(1);
-    expect(pilotPuts(server)).toEqual([`PUT /api/pilots/${VAULT_ID}`]);
+    expect(pilotPuts(server)).toEqual([]);
+    expect(toastMessages().join('\n')).toMatch(
+      /not saved here .*but the host has advanced the day\. Reload the campaign before you go on\./,
+    );
   });
 
-  it('(F1b, F2) journal-native: the refresh after the commit fails, nothing is saved, the intent stays unsettled, and a dirty retry finishes day D once', async () => {
+  it('(F2) the refresh after the commit fails: nothing is saved, and the toast says the host advanced the day', async () => {
+    const { store, server, host, startDate, startVersion } = await buildWorld();
+    host.onIntent = (intent) => {
+      if (intent.kind !== 'AdvanceDay') return;
+      host.commit();
+      server.getMode = 'fail';
+    };
+
+    expect(await store.getState().advanceDay()).toBeNull();
+
+    expect(campaignPuts(server)).toEqual([]);
+    expect(server.record!.version).toBe(startVersion + 1);
+    expect(dayMs()).toBe(startDate);
+    expect(currentPilot().xp).toBe(0);
+    expect(vaultAwards()).toBe(0);
+    expect(toastMessages().join('\n')).toMatch(
+      /The host advanced the day, but the campaign could not be re-read here, so the day was not applied\. Reload the campaign before you go on\./,
+    );
+  });
+
+  it('(F4) a transport error is unconfirmed, not a refusal: nothing is saved, and the toast says reload', async () => {
+    const { store, server, host, startDate } = await buildWorld();
+    host.onIntent = (intent) => {
+      if (intent.kind === 'AdvanceDay') host.transportError('socket closed');
+    };
+
+    expect(await store.getState().advanceDay()).toBeNull();
+
+    expect(campaignPuts(server)).toEqual([]);
+    expect(dayMs()).toBe(startDate);
+    expect(currentPilot().xp).toBe(0);
+    expect(vaultAwards()).toBe(0);
+    const shown = toastMessages().join('\n');
+    expect(shown).toMatch(/didn't confirm the day advance/);
+    expect(shown).not.toMatch(/refused by the host/);
+  });
+
+  it.skip('[C4 atomicity OPEN: retry confirmation] (F1b, F2) journal-native: the refresh after the commit fails, nothing is saved, the intent stays unsettled, and a dirty retry finishes day D once', async () => {
     const world = await buildWorld();
     const { store, server, host, startDate, startVersion } = world;
     host.onIntent = (intent) => {
@@ -1049,7 +1094,7 @@ describe('T6 co-op: re-review findings (r5)', () => {
     expect(toastMessages().join('\n')).not.toMatch(/rolled back/i);
   });
 
-  it('(F4) a transport error after a late commit keeps the intent unsettled: a dirty retry finishes the day once, with no conflict', async () => {
+  it.skip('[C4 atomicity OPEN: retry confirmation] (F4) a transport error after a late commit keeps the intent unsettled: a dirty retry finishes the day once, with no conflict', async () => {
     const world = await buildWorld();
     const { store, server, host, startDate, startVersion } = world;
     jest.useFakeTimers();
@@ -1090,7 +1135,7 @@ describe('T6 co-op: re-review findings (r5)', () => {
   // D campaign finishes the day (S1-PIN); after a reload the unsettled intent
   // and the held campaign are gone (memory only), so the next advance starts
   // D+1 and day D's processors never run.
-  it.skip('(F3, C4 OPEN) after a reload, a late commit the host surface folded in cannot be finished here', () => {
+  it.skip('[C4 atomicity OPEN: reload] (F3) after a reload, a late commit the host surface folded in cannot be finished here', () => {
     // Needs a persisted unsettled intent; out of T6 scope (C4 atomicity).
   });
 });
@@ -1153,7 +1198,7 @@ describe('T6 co-op: a day the host committed is finished from the held D campaig
     expect(currentPilot().xp).toBe(0);
   }
 
-  it('(C8F1-500) the host commits, the day save fails 500, a retry replays D: day D runs once and D+1 is saved with it', async () => {
+  it.skip('[C4 atomicity OPEN: retry confirmation] (C8F1-500) the host commits, the day save fails 500, a retry replays D: day D runs once and D+1 is saved with it', async () => {
     const world = await buildWorld();
     const { store, server, host, startDate, startVersion } = world;
     host.onIntent = (intent) => {
@@ -1181,7 +1226,7 @@ describe('T6 co-op: a day the host committed is finished from the held D campaig
     expect(pilotPuts(server)).toEqual([`PUT /api/pilots/${VAULT_ID}`]);
   });
 
-  it('(C8F1-409) a guest command lands between the refresh and the save, the save is refused 409, a retry replays D and is refused as stale: day D does not run here', async () => {
+  it.skip('[C4 atomicity OPEN: retry confirmation] (C8F1-409) a guest command lands between the refresh and the save, the save is refused 409, a retry replays D and is refused as stale: day D does not run here', async () => {
     const world = await buildWorld();
     const { store, server, host, startDate, startVersion } = world;
     host.onIntent = (intent) => {
@@ -1212,11 +1257,11 @@ describe('T6 co-op: a day the host committed is finished from the held D campaig
     expect(vaultAwards()).toBe(0);
     expect(pilotPuts(server)).toEqual([]);
     expect(toastMessages().join('\n')).toMatch(
-      /Another player changed the campaign while the day advanced/,
+      /The campaign changed on the host while the day advanced/,
     );
   });
 
-  it('(S1-PIN) with the host surface mounted, a late commit it takes in is finished by replaying D from the held campaign', async () => {
+  it.skip('[C4 atomicity OPEN: retry confirmation] (S1-PIN) with the host surface mounted, a late commit it takes in is finished by replaying D from the held campaign', async () => {
     const world = await buildWorld();
     const { store, server, host, startDate, startVersion } = world;
     await lateCommitFoldedBySurface(world);
@@ -1238,7 +1283,7 @@ describe('T6 co-op: a day the host committed is finished from the held D campaig
     expect(currentPilot().campaignMissions).toBe(1);
   });
 
-  it('(GUEST+1) a guest command landing at exactly +1 over the adopted commit during a replay takes the stale path and is refused', async () => {
+  it.skip('[C4 atomicity OPEN: retry confirmation] (GUEST+1) a guest command landing at exactly +1 over the adopted commit during a replay takes the stale path and is refused', async () => {
     const world = await buildWorld();
     const { store, server, host, startDate, startVersion } = world;
     await lateCommitFoldedBySurface(world);
@@ -1266,11 +1311,11 @@ describe('T6 co-op: a day the host committed is finished from the held D campaig
     expect(currentPilot().xp).toBe(0);
     expect(vaultAwards()).toBe(0);
     expect(toastMessages().join('\n')).toMatch(
-      /Another player changed the campaign while the day advanced/,
+      /The campaign changed on the host while the day advanced/,
     );
   });
 
-  it('(NO-LOOP) a second retry of a stale day replays D again and is refused again: no double patch, award or outcome, no hang', async () => {
+  it.skip('[C4 atomicity OPEN: retry confirmation] (NO-LOOP) a second retry of a stale day replays D again and is refused again: no double patch, award or outcome, no hang', async () => {
     const world = await buildWorld();
     const { store, server, host, startVersion } = world;
     await lateCommitFoldedBySurface(world);
@@ -1304,26 +1349,53 @@ describe('T6 co-op: a day the host committed is finished from the held D campaig
     ).toEqual(['m-1']);
     expect(
       toastMessages().filter((m) =>
-        /Another player changed the campaign while the day advanced/.test(m),
+        /The campaign changed on the host while the day advanced/.test(m),
       ),
     ).toHaveLength(1);
   });
 
-  it('(HELD-GONE) without the held D campaign, a retry at D+1 does not advance and says the host advanced the day', async () => {
-    const world = await buildWorld();
-    const { store, server, host, startDate, startVersion } = world;
-    await lateCommitFoldedBySurface(world);
-    _forgetHeldDayCampaignsForTest();
-    toast.mockClear();
+  it.skip('[C4 atomicity OPEN: retry confirmation] (HELD-GONE) without the held D campaign, a retry at D+1 does not advance and says the host advanced the day', () => {
+    // The held D campaign and its unsettled intent were removed in r8: there
+    // is no retry to finish the day until the host confirms a resent intent.
+  });
+});
 
-    expect(await store.getState().advanceDay()).toBeNull();
+describe('T6 co-op: advanceDays after a recoverable day save (B-3, r8)', () => {
+  beforeEach(resetWorld);
+  afterEach(resetWorld);
 
-    expect(advanceIds(host)).toHaveLength(1);
-    expect(dayMs()).toBe(startDate + DAY_MS);
-    expect(server.record!.version).toBe(startVersion + 1);
-    expect(currentPilot().xp).toBe(0);
-    expect(toastMessages().join('\n')).toMatch(
-      /host advanced the day.*not finished here/i,
-    );
+  it('(B-3) a day save refused for want of a credential stands; advanceDays\u2019 extra attempt advances the next day and never applies day D twice', async () => {
+    const { store, server, host, startDate } = await buildWorld();
+    const days: string[] = [];
+    const processDay = getDayPipeline().processDay;
+    jest
+      .spyOn(getDayPipeline(), 'processDay')
+      .mockImplementation((campaign) => {
+        days.push(campaign.currentDate.toISOString());
+        return processDay(campaign);
+      });
+    host.onIntent = (intent) => {
+      if (intent.kind === 'AdvanceDay') host.commit();
+    };
+    // The first day's save is refused for want of a credential; the
+    // persistence layer keeps it pending and the day stands here.
+    server.credentialRefusals = 1;
+
+    const reports = await store.getState().advanceDays(2);
+    await settle();
+
+    const d = new Date(startDate).toISOString();
+    const next = new Date(startDate + DAY_MS).toISOString();
+    // Day D once, then the next day - never D again.
+    expect(days).toEqual([d, next]);
+    expect(
+      host.sent.filter((i) => i.kind === 'AdvanceDay').map((i) => i.intentId),
+    ).toEqual([expect.stringContaining(d), expect.stringContaining(next)]);
+    expect(reports).toHaveLength(1);
+    expect(dayMs()).toBe(startDate + 2 * DAY_MS);
+    // Two days' patches and awards: one for D, one for D+1.
+    expect(currentPilot().xp).toBe(20);
+    expect(vaultAwards()).toBe(2);
+    expect(pilotPuts(server)).toHaveLength(2);
   });
 });

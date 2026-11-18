@@ -271,15 +271,10 @@ export function advanceDayLocally(
   set: CampaignSet,
   get: CampaignGet,
   campaign: ICampaign,
-  notSaved: DayNotSavedReporter = reportDayNotSaved,
 ): MaybePromise<DayReport | null> {
   const snapshot = captureDayAdvanceSnapshot(get, campaign);
-  return commitDay(
-    set,
-    get,
-    snapshot,
-    () => installDay(set, get, computeDay(get, campaign, snapshot), snapshot),
-    notSaved,
+  return commitDay(set, get, snapshot, () =>
+    installDay(set, get, computeDay(get, campaign, snapshot), snapshot),
   );
 }
 
