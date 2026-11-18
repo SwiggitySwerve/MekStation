@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Built against MegaMek 48fcb2f64 (GPL-3.0-or-later; https://github.com/MegaMek/MegaMek).
+
 import java.nio.file.Path;
 import java.util.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
