@@ -44,16 +44,20 @@ export function createIndexedDbLegacyCombatStateQuarantineStore(
   return {
     get,
     put: async (campaignId, records) => {
-      const existing = await get(campaignId);
-      const known = new Set(existing.map(recordIdentity));
-      const added = records.filter(
-        (record) => !known.has(recordIdentity(record)),
+      await service.initialize();
+      // One readwrite transaction: concurrent puts (several legacy outcomes
+      // applied in one day) cannot overwrite each other's records.
+      await service.update<readonly ILegacyCombatStateQuarantineRecord[]>(
+        STORES.LEGACY_COMBAT_STATE_QUARANTINE,
+        campaignId,
+        (existing = []) => {
+          const known = new Set(existing.map(recordIdentity));
+          const added = records.filter(
+            (record) => !known.has(recordIdentity(record)),
+          );
+          return added.length === 0 ? existing : [...existing, ...added];
+        },
       );
-      if (added.length === 0) return;
-      await service.put(STORES.LEGACY_COMBAT_STATE_QUARANTINE, campaignId, [
-        ...existing,
-        ...added,
-      ]);
     },
   };
 }

@@ -177,6 +177,27 @@ describe('ensureCampaignCombatStateMigration', () => {
 describe('IndexedDB legacy combat-state quarantine store', () => {
   afterEach(() => resetIndexedDBService());
 
+  it('N2: two un-awaited puts for one campaign keep both records', async () => {
+    const store = createIndexedDbLegacyCombatStateQuarantineStore(
+      new IndexedDBService(),
+    );
+    const record = (sessionUnitId: string) => ({
+      source: 'combat-state' as const,
+      campaignId: 'camp-race',
+      sessionUnitId,
+      original: { unitId: sessionUnitId } as never,
+      resolution: { kind: 'migrated' as const, targets: [] },
+      migratedAt: '2026-11-18T00:00:00.000Z',
+    });
+    await Promise.all([
+      store.put('camp-race', [record('player-1-atlas-as7-d')]),
+      store.put('camp-race', [record('player-2-locust-lct-1v')]),
+    ]);
+    expect(
+      (await store.get('camp-race')).map((r) => r.sessionUnitId).sort(),
+    ).toEqual(['player-1-atlas-as7-d', 'player-2-locust-lct-1v']);
+  });
+
   it('keeps records per campaign and never duplicates an identical record', async () => {
     const store = createIndexedDbLegacyCombatStateQuarantineStore(
       new IndexedDBService(),

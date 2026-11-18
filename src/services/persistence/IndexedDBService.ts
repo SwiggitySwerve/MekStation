@@ -40,6 +40,12 @@ export interface IIndexedDBService {
   put<T>(store: StoreName, key: string, value: T): Promise<void>;
   get<T>(store: StoreName, key: string): Promise<T | undefined>;
   delete(store: StoreName, key: string): Promise<void>;
+  /** Read, transform and write one key in ONE readwrite transaction. */
+  update<T>(
+    store: StoreName,
+    key: string,
+    next: (current: T | undefined) => T,
+  ): Promise<void>;
   getAll<T>(store: StoreName): Promise<T[]>;
   clear(store: StoreName): Promise<void>;
   close(): void;
@@ -179,6 +185,40 @@ export class IndexedDBService implements IIndexedDBService {
       request.onsuccess = () => {
         resolve(request.result as T | undefined);
       };
+    });
+  };
+
+  /**
+   * Read, transform and write one key in a single readwrite transaction, so
+   * concurrent read-modify-write callers cannot overwrite each other.
+   */
+  update = async <T>(
+    store: StoreName,
+    key: string,
+    next: (current: T | undefined) => T,
+  ): Promise<void> => {
+    const db = this.ensureDb();
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(store, 'readwrite');
+      const objectStore = transaction.objectStore(store);
+      const fail = (error: DOMException | null): void => {
+        reject(
+          new StorageError(`Failed to update item in ${store}`, {
+            key,
+            error: error?.message,
+          }),
+        );
+      };
+      const read = objectStore.get(key);
+      read.onerror = () => fail(read.error);
+      read.onsuccess = () => {
+        const write = objectStore.put(next(read.result as T | undefined), key);
+        write.onerror = () => fail(write.error);
+      };
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => fail(transaction.error);
+      transaction.onabort = () => fail(transaction.error);
     });
   };
 
