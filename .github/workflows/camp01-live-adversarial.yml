@@ -55,7 +55,7 @@ jobs:
         run: npx playwright install chromium --with-deps
       - name: Install Linux browser dependencies (browser cached)
         if: runner.os == 'Linux' && steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
+        uses: ./.github/actions/playwright-system-deps
       - name: Run live adversarial probes
         run: npm run qc:camp01-live-adversarial -- --artifact "artifacts/camp01-live-adversarial/${{ runner.os }}.json" ${{ inputs.strict-skips == true && '--strict-skips' || '' }}
       # The tier stays an evidence publisher, so an unexpected skip is surfaced as a warning
