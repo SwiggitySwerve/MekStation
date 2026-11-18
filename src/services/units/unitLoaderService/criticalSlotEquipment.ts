@@ -343,8 +343,22 @@ const criticalSlotMarkers = new Map(
 /** PR-D crit-only equipment rows, keyed by the exact resolved equipment id. */
 const criticalSlotEquipmentRows: ReadonlyMap<
   string,
-  { readonly mountAs?: string }
+  { readonly spellings: readonly string[]; readonly mountAs?: string }
 > = new Map(vocabulary.criticalSlotEquipment.map((row) => [row.id, row]));
+
+/** Exact resolved id AND exact listed native spelling: a spelling the
+ * resolver merely maps onto a row id (CLCASE -> IS case) is not admitted. */
+function isVocabularyEquipment(
+  equipmentId: string | undefined,
+  lookupToken: string,
+): boolean {
+  return (
+    !!equipmentId &&
+    !!criticalSlotEquipmentRows
+      .get(equipmentId)
+      ?.spellings.includes(lookupToken)
+  );
+}
 
 function representedCriticalSlots(
   equipment: readonly IMountedEquipmentInstance[],
@@ -412,8 +426,10 @@ function recognizeResolvedCriticalSlotEntries(
         physicalWeapon: isSourcePhysicalWeapon(slot.equipmentId ?? ''),
         lookupToken: parsedToken.lookupToken,
         equipmentName: slot.equipmentDef?.name,
-        vocabularyEquipment:
-          !!slot.equipmentId && criticalSlotEquipmentRows.has(slot.equipmentId),
+        vocabularyEquipment: isVocabularyEquipment(
+          slot.equipmentId,
+          parsedToken.lookupToken,
+        ),
       });
       cells.push({
         text,

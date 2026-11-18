@@ -277,6 +277,28 @@ describe('exact identity, never substring', () => {
     ]);
   });
 
+  // MiscType.java:4770-4781: Clan CASE (CLCASE) is 0 t; the catalog has no
+  // such identity and the resolver maps it to IS `case` (0.5 t). The admission
+  // is the exact listed spelling, so it stays unrecovered rather than mis-mounted.
+  it.each([TechBaseMode.CLAN, TechBaseMode.MIXED])(
+    'does not admit CLCASE on a %s unit',
+    (unitTechBaseMode) => {
+      const { equipment, unrecoveredCriticalSlots } =
+        restoreCriticalSlotEquipmentWithDiagnostics(
+          [],
+          [],
+          TechBase.CLAN,
+          unitTechBaseMode,
+          { LEFT_TORSO: ['CLCASE'] },
+          50,
+        );
+      expect(equipment).toEqual([]);
+      expect(unrecoveredCriticalSlots).toEqual([
+        { text: 'CLCASE', location: L.LEFT_TORSO, slot: 0 },
+      ]);
+    },
+  );
+
   it.each([
     ['ISCASE', 'case'],
     ['ISCASEII', 'case'],

@@ -389,7 +389,8 @@ export function classifyCriticalSlotRecoveryKind(identity: {
   readonly physicalWeapon: boolean;
   readonly lookupToken: string;
   readonly equipmentName?: string;
-  /** The resolved id is an exact `criticalSlotEquipment` vocabulary row. */
+  /** The resolved id is an exact `criticalSlotEquipment` vocabulary row and
+   * the cell's lookup token is one of that row's listed native spellings. */
   readonly vocabularyEquipment: boolean;
 }): CriticalEntryKind {
   if (

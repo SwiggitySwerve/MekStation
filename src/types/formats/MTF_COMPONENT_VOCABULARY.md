@@ -82,8 +82,11 @@ into real mounts (PR-D). Each row is one **resolved equipment id** with the
 native spellings that resolve to it and their pinned `MiscType.java` /
 `Sensor.java` citation. A row carries no kind and no effect: the recovery kind
 comes from `criticalSlotNoticeEffects.ts`, and token-to-id resolution stays with
-`resolveEquipmentId`. Admission is exact membership of the resolved id, never a
-name or substring match.
+`resolveEquipmentId`. Admission needs both the exact resolved id and an exact
+listed spelling, never a name or substring match: a spelling the resolver merely
+maps onto a row id is not admitted (`CLCASE`, Java's 0 t Clan CASE, resolves to
+IS `case` at 0.5 t because the catalog has no Clan CASE identity; it stays in the
+residual).
 
 `mountAs` is identity only, never a kind or effect. **A row carries `mountAs`
 if and only if its resolved id is a registry stub** (`isRegistryEquipment`, the

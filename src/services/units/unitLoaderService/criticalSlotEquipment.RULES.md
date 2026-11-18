@@ -65,7 +65,9 @@ with the BV owner. This extraction changes no source admissions or outputs.
 ## Crit-only CASE and electronics (PR-D1)
 
 A source cell whose resolved id is an exact `criticalSlotEquipment` row in
-`mtf-component-vocabulary.json` is admitted; `classifyCriticalSlotRecoveryKind`
+`mtf-component-vocabulary.json`, and whose lookup token is one of that row's
+listed spellings, is admitted (`CLCASE` resolves to IS `case` but is not a
+listed spelling, so it is not mounted at the wrong mass); `classifyCriticalSlotRecoveryKind`
 names it `case` or `electronics` through the one notice table. The dispatcher
 recovers one mount per complete group of unreserved cells of that id at the
 location (`MtfFile.java:1049-1140`, MegaMek 48fcb2f64), after source weapons,

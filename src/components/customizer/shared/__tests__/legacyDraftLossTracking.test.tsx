@@ -169,8 +169,11 @@ it('hydrates a literal U3 pre-PR draft and recomputes an absent list from its ca
     strict: true,
   });
   expect(getUnitDraftFingerprint(store.getState())).toBe(before);
-  expect(screen.getByRole('note')).toHaveTextContent('BloodhoundActiveProbe');
-  expect(screen.getAllByRole('listitem')).toHaveLength(20);
+  // Bloodhound/CASE II are recovered since PR-D1; Chameleon still is not.
+  expect(screen.getByRole('note')).toHaveTextContent(
+    'Chameleon Light Polarization Shield',
+  );
+  expect(screen.getAllByRole('listitem')).toHaveLength(16);
 });
 
 it('hydrates a literal pre-PR imported draft without a source and warns before allowing save', async () => {
