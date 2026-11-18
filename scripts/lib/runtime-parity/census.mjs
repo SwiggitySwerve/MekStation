@@ -67,8 +67,16 @@ export function selectCaptureMode(values, env) {
     throw new Error('--sequential and --concurrent cannot both be given');
   if (values.sequential) return 'sequential';
   if (values.concurrent) return 'concurrent';
-  return env.CI ? 'concurrent' : 'sequential';
+  return isCi(env) ? 'concurrent' : 'sequential';
 }
+
+/** `CI` counts only when set to something other than empty, `false` or `0`, so `CI=false` in a shell stays local. */
+export const isCi = (env) => {
+  const value = String(env.CI ?? '')
+    .trim()
+    .toLowerCase();
+  return value !== '' && value !== 'false' && value !== '0';
+};
 
 /** UTC+14, so its calendar date differs from most zones' for most of the day; UTC-11 if that is already the inherited one. */
 export const concurrentTimeZone = (inherited) =>
@@ -278,6 +286,8 @@ export async function runCensus(argv, deps, spec) {
     );
   if (values.pr !== undefined && !/^[1-9][0-9]*$/.test(values.pr))
     throw new Error('--pr must be a positive integer');
+  // Decided with the other flag checks, so a --sequential/--concurrent conflict fails before any input is read.
+  const captureMode = selectCaptureMode(values, deps.env ?? process.env);
   const repoRoot = deps.repoRoot ?? spec.repoRoot;
   const capture = deps.capture ?? spec.capture;
   const out = path.resolve(values.out);
@@ -338,7 +348,6 @@ export async function runCensus(argv, deps, spec) {
     // together. Either way the runs are kept in index order. Concurrent runs after the first start later and
     // in another time zone (CONCURRENT_START_OFFSET_MS); sequential runs all inherit this process's
     // environment, as before.
-    const captureMode = selectCaptureMode(values, deps.env ?? process.env);
     const sequential = captureMode === 'sequential';
     const captureOffsetMs = sequential
       ? 0

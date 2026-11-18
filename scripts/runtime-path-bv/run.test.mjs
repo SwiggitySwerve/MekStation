@@ -852,6 +852,22 @@ test('the capture mode defaults to concurrent only on CI; --sequential and --con
     () => selectCaptureMode({ sequential: true, concurrent: true }, {}),
     /cannot both be given/,
   );
+  // Only a real CI value counts: CI=false or CI=0 in a shell must not turn on about 6 GB of concurrency.
+  for (const ci of ['false', 'FALSE', '0', '', '  '])
+    assert.equal(selectCaptureMode({}, { CI: ci }), 'sequential', `CI=${ci}`);
+  for (const ci of ['true', '1', 'yes'])
+    assert.equal(selectCaptureMode({}, { CI: ci }), 'concurrent', `CI=${ci}`);
+  // The conflict fails with the other flag checks, before any input is read.
+  await assert.rejects(
+    main(['--out', tmp(), '--sequential', '--concurrent'], {
+      repoRoot: tmp(),
+      env: {},
+      loadReference: () => {
+        throw new Error('inputs were read before the flag check');
+      },
+    }),
+    /cannot both be given/,
+  );
   // Through main(): what a local census without flags does, and the opt-in.
   const local = setup({ env: {} });
   assert.equal(await quietly(() => local.run()), 0);
