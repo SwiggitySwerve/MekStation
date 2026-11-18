@@ -38,9 +38,11 @@ The first stage leaves the config unchanged. Only after a main push runs the
 new Guard may the second stage initialize exact measured main R7 p75 times1.15;
 retain raw cohort/run/head/attempt evidence and never reset a later cap upward.
 
-The first enforced count baseline is 10 induced jobs, 57 unkeyable files and
+The first enforced count baseline was 10 induced jobs, 57 unkeyable files and
 93 repo-wide keys. Root authorized this bootstrap before any cap existed on
-main. `targets` retains 9/55/80 as tracked goals, displayed through
+main. The repo-wide limit is now 94: the owner raised it by one for
+`src/services/construction/__tests__/editableMechProjection.callers.test.ts`
+(PARITY-PLAN §185). `targets` retains 9/55/80 as tracked goals, displayed through
 `budgetTargetGaps`; missing observations remain unknown. Future relaxations
 require G3's label and exact-head owner approval. Automated ratchets only lower.
 The extra trusted Guard entered main in #2666 (597976eb3); including it corrects
