@@ -185,7 +185,7 @@ jobs:
 
       - name: Install Playwright system dependencies (browser cached)
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
+        uses: ./.github/actions/playwright-system-deps
 
       - name: Run full Playwright e2e suite
         env:
@@ -335,7 +335,7 @@ jobs:
 
       - name: Install Playwright system dependencies (browser cached)
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
+        uses: ./.github/actions/playwright-system-deps
 
       - name: Build production app for recapture
         env:
@@ -405,7 +405,7 @@ jobs:
 
       - name: Install Playwright system dependencies (browser cached)
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
+        uses: ./.github/actions/playwright-system-deps
 
       - name: Run the subsystem lane
         run: npx playwright test --grep "@subsystem:${{ matrix.subsystem }}" --project=chromium

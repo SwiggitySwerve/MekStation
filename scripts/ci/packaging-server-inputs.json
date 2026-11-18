@@ -1,0 +1,9 @@
+[
+  "scripts/equipment-catalog/capital-bv.json",
+  "scripts/validate-bv-calculator-setup.ts",
+  "scripts/validate-bv-crit-scan-types.ts",
+  "scripts/validate-bv-normalizers.ts",
+  "scripts/validate-bv-types.ts",
+  "scripts/validate-bv-unit-derived.ts",
+  "server.js"
+]
