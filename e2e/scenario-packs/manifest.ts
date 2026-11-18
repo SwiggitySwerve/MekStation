@@ -126,8 +126,8 @@ export const SCENARIO_PACK_MANIFEST: readonly ManifestEntry[] = [
     payloadPath: 'campaign/economy-midcampaign.campaign.json',
     provenance: {
       genesisSource: 'fast-forward:economy-midcampaign',
-      mintedAt: '2026-11-18T20:01:48.435Z',
-      baseCommit: '5d7fc9b81f6b87c0db050bae8df89082db78ffb9',
+      mintedAt: '2026-11-18T18:57:42.218Z',
+      baseCommit: '4f028a440ba166b03316f65df025d91416a0f8f5',
     },
     pins: { schemaVersion: 2 },
     postLoadActions: [],
