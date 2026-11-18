@@ -635,7 +635,6 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           SKIP_NOTARIZATION: 'true'
-          DEBUG: electron-builder # TEMPORARY proof run: logs the 7za -mx argument
 
       - name: Save electron-builder downloads
         if: ${{ !cancelled() && steps.electron-builder-cache.outputs.cache-hit != 'true' }}
