@@ -607,6 +607,15 @@ jobs:
         if: ${{ !cancelled() && needs.detect-changes.outputs.packaging == 'true' }}
         working-directory: desktop
         run: |
+          # electron-builder gzips tar.gz at -mx=9 unless this is set (archive.ts).
+          # The scheduled run keeps 9 so the release compression path stays
+          # exercised; level 3 measured 34x faster than 9 with an identical
+          # unpacked tar, and level 1 was no faster (C7 build-2x C1).
+          # $GITHUB_ENV carries it to the installer census, which records it.
+          if [ "$GITHUB_EVENT_NAME" != 'schedule' ]; then
+            export ELECTRON_BUILDER_COMPRESSION_LEVEL=3
+            echo "ELECTRON_BUILDER_COMPRESSION_LEVEL=3" >> "$GITHUB_ENV"
+          fi
           # @electron/get fetches fresh checksums even for cached Electron zips.
           for attempt in 1 2 3; do
             echo "Linux packaging attempt $attempt/3"
@@ -626,6 +635,7 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           SKIP_NOTARIZATION: 'true'
+          DEBUG: electron-builder # TEMPORARY proof run: logs the 7za -mx argument
 
       - name: Save electron-builder downloads
         if: ${{ !cancelled() && steps.electron-builder-cache.outputs.cache-hit != 'true' }}
