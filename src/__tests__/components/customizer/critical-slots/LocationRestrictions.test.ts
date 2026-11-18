@@ -347,9 +347,30 @@ describe('pinned Java mek locations', () => {
     MechLocation.RIGHT_TORSO,
   ];
 
-  it.each(BIPED)('IS CASE in %s is valid only in a torso', (location) => {
-    expect(isValidLocationForEquipment('case', location)).toBe(
+  // IS CASE and CASE-P share one clause (TestMek.java:1752-1753, IS_CASE / IS_CASE_P).
+  it.each(
+    ['case', 'case-p-prototype'].flatMap((id) =>
+      BIPED.map((location) => [id, location] as const),
+    ),
+  )('%s in %s is valid only in a torso', (id, location) => {
+    expect(isValidLocationForEquipment(id, location)).toBe(
       TORSOS.includes(location),
+    );
+  });
+
+  // CASE II (IS and Clan) and Clan CASE have no Java location rule; canonical
+  // units carry CASE II in their arms. `clan-case` has no catalog identity yet.
+  it.each(
+    ['caseii', 'clan-caseii', 'clan-case'].flatMap((id) =>
+      BIPED.map((location) => [id, location] as const),
+    ),
+  )('%s may be mounted in %s', (id, location) => {
+    expect(isValidLocationForEquipment(id, location)).toBe(true);
+  });
+
+  it('does not allow IS CASE in a tripod centre leg', () => {
+    expect(isValidLocationForEquipment('case', MechLocation.CENTER_LEG)).toBe(
+      false,
     );
   });
 

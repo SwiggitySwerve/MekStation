@@ -64,10 +64,18 @@ export const PLACEMENT_RULES: readonly EquipmentPlacementRule[] = [
     canSplit: false,
     maxPerLocation: 1,
   },
-  // IS CASE: any torso location, centre torso included (TestMek.java:1752-1760,
-  // `mek.locationIsTorso`). CASE II has no location rule.
+  // IS CASE and CASE-P: any torso location, centre torso included
+  // (TestMek.java:1752-1760, IS_CASE / IS_CASE_P, `mek.locationIsTorso`).
+  // CASE II (IS and Clan) and Clan CASE are deliberately unrestricted, as in Java.
   {
     equipmentId: 'case',
+    restriction: LocationRestriction.TORSO_ONLY,
+    mustBeContiguous: false,
+    canSplit: false,
+    maxPerLocation: 1,
+  },
+  {
+    equipmentId: 'case-p-prototype',
     restriction: LocationRestriction.TORSO_ONLY,
     mustBeContiguous: false,
     canSplit: false,
