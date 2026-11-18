@@ -14,7 +14,6 @@ import {
 } from '@/utils/gameplay/gameEvents/serialization';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
-import type { IMatchStore } from './IMatchStore';
 import type { IMatchCommandReceipt } from './matchCommandBatch';
 import type {
   IJournalAuthorityPathResult,
