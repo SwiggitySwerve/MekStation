@@ -102,3 +102,16 @@ therefore separates "stored = total" from "stored = source value" through the
 accessor. If a source ever states a value larger than the engine's integral capacity,
 the accessor would return the capacity, not the source value; that derived number is
 the consumer's concern.
+
+# MTF armor identity
+
+`enum_mapping_tables.ARMOR_TYPE_MAP` is built at import from the `armor` section
+of `src/types/formats/mtf-component-vocabulary.json`, the one owner of armor
+identity that the TypeScript parser and exporter read too. Each row's
+`mtf.spellings` is the exact set of armor strings the converter accepts; the
+map is their union. An unlisted spelling still raises (`map_armor_type`), as the
+converter has never guessed an armor identity. The TypeScript side accepts a
+different, normalised set; the differences are recorded in the fold's PR and
+neither side was changed. `scripts/__tests__/test_armor_identity_owner.py` fails
+if the owner and the unit contract, the BLK armor codes or this map disagree, and
+`test_armor_accepted_names.py` pins the accepted spellings.
