@@ -27,6 +27,10 @@ import type { ReplayQuarantineReason } from './ReplayQuarantineRegistry';
 import { REPLAY_BASELINE_CANONICAL_EVENT_TYPES } from './ReplayBaselineDomainRegistry';
 import { digestReplayCheckpointState } from './ReplayCheckpointCompatibility';
 import {
+  acceptAttributedReplayEvent,
+  REPLAY_SURFACE_REGISTRY,
+} from './ReplayEventAcceptance';
+import {
   LegacySourceAttributionError,
   bindLegacyObjectEvent,
 } from './ReplayLegacySourceAdapters';
@@ -45,10 +49,6 @@ export interface IReplayLibraryCensusState {
   readonly eventsApplied: number;
 }
 
-import {
-  acceptAttributedReplayEvent,
-  REPLAY_SURFACE_REGISTRY,
-} from './ReplayEventAcceptance';
 export {
   REPLAY_SURFACE_REGISTRY,
   splitHostStamps,

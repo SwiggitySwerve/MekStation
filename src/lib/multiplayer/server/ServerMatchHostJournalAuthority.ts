@@ -1,12 +1,13 @@
-import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
-
-import { InteractiveSession } from '@/engine/InteractiveSession';
-import { SeededRandom } from '@/simulation/core/SeededRandom';
 /**
  * DECIDE -> APPEND-AT-REVISION -> APPLY-COMMITTED-BATCH -> VERIFY -> PUBLISH.
  * Apply consumes the committed envelope; mismatch rebuilds from the journal.
  * Failures fold into one host-side recovery result (task 2.4).
  */
+
+import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
+
+import { InteractiveSession } from '@/engine/InteractiveSession';
+import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { nowIso } from '@/types/multiplayer/Protocol';
 import {
   prepareEventForSerialization,

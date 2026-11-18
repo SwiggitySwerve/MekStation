@@ -1,6 +1,3 @@
-import type { InteractiveSession } from '@/engine/InteractiveSession';
-import type { AuthorityRecoveryBlockedReason } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
-import type { ReplayQuarantineRegistry } from '@/lib/events/replay/ReplayQuarantineRegistry';
 /**
  * MatchRecovery — server-startup active-match recovery.
  *
@@ -25,6 +22,10 @@ import type { ReplayQuarantineRegistry } from '@/lib/events/replay/ReplayQuarant
  *
  * @spec openspec/changes/harden-multiplayer-transport/specs/multiplayer-server/spec.md
  */
+
+import type { InteractiveSession } from '@/engine/InteractiveSession';
+import type { AuthorityRecoveryBlockedReason } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
+import type { ReplayQuarantineRegistry } from '@/lib/events/replay/ReplayQuarantineRegistry';
 import type {
   IGameEvent,
   IGameSession,
