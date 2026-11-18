@@ -31,6 +31,7 @@ import {
   GamePhase,
   GameSide,
   MovementType,
+  ReplaySource,
   type IGameSession,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
@@ -41,6 +42,7 @@ import { deployPlacementsFor } from '@/utils/gameplay/gameState/initialization';
 import { loadReplayLibraryNdjson } from '../ReplayLibraryLoadPipeline';
 import { gateReplaySurfaceHistory } from '../ReplaySurfaceGate';
 import { replayFidelityState as boundaryState } from './replayFidelityTestState';
+import { expectLibraryRecordingSourceAtEveryBoundary } from './replayLibraryStateAllowance';
 
 const AT = '2026-11-11T00:00:00.000Z';
 const SEED = 42;
@@ -332,11 +334,14 @@ export async function runSwampLaunchContract(
       expect(loaded.kind === 'blocked' ? loaded.blockedLines : []).toEqual([]);
       if (loaded.kind !== 'loaded') throw new Error('Swamp NDJSON blocked');
       expect(loaded.events).toHaveLength(live.events.length);
-      expect(
-        boundaryState(
-          hydrateGameSessionFromEvents(live.id, loaded.events).currentState,
-        ),
-      ).toStrictEqual(boundaryState(live.currentState));
+      const sourceCounts = expectLibraryRecordingSourceAtEveryBoundary(
+        live.id,
+        live.events,
+        loaded.events,
+        live.currentState,
+        ReplaySource.Encounter,
+      );
+      console.info('SWAMP_LIBRARY_SOURCE_COUNTS', JSON.stringify(sourceCounts));
     }
     console.info(
       'SWAMP_LAUNCH_CONTRACT',

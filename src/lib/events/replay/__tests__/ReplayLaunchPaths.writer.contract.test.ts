@@ -55,7 +55,7 @@ import {
 } from '@/types/force';
 import {
   GameEventType,
-  type IGameEvent,
+  ReplaySource,
   type IGameSession,
 } from '@/types/gameplay';
 import {
@@ -65,6 +65,7 @@ import {
 
 import { loadReplayLibraryNdjson } from '../ReplayLibraryLoadPipeline';
 import { gateReplaySurfaceHistory } from '../ReplaySurfaceGate';
+import { expectLibraryRecordingSourceAtEveryBoundary } from './replayLibraryStateAllowance';
 
 const SEED = 42;
 const AT = '2026-11-11T00:00:00.000Z';
@@ -228,9 +229,11 @@ async function launchPreBattle(
 
 function assertAccepted(
   label: string,
-  events: readonly IGameEvent[],
+  session: IGameSession,
   raw: string,
+  source: ReplaySource,
 ): void {
+  const events = session.events;
   expect(events[0].type).toBe(GameEventType.GameCreated);
   const loaded = loadReplayLibraryNdjson(raw, label);
   expect(loaded.kind === 'blocked' ? loaded.blockedLines : []).toEqual([]);
@@ -252,6 +255,13 @@ function assertAccepted(
   expect(gate.kind === 'blocked' ? gate.blockedEvents : []).toEqual([]);
   expect(gate.kind).toBe('accepted');
   if (gate.kind === 'accepted') expect(gate.events).toHaveLength(events.length);
+  const sourceCounts = expectLibraryRecordingSourceAtEveryBoundary(
+    session.id,
+    events,
+    loaded.events,
+    session.currentState,
+    source,
+  );
   console.info(
     'LAUNCH_PATH_CONTRACT',
     JSON.stringify({
@@ -260,6 +270,8 @@ function assertAccepted(
       accepted: loaded.events.length,
       marked: 0,
       result: loaded.kind,
+      source,
+      sourceCounts,
     }),
   );
 }
@@ -278,7 +290,12 @@ async function persistEncounter(
   });
   expect(result.persisted).toBe(true);
   if (!result.path) throw new Error('No encounter file was written');
-  assertAccepted(label, session.events, await readFile(result.path, 'utf8'));
+  assertAccepted(
+    label,
+    session,
+    await readFile(result.path, 'utf8'),
+    ReplaySource.Encounter,
+  );
 }
 
 beforeEach(async () => {
@@ -370,8 +387,9 @@ describe('real launch-path production writer/read contract', () => {
     if (!result.path) throw new Error('No quick-game file was written');
     assertAccepted(
       'quick-store',
-      session.events,
+      session,
       await readFile(result.path, 'utf8'),
+      ReplaySource.Quick,
     );
   }, 120_000);
 
