@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { parse } from 'yaml';
 
 import {
   CI_SUITES,
@@ -25,6 +26,7 @@ import {
   prCensusArgs,
   prTaskArgs,
   recordDurations,
+  retryAccounting,
   shardTestLists,
   suitesForDataSpecs,
   testDescription,
@@ -697,4 +699,185 @@ test('only the recorder writes nightly-durations.json', (t) => {
         name,
       );
   }
+});
+
+// ---- Nightly Full E2E shards (E1) ----
+
+test('test.fail() rows record their expected failure; census-skipped rows weigh nothing', () => {
+  const report = (expectedStatus, status) => ({
+    suites: [
+      {
+        title: 'r.spec.ts',
+        specs: [
+          {
+            title: 'case',
+            file: 'r.spec.ts',
+            tests: [
+              {
+                projectName: 'chromium',
+                expectedStatus,
+                results: [{ duration: 4000, retry: 0, status }],
+              },
+            ],
+          },
+        ],
+        suites: [],
+      },
+    ],
+    errors: [],
+  });
+  const suites = nightlySuites(collectTests(report('failed', 'failed')));
+  assert.deepEqual(
+    Object.values(
+      recordDurations([report('failed', 'failed')], ['1'], suites).milliseconds,
+    ),
+    [4000],
+  );
+  // An ordinary test's unexpected failure is still never a weight.
+  assert.throws(
+    () => recordDurations([report('passed', 'failed')], ['1'], suites),
+    /No first-attempt/,
+  );
+  // A test the census lists as skipped and the seed cannot time weighs 0 and
+  // is not unknown; an unweighted runnable test still takes the largest.
+  const tests = [
+    ['a.spec.ts', 'passed'],
+    ['b.spec.ts', 'skipped'],
+    ['c.spec.ts', 'passed'],
+  ].map(([file, expectedStatus]) => {
+    const row = { file, titles: ['case'], project: 'chromium', expectedStatus };
+    return { ...row, key: testDescription(row) };
+  });
+  const plan = planSuiteShards(
+    tests,
+    { version: 1, milliseconds: { [tests[0].key]: 5000 } },
+    3,
+    nightlySuites(tests),
+  );
+  assert.equal(plan.unknown, 1);
+  assert.deepEqual(
+    plan.shards.map(({ milliseconds }) => milliseconds),
+    [5000, 5000, 0],
+  );
+});
+
+test('retry accounting names retry-only passes and keeps expected failures first-attempt', () => {
+  const row = (title, expectedStatus, ...statuses) => {
+    const test = {
+      file: 'a.spec.ts',
+      titles: [title],
+      project: 'chromium',
+      expectedStatus,
+      results: statuses.map((status, retry) => ({
+        status,
+        retry,
+        duration: 1,
+      })),
+    };
+    return { ...test, key: testDescription(test) };
+  };
+  assert.deepEqual(
+    retryAccounting([
+      row('pass', 'passed', 'passed'),
+      row('flaky', 'passed', 'failed', 'passed'),
+      row('red', 'passed', 'failed', 'failed', 'timedOut'),
+      row('xfail', 'failed', 'failed'),
+      row('skip', 'skipped', 'skipped'),
+    ]),
+    {
+      firstAttempt: [
+        '[chromium] › a.spec.ts › pass',
+        '[chromium] › a.spec.ts › xfail',
+      ],
+      retryOnly: [{ key: '[chromium] › a.spec.ts › flaky', attempts: 2 }],
+      failed: ['[chromium] › a.spec.ts › red'],
+      skipped: ['[chromium] › a.spec.ts › skip'],
+    },
+  );
+});
+
+const nightlyJobs = () =>
+  parse(
+    fs.readFileSync(
+      fileURLToPath(
+        new URL(
+          '../../.github/workflows/nightly-validation.yml',
+          import.meta.url,
+        ),
+      ),
+      'utf8',
+    ),
+  ).jobs;
+const ARMED_STEP = 'Run journal-armed privacy rows (E2E-19, E2E-25)';
+
+test('NIGHTLY_GREP_INVERT is the armed step --grep, and the armed rows run once', () => {
+  const jobs = nightlyJobs();
+  const armed = jobs['e2e-full-shard'].steps.filter(
+    ({ name }) => name === ARMED_STEP,
+  );
+  assert.equal(armed.length, 1);
+  assert.equal(/--grep "([^"]+)"/.exec(armed[0].run)?.[1], NIGHTLY_GREP_INVERT);
+  assert.ok(armed[0].run.includes('e2e/gm-two-player-privacy.pack.spec.ts'));
+  assert.equal(
+    armed[0].env.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE,
+    'enabled',
+  );
+  // One matrix leg only, and no other step anywhere runs the armed rows.
+  assert.equal(armed[0].if, '${{ !cancelled() && matrix.shard == 1 }}');
+  const steps = Object.values(jobs).flatMap(({ steps = [] }) => steps);
+  assert.equal(
+    steps.filter(({ run = '' }) =>
+      run.includes(`--grep "${NIGHTLY_GREP_INVERT}"`),
+    ).length,
+    1,
+  );
+});
+
+test('the Nightly Full E2E is three run-ci-e2e shards and a summary under the old name', () => {
+  const jobs = nightlyJobs();
+  const shard = jobs['e2e-full-shard'];
+  assert.equal(shard.name, 'Full E2E Shard (chromium, ${{ matrix.shard }}/3)');
+  assert.deepEqual(shard.strategy, {
+    'fail-fast': false,
+    matrix: { shard: [1, 2, 3] },
+  });
+  assert.equal(shard['timeout-minutes'], 180);
+  const run = shard.steps.find(
+    ({ name }) => name === 'Run full Playwright e2e suite',
+  );
+  assert.equal(
+    run.run,
+    'node scripts/playwright/run-ci-e2e.mjs --suite-set nightly --shard=${{ matrix.shard }}/3',
+  );
+  assert.deepEqual(run.env, {
+    MEKSTATION_E2E_SERVER_COMMAND:
+      'cd .next/standalone && node ../../scripts/e2e/relaunching-server.mjs',
+    HOSTNAME: '127.0.0.1',
+    MEKSTATION_E2E_REPLAY_FIXTURE_ROOT:
+      '${{ github.workspace }}/.next/standalone',
+  });
+  assert.deepEqual(
+    shard.steps
+      .filter(({ uses = '' }) => uses.startsWith('actions/upload-artifact@'))
+      .map((step) => [step.if, step.with.name]),
+    [
+      ['always()', 'nightly-playwright-report-${{ matrix.shard }}'],
+      ['always()', 'nightly-e2e-timings-${{ matrix.shard }}'],
+    ],
+  );
+  const summary = jobs['e2e-full'];
+  assert.equal(summary.name, 'Full E2E Suite (chromium)');
+  assert.equal(summary.needs, 'e2e-full-shard');
+  assert.equal(summary.if, 'always()');
+  assert.ok(summary['timeout-minutes'] <= 10);
+  const check = summary.steps.at(-1);
+  assert.equal(
+    check.run,
+    'node scripts/playwright/summarize-nightly-shards.mjs 3 e2e-shards',
+  );
+  assert.equal(
+    check.env.NIGHTLY_SHARD_RESULT,
+    '${{ needs.e2e-full-shard.result }}',
+  );
+  assert.ok(jobs['notify-on-failure'].needs.includes('e2e-full'));
 });

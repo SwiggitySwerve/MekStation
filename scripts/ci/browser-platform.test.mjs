@@ -20,7 +20,7 @@ const workflows = {
 };
 const browserJobs = [
   ['pr', 'e2e'],
-  ['nightly', 'e2e-full'],
+  ['nightly', 'e2e-full-shard'],
   ['nightly', 'scenario-pack-recapture'],
   ['nightly', 'subsystem-lanes'],
   ['camp', 'publish-live-evidence'],
@@ -78,7 +78,7 @@ test('Windows and macOS keep existing namespaces without reading Linux metadata'
   assert.equal(cachePlatform({ os: 'macOS' }), 'macOS');
 });
 
-test('all eleven existing Linux browser legs use supported Ubuntu 24.04', () => {
+test('all thirteen existing Linux browser legs use supported Ubuntu 24.04', () => {
   let linux = 0;
   let windows = 0;
   for (const [workflow, id] of browserJobs) {
@@ -92,7 +92,7 @@ test('all eleven existing Linux browser legs use supported Ubuntu 24.04', () => 
       }
     }
   }
-  assert.equal(linux, 11);
+  assert.equal(linux, 13);
   assert.equal(windows, 1);
 });
 

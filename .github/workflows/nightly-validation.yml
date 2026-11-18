@@ -132,15 +132,25 @@ jobs:
   # catching regressions. The lane proves the functional flows in
   # every spec; pixel-level visual regression remains a local
   # (win32) concern.
+  #
+  # Three duration-balanced shards, each one worker with its own server
+  # and database, as the single job had. run-ci-e2e plans the live census
+  # (--grep-invert NIGHTLY_GREP_INVERT in scripts/playwright/ci-e2e-plan.mjs)
+  # by config/playwright/nightly-durations.json, keeps files whole, and runs
+  # the shard through run-playwright.mjs. The "Full E2E Suite (chromium)"
+  # job below summarises the shards under the name the history readers use.
   # ---------------------------------------------------------------
-  e2e-full:
-    name: Full E2E Suite (chromium)
+  e2e-full-shard:
+    name: Full E2E Shard (chromium, ${{ matrix.shard }}/3)
     needs: install-deps
     runs-on: ubuntu-24.04
-    # 642 tests in 37 files at the CI single-worker setting
-    # (playwright.config.ts workers: 1) — generous first-run ceiling;
-    # tighten once real nightly durations are known.
+    # Single-worker CI setting (playwright.config.ts workers: 1); run-ci-e2e
+    # also kills a shard's Playwright tree after 150 minutes.
     timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
 
     steps:
       - name: Checkout code
@@ -197,8 +207,10 @@ jobs:
           HOSTNAME: '127.0.0.1'
           MEKSTATION_E2E_REPLAY_FIXTURE_ROOT: ${{ github.workspace }}/.next/standalone
         # E2E-19 and E2E-25 need the combat-journal fixture arm, which the
-        # whole suite must not run under; they run armed in the next step.
-        run: node scripts/playwright/run-playwright.mjs test --project=chromium --ignore-snapshots --grep-invert "@E2E-19|@E2E-25"
+        # whole suite must not run under; the census excludes them
+        # (NIGHTLY_GREP_INVERT) and shard 1 runs them armed in the next step.
+        # The JSON report lands in e2e-timings/nightly.json.
+        run: node scripts/playwright/run-ci-e2e.mjs --suite-set nightly --shard=${{ matrix.shard }}/3
 
       # E2E-19 and E2E-25 (e2e/gm-two-player-privacy.pack.spec.ts) preview a
       # GM rewind, which needs GET /api/matches/:id/head to name a journal
@@ -208,12 +220,14 @@ jobs:
       # those two rows the way scripts/qc/gm-two-player-campaign-core.cjs
       # arms the privacy-pack group ('enabled'; the arm is honoured only with
       # NEXT_PUBLIC_E2E_MODE=true, which the build step above sets).
+      # It runs once, on shard 1 only.
       # U24b OBLIGATION: the production combat-journal cutover retires this
-      # arm. The PR that lands U24b must delete this step and the
-      # --grep-invert above in the same change, or this step forwards a key
+      # arm. The PR that lands U24b must delete this step and
+      # NIGHTLY_GREP_INVERT in scripts/playwright/ci-e2e-plan.mjs (the
+      # census exclusion) in the same change, or this step forwards a key
       # nothing reads. Do not replace this split with a skip guard in the spec.
       - name: Run journal-armed privacy rows (E2E-19, E2E-25)
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && matrix.shard == 1 }}
         env:
           MEKSTATION_E2E_SERVER_COMMAND: 'cd .next/standalone && node ../../scripts/e2e/relaunching-server.mjs'
           HOSTNAME: '127.0.0.1'
@@ -227,12 +241,59 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: nightly-playwright-report
+          name: nightly-playwright-report-${{ matrix.shard }}
           path: |
-            playwright-report
+            playwright-report-nightly
             test-results
             test-results-journal-armed
           retention-days: 7
+
+      # The executed-test JSON feeds the summary's union check and later
+      # duration reseeds (record-ci-e2e-durations.mjs --suite-set nightly).
+      - name: Upload executed-test report and plan
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nightly-e2e-timings-${{ matrix.shard }}
+          path: e2e-timings
+          retention-days: 7
+
+  # ---------------------------------------------------------------
+  # Summary of the shards under the job name D-11 and the history readers
+  # use. Runs after every shard, whatever their outcome. Fails unless the
+  # whole matrix succeeded (cancelled or skipped fail too) and the shards'
+  # executed tests equal a fresh census of this head exactly. Retry-only
+  # passes are printed as named observations.
+  # ---------------------------------------------------------------
+  e2e-full:
+    name: Full E2E Suite (chromium)
+    needs: e2e-full-shard
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '22'
+          build-caches: 'false'
+
+      - name: Download shard reports
+        uses: actions/download-artifact@v8
+        with:
+          pattern: nightly-e2e-timings-*
+          path: e2e-shards
+
+      # Runs even when no shard uploaded anything, so the reasons print.
+      - name: Check shards, census union and retries
+        if: ${{ !cancelled() }}
+        env:
+          NIGHTLY_SHARD_RESULT: ${{ needs.e2e-full-shard.result }}
+        run: node scripts/playwright/summarize-nightly-shards.mjs 3 e2e-shards
 
   # ---------------------------------------------------------------
   # Coverage thresholds (E-9). jest.config.js has carried

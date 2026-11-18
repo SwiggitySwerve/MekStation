@@ -603,7 +603,15 @@ describe('GM and two-player campaign QC runner', () => {
     };
     const stepA = stepBlock('Run full Playwright e2e suite');
     const stepB = stepBlock('Run journal-armed privacy rows (E2E-19, E2E-25)');
-    const invert = /--grep-invert "([^"]+)"/.exec(stepA)?.[1];
+    // Step A runs a shard of the Nightly suite set, whose census exclusion
+    // is NIGHTLY_GREP_INVERT in ci-e2e-plan.mjs (read as text, like the YAML).
+    expect(stepA).toContain('run-ci-e2e.mjs --suite-set nightly');
+    const invert = /export const NIGHTLY_GREP_INVERT = '([^']+)';/.exec(
+      readFileSync(
+        path.join(repoRoot, 'scripts/playwright/ci-e2e-plan.mjs'),
+        'utf8',
+      ),
+    )?.[1];
     const armed = /--grep "([^"]+)"/.exec(stepB)?.[1];
     expect(invert).toBe(core.JOURNAL_ARMED_ROWS);
     expect(armed).toBe(core.JOURNAL_ARMED_ROWS);
