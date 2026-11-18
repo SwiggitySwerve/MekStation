@@ -1,10 +1,7 @@
 import { readFileSync } from 'node:fs';
 
 import { budgetRaises, validateBudgets } from './budget-config.mjs';
-import {
-  dependencyCounts,
-  dependencyViolations,
-} from './budget-dependencies.mjs';
+import { dependencyCounts } from './budget-dependencies.mjs';
 import {
   checkBudgetRaise,
   APPROVAL_CONTEXT,
@@ -179,28 +176,18 @@ export async function checkBudgetPolicy({
           throw new Error('Expected ordinary JSON blob');
         return JSON.parse(Buffer.from(data.content, 'base64').toString('utf8'));
       };
-      const config = validateBudgets(await read('config/ci/budgets.json'));
-      const counts = {};
+      // Dependency counts are report-only (PARITY-PLAN §193.2); an unreadable
+      // budget or a manifest/lockfile disagreement still fails closed.
+      validateBudgets(await read('config/ci/budgets.json'));
       for (const scope of ['root', 'desktop']) {
         const prefix = scope === 'root' ? '' : 'desktop/';
-        counts[scope] = dependencyCounts(
+        dependencyCounts(
           await read(`${prefix}package.json`),
           await read(`${prefix}package-lock.json`),
           scope,
         );
       }
-      const violations = dependencyViolations(
-        config,
-        counts,
-        initial.labels.map((label) => label.name),
-      );
-      if (violations.length)
-        result = {
-          allowed: false,
-          code: 'dependency-growth',
-          message: violations.map((v) => v.message).join('; '),
-        };
-      else result = await boundRaise(); // refresh live reviews after dependency reads
+      result = await boundRaise(); // refresh live reviews after dependency reads
     } catch (error) {
       result = {
         allowed: false,

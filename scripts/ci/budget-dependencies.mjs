@@ -1,6 +1,5 @@
-// One dependency census/label rule shared by filesystem and live JSON checks.
+// One dependency census rule shared by filesystem and live JSON checks.
 import { exactKeys } from './budget-config.mjs';
-export const DEPENDENCY_GROWTH_LABEL = 'ci-dependency-growth';
 
 export function dependencyCounts(manifest, lock, scope) {
   if (lock.lockfileVersion !== 3 || !lock.packages?.[''])
@@ -25,13 +24,9 @@ export function dependencyCounts(manifest, lock, scope) {
   };
 }
 
-export function dependencyViolations(config, dependencies, labels) {
-  if (
-    !Array.isArray(labels) ||
-    labels.some((label) => typeof label !== 'string')
-  )
-    throw new Error('PR labels missing/unknown');
-  const violations = [];
+/** Counts over their configured values; report-only (PARITY-PLAN §193.2). */
+export function dependencyOverBudget(config, dependencies) {
+  const over = [];
   for (const scope of ['root', 'desktop']) {
     exactKeys(
       dependencies[scope],
@@ -39,18 +34,20 @@ export function dependencyViolations(config, dependencies, labels) {
       `dependencies ${scope}`,
     );
     for (const id of ['lockEntries', 'directDependencies']) {
-      const actual = dependencies[scope][id];
-      if (!Number.isSafeInteger(actual) || actual < 0)
+      const value = dependencies[scope][id];
+      if (!Number.isSafeInteger(value) || value < 0)
         throw new Error(`Unknown dependency count: ${scope}.${id}`);
-      if (
-        actual > config.dependencies[scope][id] &&
-        !labels.includes(DEPENDENCY_GROWTH_LABEL)
-      )
-        violations.push({
+      const limit = config.dependencies[scope][id];
+      if (value > limit)
+        over.push({
           code: 'dependencyGrowth',
-          message: `${scope}.${id}: ${actual} > ${config.dependencies[scope][id]}; requires ${DEPENDENCY_GROWTH_LABEL}`,
+          key: `dependencies.${scope}.${id}`,
+          value,
+          limit,
+          delta: value - limit,
+          message: `${value} > ${limit}`,
         });
     }
   }
-  return violations;
+  return over;
 }

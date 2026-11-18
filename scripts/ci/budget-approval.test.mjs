@@ -12,10 +12,12 @@ import {
   STALE_REF_REMEDY,
 } from './budget-approval.mjs';
 import { loadBudgets } from './budget-config.mjs';
-import { DEPENDENCY_GROWTH_LABEL } from './budget-dependencies.mjs';
 import { reconcileBudgetStatuses } from './budget-reconcile.mjs';
 import { BUDGET_RAISE_LABEL } from './garden-approval.mjs';
 import { summaryFixture } from './test-helpers/summary.mjs';
+
+// A label with no budget meaning: a PR carrying only it has no raise label.
+const OTHER_LABEL = 'other-label';
 
 // Every caller binds the run to a head. These rows run for the fixture's head
 // unless they name another; the binding rows call checkBudgetPolicy directly.
@@ -30,14 +32,27 @@ function fixture() {
     root: { lockEntries: 1, directDependencies: 1 },
     desktop: { lockEntries: 1, directDependencies: 1 },
   };
-  const budgets = { base: null, head: config };
+  // By default the PR raises a non-count budget (the E2E timeout) with the
+  // raise label and the owner's approval of its live head, so removing the
+  // label or the approval is a refusal. Counts are report-only (§193.2).
+  const budgets = { base: structuredClone(config), head: config };
+  raiseE2eTimeout(budgets.head);
   const pull = {
     number: 1,
     state: 'open',
+    user: { id: 2, login: 'author' },
     head: { sha: 'a'.repeat(40) },
     base: { sha: 'b'.repeat(40), ref: 'main', repo: { full_name: 'o/r' } },
-    labels: [{ name: DEPENDENCY_GROWTH_LABEL }],
+    labels: [{ name: BUDGET_RAISE_LABEL }],
   };
+  const reviews = [
+    {
+      id: 5,
+      submitted_at: '2026-11-01T00:00:00Z',
+      user: { id: 1, type: 'User', login: 'owner' },
+      state: 'APPROVED',
+    },
+  ];
   const manifest = { dependencies: { x: '1' } },
     lock = {
       lockfileVersion: 3,
@@ -122,10 +137,26 @@ function fixture() {
     paginate: async (method) =>
       method === github.rest.repos.listPullRequestsAssociatedWithCommit
         ? [structuredClone(pull)]
-        : [],
+        : method === github.rest.pulls.listReviews
+          ? reviews.map((review) => ({ ...review, commit_id: pull.head.sha }))
+          : [],
   };
-  return { github, pull, statuses, budgets };
+  return { github, pull, statuses, budgets, reviews };
 }
+
+/** Set the E2E timeout with samples whose recorded median yields it. */
+function setE2eTimeout(config, minutes) {
+  const timeout = config.timeouts.e2e;
+  timeout.minutes = minutes;
+  timeout.medianSeconds = minutes * 30 - 10;
+  timeout.samples = [
+    { runId: 1, job: 'E2E (1/2)', seconds: timeout.medianSeconds },
+  ];
+}
+
+/** A non-count raise: the E2E timeout from its configured minutes to one more. */
+const raiseE2eTimeout = (config) =>
+  setE2eTimeout(config, config.timeouts.e2e.minutes + 1);
 
 test('legacy byte fields on the PR head are allowed with no raise or status writes', async () => {
   for (const [onBase, onHead] of [
@@ -159,7 +190,7 @@ test('legacy byte fields on the PR head are allowed with no raise or status writ
   }
 });
 
-test('legacy fields cannot mask unknown fields or a count raise requiring approval', async () => {
+test('legacy fields cannot mask unknown fields or a timeout raise requiring approval', async () => {
   for (const side of ['base', 'head']) {
     const f = fixture();
     f.budgets.base = structuredClone(f.budgets.head);
@@ -177,13 +208,15 @@ test('legacy fields cannot mask unknown fields or a count raise requiring approv
   }
   const f = fixture();
   f.pull.user = { id: 2, login: 'contributor' };
+  f.pull.labels = [];
+  f.reviews.length = 0;
   f.budgets.base = structuredClone(f.budgets.head);
   Object.assign(f.budgets.head.limits, {
     standaloneStaticBytes: 290_000_000,
     webZipBytes: 92_000_000,
     installerBytes: 170_000_000,
-    repoWideKeys: f.budgets.base.limits.repoWideKeys + 1,
   });
+  raiseE2eTimeout(f.budgets.head);
   const args = {
     github: f.github,
     owner: 'o',
@@ -283,17 +316,41 @@ test('draft to ready retains successful required statuses on the same exact head
   assert.deepEqual(outcomes[0], outcomes[1]);
 });
 
-test('live policy rejects dependency-label removal and publishes a failed current-head status', async () => {
+test('dependency growth without its label is report-only and publishes success (PARITY-PLAN §193.2)', async () => {
   const fixture_ = fixture(),
     args = { github: fixture_.github, owner: 'o', repo: 'r', number: 1 };
-  assert.equal((await policy(args)).allowed, true);
-  assert.equal(fixture_.statuses.at(-1).state, 'success');
+  // No gated raise; the fixture's lockfile is over its dependency budget.
+  fixture_.budgets.base = structuredClone(fixture_.budgets.head);
   fixture_.pull.labels = [];
   const result = await policy(args);
-  assert.equal(result.allowed, false);
-  assert.equal(result.code, 'dependency-growth');
-  assert.equal(fixture_.statuses.at(-1).state, 'failure');
+  assert.equal(result.allowed, true, result.message);
+  assert.equal(fixture_.statuses.at(-1).state, 'success');
   assert.equal(fixture_.statuses.at(-1).sha, fixture_.pull.head.sha);
+});
+
+test('a manifest and lockfile that disagree still fail closed as invalid-dependencies', async () => {
+  const fixture_ = fixture();
+  const read = fixture_.github.rest.repos.getContent;
+  fixture_.github.rest.repos.getContent = async (request) => {
+    const response = await read(request);
+    if (!request.path.endsWith('package-lock.json')) return response;
+    const lock = JSON.parse(Buffer.from(response.data.content, 'base64'));
+    lock.packages[''] = { dependencies: { other: '1' } };
+    return {
+      data: {
+        encoding: 'base64',
+        content: Buffer.from(JSON.stringify(lock)).toString('base64'),
+      },
+    };
+  };
+  const result = await policy({
+    github: fixture_.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.code, 'invalid-dependencies');
+  assert.equal(fixture_.statuses.at(-1).state, 'failure');
 });
 
 test('primary policy gate reads live rules without a write token; unknown JSON is red', async () => {
@@ -609,32 +666,11 @@ test('race: the new head reports success, then the stale run writes last; the ne
   assert.equal(finalState(statuses, OLD_HEAD, 'Lint and Test'), 'failure');
 });
 
-// A budget raise the owner approved on the exact head, with the raise label.
+// A budget raise the owner approved on the exact head, with the raise label
+// (the fixture's E2E timeout raise) and an unrelated label.
 function approvedRaise() {
   const f = fixture();
-  const base = structuredClone(f.budgets.head);
-  const head = structuredClone(base);
-  head.limits.typicalPrJobs += 1;
-  f.budgets.base = base;
-  f.budgets.head = head;
-  f.pull.user = { login: 'author', id: 2 };
-  f.pull.labels = [
-    { name: DEPENDENCY_GROWTH_LABEL },
-    { name: BUDGET_RAISE_LABEL },
-  ];
-  const paginate = f.github.paginate;
-  f.github.paginate = async (method, args) =>
-    method !== f.github.rest.pulls.listReviews
-      ? paginate(method, args)
-      : [
-          {
-            id: 5,
-            submitted_at: '2026-11-01T00:00:00Z',
-            user: { id: 1, type: 'User', login: 'owner' },
-            commit_id: f.pull.head.sha,
-            state: 'APPROVED',
-          },
-        ];
+  f.pull.labels = [{ name: OTHER_LABEL }, { name: BUDGET_RAISE_LABEL }];
   return f;
 }
 
@@ -1228,14 +1264,14 @@ test('a reconciliation success that clears a stale red is corrected after a post
 test('hourly reconciliation withdraws a green after main lowers a cap without any PR event or label', async () => {
   const f = approvedRaise();
   f.budgets.head = structuredClone(f.budgets.base);
-  f.pull.labels = [{ name: DEPENDENCY_GROWTH_LABEL }];
+  f.pull.labels = [{ name: OTHER_LABEL }];
   assert.equal(
     (await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 }))
       .allowed,
     true,
   );
   assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'success');
-  f.budgets.base.limits.typicalPrJobs--;
+  setE2eTimeout(f.budgets.base, f.budgets.base.timeouts.e2e.minutes - 1);
   const result = await reconciliationCensus(f)();
   assert.equal(result.results[0].code, 'missing-label');
   for (const name of ['Lint and Test', 'CI Budget Raise Approval'])
@@ -1466,7 +1502,7 @@ test('label workflow fails an unchanged budget head after main lowered the cap a
   // No budget change on this branch: its budget remains the merge-base value.
   const mergeBaseBudget = structuredClone(f.budgets.base);
   f.budgets.head = structuredClone(mergeBaseBudget);
-  f.budgets.base.limits.typicalPrJobs -= 1;
+  setE2eTimeout(f.budgets.base, f.budgets.base.timeouts.e2e.minutes - 1);
   assert.deepEqual(f.budgets.head, mergeBaseBudget);
   f.github.rest.pulls.listFiles = () =>
     assert.fail('File diffs must not gate label reevaluation');
@@ -1502,7 +1538,7 @@ test('a queued direct evaluation after close or merge still reads live labels an
 
 test('a budget raise with no label cannot obtain a successful required Lint and Test by any path', async () => {
   const f = approvedRaise();
-  f.pull.labels = [{ name: DEPENDENCY_GROWTH_LABEL }];
+  f.pull.labels = [{ name: OTHER_LABEL }];
   // Path 1: the guard and approval workflows publish statuses.
   const published = await policy({
     github: f.github,
@@ -1571,7 +1607,7 @@ test('X then Y then X: an approval evaluated on another head never publishes suc
   const f = approvedRaise();
   const X = f.pull.head.sha;
   const Y = 'f'.repeat(40);
-  f.pull.labels = [{ name: DEPENDENCY_GROWTH_LABEL }];
+  f.pull.labels = [{ name: OTHER_LABEL }];
   const noRaise = structuredClone(f.budgets.base);
   const content = f.github.rest.repos.getContent;
   f.github.rest.repos.getContent = async (args) =>
@@ -2844,26 +2880,25 @@ test('seeded interleavings: a quiescent current head with any revoked associated
 
 test('an owner-authored raise passes only on a matching record at the PR base, never the head', async () => {
   const recordPath = 'config/ci/approved-budget-raises.json';
-  const record = {
-    schema: 'mekstation/ci-budget-raise-approvals/v1',
-    approvals: [
-      {
-        pr: 1,
-        key: 'limits.repoWideKeys',
-        from: 93,
-        to: 94,
-        ruling: { section: 'PARITY-PLAN §185', quote: 'Raise to 94.' },
-      },
-    ],
-  };
   const outcomes = {};
   for (const recordAt of ['base', 'head', 'none']) {
     const f = fixture();
     f.pull.user = { id: 1, login: 'owner' };
-    f.pull.labels.push({ name: BUDGET_RAISE_LABEL });
-    f.budgets.base = structuredClone(f.budgets.head);
-    f.budgets.base.limits.repoWideKeys = 93;
-    f.budgets.head.limits.repoWideKeys = 94;
+    const record = {
+      schema: 'mekstation/ci-budget-raise-approvals/v1',
+      approvals: [
+        {
+          pr: 1,
+          key: 'timeouts.e2e.minutes',
+          from: f.budgets.base.timeouts.e2e.minutes,
+          to: f.budgets.head.timeouts.e2e.minutes,
+          ruling: {
+            section: 'PARITY-PLAN §185',
+            quote: 'Raise by one minute.',
+          },
+        },
+      ],
+    };
     const read = f.github.rest.repos.getContent;
     f.github.rest.repos.getContent = async (request) => {
       if (request.path !== recordPath) return read(request);
@@ -2891,4 +2926,32 @@ test('an owner-authored raise passes only on a matching record at the PR base, n
     head: [false, 'self-approval'],
     none: [false, 'self-approval'],
   });
+});
+
+test('an owner-authored count-only raise passes as count-report-only with no label or record', async () => {
+  const f = fixture();
+  f.pull.user = { id: 1, login: 'owner' };
+  f.pull.labels = [];
+  f.budgets.base = structuredClone(f.budgets.head);
+  f.budgets.head.limits.repoWideKeys += 2;
+  f.budgets.head.dependencies.root.lockEntries += 5;
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.allowed, true, result.message);
+  assert.equal(result.code, 'count-report-only');
+  assert.match(result.message, /limits\.repoWideKeys \d+->\d+ \(\+2\)/);
+  assert.match(result.message, /dependencies\.root\.lockEntries 1->6 \(\+5\)/);
+  assert.equal(f.statuses.at(-1).state, 'success');
+  assert.ok(
+    f.statuses.some(
+      (s) =>
+        s.context === 'CI Budget Raise Approval' &&
+        s.state === 'success' &&
+        s.description.startsWith('count-report-only: '),
+    ),
+  );
 });
