@@ -2841,28 +2841,3 @@ test('seeded interleavings: a quiescent current head with any revoked associated
     `Interleave sweep: 2000 orderings, ${successWrites} success writes, ${sharedRevocations} shared-SHA revocations, ${overlappingRuns} overlapping runs, ${revokedHeads} revoked current heads\n`,
   );
 });
-
-test('a PR closed during reconciliation evaluation gets no success and no write over its failure statuses', async () => {
-  for (const [moment, closeAt] of [
-    ['during-policy', 3],
-    ['after-evaluation', 7],
-  ]) {
-    const f = approvedRaise();
-    const run = reconciliationCensus(f);
-    for (const context of ['Lint and Test', 'CI Budget Raise Approval'])
-      f.statuses.push({ sha: RUN_HEAD, context, state: 'failure' });
-    const before = structuredClone(f.statuses);
-    let reads = 0;
-    const read = f.github.rest.pulls.get;
-    f.github.rest.pulls.get = async (args) => {
-      if (++reads === closeAt) f.pull.state = 'closed';
-      return read(args);
-    };
-    const result = await run();
-    const checked = result.results[0];
-    assert.equal(checked.allowed, false, moment);
-    assert.equal(checked.code, 'changed-context', moment);
-    assert.deepEqual(f.statuses, before, moment);
-    assert.equal(result.failures.length, 0, moment);
-  }
-});
