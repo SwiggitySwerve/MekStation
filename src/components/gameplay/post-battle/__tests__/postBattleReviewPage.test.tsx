@@ -12,6 +12,7 @@ import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
+import { withIdentityManifest } from '@/lib/campaign/__tests__/identityBattleUnitManifest';
 import * as battleHelpers from '@/lib/campaign/processors/postBattleProcessor.helpers';
 import PostBattleReviewPage from '@/pages/gameplay/games/[id]/review';
 import {
@@ -44,7 +45,7 @@ jest.mock('next/router', () => ({
 }));
 
 function makeOutcome(): ICombatOutcome {
-  return {
+  return withIdentityManifest({
     version: COMBAT_OUTCOME_VERSION,
     matchId: 'match-001',
     contractId: null,
@@ -81,7 +82,7 @@ function makeOutcome(): ICombatOutcome {
         },
       },
     ],
-  };
+  });
 }
 
 describe('PostBattleReviewPage — Return to Campaign CTA', () => {
