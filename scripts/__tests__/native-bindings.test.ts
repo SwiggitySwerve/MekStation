@@ -27,10 +27,8 @@ function makeImage(files: Record<string, string>): string {
 }
 
 function runCheck(image: string) {
-  return spawnSync(NODE, [MODULE_PATH, image], {
-    encoding: 'utf8',
-    env: { ...process.env, [SKIP_ENV]: '' },
-  });
+  // The module itself never reads the skip variable; only the hydrate does.
+  return spawnSync(NODE, [MODULE_PATH, image], { encoding: 'utf8' });
 }
 
 describe('native binding load check (PARITY-PLAN 1.0.53)', () => {
