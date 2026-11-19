@@ -249,6 +249,56 @@ export function mapTechBaseMode(techBaseStr: string): TechBaseMode {
   return TechBaseMode.INNER_SPHERE;
 }
 
+/** Plain definition facts that can state a component's technology side. */
+interface IComponentTechSideSource {
+  readonly techBase?: unknown;
+  readonly componentTechBases?: Readonly<Partial<Record<string, unknown>>>;
+  readonly engine?: { readonly type?: unknown };
+}
+
+/**
+ * The technology side a definition states for one component (rows 2.1.3,
+ * 2.1.5). A stated `componentTechBases` side wins; a pure definition's own tech
+ * base answers otherwise. A Mixed definition that states no side is unknown
+ * (`undefined`), never Inner Sphere: the converter states every Mixed side the
+ * pinned loaders derive (MegaMek 48fcb2f64 BLKFile.java:1951-1958,
+ * MtfFile.java:387-392), so absence is not evidence.
+ */
+export function resolveDefinitionComponentTechBase(
+  definition: IComponentTechSideSource,
+  component: 'armor' | 'engine',
+): TechBase | undefined {
+  const stated = definition.componentTechBases?.[component];
+  if (stated === 'CLAN') return TechBase.CLAN;
+  if (stated === 'INNER_SPHERE') return TechBase.INNER_SPHERE;
+  const techBase = String(definition.techBase ?? 'INNER_SPHERE');
+  return mapTechBaseMode(techBase) === TechBaseMode.MIXED
+    ? undefined
+    : mapTechBase(techBase);
+}
+
+/**
+ * A mek's engine side. Precedence: an engine token that names a side wins
+ * (`mapEngineType`: CLAN_XL is Clan; XL takes the unit side, Inner Sphere on a
+ * Mixed mek, where the converter writes XL only for an Inner Sphere engine
+ * line, `test_mixed_tech_sides.py`); then the stated component side; then a
+ * pure mek's tech base. A Mixed mek that states neither is unknown.
+ */
+export function resolveMechEngineTechBase(
+  definition: IComponentTechSideSource,
+): TechBase | undefined {
+  const token = definition.engine?.type;
+  if (typeof token === 'string') {
+    const engineType = mapEngineType(
+      token,
+      mapTechBase(String(definition.techBase ?? 'INNER_SPHERE')),
+    );
+    if (engineType === EngineType.XL_CLAN) return TechBase.CLAN;
+    if (engineType === EngineType.XL_IS) return TechBase.INNER_SPHERE;
+  }
+  return resolveDefinitionComponentTechBase(definition, 'engine');
+}
+
 /**
  * Preserve unit identity after the existing component projection, including
  * saved binary editor snapshots. MegaMek 48fcb2f64 BLKFile.setTechLevel keeps

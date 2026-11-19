@@ -47,6 +47,8 @@ import {
   mapTechBase,
   mapTechBaseMode,
   mapUnitTechBaseIdentity,
+  resolveArmorType,
+  resolveDefinitionComponentTechBase,
 } from './componentMappers';
 import { createVehicleSession } from './createVehicleSession';
 import { isDefinitionForFamily } from './definitionTypes';
@@ -59,7 +61,8 @@ type UnsupportedVehicleField =
   | 'unitType'
   | 'motionType'
   | 'engine.type'
-  | 'armor.type';
+  | 'armor.type'
+  | 'armor.techBase';
 
 /** Contract value in plain words: "FERRO_LAMELLOR" becomes "ferro lamellor". */
 const plain = (value: string) => value.toLowerCase().replace(/_/g, ' ');
@@ -74,6 +77,8 @@ const UNSUPPORTED_VEHICLE_COPY: Readonly<
     `The vehicle editor cannot open vehicles with ${plain(value)} engines yet.`,
   'armor.type': (value) =>
     `The vehicle editor cannot open vehicles with ${plain(value)} armor yet.`,
+  'armor.techBase': (value) =>
+    `The vehicle editor cannot open this Mixed Tech vehicle: its ${plain(value)} armor does not state Inner Sphere or Clan technology.`,
 };
 
 export class UnsupportedVehicleConfigurationError extends UnsupportedUnitConfigurationError {
@@ -100,6 +105,31 @@ const requiredFields = z.object({
   motionType: z.string(),
   movement: z.object({ cruiseMP: z.number().int().nonnegative() }),
 });
+
+/**
+ * Armor side for the editor (row 2.1.5). The stated side wins
+ * (ArmorType.forEntity:96-101 at MegaMek 48fcb2f64 weighs the source's armor
+ * level, not the chassis). With no stated side, a saved editor document keeps
+ * its own armor tag, which the save writer makes side-explicit
+ * (CustomUnitSerializer.tags.ts: FERRO_FIBROUS is IS, FERRO_FIBROUS_CLAN Clan).
+ * Any other Mixed definition has an unknown side: armor whose weight depends on
+ * the side is refused rather than assumed Inner Sphere.
+ */
+function resolveVehicleArmorTechBase(
+  definition: z.infer<typeof UnitContract>,
+  armorType: string,
+  unitTechBase: TechBase,
+): TechBase {
+  const stated = resolveDefinitionComponentTechBase(definition, 'armor');
+  if (stated !== undefined) return stated;
+  if (definition.vehicleEditor !== undefined) return unitTechBase;
+  if (
+    resolveArmorType(armorType, TechBase.INNER_SPHERE) !==
+    resolveArmorType(armorType, TechBase.CLAN)
+  )
+    throw new UnsupportedVehicleConfigurationError('armor.techBase', armorType);
+  return unitTechBase;
+}
 
 export function normalizeVehicleConfiguration(
   input: unknown,
@@ -162,7 +192,10 @@ export function normalizeVehicleConfiguration(
     armorAllocation[resolveVehicleContractLocation(tag, 'armor location')] =
       points;
   }
-  const armorType = mapArmorType(armor.type, techBase);
+  const armorType = mapArmorType(
+    armor.type,
+    resolveVehicleArmorTechBase(definition, armor.type, techBase),
+  );
   if (
     armorType === ArmorTypeEnum.STANDARD &&
     !['STANDARD', 'BAR'].includes(armor.type)

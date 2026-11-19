@@ -52,3 +52,26 @@ it('creates independent editor sessions while retaining one source identity', ()
   expect(configuration.armorAllocation[MechLocation.HEAD]).toBe(9);
   expect(one.sourceDefinition).not.toBe(reference);
 });
+
+// MegaMek 48fcb2f64 MtfFile.java:387-392: a Mixed mek's engine side is its own
+// fact. The editor state carries the stated side; the XL token keeps precedence.
+it.each([
+  ['XXL', { chassis: 'INNER_SPHERE', engine: 'CLAN' }, 'Clan'],
+  ['XXL', { chassis: 'CLAN', engine: 'INNER_SPHERE' }, 'Inner Sphere'],
+  ['CLAN_XL', { chassis: 'INNER_SPHERE' }, 'Clan'],
+  ['XL', { chassis: 'CLAN', engine: 'CLAN' }, 'Inner Sphere'],
+] as const)(
+  'loads a Mixed %s engine with %j on the %s side',
+  (type, componentTechBases, side) => {
+    const configuration = normalizeUnitConfiguration(
+      parseUnit({
+        ...atlas,
+        techBase: 'MIXED',
+        engine: { ...atlas.engine, type },
+        componentTechBases,
+      }),
+      [],
+    );
+    expect(configuration.componentTechBases.engine).toBe(side);
+  },
+);
