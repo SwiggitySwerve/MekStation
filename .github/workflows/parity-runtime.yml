@@ -102,7 +102,6 @@ jobs:
         env:
           FAMILY: ${{ inputs.family }}
           MEASURE: ${{ inputs.measure }}
-          ENTRY_FLAGS: ${{ steps.family.outputs.entry-flags }}
         run: |
           case "$MEASURE" in
             load) entry=scripts/runtime-path-bv/run.mjs ;;
@@ -114,10 +113,10 @@ jobs:
             exit 1
           fi
           mkdir -p "$PARITY_RUNTIME_OUTPUT"
-          read -ra flags <<< "$ENTRY_FLAGS"
           start=$(date -u +%s)
           status=0
-          node "$entry" --out "$PARITY_RUNTIME_OUTPUT" "${flags[@]}" || status=$?
+          # A run measures exactly one family; the gate below gets the same --family.
+          node "$entry" --out "$PARITY_RUNTIME_OUTPUT" --family "$FAMILY" || status=$?
           end=$(date -u +%s)
           # What the ports' acceptance compares against the local run: the
           # checked-out SHA, Node version and runner image, written even when
@@ -145,13 +144,15 @@ jobs:
         id: gate
         if: ${{ !cancelled() }}
         env:
+          FAMILY: ${{ inputs.family }}
           MEASURE: ${{ inputs.measure }}
         run: |
           args=()
           if [ -f "$PARITY_RUNTIME_OUTPUT/previous/last-green.json" ]; then
             args+=(--last-green "$PARITY_RUNTIME_OUTPUT/previous/last-green.json")
           fi
-          node scripts/lib/runtime-parity/gate.mjs --measure "$MEASURE" --run-dir "$PARITY_RUNTIME_OUTPUT" "${args[@]}"
+          # The gate reads the family's own baseline and fails closed on any other family's run or facts.
+          node scripts/lib/runtime-parity/gate.mjs --family "$FAMILY" --measure "$MEASURE" --run-dir "$PARITY_RUNTIME_OUTPUT" "${args[@]}"
 
       - name: Summarize runtime gate
         if: ${{ !cancelled() }}

@@ -28,13 +28,10 @@ export const DERIVER_FIELDS = Object.freeze({
 export const DERIVER_CHANGED_REASON = 'FACTS_DERIVER_CHANGED';
 
 const FAMILY_ID = /^[a-z][a-z0-9-]*$/;
-// Entry flags reach the census command line unquoted in a bash array, so only plain tokens are allowed.
-const FLAG_TOKEN = /^[A-Za-z0-9._=/-]+$/;
 const GIT_HASH = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/;
 const ENTRY_KEYS = [
   'enabled',
   'expectedUnits',
-  'entryFlags',
   'baselines',
   'timeoutMinutes',
   DERIVER_FIELDS.core,
@@ -66,15 +63,6 @@ function entryProblems(family, entry) {
     problems.push(`${where}.enabled: must be true or false`);
   if (!isPositiveInteger(entry.expectedUnits))
     problems.push(`${where}.expectedUnits: must be a positive integer`);
-  if (
-    !Array.isArray(entry.entryFlags) ||
-    entry.entryFlags.some(
-      (flag) => typeof flag !== 'string' || !FLAG_TOKEN.test(flag),
-    )
-  )
-    problems.push(
-      `${where}.entryFlags: must be a list of plain tokens (${FLAG_TOKEN})`,
-    );
   if (entry.baselines !== null) {
     if (!isObject(entry.baselines))
       problems.push(`${where}.baselines: must be null or an object`);
@@ -262,7 +250,7 @@ export function resolveLeg(registry, { family, measure, timeoutInput }) {
     throw new Error(
       `${family} ${measure} must run with the registry's ${expected}-minute timeout, not ${given || 'none'}; dispatch it through parity-census.yml`,
     );
-  return { ...names, entryFlags: entry.entryFlags.join(' ') };
+  return names;
 }
 
 /**
@@ -319,7 +307,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         'census-artifact': leg.census,
         'last-green-artifact': leg.lastGreen,
         'out-dir': leg.outDir,
-        'entry-flags': leg.entryFlags,
       });
     } else
       throw new Error(

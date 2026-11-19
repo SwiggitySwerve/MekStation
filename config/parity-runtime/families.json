@@ -4,7 +4,6 @@
     "battlemechs": {
       "enabled": true,
       "expectedUnits": 4263,
-      "entryFlags": [],
       "baselines": {
         "load": {
           "main": "config/parity-runtime/baseline-load.json",
@@ -22,7 +21,6 @@
     "vehicles": {
       "enabled": false,
       "expectedUnits": 1444,
-      "entryFlags": ["--family", "vehicles"],
       "baselines": null,
       "timeoutMinutes": { "load": null, "reopen": null },
       "coreDeriverSha": null,
