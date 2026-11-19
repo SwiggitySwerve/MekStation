@@ -2,6 +2,7 @@
 import { EventEmitter } from 'node:events';
 
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
+import { InteractiveSession } from '@/engine/InteractiveSession';
 import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { GameSide, GameStatus } from '@/types/gameplay';
@@ -12,6 +13,7 @@ import {
   type IIntent,
   type IServerMessage,
 } from '@/types/multiplayer/Protocol';
+import { withStateOutsideEventLog } from '@/utils/gameplay/__tests__/eventLogFault.test-helpers';
 import { logger } from '@/utils/logger';
 
 import type {
@@ -510,11 +512,18 @@ const cases: Case[] = [
           events,
           deps,
         );
-        applied.applyCorrectedState({
-          ...applied.getState(),
-          turn: applied.getState().turn + 1,
-        });
-        return applied;
+        return InteractiveSession.fromHydratedSession(
+          withStateOutsideEventLog(applied.getSession(), (state) => ({
+            ...state,
+            turn: state.turn + 1,
+          })),
+          {
+            random: new SeededRandom(deps.randomSeed),
+            d6Roller: deps.d6Roller,
+            playerUnits: deps.playerUnits,
+            opponentUnits: deps.opponentUnits,
+          },
+        );
       });
     },
   },

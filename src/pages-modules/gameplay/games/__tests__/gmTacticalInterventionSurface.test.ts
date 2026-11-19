@@ -27,6 +27,28 @@ function makeCtx(phase = GamePhase.Movement): ITacticalCommandContext {
   };
 }
 
+/**
+ * A live-engine double exposing only the surface's event-backed path:
+ * advancePhase appends a PhaseChanged event, getSession reads the result.
+ * InteractiveSession has no member that sets a state outside its event log,
+ * and every other member the surface reads is recorded in outsideEventLog, so
+ * an empty outsideEventLog means the surface applied no state outside events.
+ */
+function eventBackedEngine(
+  members: Pick<InteractiveSession, 'advancePhase' | 'getSession'>,
+) {
+  const outsideEventLog: PropertyKey[] = [];
+  const interactiveSession = new Proxy(members, {
+    get(target, key, receiver) {
+      if (key !== 'advancePhase' && key !== 'getSession') {
+        outsideEventLog.push(key);
+      }
+      return Reflect.get(target, key, receiver);
+    },
+  }) as unknown as InteractiveSession;
+  return { interactiveSession, outsideEventLog };
+}
+
 function makeCommand(id = 'gm.advance-phase'): ITacticalCommand {
   return {
     id,
@@ -55,13 +77,11 @@ describe('gmTacticalInterventionSurface', () => {
       currentState: { ...base.currentState, phase: GamePhase.Movement },
     };
     const advancePhase = jest.fn();
-    const applyCorrectedState = jest.fn();
     const setSession = jest.fn();
-    const interactiveSession = {
+    const { interactiveSession, outsideEventLog } = eventBackedEngine({
       advancePhase,
-      applyCorrectedState,
       getSession: () => session,
-    } as unknown as InteractiveSession;
+    });
     const { result, rerender } = renderHook(() =>
       useGmTacticalInterventionSurface({
         enabled: true,
@@ -91,7 +111,7 @@ describe('gmTacticalInterventionSurface', () => {
       });
     });
     expect(advancePhase).not.toHaveBeenCalled();
-    expect(applyCorrectedState).not.toHaveBeenCalled();
+    expect(outsideEventLog).toEqual([]);
     expect(setSession).not.toHaveBeenCalled();
     expect(result.current?.playerLog).toEqual([]);
   });
@@ -107,7 +127,7 @@ describe('gmTacticalInterventionSurface', () => {
     };
     const setSession = jest.fn();
     let engineSession = movementSession;
-    const interactiveSession = {
+    const { interactiveSession, outsideEventLog } = eventBackedEngine({
       advancePhase: jest.fn(() => {
         engineSession = {
           ...engineSession,
@@ -117,9 +137,8 @@ describe('gmTacticalInterventionSurface', () => {
           },
         };
       }),
-      applyCorrectedState: jest.fn(),
       getSession: () => engineSession,
-    } as unknown as InteractiveSession;
+    });
     const { result } = renderHook(() =>
       useGmTacticalInterventionSurface({
         enabled: true,
@@ -151,7 +170,8 @@ describe('gmTacticalInterventionSurface', () => {
     });
 
     expect(interactiveSession.advancePhase).toHaveBeenCalledTimes(1);
-    expect(interactiveSession.applyCorrectedState).not.toHaveBeenCalled();
+    expect(outsideEventLog).toEqual([]);
+    expect(setSession.mock.calls[0]?.[0]).toBe(engineSession);
     expect(setSession).toHaveBeenCalledWith(
       expect.objectContaining({
         currentState: expect.objectContaining({
@@ -197,11 +217,10 @@ describe('gmTacticalInterventionSurface', () => {
         'appendGmInterventionRecord',
       );
       const setSession = jest.fn();
-      const interactiveSession = {
+      const { interactiveSession, outsideEventLog } = eventBackedEngine({
         advancePhase: jest.fn(),
-        applyCorrectedState: jest.fn(),
         getSession: () => session,
-      } as unknown as InteractiveSession;
+      });
       const { result } = renderHook(() =>
         useGmTacticalInterventionSurface({
           enabled: true,
@@ -235,7 +254,7 @@ describe('gmTacticalInterventionSurface', () => {
       expect(actionAppend).not.toHaveBeenCalled();
       interventionAppend.mockRestore();
       actionAppend.mockRestore();
-      expect(interactiveSession.applyCorrectedState).not.toHaveBeenCalled();
+      expect(outsideEventLog).toEqual([]);
       expect(interactiveSession.advancePhase).not.toHaveBeenCalled();
       expect(setSession).not.toHaveBeenCalled();
       expect(result.current?.playerLog).toEqual([]);
@@ -244,14 +263,12 @@ describe('gmTacticalInterventionSurface', () => {
 
   it('blocks an unrecognized ready preview instead of falling back to the correction setter', () => {
     const session = createDemoSession();
-    const applyCorrectedState = jest.fn();
     const advancePhase = jest.fn();
     const setSession = jest.fn();
-    const interactiveSession = {
-      applyCorrectedState,
+    const { interactiveSession, outsideEventLog } = eventBackedEngine({
       advancePhase,
       getSession: () => session,
-    } as unknown as InteractiveSession;
+    });
     const { result } = renderHook(() =>
       useGmTacticalInterventionSurface({
         enabled: true,
@@ -274,7 +291,7 @@ describe('gmTacticalInterventionSurface', () => {
         }),
       ).toMatchObject({ status: 'blocked', appended: false });
     });
-    expect(applyCorrectedState).not.toHaveBeenCalled();
+    expect(outsideEventLog).toEqual([]);
     expect(advancePhase).not.toHaveBeenCalled();
     expect(setSession).not.toHaveBeenCalled();
     expect(result.current?.playerLog).toEqual([]);
@@ -292,7 +309,6 @@ describe('gmTacticalInterventionSurface', () => {
       advancePhase: jest.fn(() => {
         if (!engineActive) throw new Error('Game is not active');
       }),
-      applyCorrectedState: jest.fn(),
       getSession: () => movementSession,
     } as unknown as InteractiveSession;
     const { result } = renderHook(() =>
@@ -340,11 +356,10 @@ describe('gmTacticalInterventionSurface', () => {
       ...session,
       currentState: { ...session.currentState, phase: GamePhase.Movement },
     };
-    const interactiveSession = {
+    const { interactiveSession, outsideEventLog } = eventBackedEngine({
       advancePhase: jest.fn(),
-      applyCorrectedState: jest.fn(),
       getSession: () => movementSession,
-    } as unknown as InteractiveSession;
+    });
     const { result } = renderHook(() =>
       useGmTacticalInterventionSurface({
         enabled: true,
@@ -370,7 +385,7 @@ describe('gmTacticalInterventionSurface', () => {
     expect(approvals[0]).toMatchObject({ status: 'approved' });
     expect(approvals[1]).toMatchObject({ status: 'blocked', appended: false });
     expect(interactiveSession.advancePhase).toHaveBeenCalledTimes(1);
-    expect(interactiveSession.applyCorrectedState).not.toHaveBeenCalled();
+    expect(outsideEventLog).toEqual([]);
     expect(result.current?.playerLog).toHaveLength(1);
   });
 
@@ -391,14 +406,12 @@ describe('gmTacticalInterventionSurface', () => {
     'preserves the live-session refusal for %s',
     (commandId, reason) => {
       const session = createDemoSession();
-      const applyCorrectedState = jest.fn();
       const advancePhase = jest.fn();
       const setSession = jest.fn();
-      const interactiveSession = {
-        applyCorrectedState,
+      const { interactiveSession, outsideEventLog } = eventBackedEngine({
         advancePhase,
         getSession: () => session,
-      } as unknown as InteractiveSession;
+      });
       const { result } = renderHook(() =>
         useGmTacticalInterventionSurface({
           enabled: true,
@@ -417,7 +430,7 @@ describe('gmTacticalInterventionSurface', () => {
           result.current!.approve?.({ ...preview, status: 'ready' }),
         ).toEqual({ status: 'unsupported', appended: false, reason });
       });
-      expect(applyCorrectedState).not.toHaveBeenCalled();
+      expect(outsideEventLog).toEqual([]);
       expect(advancePhase).not.toHaveBeenCalled();
       expect(setSession).not.toHaveBeenCalled();
       expect(result.current?.playerLog).toEqual([]);
@@ -427,11 +440,10 @@ describe('gmTacticalInterventionSurface', () => {
   it('returns explicit deferred approval for tactical resource grants without appending', () => {
     const session = createDemoSession();
     const setSession = jest.fn();
-    const interactiveSession = {
+    const { interactiveSession, outsideEventLog } = eventBackedEngine({
       advancePhase: jest.fn(),
-      applyCorrectedState: jest.fn(),
       getSession: () => session,
-    } as unknown as InteractiveSession;
+    });
     const { result } = renderHook(() =>
       useGmTacticalInterventionSurface({
         enabled: true,
@@ -458,7 +470,7 @@ describe('gmTacticalInterventionSurface', () => {
     });
 
     expect(interactiveSession.advancePhase).not.toHaveBeenCalled();
-    expect(interactiveSession.applyCorrectedState).not.toHaveBeenCalled();
+    expect(outsideEventLog).toEqual([]);
     expect(setSession).not.toHaveBeenCalled();
     expect(result.current?.playerLog).toHaveLength(0);
   });
