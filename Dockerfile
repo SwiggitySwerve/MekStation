@@ -2,24 +2,7 @@
 # Multi-stage build for optimized production image
 
 # =============================================================================
-# Stage 1: Dependencies
-# =============================================================================
-FROM node:22-alpine AS deps
-
-# Install build dependencies for native modules (better-sqlite3)
-RUN apk add --no-cache libc6-compat python3 make g++
-
-WORKDIR /app
-
-# Copy package files
-COPY package.json package-lock.json ./
-
-# Install dependencies
-RUN npm ci --only=production --ignore-scripts && \
-    npm rebuild better-sqlite3
-
-# =============================================================================
-# Stage 2: Builder
+# Stage 1: Builder
 # =============================================================================
 FROM node:22-alpine AS builder
 
@@ -43,7 +26,7 @@ ENV NODE_ENV=production
 RUN npm run build
 
 # =============================================================================
-# Stage 3: Production Runner
+# Stage 2: Production Runner
 # =============================================================================
 FROM node:22-alpine AS runner
 
@@ -67,14 +50,11 @@ ENV HOSTNAME="0.0.0.0"
 # on 0.0.0.0, so containers sharing its Docker network can also reach it.
 ENV MEKSTATION_CONTAINER_LISTEN=all-interfaces
 
-# Copy necessary files from builder
+# Copy necessary files from builder. public/ already includes data/ (units,
+# equipment) and record-sheets/, so they are not copied a second time.
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-
-# Copy data files (units, equipment)
-COPY --from=builder /app/public/data ./public/data
-COPY --from=builder /app/public/record-sheets ./public/record-sheets
 
 # Create data directory for SQLite and set permissions
 RUN mkdir -p /app/data && \
