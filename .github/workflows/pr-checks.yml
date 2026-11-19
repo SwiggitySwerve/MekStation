@@ -702,10 +702,12 @@ jobs:
   #   - shard 4 runs only its unit shard.
   # The shard planner gives shards 1-3 less Jest work for that extra work
   # (SHARD_PRELOAD_MS['unit/4'] in config/jest/shard-planner.js).
-  # The Jest transform cache is restored from main's last run: its entries
-  # are keyed by file content and transformer config, so a stale entry can
-  # never stand in for changed source. Main pushes and the nightly run save
-  # it.
+  # The Jest transform cache is restored from main's newest snapshot: its
+  # entries are keyed by file content and transformer config, so a stale
+  # entry can never stand in for changed source. The Actions key names only
+  # what changes a transform (the lockfile's swc and jest.config.js) plus the
+  # UTC day: main pushes and the nightly run save one snapshot per shard per
+  # day, not one per commit (per-commit keys were 3 GB of the 10 GB cache).
   unit-test-shards:
     name: Unit Tests (${{ matrix.shard }}/4)
     needs: detect-changes
@@ -728,13 +730,21 @@ jobs:
           # The Validate Combat Suite (shard 3) reads the record-sheet assets.
           fetch-assets: ${{ matrix.shard == 3 && 'true' || 'false' }}
 
+      - name: Pick the Jest transform cache day
+        id: jest-transform-day
+        run: echo "day=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
+      # Newest snapshot of this shard, else of any shard (they share the
+      # transformed src).
       - name: Restore Jest transform cache
+        id: jest-transform
         uses: actions/cache/restore@v5
         with:
           path: .jest-cache
-          key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-${{ github.sha }}
+          key: ${{ runner.os }}-jest-transform-${{ hashFiles('package-lock.json', 'jest.config.js') }}-unit-${{ matrix.shard }}-${{ steps.jest-transform-day.outputs.day }}
           restore-keys: |
-            ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-
+            ${{ runner.os }}-jest-transform-${{ hashFiles('package-lock.json', 'jest.config.js') }}-unit-${{ matrix.shard }}-
+            ${{ runner.os }}-jest-transform-${{ hashFiles('package-lock.json', 'jest.config.js') }}-unit-
 
       # 4 workers on the runner's 4 vCPUs: Lane B measured 10-20% faster unit
       # shards than Jest's default 3 (JOBS.md 0a); corpus/roadmap keep 3.
@@ -788,11 +798,11 @@ jobs:
           key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-${{ github.event_name == 'pull_request' && 'pr' || 'main' }}-${{ github.run_id }}
 
       - name: Save Jest transform cache
-        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
+        if: ${{ !cancelled() && github.event_name != 'pull_request' && steps.jest-transform.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v5
         with:
           path: .jest-cache
-          key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-${{ github.sha }}
+          key: ${{ runner.os }}-jest-transform-${{ hashFiles('package-lock.json', 'jest.config.js') }}-unit-${{ matrix.shard }}-${{ steps.jest-transform-day.outputs.day }}
 
       # Corpus half (shards 1 and 2): the whole-catalog suites replay the
       # committed catalog, with their own result store. The keys match the
