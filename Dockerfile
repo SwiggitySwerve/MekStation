@@ -58,6 +58,9 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3600
 ENV HOSTNAME="0.0.0.0"
+# Exact container-only opt-in for the all-interfaces bind (server.js). Without
+# it the packaged server accepts only the 127.0.0.1 loopback listener.
+ENV MEKSTATION_CONTAINER_LISTEN=all-interfaces
 
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public
@@ -78,9 +81,11 @@ USER nextjs
 # Expose port
 EXPOSE 3600
 
-# Health check
+# Health check. 127.0.0.1, not localhost: localhost resolves to ::1 in this
+# image while the listener binds IPv4 0.0.0.0, and 127.0.0.1 is a loopback
+# Host the same-host guard admits.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3600/api/health || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3600/api/health || exit 1
 
 # Start the application
 CMD ["node", "server.js"]

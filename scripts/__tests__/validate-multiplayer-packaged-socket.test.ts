@@ -66,4 +66,93 @@ catch(e){ process.stdout.write(e instanceof Error?e.message:String(e)); process.
     expect(incomplete.status).not.toBe(0);
     fs.rmSync(root, { recursive: true, force: true });
   });
+
+  // PARITY-PLAN 1.0.92: the exact container opt-in is the only way past the
+  // loopback rule, and only for HOSTNAME=0.0.0.0 in the packaged layout.
+  it('binds all interfaces only with the exact container opt-in', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'camp00-ctr-'));
+    fs.writeFileSync(path.join(root, 'server.js'), fs.readFileSync(serverSrc));
+    fs.writeFileSync(path.join(root, 'server.next-config.json'), '{}');
+    fs.mkdirSync(path.join(root, '.next'));
+    const preload = path.join(root, 'preload.cjs');
+    // prettier-ignore
+    fs.writeFileSync(preload, "const M=require('module');const o=M._load;M._load=function(r,...a){if(r==='next')throw new Error('NEXT_IMPORT_SENTINEL');return o.call(this,r,...a);};");
+    const run = (vars: Record<string, string>) => {
+      const env: NodeJS.ProcessEnv = { ...process.env, PORT: '3750', ...vars };
+      delete env.NODE_ENV;
+      const result = probe(root, preload, env);
+      return { status: result.status, out: `${result.stdout}${result.stderr}` };
+    };
+    const FLAG = 'MEKSTATION_CONTAINER_LISTEN';
+
+    const opted = run({ HOSTNAME: '0.0.0.0', [FLAG]: 'all-interfaces' });
+    expect(opted.out).toContain('CONTAINER_LISTEN_ALL_INTERFACES');
+    expect(opted.out).toContain(SENTINEL);
+
+    // prettier-ignore
+    for (const value of ['', ' ', '1', 'true', 'yes', 'ALL-INTERFACES', 'all-interfaces ', ' all-interfaces', 'all']) {
+      const wrong = run({ HOSTNAME: '0.0.0.0', [FLAG]: value });
+      expect(wrong.status).not.toBe(0);
+      expect(wrong.out).toContain(`${FLAG} ignored`);
+      expect(wrong.out).not.toContain('CONTAINER_LISTEN_ALL_INTERFACES');
+      expect(wrong.out).not.toContain(SENTINEL);
+    }
+
+    // The desktop shape: Electron passes 127.0.0.1, so an inherited flag is ignored.
+    const desktop = run({ HOSTNAME: '127.0.0.1', [FLAG]: 'all-interfaces' });
+    expect(desktop.out).toContain(`${FLAG} ignored`);
+    expect(desktop.out).not.toContain('CONTAINER_LISTEN_ALL_INTERFACES');
+    expect(desktop.out).toContain(SENTINEL);
+
+    for (const host of REJECTS.filter((h) => h !== '0.0.0.0')) {
+      const other = run({ HOSTNAME: host, [FLAG]: 'all-interfaces' });
+      expect(other.status).not.toBe(0);
+      expect(other.out).not.toContain(SENTINEL);
+    }
+
+    // Development (nonpackaged) keeps its rule: 0.0.0.0 is refused even with the flag.
+    fs.rmSync(path.join(root, 'server.next-config.json'));
+    const dev = run({ HOSTNAME: '0.0.0.0', [FLAG]: 'all-interfaces' });
+    expect(dev.status).not.toBe(0);
+    expect(dev.out).not.toContain(SENTINEL);
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  it('keeps the container opt-in out of everything but the Dockerfile', () => {
+    const FLAG = 'MEKSTATION_CONTAINER_LISTEN';
+    const offenders: string[] = [];
+    const skip = new Set([
+      'node_modules',
+      '.next',
+      '.git',
+      'public',
+      'openspec',
+    ]);
+    const visit = (dir: string) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (skip.has(entry.name)) continue;
+        const file = path.join(dir, entry.name);
+        if (entry.isDirectory()) visit(file);
+        else if (/\.(ts|tsx|js|mjs|cjs|json|ya?ml|sh)$/.test(entry.name))
+          if (fs.readFileSync(file, 'utf8').includes(FLAG))
+            offenders.push(path.relative(process.cwd(), file));
+      }
+    };
+    for (const dir of ['desktop', 'src', 'scripts', '.github'])
+      if (fs.existsSync(dir)) visit(dir);
+    for (const file of [
+      'package.json',
+      'docker-compose.yml',
+      'electron-builder.yml',
+    ])
+      if (fs.existsSync(file) && fs.readFileSync(file, 'utf8').includes(FLAG))
+        offenders.push(file);
+    // server.js reads it and this test names it; only the Dockerfile sets it.
+    expect(offenders.map((f) => f.replace(/\\/g, '/'))).toEqual([
+      'scripts/__tests__/validate-multiplayer-packaged-socket.test.ts',
+    ]);
+    expect(fs.readFileSync('Dockerfile', 'utf8')).toContain(
+      `ENV ${FLAG}=all-interfaces`,
+    );
+  });
 });
