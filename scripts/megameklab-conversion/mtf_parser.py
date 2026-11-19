@@ -339,8 +339,15 @@ class MTFParser:
 
         # Parse engine
         engine_data = data.get('engine', {'rating': 0, 'type': 'Fusion'})
+        engine_line = data.get('engine_line')
+        engine_tech_base = map_mixed_engine_tech_base(data.get('techbase', ''), engine_line) if engine_line else None
+        engine_type = map_engine_type(engine_data.get('type', 'Fusion'))
+        if engine_tech_base and engine_type in ('XL', 'CLAN_XL'):
+            # A Mixed mek's XL side is the engine-side rule's (MtfFile.java:387-392), the one owner shared with
+            # componentTechBases.engine, so the token and the field cannot disagree.
+            engine_type = 'CLAN_XL' if engine_tech_base == 'CLAN' else 'XL'
         engine = SerializedEngine(
-            type=map_engine_type(engine_data.get('type', 'Fusion')),
+            type=engine_type,
             rating=engine_data.get('rating', 0)
         )
 
@@ -399,8 +406,6 @@ class MTFParser:
 
         chassis_tech_base = map_chassis_tech_base(data.get('techbase', ''))
         component_tech_bases = {'chassis': chassis_tech_base} if chassis_tech_base else None
-        engine_line = data.get('engine_line')
-        engine_tech_base = map_mixed_engine_tech_base(data.get('techbase', ''), engine_line) if engine_line else None
         if component_tech_bases and engine_tech_base:
             component_tech_bases['engine'] = engine_tech_base
         return SerializedUnit(

@@ -474,11 +474,19 @@ The converter states every Mixed side the pinned loaders derive (MegaMek
   token (through `mapEngineType`; XL is the unit side, Inner Sphere on a Mixed
   mek), `componentTechBases.engine`, a non-Mixed mek's own tech base, otherwise
   unknown (`MtfFile.java:387-392`).
-- **Boundary.** The resolvers return unknown to every consumer that can carry
-  it (the BV engine-side consumer reads it). The mek editor's
-  `componentTechBases` state holds only Inner Sphere or Clan, so an unknown engine
-  side shows today's Inner Sphere default in the editor display only; that
-  placeholder is never written back as a source fact by these readers.
+- **Boundary, as it stands today.** The resolvers return `undefined` for an
+  unknown side. The mek editor's `componentTechBases` state holds only Inner
+  Sphere or Clan, so `deriveComponentTechBases` falls back to the editor's Inner
+  Sphere default; C1's Stage A BV consumer is the planned reader of unknown.
+  Known gap (logged, not fixed here): saving writes that placeholder back, so an
+  imported Mixed mek with no engine side reopens with a stated Inner Sphere side.
+  No catalog unit is affected, because every Mixed catalog mek states its side.
+- **Older Mixed mek saves (intentional reopen change).** A save written before
+  this change carries the editor's then-default `componentTechBases.engine`
+  (Inner Sphere). Because the side-naming engine token wins, a save with
+  `CLAN_XL` and a saved Inner Sphere side now reopens with a Clan engine side, and
+  `XL` with a saved Clan side reopens Inner Sphere: the side follows the installed
+  engine. Engine weight and type are unchanged (`createUnitSession.test.ts`).
 - Vehicle armor (`vehicleMapping.resolveVehicleArmorTechBase`): the stated side
   wins. With none, a saved editor document keeps its side-explicit armor tag
   (`FERRO_FIBROUS` was written from Inner Sphere ferro-fibrous); any other Mixed

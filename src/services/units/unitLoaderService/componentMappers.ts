@@ -315,10 +315,10 @@ export function sidedArmorTechBase(
  * (`mapEngineType`: CLAN_XL is Clan; XL takes the unit side, Inner Sphere on a
  * Mixed mek, where the converter writes XL only for an Inner Sphere engine
  * line, `test_mixed_tech_sides.py`); then the stated component side; then a
- * pure mek's tech base. A Mixed mek that states neither is unknown: callers that
- * can carry unknown (the BV engine-side consumer) receive `undefined`; only the
- * binary editor display substitutes its Inner Sphere default (see RULES.md,
- * "Mixed Tech component sides").
+ * pure mek's tech base. A Mixed mek that states neither is unknown and this
+ * returns `undefined`. Today its only caller, `deriveComponentTechBases`, falls
+ * back to the binary editor default (Inner Sphere); C1's Stage A BV consumer is
+ * the planned reader of unknown (see RULES.md, "Mixed Tech component sides").
  */
 export function resolveMechEngineTechBase(
   definition: IComponentTechSideSource,

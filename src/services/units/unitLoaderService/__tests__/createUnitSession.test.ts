@@ -75,3 +75,28 @@ it.each([
     expect(configuration.componentTechBases.engine).toBe(side);
   },
 );
+
+// Older saves carried the editor's then-default engine side (Inner Sphere). The
+// side-naming token wins on reopen, so the side follows the installed engine;
+// the engine type itself is unchanged (unit-loader RULES.md, "Older Mixed mek saves").
+it.each([
+  ['CLAN_XL', 'INNER_SPHERE', 'Clan', EngineType.XL_CLAN],
+  ['XL', 'CLAN', 'Inner Sphere', EngineType.XL_IS],
+] as const)(
+  'reopens an older Mixed save with %s and a saved %s side on the %s side',
+  (type, savedSide, side, engineType) => {
+    const configuration = normalizeUnitConfiguration(
+      parseUnit({
+        ...atlas,
+        techBase: 'MIXED',
+        engine: { ...atlas.engine, type },
+        componentTechBases: { chassis: 'INNER_SPHERE', engine: savedSide },
+      }),
+      [],
+    );
+    expect([
+      configuration.componentTechBases.engine,
+      configuration.engineType,
+    ]).toEqual([side, engineType]);
+  },
+);

@@ -77,7 +77,11 @@ class MekEngineSideTest(unittest.TestCase):
         for techbase, engine in [('Mixed (IS Chassis)', '300 XL (Clan) Engine'),
                                  ('Mixed (IS Chassis)', '300 XL Engine(IS)'),
                                  ('Mixed (Clan Chassis)', '300 XL (Clan) Engine'),
-                                 ('Mixed (Clan Chassis)', '300 XL Engine(IS)')]:
+                                 ('Mixed (Clan Chassis)', '300 XL Engine(IS)'),
+                                 # Lines whose text alone hides the side: the token must follow the
+                                 # same engine-side rule as the field (review of 42c24c51c, xl_probe.py).
+                                 ('Mixed (IS Chassis)', '250 XL (C) Engine'),
+                                 ('Mixed (Clan Chassis)', '300 XL Engine')]:
             with self.subTest(techbase=techbase, engine=engine):
                 unit = mtf(techbase, engine)
                 token_side = {'CLAN_XL': 'CLAN', 'XL': 'INNER_SPHERE'}[unit['engine']['type']]
