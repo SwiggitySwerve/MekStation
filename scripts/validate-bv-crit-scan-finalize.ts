@@ -2,6 +2,7 @@ import type { MechLocation } from '../src/utils/construction/battleValueCalculat
 import type { CritScan } from './validate-bv-crit-scan-types';
 import type { UnitData } from './validate-bv-types';
 
+import { hasBVDroneOS } from '../src/utils/construction/battleValueEquipment';
 import { hasClanChassis } from './validate-bv-chassis';
 import {
   countCritHeatSinks,
@@ -111,16 +112,27 @@ function detectCockpitAndDroneState(
     }
   }
 
+  // BVCalculator.java:296 (48fcb2f64): isDrone = hasWorkingMisc(
+  // F_DRONE_OPERATING_SYSTEM). Identity only, never display text: a mount whose
+  // equipment id is the Drone OS, or a raw cell holding one of its pinned
+  // native tokens (MiscType.java:5102-5104).
   if (
-    allSlotsLo.some(
-      (s) =>
-        s.includes('droneoperatingsystem') ||
-        s.includes('drone operating system'),
+    hasBVDroneOS(unit.equipment.map((item) => item.id)) ||
+    Object.values(unit.criticalSlots ?? {}).some((slots) =>
+      slots.some(
+        (cell) => typeof cell === 'string' && DRONE_OS_TOKENS.has(cell.trim()),
+      ),
     )
   ) {
     r.detectedDroneOS = true;
   }
 }
+
+const DRONE_OS_TOKENS: ReadonlySet<string> = new Set([
+  'ISDroneOperatingSystem',
+  'CLDroneOperatingSystem',
+  'ISDroneControlConsole',
+]);
 
 function addExplosivePpcSlots(unit: UnitData, r: CritScan): void {
   if (r.ppcCapLocs.length === 0 || !unit.criticalSlots) return;
