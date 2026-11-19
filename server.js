@@ -69,8 +69,37 @@ if (isStandaloneRuntime) {
   }
 }
 
+// Container deployments (only the Dockerfile sets this) may bind every
+// interface through an exact opt-in; desktop and packaged runs keep the
+// loopback-only rule. Electron always passes HOSTNAME=127.0.0.1, so an
+// inherited flag cannot widen its listener. Any other value, or the flag
+// without HOSTNAME=0.0.0.0, is ignored and the loopback rule applies. The
+// same-host guard (src/lib/api/sameHostGuard.ts) is unchanged in both modes.
+const CONTAINER_LISTEN_FLAG = 'MEKSTATION_CONTAINER_LISTEN';
+const CONTAINER_LISTEN_VALUE = 'all-interfaces';
+
+function containerListenOptIn(raw) {
+  const flag = process.env[CONTAINER_LISTEN_FLAG];
+  if (flag === undefined) return false;
+  if (
+    isStandaloneRuntime &&
+    flag === CONTAINER_LISTEN_VALUE &&
+    raw === '0.0.0.0'
+  ) {
+    console.log(
+      `[mp-boot] CONTAINER_LISTEN_ALL_INTERFACES HOSTNAME="0.0.0.0" ${CONTAINER_LISTEN_FLAG}=${CONTAINER_LISTEN_VALUE}`,
+    );
+    return true;
+  }
+  console.log(
+    `[mp-boot] ${CONTAINER_LISTEN_FLAG} ignored (value ${JSON.stringify(flag)}, HOSTNAME ${JSON.stringify(raw)}); loopback rule applies`,
+  );
+  return false;
+}
+
 function resolveListenerHostname() {
   const raw = process.env.HOSTNAME;
+  if (containerListenOptIn(raw)) return '0.0.0.0';
   // prettier-ignore
   if (isStandaloneRuntime ? raw !== undefined && raw !== '127.0.0.1' : raw !== undefined && raw !== 'localhost' && raw !== '127.0.0.1') {
     console.error(`[mp-boot] invalid HOSTNAME ${JSON.stringify(raw)}`);

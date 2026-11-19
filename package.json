@@ -101,7 +101,7 @@
     "spec:purpose:validate": "npx tsx openspec/scripts/spec-purpose-lint.ts",
     "spec:purpose:validate:strict": "npx tsx openspec/scripts/spec-purpose-lint.ts",
     "docker:build": "docker build -t mekstation .",
-    "docker:run": "docker run -p 3600:3600 -v mekstation-data:/app/data mekstation",
+    "docker:run": "docker run -p 127.0.0.1:3600:3600 -v mekstation-data:/app/data mekstation",
     "docker:dev": "docker-compose up dev",
     "docker:prod": "docker-compose up app -d",
     "docker:stop": "docker-compose down",
