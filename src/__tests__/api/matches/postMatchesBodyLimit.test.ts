@@ -12,6 +12,8 @@
 
 import type { AddressInfo } from 'node:net';
 
+// Next internal (checked against next 16.2.11); its argument list has changed
+// between majors, so a Next upgrade may break this import or call loudly.
 import { apiResolver } from 'next/dist/server/api-utils/node/api-resolver';
 import { mkdtempSync, rmSync } from 'node:fs';
 import http from 'node:http';
