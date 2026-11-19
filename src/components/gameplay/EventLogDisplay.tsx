@@ -5,18 +5,16 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 
 import type { IEventLogFilter, IGameEvent } from '@/types/gameplay';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 
 import {
-  annotateGroupedEvents,
-  filterEvents,
-  formatEvent,
-  type IFormattedEventWithGrouping,
-} from './EventLogDisplay.helpers';
+  deriveEventLogRows,
+  type IEventLogDerivation,
+} from './EventLogDisplay.incremental';
 import { EventRow } from './EventLogDisplayRow';
 
 export interface EventLogDisplayProps {
@@ -93,17 +91,18 @@ export const EventLogDisplay = React.memo(function EventLogDisplay({
     }
   }, [isCollapsed, onCollapsedChange]);
 
-  // Filter and format events. We annotate BEFORE reversing so the
-  // grouping walk sees events oldest-first, then reverse for display.
-  const formattedEvents = useMemo<
-    readonly IFormattedEventWithGrouping[]
-  >(() => {
-    const filtered = filterEvents(events, filter);
-    const formatted = filtered.map((e) =>
-      formatEvent(e, weaponLookup, actorLookup),
+  // Filter, format, group and reverse the events. An append formats only
+  // the new events; any other change re-derives every row.
+  const derivation = useRef<IEventLogDerivation | null>(null);
+  const formattedEvents = useMemo(() => {
+    derivation.current = deriveEventLogRows(
+      derivation.current,
+      events,
+      filter,
+      weaponLookup,
+      actorLookup,
     );
-    const grouped = annotateGroupedEvents(filtered, formatted);
-    return [...grouped].reverse();
+    return derivation.current.rows;
   }, [events, filter, weaponLookup, actorLookup]);
 
   return (
