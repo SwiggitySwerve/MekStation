@@ -74,7 +74,12 @@ export function installUnownedAppendGuard(): void {
       );
       return;
     }
-    if (isAllowListedTestFile(testPath, UNOWNED_APPEND_ALLOWED_TEST_FILES)) {
+    if (
+      isAllowListedTestFile(
+        testPath,
+        Object.keys(UNOWNED_APPEND_ALLOWED_TEST_FILES),
+      )
+    ) {
       return;
     }
     const sessions = [...new Set(appends.map((append) => append.sessionId))];
