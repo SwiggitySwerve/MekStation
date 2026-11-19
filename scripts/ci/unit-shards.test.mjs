@@ -111,3 +111,99 @@ test('the shards partition the unit census, and a dropped shard leaves files unr
     /files never run/,
   );
 });
+
+// The roadmap step's condition while it ran in Static Checks (main cf0c5bb8a
+// and earlier). Its gate is kept byte for byte; only the shard clause is added.
+const STATIC_ROADMAP_IF =
+  "${{ !cancelled() && needs.detect-changes.outputs.roadmap == 'true' }}";
+
+/** Throws unless the roadmap project runs once, on shard 4 only, after its tests. */
+function assertRoadmapPlacement(jobs) {
+  const runners = Object.entries(jobs).flatMap(([id, job]) =>
+    (job.steps ?? [])
+      .filter((s) => /--selectProjects roadmap\b/.test(s.run ?? ''))
+      .map((step) => ({ id, step })),
+  );
+  assert.equal(runners.length, 1, 'one step runs the roadmap project');
+  const [{ id, step }] = runners;
+  assert.equal(id, 'unit-test-shards', 'it runs in the unit job');
+  assert.equal(step.name, 'Roadmap tooling tests');
+  assert.equal(step.run, 'npx jest --selectProjects roadmap --ci');
+  assert.deepEqual(step.env, { JEST_SPLIT_CORPUS: 'true' });
+  assert.equal(
+    step.if,
+    "${{ !cancelled() && matrix.shard == 4 && needs.detect-changes.outputs.roadmap == 'true' }}",
+  );
+  assert.equal(step.if.replace(' matrix.shard == 4 &&', ''), STATIC_ROADMAP_IF);
+  const { job, legs } = shardLayout(jobs);
+  const shard = Number(/matrix\.shard == (\d+) /.exec(step.if)?.[1]);
+  assert.deepEqual(
+    legs.filter((leg) => leg === shard),
+    [4],
+    'exactly one matrix leg, shard 4',
+  );
+  const at = (name) => job.steps.findIndex((s) => s.name === name);
+  assert.ok(at('Roadmap tooling tests') > at('Run unit test shard'));
+  assert.ok(at('Roadmap tooling tests') > at('Validate Combat Suite'));
+}
+
+test('the roadmap tooling tests run once, gated as before, on unit shard 4 only', () => {
+  assertRoadmapPlacement(workflow.jobs);
+  const step = () =>
+    workflow.jobs['unit-test-shards'].steps.find(
+      (s) => s.name === 'Roadmap tooling tests',
+    );
+  // Mutants: on every shard, dropped, and left in Static Checks as well.
+  const everyShard = structuredClone(workflow.jobs);
+  everyShard['unit-test-shards'].steps.find(
+    (s) => s.name === 'Roadmap tooling tests',
+  ).if = STATIC_ROADMAP_IF;
+  assert.throws(() => assertRoadmapPlacement(everyShard));
+  const dropped = structuredClone(workflow.jobs);
+  dropped['unit-test-shards'].steps = dropped['unit-test-shards'].steps.filter(
+    (s) => s.name !== 'Roadmap tooling tests',
+  );
+  assert.throws(() => assertRoadmapPlacement(dropped), /one step/);
+  const inStatic = structuredClone(workflow.jobs);
+  inStatic['static-checks'].steps.push({ ...step(), if: STATIC_ROADMAP_IF });
+  assert.throws(() => assertRoadmapPlacement(inStatic), /one step/);
+});
+
+test('the roadmap project holds exactly the roadmap suites, none of them in the unit census', () => {
+  const { roadmapSuites } = require('../../config/jest/corpus-suites.js');
+  const list = (project) =>
+    JSON.parse(
+      execFileSync(
+        process.execPath,
+        [
+          path.join(root, 'node_modules/jest/bin/jest.js'),
+          '--listTests',
+          '--json',
+          '--selectProjects',
+          project,
+        ],
+        {
+          cwd: root,
+          env: { ...process.env, JEST_SPLIT_CORPUS: 'true' },
+          encoding: 'utf8',
+          maxBuffer: 64 * 1024 * 1024,
+          timeout: 120000,
+          stdio: ['ignore', 'pipe', 'pipe'],
+          windowsHide: true,
+        },
+      )
+        .split('\n')
+        .reverse()
+        .find((line) => line.startsWith('[')),
+    ).map((file) => path.relative(root, file).split(path.sep).join('/'));
+  assert.deepEqual(list('roadmap').sort(), [...roadmapSuites].sort());
+  const unit = new Set(
+    unitCensus().map((file) =>
+      path.relative(root, file).split(path.sep).join('/'),
+    ),
+  );
+  assert.deepEqual(
+    roadmapSuites.filter((file) => unit.has(file)),
+    [],
+  );
+});
