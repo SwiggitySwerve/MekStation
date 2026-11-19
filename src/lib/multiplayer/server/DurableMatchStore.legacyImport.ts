@@ -15,6 +15,8 @@
 
 import type Database from 'better-sqlite3';
 
+import { serializeEvent } from '@/utils/gameplay/gameEvents/serialization';
+
 import {
   IMPORTED_LEGACY_SOURCE_KIND,
   type IImportedLegacyEvent,
@@ -160,7 +162,7 @@ export function createDurableLegacyImportStore(
       db.transaction(work)();
     },
     insertImportedEvent: (matchId, row: IImportedLegacyEvent) => {
-      const eventJson = JSON.stringify(row.event);
+      const eventJson = serializeEvent(row.event, 'match-broadcast');
       insertEvent.run(matchId, row.event.sequence, eventJson);
       insertSource.run(
         row.event.id,

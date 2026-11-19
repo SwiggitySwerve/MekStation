@@ -170,16 +170,25 @@ describe('MatchLogStorage', () => {
       ),
       storage.appendEvent(
         'rollback-publication',
-        makeEvent('rollback-publication', Number.NaN),
+        makeEvent('rollback-publication', 2),
       ),
     ]);
-    await expect(storage.flushPendingWrites()).rejects.toThrow();
-    await writes;
-    expect(await storage.getEventsForMatch('rollback-publication')).toEqual([]);
-    expect(
-      await storage.getOutcomePublication('rollback-publication', ended.id),
-    ).toBeUndefined();
-    storage.close();
+    // Keep the deliberately invalid key below the guarded append seam, in
+    // the same real transaction as the terminal event and pending receipt.
+    const putFault = injectRawInvalidSequence('rollback-publication', 2);
+    try {
+      await expect(storage.flushPendingWrites()).rejects.toThrow();
+      await writes;
+      expect(await storage.getEventsForMatch('rollback-publication')).toEqual(
+        [],
+      );
+      expect(
+        await storage.getOutcomePublication('rollback-publication', ended.id),
+      ).toBeUndefined();
+    } finally {
+      putFault.mockRestore();
+      storage.close();
+    }
   });
 
   it('preserves legacy version-two events without inventing pending publication receipts during migration', async () => {
@@ -567,3 +576,33 @@ describe('MatchLogStorage', () => {
     ).rejects.toThrow(MatchLogStorageUnavailableError);
   });
 });
+
+/** Substitute the original malformed raw row at IndexedDB's actual write. */
+function injectRawInvalidSequence(matchId: string, queuedSequence: number) {
+  const put = IDBObjectStore.prototype.put;
+  return jest
+    .spyOn(IDBObjectStore.prototype, 'put')
+    .mockImplementation(function (
+      this: IDBObjectStore,
+      value: unknown,
+      key?: IDBValidKey,
+    ) {
+      const record = value as Partial<IMatchEventRecord> | null;
+      if (
+        this.name === MATCH_LOG_STORES.MATCH_EVENTS &&
+        record?.matchId === matchId &&
+        record.sequence === queuedSequence
+      ) {
+        return put.call(
+          this,
+          {
+            ...record,
+            sequence: Number.NaN,
+            event: makeEvent(matchId, Number.NaN),
+          },
+          key,
+        );
+      }
+      return put.call(this, value, key);
+    });
+}

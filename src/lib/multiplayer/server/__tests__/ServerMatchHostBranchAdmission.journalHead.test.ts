@@ -177,11 +177,13 @@ function journalCount(matchId: string): number {
 function seedEvent(matchId: string): IGameEvent {
   return {
     id: `${matchId}-seed-0`,
+    gameId: matchId,
     sequence: 0,
     type: GameEventType.PhaseChanged,
     timestamp: AT,
+    turn: 1,
     phase: GamePhase.Movement,
-    payload: {},
+    payload: { fromPhase: GamePhase.Initiative, toPhase: GamePhase.Movement },
   } as unknown as IGameEvent;
 }
 

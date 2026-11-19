@@ -17,6 +17,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+import { GameEventType } from '@/types/gameplay';
+
 import { VALID_COMBAT_PHYSICAL_EVENT_PAYLOADS } from '../__fixtures__/CombatPhysicalBaselineSchemaPack.fixture';
 import {
   COMBAT_PHYSICAL_BASELINE_SCHEMA_PACK,
@@ -305,9 +307,12 @@ describe('combat physical/PSR/ground-object baseline schema pack', () => {
       );
       for (const eventType of INVENTORY_PHYSICAL_DISCRIMINANTS) {
         expect(ids[eventType]).toEqual([
-          (REVISED_TYPES as readonly string[]).includes(eventType)
-            ? `combat.${eventType}.v1.swamp-unstuck-1`
-            : `combat.${eventType}.v1`,
+          eventType === GameEventType.PSRTriggered ||
+          eventType === GameEventType.PSRResolved
+            ? `combat.${eventType}.v1.swamp-unstuck-1.automatic-failure-1`
+            : (REVISED_TYPES as readonly string[]).includes(eventType)
+              ? `combat.${eventType}.v1.swamp-unstuck-1`
+              : `combat.${eventType}.v1`,
         ]);
       }
     });

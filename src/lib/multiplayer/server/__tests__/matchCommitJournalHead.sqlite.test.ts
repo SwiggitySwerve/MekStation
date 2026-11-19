@@ -73,11 +73,13 @@ const CUT_REVISION = 1;
 function event(sequence: number, id = `evt-${sequence}`): IGameEvent {
   return {
     id,
+    gameId: MATCH_ID,
     sequence,
     type: GameEventType.PhaseChanged,
     timestamp: AT,
+    turn: 1,
     phase: GamePhase.Movement,
-    payload: { sequence },
+    payload: { fromPhase: GamePhase.Initiative, toPhase: GamePhase.Movement },
   } as unknown as IGameEvent;
 }
 

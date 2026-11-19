@@ -45,6 +45,7 @@ function unit(id: string, side: GameSide): IGameUnit {
     name: id,
     side,
     unitRef: id,
+    pilotRef: `${id}-pilot`,
     gunnery: 4,
     piloting: 5,
   } as IGameUnit;

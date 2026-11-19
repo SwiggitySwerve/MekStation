@@ -29,11 +29,12 @@ import { sha256 } from 'js-sha256';
 
 import type { IGameEvent } from '@/types/gameplay';
 
-import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
-
 import type { ReplayQuarantineReason } from './ReplayQuarantineRegistry';
 
-import { assertReplayInputProvenance } from './ReplayInputProvenanceManifest';
+import {
+  acceptAttributedReplayEvent,
+  ReplayUnverifiableEventError,
+} from './ReplayEventAcceptance';
 import {
   LegacySourceAttributionError,
   bindLegacyByteEvent,
@@ -43,7 +44,6 @@ import { classifyReplayFailure } from './ReplayQuarantineRegistry';
 import { UnsupportedReplayHistoryError } from './ReplaySchemaRegistry';
 import {
   REPLAY_LIBRARY_CENSUS_PROJECTOR,
-  REPLAY_SURFACE_REGISTRY,
   buildReplaySurfaceReport,
   type IReplayLibraryCensusState,
   type IReplaySurfaceReport,
@@ -56,7 +56,8 @@ export const REPLAY_LIBRARY_SOURCE_FORMAT_VERSION = 1;
 
 export type ReplayLibraryBlockReason =
   | LegacySourceAttributionCode
-  | ReplayQuarantineReason;
+  | ReplayQuarantineReason
+  | 'unverifiable-event';
 
 /** One blocked line, with its source identity preserved. */
 export interface IReplayLibraryBlockedLine {
@@ -118,23 +119,27 @@ export function loadReplayLibraryNdjson(
         bytes,
       );
       eventType = attributed.eventType;
-      const envelope = attributed.payload;
-      if (!isGameEvent(envelope))
-        throw new UnsupportedReplayHistoryError(
-          'invalid-payload',
-          attributed.eventType,
-          1,
-          'Line is not a valid IGameEvent envelope',
-        );
-      const upcast = REPLAY_SURFACE_REGISTRY.upcast(
-        envelope.type,
-        attributed.schemaVersion,
-        envelope.payload,
+      const { event: envelope, current: upcast } = acceptAttributedReplayEvent(
+        attributed,
+        REPLAY_LIBRARY_SOURCE_FORMAT_ID,
+        'Line is not a valid IGameEvent envelope',
       );
-      assertReplayInputProvenance(upcast.eventType, upcast.payload);
       census = REPLAY_LIBRARY_CENSUS_PROJECTOR.project(census, upcast);
       events.push(envelope);
     } catch (error) {
+      if (error instanceof ReplayUnverifiableEventError) {
+        blockedLines.push(
+          Object.freeze({
+            line: lineNumber,
+            reason: 'unverifiable-event',
+            eventType: error.eventType,
+            evidenceDigest: lineDigest,
+            message:
+              'The writer marked this event unverifiable because its stored image failed reader validation.',
+          }),
+        );
+        continue;
+      }
       if (error instanceof LegacySourceAttributionError) {
         blockedLines.push(
           Object.freeze({
