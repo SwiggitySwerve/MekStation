@@ -421,6 +421,42 @@ jobs:
           retention-days: 7
 
   # ---------------------------------------------------------------
+  # Production Docker image (release gate row 8, 1.0.84): nothing else outside
+  # release.yml builds the image, which is how a broken build went unseen for
+  # two weeks. Builds the production Dockerfile, runs the image as
+  # `npm run docker:run` does (published on 127.0.0.1 only, the image's own
+  # container opt-in env), and requires /api/health 200 with a healthy body.
+  # scripts/ci/nightly-docker-health.sh always removes the container. No buildx
+  # GHA cache: the repository's Actions cache is at its 10 GB cap.
+  docker-health:
+    name: Docker Image Health
+    runs-on: ubuntu-latest
+    # Owner-held, approved in PARITY-PLAN §207. The first hosted run (Nightly
+    # 44456874376) took build 94 s, health 4 s, job 115 s. Re-propose from the
+    # p90 of 5 scheduled Nightlies.
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Build the production image and check /api/health
+        run: bash scripts/ci/nightly-docker-health.sh "$RUNNER_TEMP/docker-health"
+
+      - name: Upload Docker health report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: nightly-docker-health
+          # report.json (sizes and seconds), build.log, health.json, container.log
+          path: ${{ runner.temp }}/docker-health/
+          if-no-files-found: error
+          retention-days: 14
+
+  # ---------------------------------------------------------------
   # Per-unit runtime parity, one independent job per (family, measure) so one
   # failure cannot hide another's report. Counts and the previous-nightly SHA
   # range are informational. The called gate owns enforcement: the committed
@@ -487,6 +523,7 @@ jobs:
         subsystem-lanes,
         parity-runtime-plan,
         parity-runtime,
+        docker-health,
       ]
     if: failure() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -509,6 +546,6 @@ jobs:
             gh issue comment "$existing" --body "Nightly validation failed again: $RUN_URL"
             echo "Commented on existing issue #$existing"
           else
-            gh issue create --title "$title" --body "$(printf 'The scheduled nightly validation run failed.\n\nRun: %s\n\nLanes: full statistical/perf proofs, full Playwright e2e (chromium), coverage thresholds, scenario-pack recapture, subsystem lanes, runtime parity (load and reopen). See docs/audits/2026-06-09-remediation-tracker.md (W4.4) for what each lane enforces.' "$RUN_URL")"
+            gh issue create --title "$title" --body "$(printf 'The scheduled nightly validation run failed.\n\nRun: %s\n\nLanes: full statistical/perf proofs, full Playwright e2e (chromium), coverage thresholds, scenario-pack recapture, subsystem lanes, runtime parity (load and reopen), production Docker image health. See docs/audits/2026-06-09-remediation-tracker.md (W4.4) for what each lane enforces.' "$RUN_URL")"
             echo "Opened new failure issue"
           fi
