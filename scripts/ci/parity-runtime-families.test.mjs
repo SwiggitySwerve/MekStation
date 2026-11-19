@@ -165,7 +165,6 @@ test('resolve: names and flags for a leg; a non-default family must carry its re
         census: 'parity-runtime-load',
         lastGreen: 'parity-runtime-last-green-load',
         outDir: 'parity-runtime',
-        entryFlags: '',
       },
     );
   assert.throws(
@@ -191,13 +190,17 @@ test('resolve: names and flags for a leg; a non-default family must carry its re
     () => resolveLeg(two, { family: 'vehicles', measure: 'reopen' }),
     /11-minute timeout, not none; dispatch it through parity-census\.yml/,
   );
-  assert.equal(
+  assert.deepEqual(
     resolveLeg(two, {
       family: 'vehicles',
       measure: 'reopen',
       timeoutInput: '11',
-    }).entryFlags,
-    '--family vehicles',
+    }),
+    {
+      census: 'parity-runtime-vehicles-reopen',
+      lastGreen: 'parity-runtime-last-green-vehicles-reopen',
+      outDir: 'parity-runtime-vehicles',
+    },
   );
 });
 
@@ -231,11 +234,10 @@ test('the schema refuses malformed entries and names every problem', () => {
     mutate((r) => (r.families.vehicles.enabled = true)),
     /needs its baselines[\s\S]*needs both timeouts/,
   );
+  // The family reaches the census as --family from the workflow input only; a flags field is refused.
   assert.throws(
-    mutate(
-      (r) => (r.families.vehicles.entryFlags = ['--family', 'x; rm -rf /']),
-    ),
-    /entryFlags/,
+    mutate((r) => (r.families.vehicles.entryFlags = ['--family', 'vehicles'])),
+    /unknown entryFlags/,
   );
   assert.throws(
     mutate((r) => (r.families.battlemechs.timeoutMinutes.load = 0)),
@@ -325,6 +327,6 @@ test('CLI: plan writes the matrix output; a disabled family fails the step by na
   assert.equal(resolve.status, 0, resolve.stderr);
   assert.match(
     fs.readFileSync(output, 'utf8'),
-    /census-artifact=parity-runtime-reopen\nlast-green-artifact=parity-runtime-last-green-reopen\nout-dir=parity-runtime\nentry-flags=\n/,
+    /census-artifact=parity-runtime-reopen\nlast-green-artifact=parity-runtime-last-green-reopen\nout-dir=parity-runtime\n$/,
   );
 });
