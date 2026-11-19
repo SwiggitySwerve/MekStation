@@ -155,4 +155,44 @@ catch(e){ process.stdout.write(e instanceof Error?e.message:String(e)); process.
       `ENV ${FLAG}=all-interfaces`,
     );
   });
+
+  // The same-host guard trusts a loopback Host header, so the container's port
+  // must never be published beyond the host's loopback (PARITY-PLAN 1.0.92).
+  it('publishes the container port on 127.0.0.1 only and adds no reverse proxy', () => {
+    const composeFiles = fs
+      .readdirSync('.')
+      .filter((name) => /^(docker-)?compose[^/]*\.ya?ml$/.test(name));
+    expect(composeFiles).toContain('docker-compose.yml');
+    const unsafe: string[] = [];
+    for (const file of composeFiles) {
+      const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/);
+      let inPorts = false;
+      for (const line of lines) {
+        if (/^\s*ports:\s*$/.test(line)) {
+          inPorts = true;
+          continue;
+        }
+        const entry = /^\s*-\s*['"]?([^'"\s]+)['"]?\s*$/.exec(line);
+        if (inPorts && entry) {
+          if (!entry[1].startsWith('127.0.0.1:'))
+            unsafe.push(`${file}: ${entry[1]}`);
+          continue;
+        }
+        if (!/^\s*#/.test(line)) inPorts = false;
+        if (/traefik\.|caddy\.|nginx-proxy/i.test(line) && !/^\s*#/.test(line))
+          unsafe.push(`${file}: reverse-proxy label ${line.trim()}`);
+      }
+    }
+    const scripts = JSON.parse(fs.readFileSync('package.json', 'utf8'))
+      .scripts as Record<string, string>;
+    for (const [name, command] of Object.entries(scripts)) {
+      if (!/\bdocker\s+run\b/.test(command)) continue;
+      for (const match of command.matchAll(
+        /(?:^|\s)(?:-p|--publish)[\s=](\S+)/g,
+      ))
+        if (!match[1].startsWith('127.0.0.1:'))
+          unsafe.push(`package.json ${name}: ${match[1]}`);
+    }
+    expect(unsafe).toEqual([]);
+  });
 });

@@ -21,5 +21,5 @@ None.
 
 ## Non-goals
 
-- LAN access to the container's API. The same-host guard still requires a literal loopback `Host`, so the container serves the Docker host through a loopback port map.
+- LAN, remote or reverse-proxy access to the container. The same-host guard trusts a loopback `Host` header and the local API has no network authentication, so the compose file and run script publish the port on the host's `127.0.0.1` only, and the traefik labels are removed.
 - Any change to the desktop (Electron) listener.

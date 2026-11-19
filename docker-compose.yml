@@ -6,6 +6,11 @@
 #   Build:        docker-compose build
 #
 # Environment variables can be set in .env file
+#
+# Ports are published on 127.0.0.1 only. Remote or LAN access is NOT
+# supported: the server's same-host guard trusts a loopback Host header and
+# the local API has no network authentication, so a port published on all
+# interfaces would expose it to any peer that can reach this machine.
 
 version: '3.8'
 
@@ -21,7 +26,7 @@ services:
     container_name: mekstation
     restart: unless-stopped
     ports:
-      - '${PORT:-3600}:3600'
+      - '127.0.0.1:${PORT:-3600}:3600'
     environment:
       - NODE_ENV=production
       - DATABASE_PATH=/app/data/mekstation.db
@@ -38,16 +43,15 @@ services:
           '--no-verbose',
           '--tries=1',
           '--spider',
-          'http://localhost:3600/api/health',
+          'http://127.0.0.1:3600/api/health',
         ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.mekstation.rule=Host(`mekstation.localhost`)'
-      - 'traefik.http.services.mekstation.loadbalancer.server.port=3600'
+    # No reverse-proxy (traefik) labels: behind a proxy the Host header is the
+    # public name, which the same-host guard refuses for every API request and
+    # WebSocket upgrade. Proxy and remote deployments are unsupported.
 
   # ==========================================================================
   # Development Server with Hot Reload
@@ -58,7 +62,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: mekstation-dev
     ports:
-      - '${DEV_PORT:-3600}:3600'
+      - '127.0.0.1:${DEV_PORT:-3600}:3600'
     environment:
       - NODE_ENV=development
       - WATCHPACK_POLLING=true

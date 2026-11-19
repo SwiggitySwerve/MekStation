@@ -13,7 +13,10 @@ The single exception is the container deployment: packaged mode SHALL bind
 boot, and only the production Dockerfile SHALL set that variable. Any other
 value of the variable, or the variable with any other host, SHALL be ignored
 with a logged line and SHALL leave the loopback rule unchanged. The same-host
-request guard SHALL apply unchanged in container mode.
+request guard SHALL apply unchanged in container mode. Because that guard
+trusts a loopback `Host` header, the repository's compose file and run script
+SHALL publish the container port on the host's `127.0.0.1` only and SHALL NOT
+add reverse-proxy routing; remote or LAN access is unsupported.
 
 #### Scenario: Explicit IPv4 loopback binds the actual listener
 
@@ -73,3 +76,10 @@ request guard SHALL apply unchanged in container mode.
   logged line and the listener MUST stay `127.0.0.1`
 - **AND** in nonpackaged (development) mode the variable MUST NOT admit
   `0.0.0.0`
+
+#### Scenario: The container port is published on loopback only
+
+- **GIVEN** the repository's compose files and `package.json` scripts
+- **WHEN** they publish the container port
+- **THEN** every published port MUST carry the `127.0.0.1:` host prefix
+- **AND** no compose service MUST carry reverse-proxy routing labels
