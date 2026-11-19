@@ -193,6 +193,33 @@ it('preserves Java flooring at the one-point ferro-aluminum boundary', () => {
     available: 1935,
   });
 });
+// ArmorType.forEntity:96-101 -> TechConstants.isClan:394-399 (MegaMek 48fcb2f64):
+// CLAN_UNOFFICIAL 10 and ALL_CLAN 12 are Clan; IS_TW_ALL 4 is not.
+it('weighs the armor technology level by TechConstants.isClan', () => {
+  const s = ship({
+    unitType: 'Dropship',
+    tonnage: 18000,
+    structuralIntegrity: 25,
+    motionType: 'Spheroid',
+    type: 'IS Level 3',
+    armorType: 19,
+    armor: [1936],
+  });
+  const is = sourceArmor(s);
+  const clan = sourceArmor({ ...s, type: 'Clan Level 3' });
+  expect(clan).not.toEqual(is);
+  for (const level of ['10', '12'])
+    expect(sourceArmor({ ...s, rawTags: { armor_tech_level: level } })).toEqual(
+      clan,
+    );
+  expect(
+    sourceArmor({
+      ...s,
+      type: 'Clan Level 3',
+      rawTags: { armor_tech_level: '4' },
+    }),
+  ).toEqual(is);
+});
 it.each(fixtures.rows.filter((r) => r.diagnostics.startsWith('Weight:')))(
   'includes the omitted native mass terms: $path',
   (row) => {

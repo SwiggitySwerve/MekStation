@@ -16,6 +16,7 @@ import {
   getArmorDefinition,
 } from '@/types/construction/ArmorType';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
+import { isClanTechLevel } from '@/types/formats/ArmorTechSide';
 import {
   BLK_DUAL_TURRET_ARMOR_LOCATIONS,
   BLK_SUPERHEAVY_ARMOR_LOCATIONS,
@@ -32,9 +33,6 @@ import {
   type IVehicleArmorProfile,
 } from './armorLimits';
 
-/** TechConstants.isClan:394-398 at MegaMek 48fcb2f64. */
-const CLAN_TECH_LEVELS = new Set([2, 6, 8, 10, 12]);
-
 /** Only an absent source tag inherits the chassis side (BLKTankFile:291-298). */
 export function resolveVehicleClanArmor(
   armorTechLevel: number | undefined,
@@ -42,7 +40,7 @@ export function resolveVehicleClanArmor(
 ): boolean {
   return armorTechLevel === undefined
     ? clanChassis
-    : CLAN_TECH_LEVELS.has(armorTechLevel);
+    : isClanTechLevel(armorTechLevel);
 }
 
 /** Exclude armor belonging to turrets that are not installed. */

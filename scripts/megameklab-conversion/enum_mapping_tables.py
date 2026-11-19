@@ -35,6 +35,10 @@ MTF_COMPONENT_VOCABULARY: Dict[str, Any] = json.loads(
     .read_text(encoding='utf-8-sig')
 )
 
+# Armor tech levels that select the Clan ArmorType (ArmorType.forEntity -> TechConstants.isClan);
+# one owner shared with src/utils/construction/vehicle/armor.ts.
+CLAN_TECH_LEVELS = frozenset(MTF_COMPONENT_VOCABULARY["clanTechLevels"]["levels"])
+
 RULES_LEVEL_MAP: Dict[str, str] = {
     # One-based MTF levels: MegaMek 48fcb2f64 MtfFile.java:828-902.
     **MTF_COMPONENT_VOCABULARY["rulesLevel"],

@@ -34,6 +34,7 @@ import { ARMOR_TYPE } from '@/utils/serialization/CustomUnitSerializer.tags';
 import schema from '../../../../public/data/equipment/_schema/unit-schema.json';
 import { mapArmorType as bvArmorKey } from '../../../../scripts/validate-bv-unit-derived';
 import { ARMOR_IDENTITY_ROWS, armorTagForEnumKey } from '../ArmorIdentity';
+import { isClanTechLevel } from '../ArmorTechSide';
 import blkArmorCodes from '../blk-armor-codes.json';
 import vocabulary from '../mtf-component-vocabulary.json';
 
@@ -354,5 +355,19 @@ describe("the owner file's critical-slot armor markers agree with the armor rows
       })
       .map(([name]) => name);
     expect(wrong).toEqual([]);
+  });
+});
+
+// MegaMek 48fcb2f64 TechConstants.java:55-75 levels; isClan:394-399 is the side
+// ArmorType.forEntity:96-101 weighs by. One owner for TypeScript and Python.
+describe('armor technology level side', () => {
+  it('is TechConstants.isClan for every level', () => {
+    const javaIsClan = new Set([2, 6, 8, 10, 12]);
+    for (let level = -2; level <= 13; level++)
+      expect([level, isClanTechLevel(level)]).toEqual([
+        level,
+        javaIsClan.has(level),
+      ]);
+    expect(vocabulary.clanTechLevels.levels).toEqual([2, 6, 8, 10, 12]);
   });
 });

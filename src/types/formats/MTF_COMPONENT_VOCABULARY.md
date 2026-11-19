@@ -134,6 +134,19 @@ tables that must stay (the serializer tag table, which feeds contract literal
 types, and `BlkArmorCodes.ts`) are proven equal to the rows by
 `armorIdentity.test.ts`; `test_armor_identity_owner.py` is the Python guard.
 
+## Armor technology side (`clanTechLevels`)
+
+`clanTechLevels.levels` lists the armor technology levels that weigh the Clan
+ArmorType: 2, 6, 8, 10 and 12. MegaMek `48fcb2f64` `ArmorType.forEntity`
+(`ArmorType.java:96-101`) selects by `TechConstants.isClan`
+(`TechConstants.java:394-399`); `Entity.isClanArmor` (which excludes 12 and
+maps -1 to the chassis) is a different API and not the weight rule. BLK
+`armor_tech_level` and `armor_tech` carry these levels. TypeScript reads it
+through `ArmorTechSide.ts` (`isClanTechLevel`), used by the vehicle, battle
+armor and native aerospace armor rules; Python reads it as
+`enum_mapping_tables.CLAN_TECH_LEVELS` for the converter's Mixed armor side.
+`armorIdentity.test.ts` and `test_mixed_tech_sides.py` pin it.
+
 ## Adding an entry (for 4.1-g.2)
 
 1. Add the exact source string and identity to the right table, citing the Java
