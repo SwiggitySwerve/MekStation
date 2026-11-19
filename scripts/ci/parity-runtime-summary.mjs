@@ -59,7 +59,7 @@ export function renderRuntimeSummary(
   const expected = registry?.families?.[family]?.expectedUnits;
   if (expected !== undefined)
     lines.push(
-      `Expected units (registry): ${expected}; tonight's run: ${report.population?.tonight ?? 'unknown'}.`,
+      `Expected units (registry): ${expected}; this run's units: ${report.population?.tonight ?? 'unknown'}.`,
     );
   // The gate refused a downloaded artifact (stale/malformed); otherwise the
   // lookup's own wording applies: found, none within retention, or failed.
