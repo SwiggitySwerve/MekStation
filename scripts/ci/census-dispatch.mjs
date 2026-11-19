@@ -5,6 +5,8 @@
 // MAX_IN_FLIGHT runs in flight repo-wide (2 runs x 5 jobs leaves at least 10 of the 20 hosted jobs for PR runs).
 // It dispatches, takes the run id from the URL `gh workflow run` prints (never from `gh run list`, which can name
 // another lane's run), waits, then prints each job's conclusion, its gate summary and the run's artifact names.
+// Before dispatching, when this checkout is the ref head, it compares the fingerprint of facts.mjs (the gate owner,
+// factsDeriverBlob) with each enabled family baseline header and prints a plain message on a mismatch. It never refuses.
 // Exit: 0 the run succeeded; 1 it failed, the wait timed out or gh failed; 2 refused before dispatching.
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -13,7 +15,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
+import { factsDeriverBlob } from '../lib/runtime-parity/facts-provenance.mjs';
 import {
+  DERIVER_FIELDS,
+  MEASURES,
+  deriverChangedMessage,
+  enabledFamilies,
   parityRuntimeNames,
   planCensus,
   readRegistry,
@@ -66,6 +73,39 @@ export function checkInFlight(runs, ref) {
     );
 }
 
+/**
+ * Before dispatching: does this checkout's deriver fingerprint (the gate's owner, factsDeriverBlob) still match every
+ * enabled family's committed baselines? A mismatch means each gate will fail closed with FACTS_DERIVER_CHANGED, so the
+ * plain message is printed up front. A baseline header without the field (a post-split one) claims nothing here.
+ * Returns the message, or null when every fingerprint matches.
+ */
+export function deriverPrecheck({
+  registry,
+  root = process.cwd(),
+  current = factsDeriverBlob(),
+}) {
+  const stale = [];
+  for (const family of enabledFamilies(registry))
+    for (const measure of MEASURES) {
+      const file = registry.families[family].baselines[measure].main;
+      const baselined = JSON.parse(
+        fs.readFileSync(path.join(root, file), 'utf8'),
+      )[DERIVER_FIELDS.legacy];
+      if (baselined && baselined !== current)
+        stale.push(`${family} ${measure} ${baselined}`);
+    }
+  return stale.length
+    ? `${deriverChangedMessage(registry)} This checkout's facts.mjs is ${current}; the baselines were derived with: ${stale.join(', ')}.`
+    : null;
+}
+
+function gitHead(root) {
+  const result = spawnSync('git', ['-C', root, 'rev-parse', 'HEAD'], {
+    encoding: 'utf8',
+  });
+  return result.status === 0 ? result.stdout.trim() : null;
+}
+
 export async function censusDispatch({
   ref,
   families,
@@ -78,6 +118,9 @@ export async function censusDispatch({
   waitMinutes = 120,
   registry = readRegistry(),
   workDir,
+  root = process.cwd(),
+  localHead = () => gitHead(root),
+  precheck = () => deriverPrecheck({ registry, root }),
 }) {
   if (!ref) throw new Refusal('--ref <branch> is required');
   // The same planner as the workflow's plan job: an unknown or disabled family is refused before dispatching.
@@ -100,6 +143,22 @@ export async function censusDispatch({
     ...repoArgs,
   ]);
   checkInFlight(runs, ref);
+
+  // The fingerprint pre-check reads this checkout, so it speaks for the ref only when this checkout is the ref's head.
+  // It informs and never refuses: the hosted gate is the judge.
+  const refHead = json(gh, [
+    'api',
+    `repos/${repo ?? '{owner}/{repo}'}/commits/${encodeURIComponent(ref)}`,
+  ]).sha;
+  if (localHead() === refHead) {
+    const changed = precheck();
+    log(
+      changed ?? `deriver fingerprint matches every enabled family's baselines`,
+    );
+  } else
+    log(
+      `deriver fingerprint not pre-checked: this checkout is not ${ref}'s head (${refHead}); the job summaries will say if it changed`,
+    );
 
   const dispatched = gh([
     'workflow',

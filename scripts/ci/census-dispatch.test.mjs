@@ -4,17 +4,20 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 
+import { factsDeriverBlob } from '../lib/runtime-parity/facts-provenance.mjs';
 import {
   CENSUS_WORKFLOW,
   MAX_IN_FLIGHT,
   Refusal,
   censusDispatch,
   checkInFlight,
+  deriverPrecheck,
   runIdFromDispatch,
 } from './census-dispatch.mjs';
 import { readRegistry } from './parity-runtime-families.mjs';
 
 const RUN = 4242;
+const HEAD = 'c'.repeat(40);
 const URL = `https://github.com/owner/repo/actions/runs/${RUN}`;
 const gateReport = (extra = {}) => ({
   measure: 'load',
@@ -94,6 +97,8 @@ function fakeGh({
         stderr: '',
       };
     }
+    if (group === 'api' && args[1].includes('/commits/'))
+      return { stdout: JSON.stringify({ sha: HEAD }), stderr: '' };
     if (group === 'api')
       return {
         stdout: JSON.stringify({
@@ -135,6 +140,7 @@ function options(t, gh, extra = {}) {
       log: (...parts) => lines.push(parts.join('\n')),
       registry: readRegistry(),
       workDir,
+      localHead: () => 'other-checkout',
       ...extra,
     },
   };
@@ -207,6 +213,10 @@ test('dispatch, wait, then each job with its gate summary and the artifact names
   const result = await censusDispatch(opts);
   assert.deepEqual(result, { runId: RUN, conclusion: 'success', exitCode: 0 });
   assert.deepEqual(calls[1], [
+    'api',
+    'repos/{owner}/{repo}/commits/lane%2Fbranch',
+  ]);
+  assert.deepEqual(calls[2], [
     'workflow',
     'run',
     CENSUS_WORKFLOW,
@@ -218,7 +228,7 @@ test('dispatch, wait, then each job with its gate summary and the artifact names
     'measures=both',
   ]);
   // Every later call targets the dispatched run id, never a listed one.
-  for (const call of calls.slice(2))
+  for (const call of calls.slice(3))
     assert.ok(
       call.includes(String(RUN)) ||
         call.some((part) => part.includes(`/runs/${RUN}/`)),
@@ -234,10 +244,14 @@ test('dispatch, wait, then each job with its gate summary and the artifact names
   assert.match(text, /job battlemechs load: success job-load/);
   assert.match(text, /## Runtime parity: battlemechs load/);
   assert.match(text, /job battlemechs reopen: failure job-reopen/);
+  assert.match(
+    text,
+    /deriver fingerprint not pre-checked: this checkout is not lane\/branch's head/,
+  );
   // The gate's own message verbatim, plus the registry's rebaseline list.
   assert.match(
     text,
-    /`FACTS_DERIVER_CHANGED`: facts\.mjs is x but the baseline came from y\n\nEnabled families that must be rebaselined[^\n]*: battlemechs\./,
+    /`FACTS_DERIVER_CHANGED`: facts\.mjs is x but the baseline came from y\n\nderiver fingerprint changed \(shared core\): every enabled family \(battlemechs\) must be rebaselined before its gate can pass\./,
   );
   assert.match(
     text,
@@ -273,10 +287,12 @@ test('a missing artifact, a failed run and --repo are reported, not hidden', asy
   assert.match(text, /artifacts: none/);
   for (const call of calls.filter(([group]) => group !== 'api'))
     assert.deepEqual(call.slice(-2), ['--repo', 'owner/repo']);
-  assert.ok(
-    calls
-      .find(([group]) => group === 'api')[1]
-      .startsWith('repos/owner/repo/actions/runs/4242/'),
+  assert.deepEqual(
+    calls.filter(([group]) => group === 'api').map((call) => call[1]),
+    [
+      'repos/owner/repo/commits/lane%2Fbranch',
+      'repos/owner/repo/actions/runs/4242/artifacts?per_page=100',
+    ],
   );
 });
 
@@ -314,4 +330,63 @@ test('the wait survives API blips, gives up after five in a row, and stops at th
     lines.join('\n'),
     /stopped waiting after 0 min; run 4242 is still in_progress/,
   );
+});
+
+test("deriver pre-check: the gate's fingerprint owner against each enabled family's baseline headers", (t) => {
+  const registry = readRegistry();
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'census-deriver-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const write = (load, reopen) => {
+    for (const [measure, blob] of [
+      ['load', load],
+      ['reopen', reopen],
+    ]) {
+      const file = path.join(
+        root,
+        registry.families.battlemechs.baselines[measure].main,
+      );
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(
+        file,
+        JSON.stringify(blob === undefined ? {} : { factsDeriverBlob: blob }),
+      );
+    }
+  };
+  // The default fingerprint is the owner's (facts-provenance.mjs), not a copy.
+  write(factsDeriverBlob(), factsDeriverBlob());
+  assert.equal(deriverPrecheck({ registry, root }), null);
+  write('a'.repeat(40), factsDeriverBlob());
+  assert.equal(
+    deriverPrecheck({ registry, root }),
+    `deriver fingerprint changed (shared core): every enabled family (battlemechs) must be rebaselined before its gate can pass. This checkout's facts.mjs is ${factsDeriverBlob()}; the baselines were derived with: battlemechs load ${'a'.repeat(40)}.`,
+  );
+  // A header without the field (post-split) claims nothing here; it is not an error.
+  write(undefined, undefined);
+  assert.equal(deriverPrecheck({ registry, root }), null);
+});
+
+test('the pre-check runs only when this checkout is the ref head, and only informs', async (t) => {
+  for (const [localHead, expected] of [
+    [
+      HEAD,
+      /^deriver fingerprint changed \(shared core\): every enabled family \(battlemechs\)/m,
+    ],
+    ['other-checkout', /^deriver fingerprint not pre-checked/m],
+  ]) {
+    const { gh, calls } = fakeGh({ artifacts: [] });
+    let checked = 0;
+    const { lines, options: opts } = options(t, gh, {
+      measures: 'load',
+      localHead: () => localHead,
+      precheck: () => {
+        checked += 1;
+        return 'deriver fingerprint changed (shared core): every enabled family (battlemechs) must be rebaselined before its gate can pass.';
+      },
+    });
+    await censusDispatch(opts);
+    assert.equal(checked, localHead === HEAD ? 1 : 0);
+    assert.match(lines.join('\n'), expected);
+    // Dispatched either way: the hosted gate is the judge.
+    assert.ok(calls.some(([group]) => group === 'workflow'));
+  }
 });

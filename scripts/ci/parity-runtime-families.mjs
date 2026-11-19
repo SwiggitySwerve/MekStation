@@ -273,8 +273,12 @@ export function resolveLeg(registry, { family, measure, timeoutInput }) {
 export function rebaselineNotice(report, registry) {
   if (!report?.failClosed?.some((row) => row.reason === DERIVER_CHANGED_REASON))
     return null;
-  return `Enabled families that must be rebaselined before their gates can pass (one shared deriver fingerprint): ${enabledFamilies(registry).join(', ')}.`;
+  return deriverChangedMessage(registry);
 }
+
+/** The one wording of a deriver change, shared by the job summary and the dispatch wrapper's pre-check. */
+export const deriverChangedMessage = (registry) =>
+  `deriver fingerprint changed (shared core): every enabled family (${enabledFamilies(registry).join(', ')}) must be rebaselined before its gate can pass.`;
 
 function writeOutputs(outputs) {
   const text = Object.entries(outputs)

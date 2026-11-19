@@ -10,6 +10,7 @@ import { baselinePath, baselineSetsPath } from '../lib/runtime-parity/gate.mjs';
 import {
   DEFAULT_FAMILY,
   DERIVER_FIELDS,
+  deriverChangedMessage,
   MEASURES,
   REGISTRY_PATH,
   enabledFamilies,
@@ -283,7 +284,18 @@ test("a deriver change adds the registry's rebaseline list; anything else adds n
       },
       registry,
     ),
-    /must be rebaselined[^:]*: battlemechs\.$/,
+    /^deriver fingerprint changed \(shared core\): every enabled family \(battlemechs\) must be rebaselined before its gate can pass\.$/,
+  );
+  // The list is every enabled family.
+  const two = structuredClone(registry);
+  Object.assign(two.families.vehicles, {
+    enabled: true,
+    baselines: structuredClone(two.families.battlemechs.baselines),
+    timeoutMinutes: { load: 9, reopen: 11 },
+  });
+  assert.match(
+    deriverChangedMessage(validateRegistry(two)),
+    /every enabled family \(battlemechs, vehicles\) must be rebaselined/,
   );
 });
 

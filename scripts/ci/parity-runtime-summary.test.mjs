@@ -158,7 +158,7 @@ test("a family leg names its family and expected units; a deriver change adds th
   // The gate's own wording is shown verbatim, then the registry's list.
   assert.match(
     changed,
-    /- `FACTS_DERIVER_CHANGED`: the gate says what changed\n\nEnabled families that must be rebaselined[^\n]*: battlemechs\./,
+    /- `FACTS_DERIVER_CHANGED`: the gate says what changed\n\nderiver fingerprint changed \(shared core\): every enabled family \(battlemechs\) must be rebaselined before its gate can pass\./,
   );
 });
 
