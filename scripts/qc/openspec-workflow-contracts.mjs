@@ -156,9 +156,13 @@ export function validateJobTokens(workflowJobs, contract, errors) {
   for (const requiredNeed of contract.requiredNeeds) {
     if (!needs.includes(requiredNeed)) missing.push('needs: ' + requiredNeed);
   }
-  if (job.if !== undefined)
+  if (job.if !== contract.jobIf)
     invalidSteps.push(
-      'job-level if is forbidden: the aggregator requires this job to run',
+      contract.jobIf === undefined
+        ? 'job-level if is forbidden: the aggregator requires this job to run'
+        : 'job-level if must be exactly ' +
+            contract.jobIf +
+            ': only a draft may skip this job',
     );
   validateExecutionSafety(job, 'job-level', invalidSteps);
   const timeoutMinutes = contract.timeoutMinutes ?? 20;

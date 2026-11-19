@@ -157,6 +157,9 @@ export const requiredWorkflowJobContracts = [
     jobId: 'e2e',
     jobName: 'E2E (${{ matrix.shard }}/4)',
     requiredNeeds: ['detect-changes'],
+    // Drafts hold the shards; the aggregator accepts that skip only while
+    // Detect Changes reports the run's PR as a draft.
+    jobIf: "needs.detect-changes.outputs.ready == 'true'",
     timeoutMinutes: budgets.timeouts.e2e.minutes,
     matrixShards: [1, 2, 3, 4],
     skipIf:

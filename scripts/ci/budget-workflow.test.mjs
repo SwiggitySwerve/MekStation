@@ -248,25 +248,81 @@ const repository = () => ({
   cache: { files: ['one.test.ts'], unkeyable: [], repoWide: [] },
 });
 
-test('draft and ready PR pushes run the same checks without a duplicate ready transition', () => {
+// Draft PRs run Detect Changes, Static Checks, the unit shards and the
+// aggregator; E2E, Simulation/Linux Pack and win/mac Build Test wait for
+// ready. Detect Changes publishes the draft fact as the `ready` gate, so the
+// aggregator proves those skips the same way it proves path-gated ones.
+const DRAFT_HELD = {
+  e2e: "needs.detect-changes.outputs.ready == 'true'",
+  'simulation-checks':
+    "needs.detect-changes.outputs.code == 'true' && needs.detect-changes.outputs.ready == 'true'",
+  'build-test':
+    "needs.detect-changes.outputs.pr-desktop == 'true' && needs.detect-changes.outputs.ready == 'true'",
+};
+
+test('drafts hold E2E, Sim/Pack and Build Test until ready; the ready transition runs the full set', () => {
   const workflow = readWorkflow(root);
   assert.deepEqual(workflow.on.pull_request.types, [
     'opened',
     'synchronize',
     'reopened',
+    'ready_for_review',
   ]);
   assert.deepEqual(workflow.on.pull_request.branches, ['main']);
+  // Only pull_request runs can be drafts; push, schedule and dispatch are ready.
+  assert.equal(
+    workflow.jobs['detect-changes'].outputs.ready,
+    "${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}",
+  );
   for (const [id, job] of Object.entries(workflow.jobs)) {
-    assert.doesNotMatch(job.if ?? '', /draft|ready_for_review/, id);
+    if (id in DRAFT_HELD) assert.equal(job.if, DRAFT_HELD[id], id);
+    else
+      assert.doesNotMatch(
+        job.if ?? '',
+        /draft|ready|pull_request/,
+        `${id} must run on drafts`,
+      );
     for (const step of job.steps ?? [])
       assert.doesNotMatch(
         step.if ?? '',
-        /draft|ready_for_review/,
+        /draft|ready_for_review|outputs\.ready\b/,
         `${id}/${step.name}`,
       );
   }
+  for (const id of ['detect-changes', 'static-checks', 'unit-test-shards'])
+    assert.equal(workflow.jobs[id].if, undefined, id);
+  const gates = JSON.parse(
+    workflow.jobs['lint-and-test'].steps.find(
+      (step) => step.run === 'node scripts/ci/budget-aggregate.mjs',
+    ).env.GATES_JSON,
+  );
+  for (const id of Object.keys(DRAFT_HELD))
+    assert.ok(gates[id].includes('ready'), id);
   assert.equal(workflow.jobs['lint-and-test'].name, AGGREGATOR);
   assert.equal(workflow.jobs['lint-and-test'].if, 'always()');
+  // A ready_for_review run shares the PR's group, so it replaces the draft's
+  // in-flight run; nothing that triggers later on a ready PR is a draft run.
+  assert.equal(
+    workflow.concurrency.group,
+    "pr-checks-${{ github.event_name == 'pull_request' && github.ref || 'main' }}",
+  );
+  assert.equal(
+    workflow.concurrency['cancel-in-progress'],
+    "${{ github.event_name == 'pull_request' }}",
+  );
+  assert.ok(!workflow.on.pull_request.types.includes('converted_to_draft'));
+});
+
+test('a draft-held job without its ready condition fails the contract', () => {
+  for (const id of Object.keys(DRAFT_HELD)) {
+    const next = structuredClone(workflow);
+    next.jobs[id].if = DRAFT_HELD[id].replace(
+      / ?&?&? ?needs\.detect-changes\.outputs\.ready == 'true'/,
+      '',
+    );
+    if (!next.jobs[id].if) delete next.jobs[id].if;
+    assert.throws(() => workflowMetrics(root, config, next), id);
+  }
 });
 
 test('completed source runs still drive head-bound Guard, approval and budget publishing', () => {
@@ -295,7 +351,7 @@ test('completed source runs still drive head-bound Guard, approval and budget pu
     assert.doesNotMatch(step.if ?? '', /draft|ready_for_review/);
 });
 
-test('only the separate budget approval safety reevaluation retains the ready listener', () => {
+test('PR Checks and the budget approval reevaluation are the only ready listeners', () => {
   const listeners = fs
     .readdirSync(path.join(root, '.github/workflows'))
     .filter((file) => /\.ya?ml$/.test(file))
@@ -307,7 +363,7 @@ test('only the separate budget approval safety reevaluation retains the ready li
         trigger?.types?.includes('ready_for_review'),
       );
     });
-  assert.deepEqual(listeners, ['ci-budget-approval.yml']);
+  assert.deepEqual(listeners, ['ci-budget-approval.yml', 'pr-checks.yml']);
 });
 
 test('pre-install Guard tests run without the repository dependency installation', () => {
@@ -613,11 +669,19 @@ test('actual aggregator boundary rejects failures, unexpected skips, unknown/mis
   const expected = Object.keys(workflow.jobs).filter(
     (id) => id !== 'lint-and-test',
   );
-  const gates = { 'simulation-checks': 'code', 'build-test': 'pr-desktop' };
+  const gates = {
+    'simulation-checks': ['code', 'ready'],
+    'build-test': ['pr-desktop', 'ready'],
+    e2e: ['ready'],
+  };
   const needs = Object.fromEntries(
     expected.map((id) => [id, { result: 'success' }]),
   );
-  needs['detect-changes'].outputs = { code: 'false', 'pr-desktop': 'false' };
+  needs['detect-changes'].outputs = {
+    code: 'false',
+    'pr-desktop': 'false',
+    ready: 'true',
+  };
   needs['simulation-checks'].result = 'skipped';
   needs['build-test'].result = 'skipped';
   assert.doesNotThrow(() => assertJobResults(expected, gates, needs));
@@ -633,6 +697,17 @@ test('actual aggregator boundary rejects failures, unexpected skips, unknown/mis
     },
   ])
     assert.throws(() => assertJobResults(expected, gates, bad));
+  // A gate map entry must name its gates; an empty conjunction proves nothing.
+  assert.throws(() =>
+    assertJobResults(
+      expected,
+      { ...gates, e2e: [] },
+      {
+        ...needs,
+        e2e: { result: 'skipped' },
+      },
+    ),
+  );
   const run = spawnSync(process.execPath, ['scripts/ci/budget-aggregate.mjs'], {
     cwd: root,
     env: {
@@ -645,6 +720,50 @@ test('actual aggregator boundary rejects failures, unexpected skips, unknown/mis
   });
   assert.equal(run.status, 1);
   assert.match(run.stderr, /Missing or unknown/);
+});
+
+test('the shipped gate map accepts draft-held skips only on a draft', () => {
+  const expected = Object.keys(workflow.jobs).filter(
+    (id) => id !== 'lint-and-test',
+  );
+  const gates = JSON.parse(
+    workflow.jobs['lint-and-test'].steps.find(
+      (step) => step.run === 'node scripts/ci/budget-aggregate.mjs',
+    ).env.GATES_JSON,
+  );
+  const run = (outputs, skipped) =>
+    assertJobResults(
+      expected,
+      gates,
+      Object.fromEntries(
+        expected.map((id) => [
+          id,
+          {
+            result: skipped.includes(id) ? 'skipped' : 'success',
+            ...(id === 'detect-changes' ? { outputs } : {}),
+          },
+        ]),
+      ),
+    );
+  const held = ['e2e', 'simulation-checks', 'build-test'];
+  const draft = { code: 'true', 'pr-desktop': 'true', ready: 'false' };
+  const readyPr = { ...draft, ready: 'true' };
+  const push = { code: 'true', 'pr-desktop': 'false', ready: 'true' };
+  // Draft: E2E, Sim/Pack and Build Test skipped, every gate otherwise on.
+  assert.doesNotThrow(() => run(draft, held));
+  // Drafts still require Detect, Static and the unit shards.
+  for (const id of ['detect-changes', 'static-checks', 'unit-test-shards'])
+    assert.throws(() => run(draft, [...held, id]), new RegExp(id));
+  // Ready PR: each held job must run when its other gates are on.
+  for (const id of held)
+    assert.throws(() => run(readyPr, [id]), new RegExp(`${id}=skipped`));
+  // Push to main: unchanged. Only win/mac packs skip (Desktop Packs).
+  assert.doesNotThrow(() => run(push, ['build-test']));
+  for (const id of ['e2e', 'simulation-checks'])
+    assert.throws(() => run(push, [id]), new RegExp(`${id}=skipped`));
+  // A missing or malformed draft fact never excuses a skipped E2E.
+  for (const ready of [undefined, '', 'False', 'unknown'])
+    assert.throws(() => run({ ...draft, ready }, ['e2e']), /e2e=skipped/);
 });
 
 // The live workflow's typical job counts are over their limit too (four PR E2E

@@ -24,6 +24,8 @@ const e2eTimeoutMinutes: number = JSON.parse(
 const GATE_JOB = 'e2e';
 const CHANGE_GATE_IF =
   "needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'";
+// Drafts hold the shards until the PR is ready (Lint and Test accepts it).
+const DRAFT_HOLD_IF = "needs.detect-changes.outputs.ready == 'true'";
 const GATE_COMMAND =
   'run: node scripts/playwright/run-ci-e2e.mjs test ' +
   'e2e/active-session-recovery.spec.ts ' +
@@ -685,9 +687,20 @@ describe('OpenSpec CI quality QC validator', () => {
         'disabled gate job',
         GATE_JOB,
         (block: string) =>
+          block.replace('    if: ' + DRAFT_HOLD_IF, '    if: false'),
+      ],
+      [
+        'dropped draft hold',
+        GATE_JOB,
+        (block: string) => block.replace('    if: ' + DRAFT_HOLD_IF + '\n', ''),
+      ],
+      [
+        'widened draft hold',
+        GATE_JOB,
+        (block: string) =>
           block.replace(
-            '    name: E2E (${{ matrix.shard }}/4)',
-            '    if: false\n    name: E2E (${{ matrix.shard }}/4)',
+            '    if: ' + DRAFT_HOLD_IF,
+            "    if: needs.detect-changes.outputs.ready != 'false'",
           ),
       ],
       [

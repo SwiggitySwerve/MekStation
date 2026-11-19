@@ -16,13 +16,17 @@ export function assertJobResults(expected, gates, needs) {
   for (const id of expected) {
     const result = needs[id]?.result;
     if (result === 'success') continue;
+    // A gated job's `if:` is the conjunction of these gates, so any one
+    // 'false' explains the skip (a draft's `ready`, or a path gate).
     const gate = gates[id];
     if (
       result !== 'skipped' ||
-      typeof gate !== 'string' ||
-      outputs?.[gate] !== 'false'
+      !Array.isArray(gate) ||
+      !gate.length ||
+      gate.some((name) => typeof name !== 'string') ||
+      !gate.some((name) => outputs?.[name] === 'false')
     )
-      throw new Error(`${id}=${result}: did not pass or prove its gate false`);
+      throw new Error(`${id}=${result}: did not pass or prove a gate false`);
   }
 }
 

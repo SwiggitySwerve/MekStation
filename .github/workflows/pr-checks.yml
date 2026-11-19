@@ -4,9 +4,11 @@ on:
   pull_request:
     branches:
       - main
-    # Drafts run on open and every push. Ready keeps the same head's checks;
-    # repeating this full graph at that transition only consumes runner time.
-    types: [opened, synchronize, reopened]
+    # Drafts run the cheap checks only (Detect Changes, Static Checks, the
+    # unit shards, Lint and Test); E2E, Simulation/Linux Pack and win/mac
+    # Build Test skip on the `ready` gate below. Marking the PR ready runs
+    # the full set on the same head, and so does every later push.
+    types: [opened, synchronize, reopened, ready_for_review]
   # Pushes to main, the nightly schedule and manual runs check everything,
   # including the checks pull requests path-gate or leave to main
   # (scripts/ci/ci-changes.mjs turns every gate on outside pull requests).
@@ -18,7 +20,8 @@ on:
     - cron: '30 9 * * *'
   workflow_dispatch:
 
-# A new push to the same PR supersedes the in-flight run; without this,
+# A new push to the same PR, or marking it ready, supersedes the in-flight
+# run (a ready run replaces the draft run of the same head); without this,
 # superseded runs burn to completion. Main pushes, nightly and manual runs
 # share one group that never cancels the running run: a newer one replaces
 # only a run still pending, and the tip it checks contains every replaced
@@ -48,6 +51,9 @@ jobs:
   # `pr-desktop` is `desktop` on pull requests and 'false' otherwise: main
   # pushes, nightly and manual runs pack win/mac in Desktop Packs
   # (desktop-packs.yml), outside this workflow's concurrency group.
+  # `ready` is 'false' only on a draft pull request's run; E2E, Simulation
+  # and Linux Pack, and Build Test wait for it, so drafts take few of the 20
+  # hosted runners. Lint and Test accepts those skips by the same gate proof.
   # `equipment`, `combat`, `corpus`, `roadmap` and `storybook` run their check
   # only when a changed file is in the check's import closure or is a
   # data file it reads. Detection fails open, and every gate is on outside
@@ -62,6 +68,7 @@ jobs:
       combat: ${{ steps.filter.outputs.combat }}
       desktop: ${{ steps.filter.outputs.desktop }}
       pr-desktop: ${{ github.event_name == 'pull_request' && steps.filter.outputs.desktop || 'false' }}
+      ready: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
       e2e: ${{ steps.filter.outputs.e2e }}
       data-specs: ${{ steps.filter.outputs.data-specs }}
       equipment: ${{ steps.filter.outputs.equipment }}
@@ -354,7 +361,7 @@ jobs:
   simulation-checks:
     name: Simulation Checks and Linux Pack
     needs: detect-changes
-    if: needs.detect-changes.outputs.code == 'true'
+    if: needs.detect-changes.outputs.code == 'true' && needs.detect-changes.outputs.ready == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 14
     # Read-only token, not persisted: the advisory tsrs step installs and
@@ -878,11 +885,13 @@ jobs:
   # --test-list selection and executed reports must match the planned set.
   # The wrapper owns the HTML/JSON report paths and overrides step-level
   # PLAYWRIGHT_* report env vars; its listing timings upload in e2e-timings.
-  # Step gating keeps docs- and openspec-only PRs green.
+  # Step gating keeps docs- and openspec-only PRs green. The job-level
+  # `ready` gate holds every shard until a draft is marked ready.
   # ---------------------------------------------------------------
   e2e:
     name: E2E (${{ matrix.shard }}/4)
     needs: detect-changes
+    if: needs.detect-changes.outputs.ready == 'true'
     env:
       CI_E2E_DATA_SPECS: ${{ needs.detect-changes.outputs.data-specs || '[]' }}
     runs-on: ubuntu-24.04
@@ -1025,11 +1034,11 @@ jobs:
   # required check as passing, so without it a failed fan-out job would
   # skip this aggregator and the PR would show green (the
   # run-29059132882 hole; W6 design D2.3/R10). A needed job passes when
-  # its result is 'success'. It may be 'skipped' only when it carries a
-  # job-level `if:` on detect-changes gates and every gate it names
-  # below was 'false' for this run; any other skip, a failure or a
-  # cancellation fails this check. Add every new job to `needs`, and a
-  # job-level-gated job to GATES too.
+  # its result is 'success'. It may be 'skipped' only when its job-level
+  # `if:` is a conjunction of detect-changes gates, listed below, and one
+  # of them was 'false' for this run (a draft's `ready`, or a path gate);
+  # any other skip, a failure or a cancellation fails this check. Add every
+  # new job to `needs`, and a job-level-gated job to GATES too.
   lint-and-test:
     name: Lint and Test
     if: always()
@@ -1053,8 +1062,9 @@ jobs:
       - name: Assert every fan-out check succeeded or was gated off
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
-          # Job id -> the detect-changes gates whose all-'false' allows a skip.
-          GATES_JSON: '{"simulation-checks":"code","build-test":"pr-desktop"}'
+          # Job id -> the detect-changes gates its `if:` requires; any one
+          # 'false' allows a skip.
+          GATES_JSON: '{"simulation-checks":["code","ready"],"e2e":["ready"],"build-test":["pr-desktop","ready"]}'
         run: node scripts/ci/budget-aggregate.mjs
 
       - name: Checkout current main budget validator
@@ -1101,7 +1111,7 @@ jobs:
   build-test:
     name: Build Test / ${{ matrix.platform }}
     needs: [detect-changes, simulation-checks]
-    if: needs.detect-changes.outputs.pr-desktop == 'true'
+    if: needs.detect-changes.outputs.pr-desktop == 'true' && needs.detect-changes.outputs.ready == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
