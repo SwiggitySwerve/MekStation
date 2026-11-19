@@ -11,6 +11,7 @@ import {
   CI_SUITES,
   NIGHTLY_DURATIONS,
   NIGHTLY_GREP_INVERT,
+  SNAPSHOT_ARGS,
   assertSameTests,
   assertShardNotEmpty,
   assertShardsCoverCensus,
@@ -493,18 +494,52 @@ test('suite fields pin library per-test splitting and data per-file weights', ()
   assert.equal(dataTask.milliseconds, 60_000);
 });
 
+// #3448: unit-spec-refs named audit-capture.spec.ts (84 toHaveScreenshot tests)
+// for a changed unit, and the PR data step ran it against baselines CI does not
+// hold (only win32 PNGs are committed). Nightly runs the same tests with
+// --ignore-snapshots; every PR suite now takes that rule from the same owner.
+test('every PR listing and run ignores snapshot baselines, through the Nightly owner', () => {
+  assert.deepEqual(SNAPSHOT_ARGS, ['--ignore-snapshots']);
+  // One owner: Nightly's census flags start with the same rule.
+  assert.deepEqual(
+    nightlyCensusArgs().slice(0, SNAPSHOT_ARGS.length),
+    SNAPSHOT_ARGS,
+  );
+  const auditOnly = suitesForDataSpecs(['e2e/audit-capture.spec.ts']);
+  const data = auditOnly.find(({ name }) => name === 'data');
+  assert.deepEqual(data.files, ['audit-capture.spec.ts']);
+  for (const suites of [CI_SUITES, auditOnly]) {
+    const census = prCensusArgs(suites);
+    assert.ok(census.includes('--ignore-snapshots'), 'census');
+    for (const suite of suites) {
+      const args = prTaskArgs(suite, 'list.txt');
+      assert.ok(args.includes('--ignore-snapshots'), suite.name);
+      // The flag precedes --output, so no positional file argument follows it.
+      assert.ok(
+        args.indexOf('--ignore-snapshots') <
+          args.indexOf(`--output=test-results/${suite.name}`),
+        suite.name,
+      );
+    }
+  }
+});
+
 test('PR invocations keep their exact Playwright argv and planner input', () => {
   const suites = suitesForDataSpecs(['e2e/zz-data.spec.ts']);
   // The expressions run-ci-e2e.mjs used inline before the suite-set planner.
-  const legacyCensus = suites.flatMap(({ files }) =>
-    files.map((f) => `e2e/${f}`),
-  );
+  // Since the PR data path ran audit-capture against missing baselines (#3448),
+  // every PR listing and run also carries the snapshot rule Nightly uses.
+  const legacyCensus = [
+    ...suites.flatMap(({ files }) => files.map((f) => `e2e/${f}`)),
+    '--ignore-snapshots',
+  ];
   const legacyTask = (suite, list) => [
     ...suite.files.map((f) => `e2e/${f}`),
     `--test-list=${list}`,
     '--project=chromium',
     `--workers=${suite.workers}`,
     ...suite.options,
+    '--ignore-snapshots',
     `--output=test-results/${suite.name}`,
   ];
   assert.deepEqual(prCensusArgs(suites), legacyCensus);
@@ -523,6 +558,7 @@ test('PR invocations keep their exact Playwright argv and planner input', () => 
       '--test-list=l.txt',
       '--project=chromium',
       '--workers=1',
+      '--ignore-snapshots',
       '--output=test-results/library',
     ],
   );
@@ -536,6 +572,7 @@ test('PR invocations keep their exact Playwright argv and planner input', () => 
       '--test-list=d.txt',
       '--project=chromium',
       '--workers=1',
+      '--ignore-snapshots',
       '--output=test-results/data',
     ],
   );

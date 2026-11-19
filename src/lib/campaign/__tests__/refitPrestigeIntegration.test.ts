@@ -72,6 +72,9 @@ function makeCampaign(overrides: Partial<ICampaign> = {}): ICampaign {
   };
 }
 
+/** Identity launch manifest: the fixture's `unit-1` is a roster id. */
+const UNIT_1_MANIFEST = { 'unit-1': { rosterUnitId: 'unit-1' } };
+
 describe('refit integration — launch, advance, swap (task 9.1)', () => {
   beforeEach(() => {
     _resetDayPipeline();
@@ -172,6 +175,7 @@ describe('prestige + morale integration — battle sequence (task 9.2)', () => {
         dayOutcome,
         prestige,
         campaign.currentDate.toISOString(),
+        UNIT_1_MANIFEST,
       );
       const staged = {
         ...campaign,
@@ -197,6 +201,7 @@ describe('prestige + morale integration — battle sequence (task 9.2)', () => {
       outcome('seed', 'player'),
       [],
       TEST_DATE.toISOString(),
+      UNIT_1_MANIFEST,
     );
     const seededScore = prestige.find((p) => p.unitId === 'unit-1')?.score ?? 0;
 
@@ -208,6 +213,7 @@ describe('prestige + morale integration — battle sequence (task 9.2)', () => {
         dayOutcome,
         prestige,
         campaign.currentDate.toISOString(),
+        UNIT_1_MANIFEST,
       );
       const staged = {
         ...campaign,

@@ -5,14 +5,20 @@ import test from 'node:test';
 
 import {
   FACT_DEFS,
+  FACT_FAMILIES,
   REPORTED_DEFS,
+  VEHICLE_FACT_DEFS,
+  VEHICLE_REPORTED_DEFS,
   decodeCell,
   encodeCell,
+  factDefs,
   loadFacts,
   parseFacts,
   reopenFacts,
   serializeFacts,
   validateFacts,
+  vehicleLoadFacts,
+  vehicleReopenFacts,
 } from './facts.mjs';
 
 const identity = (measure) => ({
@@ -349,4 +355,228 @@ test('facts reject a JSON distance of 1e999 instead of accepting Infinity', () =
     '"bvDistance":1e999',
   );
   assert.throws(() => parseFacts('load', text), /bvDistance/);
+});
+
+// --- vehicles -----------------------------------------------------------------------------------------
+
+const vehicleIdentity = (measure) => ({
+  measure,
+  family: 'vehicles',
+  unitId: 'v',
+  path: 'vehicles/v.blk',
+});
+const vehicleObserved = (over = {}) => ({
+  bv: 1353,
+  validity: 'valid',
+  complete: true,
+  reasons: [],
+  weight: 95,
+  mp: { cruise: 4, flank: 6, jump: 0 },
+  crew: 7,
+  ...over,
+});
+const vehicleRef = (total = 1353, valid = true, weightExact = 95) => ({
+  battleValue: { total },
+  construction: {
+    valid,
+    verifierQuantities: { weightExact: { unit: 't', value: weightExact } },
+  },
+});
+const vehicleLoadRow = (over = {}, preview = { bv: 1353, cost: 1 }) => ({
+  ...vehicleIdentity('load'),
+  status: 'ok',
+  load: { observed: vehicleObserved(over), preview },
+});
+const vehicleReopenRow = (before = {}, after = {}, rest = {}) => ({
+  ...vehicleIdentity('reopen'),
+  status: 'ok',
+  reopen: {
+    before: vehicleObserved(before),
+    after: vehicleObserved(after),
+    documentLosses: [],
+    mountLosses: [],
+    mountAdditions: [],
+    ...rest,
+  },
+});
+
+test('each family has its own fact table; the battlemech table is unchanged', () => {
+  assert.deepEqual(FACT_FAMILIES, ['battlemechs', 'vehicles']);
+  assert.equal(factDefs('load'), FACT_DEFS.load);
+  assert.equal(factDefs('reopen', 'battlemechs'), FACT_DEFS.reopen);
+  assert.equal(factDefs('reopen', 'vehicles'), VEHICLE_FACT_DEFS.reopen);
+  assert.equal(factDefs('load', 'aerospace'), undefined);
+  // Crew is reported only, never gated.
+  assert.equal('crewOracle' in VEHICLE_FACT_DEFS.load, false);
+  assert.equal(VEHICLE_REPORTED_DEFS.load.crewOracle, 'bool');
+});
+
+test('vehicle load facts: BV, validity and the sheet against Java and the status bar; mass and crew are reported', () => {
+  const ok = vehicleLoadFacts(vehicleLoadRow(), vehicleRef());
+  assert.deepEqual(ok.facts, {
+    bvExact: true,
+    bvDistance: 0,
+    validity: true,
+    previewEqualsStatus: true,
+  });
+  // The crew oracle is not committed: always unknown.
+  assert.deepEqual(ok.reported, {
+    previewStatusDistance: 0,
+    massJavaDistance: 0,
+    crewOracle: null,
+  });
+  const off = vehicleLoadFacts(
+    vehicleLoadRow(
+      { bv: 1300, validity: 'invalid', weight: 95.5 },
+      { bv: 1290, cost: 1 },
+    ),
+    vehicleRef(),
+  );
+  assert.deepEqual(off.facts, {
+    bvExact: false,
+    bvDistance: 53,
+    validity: false,
+    previewEqualsStatus: false,
+  });
+  assert.equal(off.reported.massJavaDistance, 0.5);
+  assert.equal(off.reported.previewStatusDistance, 10);
+  // No Java value is unknown; an unknown mass is an unknown distance; a missing preview is unknown.
+  const none = vehicleLoadFacts(
+    vehicleLoadRow({ bv: null, weight: null }, null),
+    {},
+  );
+  assert.deepEqual(none.facts, {
+    bvExact: null,
+    bvDistance: null,
+    validity: null,
+    previewEqualsStatus: null,
+  });
+  assert.equal(none.reported.massJavaDistance, null);
+  // A null BV against a Java value is a miss, not unknown.
+  assert.equal(
+    vehicleLoadFacts(vehicleLoadRow({ bv: null }), vehicleRef()).facts.bvExact,
+    false,
+  );
+});
+
+test('vehicle reopen facts: each observed value at both ends, the verdict by rule id, and the two loss sets', () => {
+  const same = vehicleReopenFacts(vehicleReopenRow(), vehicleRef()).facts;
+  assert.deepEqual(same, {
+    reopenLoad: true,
+    reopenJava: true,
+    reopenJavaDistance: 0,
+    reopenLoadDistance: 0,
+    reopenMass: true,
+    reopenVerdict: true,
+    reopenMP: true,
+    reopenCrew: true,
+    reopenValid: true,
+    documentLosses: [],
+    mountLosses: [],
+  });
+  const moved = vehicleReopenFacts(
+    vehicleReopenRow(
+      { validity: 'invalid', reasons: ['VAL-A'] },
+      {
+        bv: 1340,
+        weight: 94.5,
+        validity: 'invalid',
+        reasons: ['VAL-A', 'VAL-B'],
+        mp: { cruise: 4, flank: 6, jump: 1 },
+        crew: null,
+      },
+      {
+        documentLosses: [
+          { path: 'fuelType', change: 'lost' },
+          { path: 'rulesLevel', change: 'changed' },
+        ],
+        mountLosses: ['TURRET:X#1'],
+        mountAdditions: ['BODY:Y#1'],
+      },
+    ),
+    vehicleRef(),
+  ).facts;
+  assert.deepEqual(
+    [
+      moved.reopenLoad,
+      moved.reopenJava,
+      moved.reopenJavaDistance,
+      moved.reopenLoadDistance,
+      moved.reopenMass,
+      moved.reopenVerdict,
+      moved.reopenMP,
+      moved.reopenCrew,
+      moved.reopenValid,
+    ],
+    [false, false, 13, 13, false, false, false, false, false],
+  );
+  assert.deepEqual(moved.documentLosses, [
+    'changed:rulesLevel',
+    'lost:fuelType',
+  ]);
+  assert.deepEqual(moved.mountLosses, ['+BODY:Y#1', '-TURRET:X#1']);
+  // The same rule ids are the same verdict (messages are not compared).
+  assert.equal(
+    vehicleReopenFacts(
+      vehicleReopenRow(
+        { validity: 'invalid', reasons: ['VAL-A'] },
+        { validity: 'invalid', reasons: ['VAL-A'] },
+      ),
+      vehicleRef(),
+    ).facts.reopenVerdict,
+    true,
+  );
+  // Completeness is part of the verdict.
+  assert.equal(
+    vehicleReopenFacts(vehicleReopenRow({}, { complete: false }), vehicleRef())
+      .facts.reopenVerdict,
+    false,
+  );
+  // An unknown mass at either end is a miss, never a pass; an explicit null crew at both ends is the same crew.
+  const nulls = vehicleReopenFacts(
+    vehicleReopenRow(
+      { weight: null, crew: null },
+      { weight: null, crew: null },
+    ),
+    vehicleRef(),
+  ).facts;
+  assert.deepEqual([nulls.reopenMass, nulls.reopenCrew], [false, true]);
+});
+
+test('a vehicle error row has every vehicle fact unknown, and facts rows validate against their own family', () => {
+  for (const [measure, derive] of [
+    ['load', vehicleLoadFacts],
+    ['reopen', vehicleReopenFacts],
+  ]) {
+    const entry = derive(
+      {
+        ...vehicleIdentity(measure),
+        status: 'error',
+        error: { stage: 'open', name: 'Error', message: 'boom' },
+      },
+      vehicleRef(),
+    );
+    assert.deepEqual(
+      Object.keys(entry.facts),
+      Object.keys(VEHICLE_FACT_DEFS[measure]),
+    );
+    assert.ok(Object.values(entry.facts).every((value) => value === null));
+    assert.ok(Object.values(entry.reported).every((value) => value === null));
+    validateFacts(measure, entry);
+  }
+  const vehicle = vehicleLoadFacts(vehicleLoadRow(), vehicleRef());
+  validateFacts('load', vehicle);
+  // A vehicle facts row read with the mech table, or a family with no table, is malformed.
+  assert.throws(() =>
+    validateFacts('load', { ...vehicle, family: 'battlemechs' }),
+  );
+  assert.throws(
+    () => validateFacts('load', { ...vehicle, family: 'aerospace' }),
+    /no load facts for the family aerospace/,
+  );
+  const { family: _family, ...noFamily } = vehicle;
+  assert.throws(
+    () => validateFacts('load', noFamily),
+    /no load facts for the family undefined/,
+  );
 });

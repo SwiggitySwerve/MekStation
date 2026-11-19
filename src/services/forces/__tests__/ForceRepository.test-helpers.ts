@@ -1054,6 +1054,72 @@ describe('ForceRepository', () => {
       expect(updatedForce?.assignments[0].unitId).toBe('unit-456');
     });
 
+    it('T1: carries the roster link with its unit through update, swap, reassign and clear', () => {
+      const forceResult = repository.createForce({
+        name: 'Roster Link Test',
+        forceType: ForceType.Lance,
+      });
+      const [first, second] = repository.getForceById(
+        forceResult.id!,
+      )!.assignments;
+
+      repository.updateAssignment(first.id, {
+        unitId: 'atlas-as7-d',
+        rosterUnitId: 'roster-a',
+      });
+      repository.updateAssignment(second.id, { unitId: 'locust-lct-1v' });
+      let assignments = repository.getForceById(forceResult.id!)!.assignments;
+      expect(assignments[0].rosterUnitId).toBe('roster-a');
+      expect(assignments[1]).not.toHaveProperty('rosterUnitId');
+
+      // The link travels with the unit, never stays with the slot.
+      repository.swapAssignments(first.id, second.id);
+      assignments = repository.getForceById(forceResult.id!)!.assignments;
+      expect(assignments[0]).toMatchObject({ unitId: 'locust-lct-1v' });
+      expect(assignments[0]).not.toHaveProperty('rosterUnitId');
+      expect(assignments[1]).toMatchObject({
+        unitId: 'atlas-as7-d',
+        rosterUnitId: 'roster-a',
+      });
+
+      // Reassigning the unit without a link drops the stale one.
+      repository.updateAssignment(second.id, { unitId: 'hunchback-hbk-4g' });
+      expect(
+        repository.getForceById(forceResult.id!)!.assignments[1],
+      ).not.toHaveProperty('rosterUnitId');
+
+      repository.updateAssignment(second.id, {
+        unitId: 'atlas-as7-d',
+        rosterUnitId: 'roster-a',
+      });
+      repository.clearAssignment(second.id);
+      expect(
+        repository.getForceById(forceResult.id!)!.assignments[1],
+      ).not.toHaveProperty('rosterUnitId');
+    });
+
+    it('T1: adds the roster link column to a table created before it existed', () => {
+      const db = getSQLiteService().getDatabase();
+      db.exec('DROP TABLE IF EXISTS force_assignments');
+      db.exec(`
+        CREATE TABLE force_assignments (
+          id TEXT PRIMARY KEY,
+          force_id TEXT NOT NULL,
+          pilot_id TEXT,
+          unit_id TEXT,
+          position TEXT NOT NULL DEFAULT 'member',
+          slot INTEGER NOT NULL,
+          notes TEXT
+        )
+      `);
+      const legacy = new ForceRepository();
+      legacy.initialize();
+      const columns = db.pragma('table_info(force_assignments)') as {
+        name: string;
+      }[];
+      expect(columns.map((column) => column.name)).toContain('roster_unit_id');
+    });
+
     it('should update position', () => {
       const forceResult = repository.createForce({
         name: 'Position Test',

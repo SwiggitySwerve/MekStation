@@ -51,11 +51,16 @@ export interface IForceService {
   getForceSummaries(): readonly IForceSummary[];
 
   assignPilot(assignmentId: string, pilotId: string): IForceOperationResult;
-  assignUnit(assignmentId: string, unitId: string): IForceOperationResult;
+  assignUnit(
+    assignmentId: string,
+    unitId: string,
+    rosterUnitId?: string,
+  ): IForceOperationResult;
   assignPilotAndUnit(
     assignmentId: string,
     pilotId: string,
     unitId: string,
+    rosterUnitId?: string,
   ): IForceOperationResult;
   clearAssignment(assignmentId: string): IForceOperationResult;
   swapAssignments(
@@ -201,14 +206,19 @@ export class ForceService implements IForceService {
   assignUnit = (
     assignmentId: string,
     unitId: string,
+    rosterUnitId?: string,
   ): IForceOperationResult => {
-    return this.repository.updateAssignment(assignmentId, { unitId });
+    return this.repository.updateAssignment(assignmentId, {
+      unitId,
+      rosterUnitId,
+    });
   };
 
   assignPilotAndUnit = (
     assignmentId: string,
     pilotId: string,
     unitId: string,
+    rosterUnitId?: string,
   ): IForceOperationResult => {
     const pilotRepo = getPilotRepository();
     const pilot = pilotRepo.getById(pilotId);
@@ -240,7 +250,11 @@ export class ForceService implements IForceService {
       }
     }
 
-    return this.repository.updateAssignment(assignmentId, { pilotId, unitId });
+    return this.repository.updateAssignment(assignmentId, {
+      pilotId,
+      unitId,
+      rosterUnitId,
+    });
   };
 
   clearAssignment = (assignmentId: string): IForceOperationResult => {
@@ -348,6 +362,9 @@ export class ForceService implements IForceService {
           this.repository.updateAssignment(targetAssignment.id, {
             pilotId: sourceAssignment.pilotId,
             unitId: sourceAssignment.unitId,
+            // The clone keeps the same unit in the slot, so its roster link
+            // (T1) still names the same campaign roster unit.
+            rosterUnitId: sourceAssignment.rosterUnitId,
             position: sourceAssignment.position,
             notes: sourceAssignment.notes,
           });

@@ -1,7 +1,7 @@
 {
   "genesisSource": "fast-forward:economy-midcampaign",
-  "mintedAt": "2026-10-18T05:39:27.308Z",
-  "baseCommit": "c962217ba54d3179897918cd234058bf1d9dc298",
+  "mintedAt": "2026-11-18T18:57:42.218Z",
+  "baseCommit": "4f028a440ba166b03316f65df025d91416a0f8f5",
   "invariantSummary": {
     "battles": [
       {

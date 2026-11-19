@@ -384,10 +384,26 @@ describe('materializeCampaignMissionEncounter', () => {
       'PUT /api/encounters/enc-organic/opponent-force',
     ]);
     expect(assignmentBodies(calls).slice(0, 4)).toEqual([
-      { unitId: 'locust-lct-1v', pilotId: 'pilot-1' },
-      { unitId: 'hunchback-hbk-4g', pilotId: 'pilot-2' },
-      { unitId: 'marauder-mad-3r', pilotId: 'pilot-3' },
-      { unitId: 'atlas-as7-d', pilotId: 'pilot-4' },
+      {
+        unitId: 'locust-lct-1v',
+        pilotId: 'pilot-1',
+        rosterUnitId: 'wizard-unit-1',
+      },
+      {
+        unitId: 'hunchback-hbk-4g',
+        pilotId: 'pilot-2',
+        rosterUnitId: 'wizard-unit-2',
+      },
+      {
+        unitId: 'marauder-mad-3r',
+        pilotId: 'pilot-3',
+        rosterUnitId: 'wizard-unit-3',
+      },
+      {
+        unitId: 'atlas-as7-d',
+        pilotId: 'pilot-4',
+        rosterUnitId: 'wizard-unit-4',
+      },
     ]);
     expect(calls.at(-2)).toBeDefined();
     expect(requestBody(calls.at(-2)!)).toEqual({ forceId: 'force-1' });
@@ -717,9 +733,21 @@ describe('materializeCampaignMissionEncounter', () => {
       // would drop the second player from their own mission.
       const playerAssignments = assignmentBodies(calls).slice(0, 3);
       expect(playerAssignments).toEqual([
-        { unitId: 'locust-lct-1v', pilotId: 'pilot-1-1' },
-        { unitId: 'hunchback-hbk-4g', pilotId: 'pilot-1-2' },
-        { unitId: 'marauder-mad-3r', pilotId: 'pilot-2-1' },
+        {
+          unitId: 'locust-lct-1v',
+          pilotId: 'pilot-1-1',
+          rosterUnitId: 'force-alpha-unit-1',
+        },
+        {
+          unitId: 'hunchback-hbk-4g',
+          pilotId: 'pilot-1-2',
+          rosterUnitId: 'force-alpha-unit-2',
+        },
+        {
+          unitId: 'marauder-mad-3r',
+          pilotId: 'pilot-2-1',
+          rosterUnitId: 'force-bravo-unit-1',
+        },
       ]);
     });
 

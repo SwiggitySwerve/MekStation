@@ -17,9 +17,14 @@ import type {
 import type { IGmCampaignProjectedEffect } from '../interventions/GmCampaignInterventionTypes';
 import type { IGmTimeCascadeProjectedEffect } from '../interventions/GmTimeCascadeInterventionTypes';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
+import type { IPendingBattleUnitManifest } from './BattleUnitManifest';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { ICoopSession } from './CoopSession';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
+import type {
+  ILegacyCombatStateFlag,
+  IUnappliedDeltaQuarantineRecord,
+} from './LegacyCombatStateMigration';
 import type { SalvageRights, CommandRights } from './Mission';
 import type { IPartsInventoryItem } from './PartsInventory';
 import type { IMoraleTransition, IUnitPrestige, MoraleState } from './Prestige';
@@ -175,6 +180,31 @@ export interface ICampaign {
 
   /** Battle ids already applied to campaign state. */
   readonly processedBattleIds?: readonly string[];
+
+  /**
+   * T1 launch manifests for battles not yet applied, keyed by match id:
+   * which roster unit each player session unit is. Written when the
+   * session is created; moved onto the applied outcome record when
+   * `postBattleProcessor` applies the battle.
+   */
+  readonly battleUnitManifests?: Readonly<
+    Record<string, IPendingBattleUnitManifest>
+  >;
+
+  /**
+   * Session-keyed combat states from older saves that the legacy migration
+   * could not attribute to a roster unit. Shown on the dashboard until the
+   * user dismisses them; the original states live outside the payload.
+   */
+  readonly legacyCombatStateFlags?: readonly ILegacyCombatStateFlag[];
+
+  /**
+   * Unapplied legacy deltas (carrying the delta itself) whose device-local
+   * quarantine write is not confirmed yet. Released only once the write
+   * resolved; independent of `recentlyAppliedOutcomes` and of the flags,
+   * so neither pruning nor dismissing can lose a delta.
+   */
+  readonly pendingQuarantineRecords?: readonly IUnappliedDeltaQuarantineRecord[];
 
   /**
    * Approved GM campaign intervention effects retained for audit/replay

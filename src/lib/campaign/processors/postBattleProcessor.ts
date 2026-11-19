@@ -15,10 +15,19 @@ import { logger } from '@/utils/logger';
 import type { IDayProcessor, IDayProcessorResult } from '../dayPipeline';
 
 import { withAppliedOn } from '../appliedOutcomes';
+import {
+  planOutcomeUnitWrites,
+  withPrunedBattleUnitManifests,
+  type IOutcomeUnitWritePlan,
+} from '../battleUnitManifest';
 import { publishContractFulfilled } from '../contractFulfillmentBus';
 import { getDayPipeline } from '../dayPipeline';
 import { DayPhase, type IDayEvent } from '../dayPipeline';
 import { applyOutcomePrestige } from '../prestige/applyOutcomePrestige';
+import {
+  quarantineUnappliedDeltas,
+  unappliedDeltaEffects,
+} from '../quarantineUnappliedDeltas';
 import { applyContractClosure } from './contractClosure';
 import {
   applyContractDelta,
@@ -26,7 +35,10 @@ import {
   applyUnitDelta,
   isLostOnField,
   playerWon,
+  recordSkippedLocation,
+  type ISkippedNonFiniteUnitLocation,
 } from './postBattleProcessor.helpers';
+export type { ISkippedNonFiniteUnitLocation } from './postBattleProcessor.helpers';
 export interface IPostBattleCampaignExtensions {
   readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
   readonly processedBattleIds?: readonly string[];
@@ -42,11 +54,17 @@ export interface IPostBattleApplied {
   readonly contractUpdated: string | null;
   readonly skippedDuplicate: boolean;
   readonly errors: readonly string[];
+  /**
+   * Delta locations not written because their value was not a finite
+   * number (an engine-side gap; see `applyUnitDelta`). Empty when clean.
+   */
+  readonly skippedNonFiniteLocations: readonly ISkippedNonFiniteUnitLocation[];
 }
 
 interface IOutcomeDeltaApplicationContext {
   readonly campaign: ICampaignWithBattleState;
   readonly outcome: ICombatOutcome;
+  readonly plan: IOutcomeUnitWritePlan;
   readonly wonByPlayer: boolean;
   readonly unitStates: Record<string, IUnitCombatState>;
   readonly nowIso: string;
@@ -57,11 +75,13 @@ interface IOutcomeDeltaApplicationResult {
   readonly pilotsUpdated: string[];
   readonly unitsUpdated: string[];
   readonly errors: string[];
+  readonly skippedNonFiniteLocations: ISkippedNonFiniteUnitLocation[];
 }
 
 function applyOutcomeDeltas({
   campaign,
   outcome,
+  plan,
   wonByPlayer,
   unitStates,
   nowIso,
@@ -78,7 +98,11 @@ function applyOutcomeDeltas({
   const pilotPatches = new Map<string, Partial<ICampaignRosterEntry>>();
   const pilotsUpdated: string[] = [];
   const unitsUpdated: string[] = [];
-  const errors: string[] = [];
+  const errors: string[] = [...plan.errors];
+  const skippedNonFiniteLocations: ISkippedNonFiniteUnitLocation[] = [];
+  const rosterUnitIdOf = new Map(
+    plan.writes.map((write) => [write.delta, write.rosterUnitId]),
+  );
 
   for (const delta of outcome.unitDeltas) {
     // Design D9 (`add-campaign-fast-forward-api`, `campaign-combat-loop`
@@ -110,16 +134,26 @@ function applyOutcomeDeltas({
       pilotPatches.set(resolvedPilotId, pilotResult.patch);
       pilotsUpdated.push(resolvedPilotId);
     }
+    // T1: campaign unit state is keyed by the ROSTER unit the write plan
+    // (`planOutcomeUnitWrites`) attributes. Opponent, not-on-roster and
+    // unattributed units are not written.
+    const rosterUnitId = rosterUnitIdOf.get(delta);
+    if (rosterUnitId === undefined) continue;
     try {
       const next = applyUnitDelta(
-        unitStates[delta.unitId],
-        delta,
+        unitStates[rosterUnitId],
+        { ...delta, unitId: rosterUnitId },
         outcome.matchId,
         nowIso,
         isLostOnField(outcome, delta, wonByPlayer),
+        recordSkippedLocation(
+          skippedNonFiniteLocations,
+          rosterUnitId,
+          outcome.matchId,
+        ),
       );
-      unitStates[delta.unitId] = next;
-      unitsUpdated.push(delta.unitId);
+      unitStates[rosterUnitId] = next;
+      unitsUpdated.push(rosterUnitId);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       errors.push(`unit ${delta.unitId}: ${message}`);
@@ -130,7 +164,13 @@ function applyOutcomeDeltas({
     }
   }
 
-  return { pilotPatches, pilotsUpdated, unitsUpdated, errors };
+  return {
+    pilotPatches,
+    pilotsUpdated,
+    unitsUpdated,
+    errors,
+    skippedNonFiniteLocations,
+  };
 }
 
 function applyOutcome(
@@ -152,6 +192,7 @@ function applyOutcome(
         contractUpdated: null,
         skippedDuplicate: true,
         errors: [],
+        skippedNonFiniteLocations: [],
       },
       events: [],
     };
@@ -162,14 +203,32 @@ function applyOutcome(
   };
   const wonByPlayer = playerWon(outcome);
   const nowIso = new Date().toISOString();
-  const { pilotPatches, pilotsUpdated, unitsUpdated, errors } =
-    applyOutcomeDeltas({
-      campaign,
-      outcome,
-      wonByPlayer,
-      unitStates,
-      nowIso,
-    });
+  // T1: which roster unit each player delta is written under. A delta the
+  // launch manifest does not name is written to no unit and flagged.
+  const plan = planOutcomeUnitWrites(campaign, outcome);
+  const unapplied = unappliedDeltaEffects(campaign, outcome.matchId, plan);
+
+  const {
+    pilotPatches,
+    pilotsUpdated,
+    unitsUpdated,
+    errors,
+    skippedNonFiniteLocations,
+  } = applyOutcomeDeltas({
+    campaign,
+    outcome,
+    plan,
+    wonByPlayer,
+    unitStates,
+    nowIso,
+  });
+  // T3: a per-unit failure fails the whole outcome. Throwing here, before
+  // the commit point, keeps it queued and out of `processedBattleIds`
+  // with no state, pilot or finance side effects (D-5 ordering below);
+  // the processor's catch emits the critical event.
+  if (errors.length > 0) {
+    throw new Error(errors.join('; '));
+  }
   // D-5 remediation (2026-06-09 audit): pilot patches are NOT committed
   // here. Every step that can throw (contract delta, prestige) must run
   // first — the roster-store commit happens at the very end of this
@@ -185,10 +244,18 @@ function applyOutcome(
   // `appliedOn` is the campaign's own time for this outcome (the in-game
   // date it is applied on). `capturedAt` is a wall-clock instant and is not
   // a campaign date, so nothing downstream compares it with one.
+  // T1: the manifest moves onto the applied record, so later readers of
+  // `recentlyAppliedOutcomes` (repair queue) map deltas the same way.
+  const appliedRecord: IAppliedCombatOutcome = withAppliedOn(
+    { ...outcome, unitManifest: plan.appliedManifest },
+    campaign.currentDate,
+  );
   const recentlyApplied: readonly IAppliedCombatOutcome[] = [
     ...(campaign.recentlyAppliedOutcomes ?? []),
-    withAppliedOn(outcome, campaign.currentDate),
+    appliedRecord,
   ];
+  const { [outcome.matchId]: _appliedManifest, ...pendingManifests } =
+    campaign.battleUnitManifests ?? {};
   const pendingFulfilled = campaign.pendingFulfilledContractIds ?? [];
   const processedFulfilled = campaign.processedFulfilledContractIds ?? [];
   const terminalContract = contractDelta?.flippedToTerminal
@@ -202,6 +269,7 @@ function applyOutcome(
     outcome,
     campaign.unitPrestige ?? [],
     nowIso,
+    plan.appliedManifest,
   );
   const contractClosure = terminalContract
     ? applyContractClosure(campaign, terminalContract, nowIso)
@@ -225,6 +293,10 @@ function applyOutcome(
     unitCombatStates: unitStates,
     unitPrestige: updatedPrestige,
     recentlyAppliedOutcomes: recentlyApplied,
+    ...unapplied.campaignFields,
+    ...(campaign.battleUnitManifests === undefined
+      ? {}
+      : { battleUnitManifests: pendingManifests }),
     pendingFulfilledContractIds: pendingFulfilled,
     processedFulfilledContractIds: terminalContract
       ? [...processedFulfilled, terminalContract.id]
@@ -242,6 +314,7 @@ function applyOutcome(
         pilotsUpdated,
         unitsUpdated,
         contractUpdated: updatedContract?.id ?? null,
+        skippedNonFiniteLocations,
       },
     },
   ];
@@ -283,6 +356,9 @@ function applyOutcome(
   if (pilotPatches.size > 0) {
     useCampaignRosterStore.getState().applyPilotPatches(pilotPatches);
   }
+  // R3: an unattributed player delta is written to no unit; it is
+  // flagged above and its delta quarantined outside the payload.
+  quarantineUnappliedDeltas(campaign.id, unapplied.records);
   return {
     campaign: updatedCampaign,
     summary: {
@@ -292,6 +368,7 @@ function applyOutcome(
       contractUpdated: updatedContract?.id ?? null,
       skippedDuplicate: false,
       errors,
+      skippedNonFiniteLocations,
     },
     events,
   };
@@ -328,11 +405,18 @@ export const postBattleProcessor: IDayProcessor = {
   id: 'post-battle',
   phase: DayPhase.MISSIONS - 50,
   displayName: 'Post-Battle Processing',
-  process(campaign: ICampaign): IDayProcessorResult {
-    const extended = campaign as ICampaignWithBattleState;
-    const queue = extended.pendingBattleOutcomes ?? [];
+  process(campaign: ICampaign, date: Date): IDayProcessorResult {
+    const queue =
+      (campaign as ICampaignWithBattleState).pendingBattleOutcomes ?? [];
+    // T1: manifests of battles that never produced an outcome age out on
+    // the campaign calendar (the same window as retained outcomes).
+    const extended: ICampaignWithBattleState = withPrunedBattleUnitManifests(
+      campaign,
+      queue,
+      date,
+    );
     if (queue.length === 0) {
-      return { events: [], campaign };
+      return { events: [], campaign: extended };
     }
     let working: ICampaignWithBattleState = extended;
     const events: IDayEvent[] = [];
