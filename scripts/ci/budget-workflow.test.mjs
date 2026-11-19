@@ -80,15 +80,15 @@ test('typical event census retains omitted, synchronize, ready and mixed types; 
 
 test('event-aware census preserves the deployed main profile counts and included files', () => {
   const expected = {
-    docs: 10,
-    source: 11,
-    data: 11,
-    browser: 10,
-    desktop: 13,
-    ci: 13,
-    budgets: 12,
-    bootstrap: 14,
-    dependency: 14,
+    docs: 12,
+    source: 13,
+    data: 13,
+    browser: 12,
+    desktop: 15,
+    ci: 15,
+    budgets: 14,
+    bootstrap: 16,
+    dependency: 16,
   };
   for (const profile of workflowMetrics(root, config).profiles) {
     assert.equal(profile.active, expected[profile.id], profile.id);
@@ -394,7 +394,7 @@ test('matrix template metadata and soft timing projection share expanded names',
     'Build Test / mac',
   ]);
   assert.equal(
-    projectTimingLimits(config, workflow).jobsMs['E2E (1/2)'],
+    projectTimingLimits(config, workflow).jobsMs['E2E (1/4)'],
     config.timeouts.e2e.minutes * 60000,
   );
 });
@@ -402,8 +402,8 @@ test('matrix template metadata and soft timing projection share expanded names',
 test('expanded count includes matrix legs, detector, aggregator and induced trusted guard', () => {
   const metrics = workflowMetrics(root, config);
   const source = metrics.profiles.find((p) => p.id === 'source');
-  assert.equal(source.active, 11); // 10 PR Checks + the automatically induced guard
-  assert.equal(source.expanded, 13); // also exposes the 2 gated packaging legs
+  assert.equal(source.active, 13); // 12 PR Checks + the automatically induced guard
+  assert.equal(source.expanded, 15); // also exposes the 2 gated packaging legs
   assert.equal(
     source.census.filter((j) => j.file === 'lint-and-test-guard.yml').length,
     1,
@@ -426,7 +426,7 @@ test('expanded count includes matrix legs, detector, aggregator and induced trus
     ),
   );
   const graph = expandedJobGraph(workflow);
-  assert.ok(graph['Lint and Test'].includes('E2E (2/2)'));
+  assert.ok(graph['Lint and Test'].includes('E2E (4/4)'));
   assert.ok(graph['Lint and Test'].includes('Build Test / win'));
   assert.ok(
     inducedWorkflowCensus(root, ['src/utils/uuid.ts']).files.includes(
@@ -631,6 +631,10 @@ test('actual aggregator boundary rejects failures, unexpected skips, unknown/mis
   assert.match(run.stderr, /Missing or unknown/);
 });
 
+// The live workflow's typical job counts are over their limit too (four PR E2E
+// shards); the expanded-count test pins those rows, these pin the others.
+const notJobCount = ({ code }) => code !== 'typicalPrJobs';
+
 test('cache and dependency counts are report-only; timeout drift is red', () => {
   const metrics = repository();
   metrics.cache.files = Array.from(
@@ -650,12 +654,9 @@ test('cache and dependency counts are report-only; timeout drift is red', () => 
   const counts = checkRepositoryMetrics(config, metrics, []);
   assert.deepEqual(counts.violations, []);
   assert.deepEqual(
-    counts.overBudget.map(({ key, value, limit, delta }) => [
-      key,
-      value,
-      limit,
-      delta,
-    ]),
+    counts.overBudget
+      .filter(notJobCount)
+      .map(({ key, value, limit, delta }) => [key, value, limit, delta]),
     [
       [
         'limits.unkeyableTests',
@@ -705,11 +706,11 @@ test('the CLI exits 0 when only counts are over and 1 on any violation', () => {
   const metrics = repository();
   metrics.dependencies.root.lockEntries++;
   const counts = checkRepositoryMetrics(config, metrics, []);
-  assert.equal(counts.overBudget.length, 1);
+  assert.equal(counts.overBudget.filter(notJobCount).length, 1);
   assert.equal(exitCodeFor(counts), 0);
   metrics.workflow.timeouts.e2e++;
   const drifted = checkRepositoryMetrics(config, metrics, []);
-  assert.equal(drifted.overBudget.length, 1);
+  assert.equal(drifted.overBudget.filter(notJobCount).length, 1);
   assert.equal(exitCodeFor(drifted), 1);
 });
 
