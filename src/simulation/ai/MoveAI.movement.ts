@@ -7,17 +7,21 @@ import type {
 
 import { Facing, MovementType } from '@/types/gameplay';
 import { isInBounds, isOccupied } from '@/utils/gameplay/hexGrid';
-import { hexDistance } from '@/utils/gameplay/hexMath';
+import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
 import {
   prepareGroundPathMpCost,
   calculateMovementHeat,
-  findPath,
   getFacingChangeCost,
   getMaxMP,
   type IMovementCostContext,
   type UnitMovementType,
   movementModeForPath,
 } from '@/utils/gameplay/movement';
+import {
+  createPathSearchSpace,
+  findPathInSearchSpace,
+  floodSearchSpace,
+} from '@/utils/gameplay/movement/pathfinding';
 
 import type { IScoreMoveContext } from './MoveAI.scoring';
 import type { IBotBehavior, IMove } from './types';
@@ -43,22 +47,39 @@ export function getValidMoveCandidates(
     maxMP,
   );
   const moves: IMove[] = [];
+  // One search space and one flood bounded at maxMP per call. Every finite
+  // step costs at least 1 MP (`getHexMovementCost`), and a ground move costs
+  // its path's step costs plus non-negative turning MP, so a destination the
+  // flood does not reach yields no move and its search is skipped. Every path
+  // still comes from the same unbounded A* that `findPath` runs.
+  const groundSearch =
+    movementType !== MovementType.Jump
+      ? createPathSearchSpace(
+          grid,
+          position.coord,
+          toGroundUnitMovementType(movementType),
+          movementContext ?? {},
+        )
+      : null;
+  const withinMaxMP = groundSearch
+    ? floodSearchSpace(groundSearch, maxMP)
+    : null;
 
   for (const destination of destinations) {
     if (!isInBounds(grid, destination)) continue;
     const distance = hexDistance(position.coord, destination);
     if (distance > 0 && isOccupied(grid, destination)) continue;
+    if (
+      withinMaxMP &&
+      distance > 0 &&
+      !withinMaxMP.has(coordToKey(destination))
+    ) {
+      continue;
+    }
 
     const path =
-      movementType !== MovementType.Jump && distance > 0
-        ? findPath(
-            grid,
-            position.coord,
-            destination,
-            Infinity,
-            toGroundUnitMovementType(movementType),
-            movementContext,
-          )
+      groundSearch && distance > 0
+        ? findPathInSearchSpace(groundSearch, destination, Infinity)
         : null;
     if (movementType !== MovementType.Jump && distance > 0 && !path) {
       continue;

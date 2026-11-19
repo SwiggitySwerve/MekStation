@@ -70,7 +70,8 @@ Any change that makes the loader or the library writer recover or keep more
 facts moves library fingerprints for units the user never edited. Such a
 change bumps `LIBRARY_WRITER_VERSION` in the same PR, so those receipts read
 as saved-older-writer, not changed. Version 1 (S1) keeps the loaded BattleMech
-quirks, weapon quirks and publication source.
+quirks, weapon quirks and publication source. Version 2 (PR-D1) keeps the
+crit-only CASE and electronics mounts the loader now recovers.
 
 `unitSaveFingerprints.ts` owns canonical JSON and temporary equipment-ID
 normalization. Its field-extension instructions are part of the persisted

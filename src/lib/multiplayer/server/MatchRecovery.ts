@@ -34,10 +34,13 @@ import type {
 import { quarantineAuthorityCorruption } from '@/lib/events/checkpoints/AuthorityQuarantine';
 import {
   BranchCheckpointCache,
+  AuthorityRecoveryBlockedError,
   checkpointRecoveryPort,
   referenceRecoveryPort,
 } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
+import { gateReplaySurfaceHistory } from '@/lib/events/replay/ReplaySurfaceGate';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { UnreadableStoredEventError } from '@/utils/gameplay/gameEvents/serialization';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 import { logger } from '@/utils/logger';
 
@@ -47,6 +50,7 @@ import { revisionForMatchSequence } from './history/matchStoreBranchSegmentReade
 import { releaseLeftoverSpectators } from './lobby/spectatorBootSweep';
 import { matchStoreHistoryReader } from './MatchCheckpointHistory';
 import { markMatchCompleted } from './matchCompletion';
+import { preflightMatchPublications } from './MatchPublicationReadability';
 import { consultMatchRecoveryJournalHead } from './MatchRecoveryJournalHead';
 import {
   createMatchSessionProjector,
@@ -119,10 +123,31 @@ export function isRecoverableMatchStore(
  * units are read from disk: boot recovery runs before the listener the
  * fetch catalog would call (MP-RECOVERY-UNITS-1).
  */
+function assertReadableRecoveryHistory(
+  matchId: string,
+  events: readonly IGameEvent[],
+): void {
+  const gate = gateReplaySurfaceHistory(events, {
+    surfaceId: 'host-restart',
+    streamId: matchId,
+    formatId: 'match-broadcast',
+    formatVersion: 1,
+  });
+  if (gate.kind === 'blocked')
+    throw new AuthorityRecoveryBlockedError({
+      kind: 'blocked',
+      reason: 'replay-failed',
+      evidence: gate.blockedEvents.map(
+        (event) => `${event.sequence}:${event.eventType}:${event.message}`,
+      ),
+    });
+}
+
 export async function rebuildSessionFromEvents(
   matchId: string,
   events: readonly IGameEvent[],
 ): Promise<InteractiveSession> {
+  assertReadableRecoveryHistory(matchId, events);
   const session = hydrateGameSessionFromEvents(matchId, events);
   return recoverServerInteractiveSession(session);
 }
@@ -209,6 +234,13 @@ export async function recoverActiveMatches(
       // that path here — the store log is still the untruncated line.
       const rewound = await tryFoldActivatedRewindBranch(store, meta.matchId);
       if (rewound !== null) {
+        assertReadableRecoveryHistory(meta.matchId, rewound.session.events);
+        await preflightMatchPublications(
+          meta.matchId,
+          store,
+          rewound.session.events,
+          [],
+        );
         if (await repairCompletedMatch(store, meta.matchId, rewound.session))
           continue;
         const session = await recoverServerInteractiveSession(rewound.session);
@@ -377,6 +409,13 @@ export async function recoverActiveMatches(
         }
         continue;
       }
+      assertReadableRecoveryHistory(meta.matchId, verdict.state.events);
+      await preflightMatchPublications(
+        meta.matchId,
+        store,
+        verdict.state.events,
+        [],
+      );
       if (
         cache !== null &&
         pipeline !== null &&
@@ -398,6 +437,19 @@ export async function recoverActiveMatches(
     } catch (e) {
       logger.warn(`[MatchRecovery] failed to rebuild match ${meta.matchId}`, e);
       failed.push(meta.matchId);
+      if (e instanceof AuthorityRecoveryBlockedError) {
+        blocked.push({
+          matchId: meta.matchId,
+          reason: e.verdict.reason,
+          evidence: e.verdict.evidence,
+        });
+      } else if (e instanceof UnreadableStoredEventError) {
+        blocked.push({
+          matchId: meta.matchId,
+          reason: 'replay-failed',
+          evidence: [e.message],
+        });
+      }
     }
   }
 

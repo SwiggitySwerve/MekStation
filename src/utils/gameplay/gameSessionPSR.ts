@@ -166,19 +166,20 @@ export function attemptStandUp(
   const resolvedSeq = currentSession.events.length;
   currentSession = appendEvent(
     currentSession,
-    createPSRResolvedEvent(
-      currentSession.id,
-      resolvedSeq,
+    createPSRResolvedEvent({
+      gameId: currentSession.id,
+      sequence: resolvedSeq,
       turn,
       phase,
       unitId,
-      tn,
-      roll.total,
-      standUpPsr.modifier,
-      passed,
-      standUpPsr.impossibleReason ?? psr.reason,
-      psr.reasonCode,
-    ),
+      ...(standUpPsr.impossibleReason
+        ? { automaticFailure: true as const, passed: false as const }
+        : { targetNumber: tn, passed }),
+      roll: roll.total,
+      modifiers: standUpPsr.modifier,
+      reason: standUpPsr.impossibleReason ?? psr.reason,
+      reasonCode: psr.reasonCode,
+    }),
   );
 
   // 3. On success, emit UnitStood. On failure the unit stays prone;

@@ -245,15 +245,22 @@ function enrichedWeaponAttackData({
  * projection-only context the engine cannot derive here (C3 bracket election,
  * ground-to-air altitude, vehicle turret pivot, per-weapon brackets). It must
  * never regress to a hand-built subset of the engine's state.
+ *
+ * Only events at or after `appendedFromIndex` (the event count before this
+ * declaration) are candidates. A declaration the engine rejected appends no
+ * AttackDeclared, and an earlier one for the same attacker and target is a
+ * recorded event that must never change (AGENTS.md invariant 7, D-8).
  */
 export function enrichAttackDeclaredEventFromProjection({
   session,
+  appendedFromIndex,
   attackerId,
   targetId,
   projection,
   weaponAttacks,
 }: {
   readonly session: IGameSession;
+  readonly appendedFromIndex: number;
   readonly attackerId: string;
   readonly targetId: string;
   readonly projection: ICombatRangeHex | undefined;
@@ -263,7 +270,8 @@ export function enrichAttackDeclaredEventFromProjection({
     return session;
   }
 
-  const eventIndex = session.events.findLastIndex((event) => {
+  const eventIndex = session.events.findLastIndex((event, index) => {
+    if (index < appendedFromIndex) return false;
     if (event.type !== GameEventType.AttackDeclared) return false;
     const payload = event.payload as IAttackDeclaredPayload;
     return payload.attackerId === attackerId && payload.targetId === targetId;

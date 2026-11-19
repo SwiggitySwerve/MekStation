@@ -5,6 +5,7 @@ import test from 'node:test';
 
 import {
   ObservationError,
+  checkCanvasMockCleared,
   checkSheetCalculation,
   previewFailure,
 } from './observation.cjs';
@@ -66,6 +67,27 @@ test('the BV handed to the sheet differs from the one calculated (cost failed, o
   );
   assert.match(error.message, /handed BV 0 but its calculation produced 1500/);
   failsAtPreview(() => checkSheetCalculation(header(1499), succeeded(1500)));
+});
+
+test('a cleared canvas mock, or a getContext that is not a mock, passes the retention check', () => {
+  const cleared = Object.assign(() => ({}), { mock: { calls: [] } });
+  assert.equal(checkCanvasMockCleared(cleared), undefined);
+  assert.equal(
+    checkCanvasMockCleared(() => ({})),
+    undefined,
+  );
+});
+
+test('a canvas mock still recording an earlier unit (the per-unit clear did not run): ObservationError at stage preview', () => {
+  const canvas = {};
+  const leaking = Object.assign(() => ({}), {
+    mock: { calls: [[canvas], [canvas]] },
+  });
+  const error = failsAtPreview(() => checkCanvasMockCleared(leaking));
+  assert.match(
+    error.message,
+    /still records 2 call\(s\).*mockClear did not run/,
+  );
 });
 
 test('previewFailure is the one way a preview failure is raised', () => {

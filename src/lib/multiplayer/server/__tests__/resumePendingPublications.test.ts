@@ -53,11 +53,13 @@ function meta(): IMatchMeta {
 function event(sequence: number): IGameEvent {
   return {
     id: `evt-${sequence}`,
+    gameId: MATCH_ID,
     sequence,
     type: GameEventType.PhaseChanged,
     timestamp: '2026-08-26T00:00:00.000Z',
+    turn: 1,
     phase: GamePhase.Movement,
-    data: {},
+    payload: { fromPhase: GamePhase.Initiative, toPhase: GamePhase.Movement },
   } as unknown as IGameEvent;
 }
 

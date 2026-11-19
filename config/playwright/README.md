@@ -9,8 +9,9 @@ durations in `ci-durations.json` are scheduling weights, never cached test
 results. A new test without a weight still runs and gets the largest recorded
 weight. Missing specs, duplicates, collection errors or invalid weights fail.
 
-The planner assigns the longest groups first to the lighter of two shards,
-across suite boundaries. Gate files and the tactical-map smoke file stay intact,
+The planner assigns the longest groups first to the lightest of the PR
+shards (`--shard=<i>/<n>`, n from 2 to 6; PR Checks runs 4), across suite
+boundaries. Gate files and the tactical-map smoke file stay intact,
 including the smoke file's serial describe. The library has no serial describes;
 its independent tests are already split by the previous native shard strategy
 and still run on one worker per invocation. If a library flow acquires a serial
@@ -29,7 +30,7 @@ from downloaded reports, then review and format the generated JSON:
 node scripts/playwright/record-ci-e2e-durations.mjs RUN_ID path/to/gates.json path/to/library.json path/to/smoke.json > config/playwright/ci-durations.json
 ```
 
-Include all suite reports from both shards; multiple runs use comma-separated
+Include all suite reports from every shard; multiple runs use comma-separated
 run ids and median observations. `--plan-only` appended to a workflow invocation
 checks its complete native selection without starting a server or browser.
 

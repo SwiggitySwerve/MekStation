@@ -42,13 +42,15 @@ function loadDurations(
  * (committed ms), so the Jest share of the busiest job is smaller. Keyed
  * `<project>/<shardCount>`; a project and count with no entry get an even plan.
  *
- * `unit/3` follows the pr-checks.yml job layout: shards 1 and 2 also run a corpus
- * shard (about 71 s and 92 s on main, uncached) and shard 3 the Validate Combat Suite
- * (about 225 s), which made shard 3 the longest job (489 s against 339 s and 334 s).
- * Seconds became weight at 4,157 committed ms per second (the unit steps ran 231 s
- * for a planned 960,000 each). Re-measure these when the job layout changes.
+ * `unit/4` follows the pr-checks.yml job layout: shards 1 and 2 also run a corpus
+ * shard (medians 46 s and 60 s), shard 3 the Validate Combat Suite (median 75 s) and
+ * shard 4 nothing else, measured on main pushes 44380502881, 44382241623,
+ * 44384341452, 44387833172 and 44389999021 (2026-11-18). Seconds become weight at
+ * 4,157 committed ms per second, the rate measured for the earlier 3-shard layout
+ * (its unit steps ran 231 s for a planned 960,000 each). Re-measure these when the
+ * job layout changes.
  */
-const SHARD_PRELOAD_MS = { 'unit/3': [295000, 380000, 935000] };
+const SHARD_PRELOAD_MS = { 'unit/4': [191000, 249000, 312000, 0] };
 
 /**
  * The preload for a shard plan over tests of the given projects (their display

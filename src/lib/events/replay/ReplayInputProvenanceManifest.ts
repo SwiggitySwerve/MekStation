@@ -33,6 +33,9 @@
  * redacted arm is `{unitId}` only, so it stays empty here and its
  * public-arm retention contract is enforced by the damage pack's union
  * schema and tests.
+ * `psr_resolved` has a second arm: `automaticFailure: true` stores the
+ * resolved impossibility instead of `targetNumber`. The presence checker
+ * recognizes this substitution after strict schema validation.
  *
  * @spec openspec/changes/add-replay-schema-and-checkpoint-safety/specs/event-store/spec.md
  */
@@ -241,7 +244,8 @@ export const REPLAY_INPUT_PROVENANCE_MANIFEST = {
 
 /**
  * All manifest-listed required-input fields for one discriminant,
- * flattened across the four categories.
+ * flattened across the four categories for the ordinary payload arm.
+ * `assertReplayInputProvenance` applies the PSR automatic-failure substitution.
  */
 export function requiredReplayInputFields(
   eventType: string,
@@ -279,9 +283,17 @@ export function assertReplayInputProvenance(
       : undefined;
   // Absence means the key is undefined; an explicit null is a stored
   // value and stays the schema's concern, not a provenance gap.
-  const missing = fields.filter(
-    (field) => record === undefined || record[field] === undefined,
-  );
+  // PSR automatic failures store the resolved impossibility instead of a
+  // numerical target. The strict schema excludes a target on that arm.
+  const missing = fields.filter((field) => {
+    if (
+      eventType === GameEventType.PSRResolved &&
+      field === 'targetNumber' &&
+      record?.automaticFailure === true
+    )
+      return false;
+    return record === undefined || record[field] === undefined;
+  });
   if (missing.length > 0)
     throw new UnsupportedReplayHistoryError(
       'missing-required-input',

@@ -1,0 +1,151 @@
+{
+  "mainSha": "c33afb8cb7eed3425eacee707648ff5203d75e6f",
+  "rule10StartBranchSha": "f4311be1f77807fef99467920e6d649ea8c33cf8",
+  "capturedAtUtc": "Wed Nov 11 07:36:28 UTC 2026",
+  "nodeVersion": "v24.15.0",
+  "seed": 8,
+  "swampDepth": 2,
+  "setup": "Production InteractiveSession with the same constructor/seed wiring as GameEngine.createInteractiveSession, plus transparent injected d6 tracing. Canonical Atlas AS7-D vs Marauder MAD-3R; gunnery 2/piloting 5; radius 7; turn limit 30; a level-2 swamp immediately forward of player deployment. Enter swamp turn 1 and let production End resolution consume its real dice. Complete turns 2 and 3, holding movement and declaring two lowest-damage in-range forward weapons per side through applyAttack; advance every phase through End. Movement-start swamp recovery also rolls. Concede only after entering turn 4. No fabricated events, cached-state edits or substituted dice.",
+  "from": {
+    "q": -2,
+    "r": 5
+  },
+  "to": {
+    "q": -2,
+    "r": 4
+  },
+  "selectedWeapons": {
+    "player-0": [
+      {
+        "id": "atlas-as7-d-medium-laser-1",
+        "name": "Medium Laser",
+        "damage": 5
+      },
+      {
+        "id": "atlas-as7-d-medium-laser-2",
+        "name": "Medium Laser",
+        "damage": 5
+      }
+    ],
+    "opponent-1": [
+      {
+        "id": "marauder-mad-3r-ac-5-1",
+        "name": "AC/5",
+        "damage": 5
+      },
+      {
+        "id": "marauder-mad-3r-medium-laser-1",
+        "name": "Medium Laser",
+        "damage": 5
+      }
+    ]
+  },
+  "lockfileSha256": "d007a047fcdd32d4b3e4364fabf892a43493106ae0b9bc3178e7b79eba01ace7",
+  "installHiddenLockSha256": "a3aa4ba95281e24e2b025134d9257509ffe99b9066f36243f50124fd54eff305",
+  "referenceInstall": "E:/Projects/Personal/_scratch/node-ref-d007a047/node_modules",
+  "installVerdict": "988 identical; 0 different; 0 non-optional missing; 206 optional platform packages not installed; 0 only-installed. Read-only compare-lock; no install.",
+  "writers": [
+    {
+      "path": "src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts",
+      "sha256": "557a1902c9cb2931c07e3878a2c9fc92e6eb4a1bd13525275d2bcbbe6870ca1d"
+    },
+    {
+      "path": "src/utils/gameplay/pilotingSkillRolls/resolution.ts",
+      "sha256": "0026aafd724700cab16bbf4185a2d1f7a7e2dc7727a1ed72b07380d5421c2f30"
+    },
+    {
+      "path": "src/utils/gameplay/gameSessionMovementTerrain.ts",
+      "sha256": "708f2d7693efa43c87c5d2396432ff7e62ef197acbd7b813fc29eaa4fb199e2a"
+    },
+    {
+      "path": "src/utils/gameplay/gameEvents/statusChecksPsr.ts",
+      "sha256": "46ba76de1ac14aa9ec31c7f9ad1544117fe8e0f2ecec6671f2360c32ba1f8576"
+    },
+    {
+      "path": "src/utils/gameplay/gameSessionPSRResolution.ts",
+      "sha256": "538986ac3854e1063369a1623c733457b2e2550f83d42d29eb3f223d7c0a1b10"
+    },
+    {
+      "path": "src/utils/gameplay/gameSessionAttackResolution.ts",
+      "sha256": "a290d405c1aa6fc28066033502bdb7505dd59c0208d1e1af34977c08a115f0c1"
+    },
+    {
+      "path": "src/utils/gameplay/gameSessionAttackResolution.hit.ts",
+      "sha256": "8f6c449a6ed5418072f341f5855f550de8e06e6bd7c3c072d149053f8e371634"
+    },
+    {
+      "path": "src/engine/InteractiveSession.phases.ts",
+      "sha256": "580a94db1e782cdc6734c4fd191b445d8404947dab585140857d0e20aa5a3071"
+    },
+    {
+      "path": "src/engine/InteractiveSession.resolvers.ts",
+      "sha256": "c0ad9c3dc9858b0517164fb547871fcd9931bfb921d19d22c44279a7bbf12792"
+    }
+  ],
+  "captureHelperSha256": "23942cce9957709b3c352478bb453b99a6e0920e378fc5b480bae9fa6bdb3e21",
+  "files": {
+    "deep-swamp-continuation.ndjson": {
+      "bytes": 50242,
+      "sha256": "be63623be15bc8d483c76731a825cdef96c240cce9b9c5c098d5c2c2ffe6b423"
+    },
+    "deep-swamp-continuation.events.raw-json": {
+      "bytes": 50243,
+      "sha256": "5e7e5f87902415da53b8c630e22abfee9ff41c0f9afd3974c26ba6dabe52de4d"
+    },
+    "deep-swamp-continuation.v8": {
+      "bytes": 108890,
+      "sha256": "22c8547dea2b4af408ddccd8e1edbbe274e7529a693b251ca433b28a822046fb"
+    },
+    "deep-swamp-continuation.rolls.raw-json": {
+      "bytes": 120732,
+      "sha256": "539aa69574ae439bcccac53dc98b190f28f312b7df0f617f4c62f671b83d7b33"
+    },
+    "deep-swamp-continuation.command-states.v8": {
+      "bytes": 441502,
+      "sha256": "061748602ac3e8910b4dd3d472abeff54a08dc219a59d8c3dd22da6480f9de95"
+    },
+    "deep-swamp-continuation.install-verdict.txt": {
+      "bytes": 554,
+      "sha256": "184bbab3f284c35bbf83f06bc339fb2b9162da5ad6643f684570176d4a926702"
+    }
+  },
+  "eventCount": 80,
+  "swampSequence": 19,
+  "swampRoll": 9,
+  "fullLaterTurns": [2, 3],
+  "laterD6Draws": 38,
+  "laterAttacks": 8,
+  "laterHits": 5,
+  "laterPsrs": [
+    {
+      "sequence": 26,
+      "turn": 2,
+      "payload": {
+        "unitId": "player-0",
+        "targetNumber": 9,
+        "roll": 6,
+        "modifiers": 4,
+        "passed": false,
+        "reason": "Break free of swamp",
+        "reasonCode": "swamp_unstuck"
+      }
+    },
+    {
+      "sequence": 54,
+      "turn": 3,
+      "payload": {
+        "unitId": "player-0",
+        "targetNumber": 9,
+        "roll": 7,
+        "modifiers": 4,
+        "passed": false,
+        "reason": "Break free of swamp",
+        "reasonCode": "swamp_unstuck"
+      }
+    }
+  ],
+  "commandStateCount": 24,
+  "terminalSequence": 79,
+  "completionReason": "concede after two full later combat turns",
+  "traceBoundary": "Live injected d6 values include every draw, even historical adapter-discarded dice. Stack frames identify callers. States are live snapshots after public commands, not an asserted live snapshot at every internal event. Full event rolls and the terminal session are retained separately."
+}

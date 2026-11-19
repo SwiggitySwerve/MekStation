@@ -62,12 +62,17 @@ export interface EventLogDisplayProps {
   className?: string;
 }
 
+// One shared empty filter: a fresh `{}` default per render would re-filter
+// and re-format every event on every parent render (perf P2).
+const NO_FILTER: IEventLogFilter = {};
+
 /**
- * Event log display with filtering and collapse.
+ * Event log display with filtering and collapse. Memoized so a parent
+ * render with unchanged props (a map hover) skips the whole log (perf P2).
  */
-export function EventLogDisplay({
+export const EventLogDisplay = React.memo(function EventLogDisplay({
   events,
-  filter = {},
+  filter = NO_FILTER,
   onFilterChange: _onFilterChange,
   collapsed = false,
   onCollapsedChange,
@@ -149,6 +154,6 @@ export function EventLogDisplay({
       )}
     </div>
   );
-}
+});
 
 export default EventLogDisplay;

@@ -1,4 +1,9 @@
-import { evaluateBudgetRaiseApproval } from './garden-approval.mjs';
+import { isReportOnlyBudgetId } from './budget-config.mjs';
+import {
+  BUDGET_RAISE_RECORD_PATH,
+  evaluateBudgetRaiseApproval,
+  isOwnerAuthored,
+} from './garden-approval.mjs';
 
 export const APPROVAL_CONTEXT = 'CI Budget Raise Approval';
 
@@ -17,15 +22,15 @@ export async function checkBudgetRaise({
     github.rest.repos.get(repository),
     github.rest.pulls.get({ ...repository, pull_number: number }),
   ]);
-  const readBudget = async (ref, allowMissing) => {
+  const readJson = async (path, ref, allowMissing) => {
     try {
       const { data } = await github.rest.repos.getContent({
         ...repository,
-        path: budgetPath,
+        path,
         ref,
       });
       if (data.encoding !== 'base64' || typeof data.content !== 'string') {
-        throw new Error('Budget file must be an ordinary base64 JSON blob.');
+        throw new Error(`${path} must be an ordinary base64 JSON blob.`);
       }
       return JSON.parse(Buffer.from(data.content, 'base64').toString('utf8'));
     } catch (error) {
@@ -33,8 +38,11 @@ export async function checkBudgetRaise({
       throw error;
     }
   };
+  const readBudget = (ref, allowMissing) =>
+    readJson(budgetPath, ref, allowMissing);
   let result;
   let raises;
+  let approvalRecord;
   try {
     const [base, head, reviews] = await Promise.all([
       readBudget(pr.base.sha, true),
@@ -47,14 +55,35 @@ export async function checkBudgetRaise({
     ]);
     // The trusted G1 owner validates both schemas and detects every relaxation.
     raises = budgetRaises(base, head);
+    // Owner rulings are read at the base only: an entry the PR adds itself is
+    // invisible here until a separate, reviewed PR has put it on main. Count
+    // raises are report-only and never need one (PARITY-PLAN §193.2).
+    if (
+      raises.some((raise) => !isReportOnlyBudgetId(raise?.id)) &&
+      isOwnerAuthored(metadata.owner, pr)
+    )
+      approvalRecord = await readJson(
+        BUDGET_RAISE_RECORD_PATH,
+        pr.base.sha,
+        true,
+      ).catch((error) => {
+        throw Object.assign(error, { approvalRecordRead: true });
+      });
     result = evaluateBudgetRaiseApproval({
       raises,
       repositoryOwner: metadata.owner,
       pullRequest: pr,
       reviews,
+      approvalRecord,
     });
   } catch (error) {
-    result = { allowed: false, code: 'invalid-budget', message: error.message };
+    result = {
+      allowed: false,
+      code: error.approvalRecordRead
+        ? 'invalid-approval-record'
+        : 'invalid-budget',
+      message: error.message,
+    };
   }
 
   // A synchronize/label/review event may race this read. Never bless a new head
@@ -91,6 +120,7 @@ export async function checkBudgetRaise({
         repositoryOwner: metadata.owner,
         pullRequest: fresh,
         reviews,
+        approvalRecord,
       });
     } catch (error) {
       result = {
