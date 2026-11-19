@@ -88,7 +88,10 @@ export interface IValidationSummary {
 /**
  * Manifest entry for a validated unit
  */
-export interface IManifestEntry {
+export interface IManifestEntry extends Pick<
+  IUnitValidationResult,
+  'parseErrors'
+> {
   readonly id: string;
   readonly chassis: string;
   readonly model: string;
@@ -111,7 +114,10 @@ export interface IValidationManifest {
 /**
  * Per-unit issue report file structure
  */
-export interface IUnitIssueReport {
+export interface IUnitIssueReport extends Pick<
+  IUnitValidationResult,
+  'parseErrors'
+> {
   readonly id: string;
   readonly chassis: string;
   readonly model: string;
