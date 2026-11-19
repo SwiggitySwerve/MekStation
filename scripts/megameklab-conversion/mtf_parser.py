@@ -13,6 +13,7 @@ from enum_mappings import (
     map_cockpit_type,
     map_chassis_tech_base,
     map_engine_type,
+    map_mixed_engine_tech_base,
     map_gyro_type,
     map_heat_sink_type,
     map_mech_location,
@@ -242,6 +243,7 @@ class MTFParser:
                 data['mass'] = 0
         elif key == 'engine':
             data['engine'] = self._parse_engine(value)
+            data['engine_line'] = value
         elif key == 'structure':
             data['structure'] = value
         elif key.endswith('_structure'):
@@ -396,6 +398,11 @@ class MTFParser:
             )
 
         chassis_tech_base = map_chassis_tech_base(data.get('techbase', ''))
+        component_tech_bases = {'chassis': chassis_tech_base} if chassis_tech_base else None
+        engine_line = data.get('engine_line')
+        engine_tech_base = map_mixed_engine_tech_base(data.get('techbase', ''), engine_line) if engine_line else None
+        if component_tech_bases and engine_tech_base:
+            component_tech_bases['engine'] = engine_tech_base
         return SerializedUnit(
             id=unit_id,
             chassis=chassis,
@@ -404,7 +411,7 @@ class MTFParser:
             configuration=map_mech_config(data.get('config', 'Biped')),
             lamType=data.get('lam_type'),
             techBase=map_tech_base(data.get('techbase', 'Inner Sphere')),
-            componentTechBases={'chassis': chassis_tech_base} if chassis_tech_base else None,
+            componentTechBases=component_tech_bases,
             # MtfFile.java:358-359: the Omni suffix is a contains() test, independent of the geometry. Never written as False.
             isOmni=True if 'Omni' in data.get('config', '') else None,
             baseChassisHeatSinks=data.get('base_chassis_heat_sinks'),

@@ -346,6 +346,7 @@
           "manufacturer": "Vining Engineering and Salvage Team (VEST)",
           "primaryFactory": "Solaris VII"
         },
+        "clanEngine": false,
         "sourceTechType": "Mixed (IS Chassis) Experimental",
         "componentTechBases": {
           "chassis": "INNER_SPHERE"

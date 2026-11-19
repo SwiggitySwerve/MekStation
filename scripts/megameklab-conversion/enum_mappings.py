@@ -60,6 +60,22 @@ def map_chassis_tech_base(value: str) -> Optional[str]:
     return map_tech_base(match.group(1).upper()) if match else None
 
 
+def map_mixed_engine_tech_base(techbase: str, engine: str) -> Optional[str]:
+    """Engine side of a qualified Mixed mek; None otherwise.
+
+    MtfFile.java:387-392 flags a Clan engine on a Mixed mek when the engine line names the opposite tech of the
+    chassis, by Entity.itemOppositeTech:13668-13674: an IS chassis looks for '(c)' or 'clan', a Clan chassis for
+    '(is)' or 'inner sphere' (case-insensitive substrings of the line).
+    """
+    chassis = map_chassis_tech_base(techbase)
+    if chassis is None:
+        return None
+    line = engine.lower()
+    if chassis == 'CLAN':
+        return 'INNER_SPHERE' if ('(is)' in line or 'inner sphere' in line) else 'CLAN'
+    return 'CLAN' if ('(c)' in line or 'clan' in line) else 'INNER_SPHERE'
+
+
 # =============================================================================
 # RULES LEVEL MAPPINGS
 # =============================================================================

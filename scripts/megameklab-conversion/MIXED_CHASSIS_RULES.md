@@ -24,3 +24,32 @@ retain qualified Mixed identity.
 `test_blk_mixed_chassis.py` pins LF-normalized source hashes and pre-change output
 hashes for both vehicle/aerospace chassis allegiances and a Clan infantry source.
 It covers all accepted Mixed suffixes, non-Mixed controls and battle armor.
+
+## Mixed component sides (rows 2.1.3 and 2.1.5)
+
+Every qualified Mixed source also states the component sides the pinned loaders
+derive, so absence on a Mixed unit never has to be interpreted:
+
+- **Mek engine.** `componentTechBases.engine` on every Mixed mek with an
+  `engine:` line (`enum_mappings.map_mixed_engine_tech_base`): `MtfFile.java:387-392`
+  with `Entity.itemOppositeTech:13668-13674`. An IS chassis is Clan when the line
+  contains `(c)` or `clan`; a Clan chassis is IS when it contains `(is)` or
+  `inner sphere`. The `XL`/`CLAN_XL` engine token must agree with the field;
+  `test_mixed_tech_sides.py` pins both.
+- **Vehicle and fighter armor.** `componentTechBases.armor`
+  (`blk_unit_fields.mixed_armor_side`), after `chassis`: the level from
+  `armor_tech_level`, else `armor_tech`, else the chassis side
+  (`BLKFile.java:1951-1958`, `BLKTankFile.java:283-304`; support vehicles read only
+  `armor_tech_level`, `BLKFile.java:505-524`), mapped by
+  `clanTechLevels` in `src/types/formats/mtf-component-vocabulary.json`. Patchwork
+  armor has one level per location, so no single side is emitted. Infantry and
+  battle armor emit no armor side.
+- **Vehicle and fighter engine.** The existing `clanEngine` carrier: the source
+  tag when present, otherwise the loader's own rule
+  (`blk_unit_fields.untagged_mixed_clan_engine`). Tank, VTOL, AeroSpaceFighter and
+  ConvFighter take the chassis side (`BLKTankFile.java:144-151`,
+  `BLKVTOLFile.java:94-102`, `BLKAeroSpaceFighterFile.java:115-123`,
+  `BLKConvFighterFile.java:106-114`); LargeSupportTank always takes the chassis
+  side (`BLKLargeSupportTankFile.java:98-101`); SupportTank, SupportVTOL,
+  FixedWingSupport and SmallCraft never set `Engine.CLAN_ENGINE`. An unknown
+  UnitType raises. Non-Mixed sources keep emitting `clanEngine` only from a tag.
