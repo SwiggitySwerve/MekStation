@@ -11,6 +11,7 @@ import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { getCalculationService } from '@/services/construction/CalculationService';
 import {
   buildEditableMechBVInput,
+  buildEditableMechProjectionInput,
   projectEditableMech,
 } from '@/services/construction/editableMechProjection';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
@@ -104,7 +105,11 @@ it('loads Danielle at 100 tons with four placed bins and no missing-ammunition w
   ).toBe(96);
   const bv = (unit: typeof state) =>
     getCalculationService().calculateBattleValue(
-      projectEditableMech(unit, result.current.walkMP, 'editor'),
+      projectEditableMech(
+        buildEditableMechProjectionInput(unit),
+        result.current.walkMP,
+        'editor',
+      ),
     );
   expect(bv(withoutAmmo)).toBe(1958);
   // The shared BV owner includes the four unprotected explosive bins.
