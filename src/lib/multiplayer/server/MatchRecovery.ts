@@ -24,7 +24,11 @@
  */
 
 import type { InteractiveSession } from '@/engine/InteractiveSession';
-import type { AuthorityRecoveryBlockedReason } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
+import type {
+  AuthorityRecoveryBlockedReason,
+  IBranchCheckpointPipeline,
+  IBranchHistoryReader,
+} from '@/lib/events/checkpoints/AuthorityRecoveryPort';
 import type { ReplayQuarantineRegistry } from '@/lib/events/replay/ReplayQuarantineRegistry';
 import type {
   IGameEvent,
@@ -90,6 +94,59 @@ export interface IMatchRecoveryResult {
    * are untouched; this says why, which a bare id never could.
    */
   readonly blocked: readonly IMatchRecoveryBlock[];
+  /**
+   * Present only when the caller asked for `deferCheckpointWrites`: the
+   * checkpoint writes this sweep would have made, in sweep order, for the
+   * caller to run after the server listens. Absent otherwise, so an
+   * inline sweep's result is exactly what it was.
+   */
+  readonly deferredCheckpointWrites?: readonly IDeferredCheckpointWrite[];
+}
+
+export interface IMatchRecoveryOptions {
+  /**
+   * Boot only. Queue each recovered match's checkpoint write instead of
+   * making it inline, so the server can listen first. The write itself
+   * is unchanged: same row, same bytes. A checkpoint is a cache, so a
+   * process that dies before running the queue loses only acceleration;
+   * the next boot recovers through the earlier row or a full replay.
+   */
+  readonly deferCheckpointWrites?: boolean;
+}
+
+/** One queued checkpoint write (see `deferCheckpointWrites`). */
+export interface IDeferredCheckpointWrite {
+  readonly matchId: string;
+  readonly write: () => Promise<void>;
+}
+
+/**
+ * The checkpoint write for one recovered match, at the head it was
+ * recovered to. The events array is captured now so a deferred write
+ * records the state recovery produced even after the live host has moved
+ * on; the digest is read at `headRevision`, which an append-only log
+ * keeps fixed however far it has grown since.
+ */
+function checkpointWrite(
+  cache: BranchCheckpointCache,
+  pipeline: IBranchCheckpointPipeline,
+  history: IBranchHistoryReader,
+  headRevision: number,
+  state: IGameSession,
+): () => Promise<void> {
+  const recovered: IGameSession = { ...state, events: [...state.events] };
+  return async () => {
+    const digest = await history.chainDigestAt(headRevision);
+    if (digest !== null) {
+      cache.record(
+        pipeline,
+        headRevision,
+        digest,
+        recovered,
+        recovered.updatedAt,
+      );
+    }
+  };
 }
 
 /**
@@ -172,10 +229,17 @@ export async function recoverActiveMatches(
   store: IMatchStore,
   quarantine?: ReplayQuarantineRegistry,
   matchId?: string,
+  options: IMatchRecoveryOptions = {},
 ): Promise<IMatchRecoveryResult> {
   const hosts = new Map<string, ServerMatchHost>();
   const failed: string[] = [];
   const blocked: IMatchRecoveryBlock[] = [];
+  const deferred: IDeferredCheckpointWrite[] | null =
+    options.deferCheckpointWrites === true ? [] : null;
+  const result = (): IMatchRecoveryResult =>
+    deferred === null
+      ? { hosts, failed, blocked }
+      : { hosts, failed, blocked, deferredCheckpointWrites: deferred };
   // InMemory / uninitialized SQLite keeps the reference port, so the
   // existing blocked-verdict suite stays byte-identical. A live SQLite
   // handle is the only thing that can offer a checkpoint.
@@ -187,7 +251,7 @@ export async function recoverActiveMatches(
   if (!isRecoverableMatchStore(store)) {
     // The in-memory dev store has nothing to recover after a restart;
     // an empty result is the correct, non-erroring outcome.
-    return { hosts, failed, blocked };
+    return result();
   }
 
   let active: readonly IMatchMeta[];
@@ -195,7 +259,7 @@ export async function recoverActiveMatches(
     active = await store.listActiveMatches();
   } catch (e) {
     logger.warn('[MatchRecovery] failed to enumerate active matches', e);
-    return { hosts, failed, blocked };
+    return result();
   }
 
   for (const meta of active) {
@@ -284,8 +348,12 @@ export async function recoverActiveMatches(
         projector === null
           ? null
           : matchAuthoritativePipeline(meta.matchId, projector);
+      // One chain build per recovery: the offer and the checkpoint write
+      // read the same digests, so neither re-reads and re-hashes the log.
       const history =
-        cache === null ? null : matchStoreHistoryReader(store, meta.matchId);
+        cache === null
+          ? null
+          : matchStoreHistoryReader(store, meta.matchId, { buildOnce: true });
       let headRevision = 0;
       if (journal.kind === 'journal') {
         // Stated by the consult rather than re-derived from the log's
@@ -307,11 +375,12 @@ export async function recoverActiveMatches(
               pipeline,
               headRevision,
               history,
-              parse: (stateJson) =>
-                foldMatchSession(
-                  meta.matchId,
-                  (JSON.parse(stateJson) as IGameSession).events,
-                ),
+              // The cached session is only a carrier for its events: the
+              // `fold` below rebuilds every derived field from them. The
+              // cached `currentState` is never read - its row is keyed by
+              // projector version, not by reducer code, so after a deploy
+              // it can be a state today's reducer would not produce.
+              parse: (stateJson) => JSON.parse(stateJson) as IGameSession,
             })
           : referenceRecoveryPort<IGameEvent, IGameSession>();
       const verdict = await recovery({
@@ -350,7 +419,15 @@ export async function recoverActiveMatches(
           previousDigest: null,
           digest: null,
         }),
-        fold: (events, base) => foldMatchSession(meta.matchId, events, base),
+        // Exactly one full fold on either path. With a checkpoint, the
+        // cached events (attested by the live chain digest at the base)
+        // plus the tail; an empty tail still folds, so no derived state
+        // is ever taken from the cache.
+        fold: (events, base) =>
+          foldMatchSession(
+            meta.matchId,
+            base === undefined ? events : [...base.events, ...events],
+          ),
       });
       // A refused authority is named and skipped. Nothing partial is
       // built from it: no session, no host, no registration.
@@ -383,16 +460,15 @@ export async function recoverActiveMatches(
         history !== null &&
         headRevision >= 1
       ) {
-        const digest = await history.chainDigestAt(headRevision);
-        if (digest !== null) {
-          cache.record(
-            pipeline,
-            headRevision,
-            digest,
-            verdict.state,
-            verdict.state.updatedAt,
-          );
-        }
+        const writeCheckpoint = checkpointWrite(
+          cache,
+          pipeline,
+          history,
+          headRevision,
+          verdict.state,
+        );
+        if (deferred === null) await writeCheckpoint();
+        else deferred.push({ matchId: meta.matchId, write: writeCheckpoint });
       }
       await registerRecoveredHost(hosts, store, meta.matchId, verdict.state);
     } catch (e) {
@@ -426,5 +502,5 @@ export async function recoverActiveMatches(
       }
     }
   }
-  return { hosts, failed, blocked };
+  return result();
 }

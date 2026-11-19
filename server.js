@@ -562,6 +562,8 @@ app
       console.error('[mp-boot] same-host guard unavailable', err);
       process.exit(1);
     }
+    // The boot sweep's queued checkpoint writes, run once we listen.
+    let writeDeferredCheckpoints = null;
     try {
       const runtime = loadMultiplayerRuntime();
       // Clear any fault sentinel left behind by an ABORTED earlier run
@@ -575,7 +577,12 @@ app
           `[e2e-fault] cleared ${staleSentinels} stale fault sentinel dir(s) from earlier runs`,
         );
       }
-      await runtime.bootstrapMultiplayerServer();
+      // Checkpoint writes wait for the listener (see listen below): they
+      // are a cache, and recovery is what reconnecting players wait on.
+      const boot = await runtime.bootstrapMultiplayerServer({
+        deferCheckpointWrites: true,
+      });
+      writeDeferredCheckpoints = boot?.writeDeferredCheckpoints ?? null;
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('[mp-boot] runtime load failed', err);
@@ -953,6 +960,15 @@ app
       console.log(
         `> Ready on http://${hostname}:${port} (multiplayer socket: ${WS_UPGRADE_PATH})`,
       );
+      // Recovery, then listen, then the checkpoint writes recovery queued.
+      // A process that dies first loses only acceleration: the next boot
+      // recovers through an earlier checkpoint or a full replay.
+      if (writeDeferredCheckpoints) {
+        writeDeferredCheckpoints().catch((err) => {
+          // eslint-disable-next-line no-console
+          console.error('[mp-boot] deferred checkpoint writes failed', err);
+        });
+      }
     });
   })
   .catch((err) => {

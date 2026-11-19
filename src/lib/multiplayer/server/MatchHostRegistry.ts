@@ -13,7 +13,11 @@
 import { ReplayQuarantineRegistry } from '@/lib/events/replay/ReplayQuarantineRegistry';
 
 import type { IMatchStore } from './IMatchStore';
-import type { IMatchRecoveryBlock } from './MatchRecovery';
+import type {
+  IDeferredCheckpointWrite,
+  IMatchRecoveryBlock,
+  IMatchRecoveryOptions,
+} from './MatchRecovery';
 
 import { getDefaultMatchStore } from './getDefaultMatchStore';
 import { recoverActiveMatches } from './MatchRecovery';
@@ -205,17 +209,26 @@ export class MatchHostRegistry {
    */
   recoverActiveMatches = async (
     matchId?: string,
+    options?: IMatchRecoveryOptions,
   ): Promise<{
     readonly recovered: number;
     readonly failed: number;
     readonly blocked: readonly IMatchRecoveryBlock[];
+    readonly deferredCheckpointWrites?: readonly IDeferredCheckpointWrite[];
   }> => {
     const generation = this.generation;
     const result = await recoverActiveMatches(
       this.store,
       this.quarantine,
       matchId,
+      options,
     );
+    // Checkpoints are a cache keyed by history, not by this registry, so a
+    // reset does not void them: the queued writes go back either way.
+    const deferred =
+      result.deferredCheckpointWrites === undefined
+        ? {}
+        : { deferredCheckpointWrites: result.deferredCheckpointWrites };
     // Reset invalidates a pending sweep as well as fresh bootstrap. These
     // recovered hosts have never been attached to a socket in this registry.
     if (generation !== this.generation) {
@@ -223,6 +236,7 @@ export class MatchHostRegistry {
         recovered: 0,
         failed: result.failed.length,
         blocked: this.blocked,
+        ...deferred,
       };
     }
     this.blocked = [
@@ -241,6 +255,7 @@ export class MatchHostRegistry {
       recovered: result.hosts.size,
       failed: result.failed.length,
       blocked: this.blocked,
+      ...deferred,
     };
   };
 
@@ -286,6 +301,8 @@ const MATCH_HOST_REGISTRY_SLOT_KEY = Symbol.for(
 interface IMatchHostRegistrySlot {
   registry: MatchHostRegistry | null;
   recoveryRan: boolean;
+  /** Checkpoint writes the boot sweep queued for after listen. */
+  deferredCheckpointWrites: IDeferredCheckpointWrite[];
 }
 
 type GlobalMatchHostRegistrySlot = typeof globalThis & {
@@ -303,7 +320,11 @@ function matchHostRegistrySlot(): IMatchHostRegistrySlot {
   const global = globalThis as GlobalMatchHostRegistrySlot;
   let slot = global[MATCH_HOST_REGISTRY_SLOT_KEY];
   if (!slot) {
-    slot = { registry: null, recoveryRan: false };
+    slot = {
+      registry: null,
+      recoveryRan: false,
+      deferredCheckpointWrites: [],
+    };
     global[MATCH_HOST_REGISTRY_SLOT_KEY] = slot;
   }
   return slot;
@@ -332,16 +353,29 @@ export function getMatchHostRegistry(): MatchHostRegistry {
  * Idempotent per process — the flag lives in the same globalThis slot as
  * the registry, so a second call from either module graph is a no-op.
  */
-export async function bootstrapMultiplayerServer(): Promise<{
+export async function bootstrapMultiplayerServer(
+  options: IMatchRecoveryOptions = {},
+): Promise<{
   readonly recovered: number;
   readonly failed: number;
+  /**
+   * Present only on the sweep that queued checkpoint writes
+   * (`deferCheckpointWrites`): the caller runs it once it listens.
+   */
+  readonly writeDeferredCheckpoints?: typeof writeDeferredRecoveryCheckpoints;
 }> {
   const slot = matchHostRegistrySlot();
   if (slot.recoveryRan) {
     return { recovered: 0, failed: 0 };
   }
   slot.recoveryRan = true;
-  const result = await getMatchHostRegistry().recoverActiveMatches();
+  const result = await getMatchHostRegistry().recoverActiveMatches(
+    undefined,
+    options,
+  );
+  slot.deferredCheckpointWrites.push(
+    ...(result.deferredCheckpointWrites ?? []),
+  );
   if (result.recovered > 0 || result.failed > 0) {
     // eslint-disable-next-line no-console
     console.log(
@@ -349,7 +383,51 @@ export async function bootstrapMultiplayerServer(): Promise<{
         (result.failed > 0 ? `, ${result.failed} failed` : ''),
     );
   }
-  return { recovered: result.recovered, failed: result.failed };
+  return {
+    recovered: result.recovered,
+    failed: result.failed,
+    ...(options.deferCheckpointWrites === true
+      ? { writeDeferredCheckpoints: writeDeferredRecoveryCheckpoints }
+      : {}),
+  };
+}
+
+/**
+ * Run the checkpoint writes a `deferCheckpointWrites` boot queued.
+ * server.js calls this once its listener is up: recovery, then listen,
+ * then the writes, so the writes no longer delay the first reconnect by
+ * more than one match's write (it yields to pending I/O before each).
+ *
+ * Each write is the same row recovery used to write inline. A failure is
+ * logged and the next write still runs: a checkpoint is a cache, and a
+ * missing row only means the next boot replays from an earlier base.
+ */
+export async function writeDeferredRecoveryCheckpoints(): Promise<{
+  readonly written: number;
+  readonly failed: number;
+}> {
+  const slot = matchHostRegistrySlot();
+  const queued = slot.deferredCheckpointWrites.splice(0);
+  let written = 0;
+  let failed = 0;
+  for (const entry of queued) {
+    // A write is synchronous work over the whole session (canonical JSON
+    // and its digest). Let sockets and requests that arrived meanwhile run
+    // first, so a reconnect waits for at most one match's write.
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    try {
+      await entry.write();
+      written += 1;
+    } catch (error) {
+      failed += 1;
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[mp-boot] checkpoint write after listen failed for ${entry.matchId}`,
+        error,
+      );
+    }
+  }
+  return { written, failed };
 }
 
 /**

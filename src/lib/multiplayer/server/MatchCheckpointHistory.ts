@@ -48,18 +48,39 @@ async function chainMatchEvents(
   return chained;
 }
 
+/**
+ * `buildOnce`: the chain is read and hashed on the first call and every
+ * later call reads that one build. For a caller that rebuilds one match
+ * once (recovery), where re-reading the whole log and re-hashing it per
+ * call is pure repetition. Safe because the log is append-only: a later
+ * read could only add revisions past the build's head, and the digest at
+ * any revision the build holds is a function of the prefix up to it.
+ * A failed build is not kept, so the next call reads again.
+ */
 export function matchStoreHistoryReader(
   source: IMatchEventSource,
   matchId: string,
+  options: { readonly buildOnce?: boolean } = {},
 ): IBranchHistoryReader {
+  let built: Promise<readonly IChainedMatchEvent[]> | null = null;
+  const chain = (): Promise<readonly IChainedMatchEvent[]> => {
+    if (options.buildOnce !== true) return chainMatchEvents(source, matchId);
+    if (built === null) {
+      built = chainMatchEvents(source, matchId);
+      built.catch(() => {
+        built = null;
+      });
+    }
+    return built;
+  };
   return {
     chainDigestAt: async (revision) => {
-      const chained = await chainMatchEvents(source, matchId);
+      const chained = await chain();
       return chained.find((row) => row.revision === revision)?.digest ?? null;
     },
     readTail: async (fromExclusive) => {
       const tail: IReplayEquivalenceEvent[] = [];
-      for (const row of await chainMatchEvents(source, matchId)) {
+      for (const row of await chain()) {
         if (row.revision <= fromExclusive) continue;
         tail.push({
           revision: row.revision,
