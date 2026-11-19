@@ -164,7 +164,7 @@ test('targets report configured gaps with unavailable or fractional observations
   const unknown = budgetTargetGaps(config);
   assert.deepEqual(
     unknown.map((row) => row.configuredGap),
-    [1, 2, 13],
+    [1, 2, 14],
   );
   assert.ok(
     unknown.every((row) => row.observed === null && row.gapToTarget === null),
@@ -190,7 +190,7 @@ test('ratchets lower canonical IDs and cannot add/raise/duplicate silently', () 
     { id: 'limits.repoWideKeys', value: 79 },
   ]);
   assert.equal(result.limits.repoWideKeys, 79);
-  assert.equal(config.limits.repoWideKeys, 93);
+  assert.equal(config.limits.repoWideKeys, 94);
   for (const proposals of [
     null,
     [{ id: 'unknown', value: 1 }],
