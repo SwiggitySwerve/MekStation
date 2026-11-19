@@ -427,12 +427,14 @@ jobs:
   # `npm run docker:run` does (published on 127.0.0.1 only, the image's own
   # container opt-in env), and requires /api/health 200 with a healthy body.
   # scripts/ci/nightly-docker-health.sh always removes the container. No buildx
-  # GHA cache: the repository's Actions cache is at its 10 GB cap. The timeout
-  # is owner-held.
+  # GHA cache: the repository's Actions cache is at its 10 GB cap.
   docker-health:
     name: Docker Image Health
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # Owner-held, approved in PARITY-PLAN §207. The first hosted run (Nightly
+    # 44456874376) took build 94 s, health 4 s, job 115 s. Re-propose from the
+    # p90 of 5 scheduled Nightlies.
+    timeout-minutes: 5
     permissions:
       contents: read
     steps:

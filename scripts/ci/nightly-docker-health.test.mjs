@@ -23,8 +23,8 @@ test('Nightly builds the production image and health-checks it, outside every PR
   const job = wf.jobs['docker-health'];
   assert.ok(job, 'docker-health job is present');
   assert.equal(job['runs-on'], 'ubuntu-latest');
-  // Owner-held: proposed from C7's slowest measured build (984 s) x 1.5.
-  assert.equal(job['timeout-minutes'], 25);
+  // Owner-held (PARITY-PLAN §207): 5 min, from the first hosted run (job 115 s).
+  assert.equal(job['timeout-minutes'], 5);
   assert.deepEqual(job.permissions, { contents: 'read' });
   assert.equal(job.needs, undefined);
   const [checkout, check, upload] = job.steps;
@@ -69,7 +69,11 @@ function runScript(t, env = {}) {
       'echo "docker $*" >> "$CALLS"',
       'case "$1 $2" in',
       '  "build "*) echo "step 1/9"; exit "${DOCKER_BUILD_EXIT:-0}" ;;',
-      '  "image inspect") case "$*" in *len*) echo 10 ;; *) echo 978589314 ;; esac ;;',
+      // .Size is the content (compressed) size on the containerd store; VirtualSize may be absent.
+      '  "image inspect") case "$*" in *len*) echo 10 ;; *VirtualSize*) echo "${VIRTUAL_SIZE-}" ;; *) echo 163866125 ;; esac ;;',
+      // Per-layer sizes in bytes; HISTORY_SIZES uses | for newlines, HISTORY_EXIT fails the command.
+      '  "history "*) printf "%s\\n" "${HISTORY_SIZES-500000000|478589314|0}" | tr "|" "\\n"; exit "${HISTORY_EXIT:-0}" ;;',
+      '  "info "*) printf "%s\\n" "${DOCKER_INFO-overlayfs [[\\"driver-type\\",\\"io.containerd.snapshotter.v1\\"]]}" ;;',
       '  "run "*) [ "${DOCKER_RUN_EXIT:-0}" = 0 ] && : > "$RAN"; exit "${DOCKER_RUN_EXIT:-0}" ;;',
       '  "container inspect") [ -f "$RAN" ]; exit $? ;;',
       '  "logs "*) echo "MEKSTATION_LISTENER_READY" ;;',
@@ -130,7 +134,22 @@ test('a healthy image: loopback-only port, the image own env, a bounded probe, t
   assert.equal(run.report.bodyOk, true);
   assert.equal(run.report.httpCode, '200');
   assert.equal(run.report.buildExit, 0);
-  assert.equal(run.report.imageBytes, 978589314);
+  // Both sizes: content (compressed) from inspect, uncompressed from the history layer sum.
+  assert.equal(run.report.imageBytes, 163866125);
+  assert.equal(run.report.imageBytesUncompressed, 978589314);
+  assert.equal(
+    run.report.imageStore,
+    'overlayfs [[driver-type,io.containerd.snapshotter.v1]]',
+  );
+  assert.match(
+    run.stdout,
+    /image 163866125 bytes content \(compressed\), 978589314 bytes uncompressed, 10 layers, store overlayfs/,
+  );
+  assert.ok(
+    run.calls.includes(
+      'docker history --human=false --no-trunc --format {{.Size}} mekstation-nightly-health:local',
+    ),
+  );
   assert.equal(run.report.layers, 10);
   assert.equal(typeof run.report.buildSeconds, 'number');
   assert.equal(typeof run.report.healthSeconds, 'number');
@@ -199,4 +218,41 @@ test('every failure exits 1 with a report and still removes the container', (t) 
       label,
     );
   }
+});
+
+test('the uncompressed size falls back to VirtualSize, then null; an unreadable store is unknown', (t) => {
+  for (const [label, env, expected] of [
+    [
+      'history fails, VirtualSize present',
+      { HISTORY_EXIT: '1', HISTORY_SIZES: '', VIRTUAL_SIZE: '978589314' },
+      978589314,
+    ],
+    [
+      'history empty, no VirtualSize',
+      { HISTORY_SIZES: '', VIRTUAL_SIZE: '' },
+      null,
+    ],
+    [
+      'history not numeric, VirtualSize not numeric',
+      { HISTORY_SIZES: '12.3MB', VIRTUAL_SIZE: '<no value>' },
+      null,
+    ],
+    [
+      'history sums the numeric lines only',
+      { HISTORY_SIZES: '100|<missing>|23' },
+      123,
+    ],
+  ]) {
+    const run = runScript(t, env);
+    assert.equal(run.status, 0, label);
+    assert.equal(run.report.imageBytes, 163866125, label);
+    assert.equal(run.report.imageBytesUncompressed, expected, label);
+  }
+  const noInfo = runScript(t, { DOCKER_INFO: '' });
+  assert.equal(noInfo.report.imageStore, 'unknown');
+  // A failed build records no sizes and no store.
+  const failed = runScript(t, { DOCKER_BUILD_EXIT: '1' });
+  assert.equal(failed.report.imageBytes, null);
+  assert.equal(failed.report.imageBytesUncompressed, null);
+  assert.equal(failed.report.imageStore, 'unknown');
 });
