@@ -130,10 +130,17 @@ export function parseNightlyInvocation(argv) {
   return { suite: { name: NIGHTLY_SUITE_NAME }, shardIndex, shardCount };
 }
 
+/**
+ * PR mode: one suite's exact argv with `--shard=<i>/<n>`, n from 2 to 6. The
+ * shard count is always explicit, so a workflow typo cannot change it.
+ */
 export function parseInvocation(argv, dataSpecs = []) {
   const shard = argv.find((arg) => arg.startsWith('--shard='));
-  if (!/^--shard=[12]\/2$/.test(shard ?? ''))
-    throw new Error('Expected --shard=<1|2>/2');
+  const match = /^--shard=([1-6])\/([2-6])$/.exec(shard ?? '');
+  if (!match || Number(match[1]) > Number(match[2]))
+    throw new Error(
+      'Expected --shard=<i>/<n> with 1 <= i <= n and 2 <= n <= 6',
+    );
   const suite = argv.includes('--data-specs')
     ? suitesForDataSpecs(dataSpecs).find(({ name }) => name === 'data')
     : CI_SUITES.find(({ files }) =>
@@ -155,7 +162,11 @@ export function parseInvocation(argv, dataSpecs = []) {
     throw new Error(
       'PR E2E invocation changed its files, workers or retry policy',
     );
-  return { suite, shardIndex: Number(shard.at(8)) };
+  return {
+    suite,
+    shardIndex: Number(match[1]),
+    shardCount: Number(match[2]),
+  };
 }
 export function testDescription({ file, titles, project }) {
   // Playwright's native --test-list format uses this separator. Refuse an

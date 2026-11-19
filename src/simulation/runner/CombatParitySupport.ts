@@ -212,7 +212,7 @@ const PSR_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation event-sourced End phase resolves pending PSRs with per-unit piloting, component damage, wounds, quirks, abilities, and unit type.',
     'src/utils/gameplay/gameSessionPSRResolution.ts',
-    'L55-L417',
+    'L53-L412',
   ),
   mekstationDeviationSourceRef(
     'MekStation resolveAllPSRs applies the shared first-failure batch contract for queued piloting skill rolls.',

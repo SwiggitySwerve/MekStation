@@ -1,0 +1,533 @@
+/** Capture-only proof of the old writer's real post-swamp combat dice. */
+import 'fake-indexeddb/auto';
+import { IDBFactory } from 'fake-indexeddb';
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
+import { serialize, deserialize } from 'node:v8';
+
+import { adaptUnitFromData } from '@/engine/adapters/CompendiumAdapter';
+import { createMinimalGrid } from '@/engine/GameEngine.helpers';
+import { InteractiveSession } from '@/engine/InteractiveSession';
+import { persistInteractiveLaunchRecoveryLog } from '@/engine/InteractiveSession.persistence';
+import { matchLogStorage } from '@/lib/p2p/matchLogStorage';
+import { SeededD6Roller, SeededRandom } from '@/simulation/core';
+import {
+  FiringArc,
+  GameEventType,
+  GamePhase,
+  GameSide,
+  GameStatus,
+  MovementType,
+  PSRTrigger,
+} from '@/types/gameplay';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
+import { deployPlacementsFor } from '@/utils/gameplay/gameState/initialization';
+import { hexDistance, hexNeighbor } from '@/utils/gameplay/hexMath';
+
+import { realStructuredClone, sha256Bytes } from './capture.helper';
+
+const NAME = 'deep-swamp-continuation';
+const MAIN_SHA = 'c33afb8cb7eed3425eacee707648ff5203d75e6f';
+const read = (suffix) =>
+  readFileSync(path.join(__dirname, `${NAME}.${suffix}`));
+const objectCapture = () => deserialize(read('v8'));
+const rollCapture = () => JSON.parse(read('rolls.raw-json').toString());
+
+async function capture() {
+  expect(
+    execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
+  ).toBe(MAIN_SHA);
+  const writers = [
+    'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
+    'src/utils/gameplay/pilotingSkillRolls/resolution.ts',
+    'src/utils/gameplay/gameSessionMovementTerrain.ts',
+    'src/utils/gameplay/gameEvents/statusChecksPsr.ts',
+    'src/utils/gameplay/gameSessionPSRResolution.ts',
+    'src/utils/gameplay/gameSessionAttackResolution.ts',
+    'src/utils/gameplay/gameSessionAttackResolution.hit.ts',
+    'src/engine/InteractiveSession.phases.ts',
+    'src/engine/InteractiveSession.resolvers.ts',
+  ];
+  execFileSync('git', ['diff', '--exit-code', 'HEAD', '--', ...writers]);
+  const suffixes = [
+    'ndjson',
+    'events.raw-json',
+    'v8',
+    'rolls.raw-json',
+    'command-states.v8',
+    'install-verdict.txt',
+    'provenance.json',
+  ];
+  for (const suffix of suffixes) {
+    if (existsSync(path.join(__dirname, `${NAME}.${suffix}`)))
+      throw new Error(`Refusing to regenerate ${NAME}.${suffix}`);
+  }
+  const capturedAtUtc = execFileSync(
+    'C:/Program Files/Git/usr/bin/date.exe',
+    ['-u'],
+    { encoding: 'utf8' },
+  ).trim();
+  const install = execFileSync(
+    process.execPath,
+    [
+      'E:/Projects/Personal/_scratch/c5-tmp/compare-lock.mjs',
+      path.resolve('node_modules/.package-lock.json'),
+      path.resolve('package-lock.json'),
+    ],
+    { encoding: 'utf8' },
+  );
+  expect(install).toMatch(
+    /version\/integrity differ: 0; only in lockfile \(not installed, non-optional\): 0/,
+  );
+  expect(install).toMatch(/only installed: 0/);
+  const factory = readFileSync(writers[0], 'utf8');
+  const resolver = readFileSync(writers[1], 'utf8');
+  expect(factory).toContain('fixedTargetNumber: Number.POSITIVE_INFINITY');
+  expect(resolver).toContain('const roll = roll2d6(diceRoller)');
+
+  const designs = [
+    ['player-0', GameSide.Player, '2-star-league/standard/Atlas AS7-D.json'],
+    [
+      'opponent-1',
+      GameSide.Opponent,
+      '3-succession-wars/standard/Marauder MAD-3R.json',
+    ],
+  ];
+  const adapted = designs.map(([id, side, design]) => ({
+    ...adaptUnitFromData(
+      JSON.parse(
+        readFileSync(
+          path.resolve('public/data/units/battlemechs', design),
+          'utf8',
+        ),
+      ),
+      { side },
+    ),
+    id,
+  }));
+  const units = adapted.map((unit, index) => ({
+    id: unit.id,
+    name: unit.id,
+    side: unit.side,
+    unitRef: index === 0 ? 'atlas-as7-d' : 'marauder-mad-3r',
+    pilotRef: 'Veteran',
+    gunnery: 2,
+    piloting: 5,
+  }));
+  const placement = deployPlacementsFor(units)[0];
+  const destination = hexNeighbor(placement.position, placement.facing);
+  const key = `${destination.q},${destination.r}`;
+  const grid = createMinimalGrid(7);
+  grid.hexes.set(key, {
+    ...grid.hexes.get(key),
+    terrain: JSON.stringify([{ type: TerrainType.Swamp, level: 2 }]),
+  });
+
+  const seeded = new SeededD6Roller(8);
+  const dice = [];
+  const commands = [];
+  const commandStates = [];
+  let source;
+  let activeCommand = -1;
+  const d6 = () => {
+    const value = seeded.rollD6();
+    const stack = new Error().stack?.split('\n').slice(2, 10) ?? [];
+    dice.push({
+      ordinal: dice.length,
+      value,
+      command: activeCommand,
+      callers: stack,
+    });
+    return value;
+  };
+  // The exact production constructor/seed wiring used by GameEngine's factory,
+  // with a transparent public D6Roller probe rather than mocked domain rules.
+  source = new InteractiveSession(
+    7,
+    30,
+    new SeededRandom(8),
+    grid,
+    [adapted[0]],
+    [adapted[1]],
+    units,
+    {},
+    d6,
+    [],
+    ['elimination'],
+    8,
+  );
+  const act = (label, action) => {
+    activeCommand = commands.length;
+    const before = source.getState();
+    const command = {
+      label,
+      turn: before.turn,
+      phase: before.phase,
+      eventsBefore: source.getSession().events.length,
+      diceBefore: dice.length,
+    };
+    action();
+    command.eventsAfter = source.getSession().events.length;
+    command.diceAfter = dice.length;
+    commands.push(command);
+    commandStates.push({
+      command: activeCommand,
+      eventCount: command.eventsAfter,
+      diceCount: command.diceAfter,
+      state: realStructuredClone(source.getState()),
+    });
+  };
+  await persistInteractiveLaunchRecoveryLog(source.getSession());
+  for (
+    let step = 0;
+    source.getState().phase !== GamePhase.Movement && step < 8;
+    step++
+  )
+    act('opening phase advance', () => source.advancePhase());
+  expect(source.getState().phase).toBe(GamePhase.Movement);
+  act('walk into swamp level 2', () =>
+    source.applyMovement(
+      'player-0',
+      destination,
+      placement.facing,
+      MovementType.Walk,
+      [placement.position, destination],
+    ),
+  );
+  for (
+    let step = 0;
+    !source
+      .getSession()
+      .events.some((event) => event.type === GameEventType.PSRResolved) &&
+    step < 8;
+    step++
+  )
+    act('resolve opening swamp turn', () => source.advancePhase());
+  const swamp = source
+    .getSession()
+    .events.find((event) => event.type === GameEventType.PSRResolved);
+  expect(swamp.payload).toMatchObject({
+    targetNumber: Infinity,
+    passed: false,
+    reasonCode: PSRTrigger.SwampBogDown,
+  });
+  expect(swamp.payload.roll).toBeGreaterThanOrEqual(2);
+  expect(swamp.payload.roll).toBeLessThanOrEqual(12);
+  const swampCommand = commands.length - 1;
+  const diceThroughSwampCommand = dice.length;
+  const fullTurns = [swamp.turn + 1, swamp.turn + 2];
+  expect(source.getState().turn).toBe(fullTurns[0]);
+  const selectedWeapons = {};
+  // Two complete turns AFTER the resolved swamp event. Hold movement and fire
+  // two low-damage, forward weapons per side to preserve a live combat tail.
+  for (
+    let step = 0;
+    source.getState().turn <= fullTurns[1] && step < 30;
+    step++
+  ) {
+    expect(source.getState().status).toBe(GameStatus.Active);
+    if (source.getState().phase === GamePhase.WeaponAttack) {
+      for (const [attackerId, targetId] of [
+        ['player-0', 'opponent-1'],
+        ['opponent-1', 'player-0'],
+      ]) {
+        const state = source.getState();
+        const range = hexDistance(
+          state.units[attackerId].position,
+          state.units[targetId].position,
+        );
+        const weapons = source
+          .getUnitWeapons(attackerId)
+          .filter(
+            (weapon) =>
+              !weapon.destroyed &&
+              weapon.longRange >= range &&
+              (!weapon.mountingArc || weapon.mountingArc === FiringArc.Front),
+          )
+          .sort((a, b) => a.damage - b.damage || a.id.localeCompare(b.id))
+          .slice(0, 2);
+        expect(weapons.length).toBeGreaterThan(0);
+        selectedWeapons[attackerId] = weapons.map((weapon) => ({
+          id: weapon.id,
+          name: weapon.name,
+          damage: weapon.damage,
+        }));
+        act(`turn ${state.turn}: ${attackerId} attacks ${targetId}`, () =>
+          source.applyAttack(
+            attackerId,
+            targetId,
+            weapons.map((weapon) => weapon.id),
+          ),
+        );
+      }
+    }
+    act('continuation phase advance', () => source.advancePhase());
+  }
+  expect(source.getState().turn).toBe(fullTurns[1] + 1);
+  const attacks = source
+    .getSession()
+    .events.filter(
+      (event) =>
+        event.sequence > swamp.sequence &&
+        event.type === GameEventType.AttackResolved,
+    );
+  for (const turn of fullTurns) {
+    expect(
+      attacks.filter((event) => event.turn === turn).length,
+    ).toBeGreaterThanOrEqual(2);
+    expect(
+      attacks.some((event) => event.turn === turn && event.payload.hit),
+    ).toBe(true);
+  }
+  expect(
+    attacks.filter(
+      (event) =>
+        event.payload.hit && typeof event.payload.location === 'string',
+    ).length,
+  ).toBeGreaterThanOrEqual(2);
+  const laterPsrs = source
+    .getSession()
+    .events.filter(
+      (event) =>
+        event.sequence > swamp.sequence &&
+        event.type === GameEventType.PSRResolved,
+    );
+  expect(
+    laterPsrs.some(
+      (event) => event.payload.reasonCode === PSRTrigger.SwampUnstuck,
+    ),
+  ).toBe(true);
+  expect(dice.length - diceThroughSwampCommand).toBeGreaterThanOrEqual(12);
+  act('concede after two complete combat turns', () =>
+    source.concede(GameSide.Player),
+  );
+  const session = source.getSession();
+  expect(session.currentState.status).toBe(GameStatus.Completed);
+  expect(session.events.at(-1).type).toBe(GameEventType.GameEnded);
+  await matchLogStorage.flushPendingWrites();
+  matchLogStorage.close();
+  const records = await matchLogStorage.getEventRecordsForMatch(session.id);
+  expect(records.map((row) => row.event)).toEqual(session.events);
+  matchLogStorage.close();
+  const eventRolls = session.events
+    .filter(
+      (event) =>
+        event.sequence > swamp.sequence &&
+        (typeof event.payload.roll === 'number' ||
+          Array.isArray(event.payload.rolls) ||
+          event.type === GameEventType.InitiativeRolled),
+    )
+    .map((event) => ({
+      sequence: event.sequence,
+      turn: event.turn,
+      type: event.type,
+      payload: event.payload,
+    }));
+  const rolls = {
+    seed: 8,
+    swamp: {
+      sequence: swamp.sequence,
+      roll: swamp.payload.roll,
+      command: swampCommand,
+      diceThroughCommand: diceThroughSwampCommand,
+    },
+    fullTurns,
+    commands,
+    dice,
+    laterDice: dice.slice(diceThroughSwampCommand),
+    eventRolls,
+  };
+  const artifacts = {
+    [`${NAME}.ndjson`]: Buffer.from(
+      `${session.events.map((event) => JSON.stringify(event)).join('\n')}\n`,
+    ),
+    [`${NAME}.events.raw-json`]: Buffer.from(JSON.stringify(session.events)),
+    [`${NAME}.v8`]: serialize({ session, records }),
+    [`${NAME}.rolls.raw-json`]: Buffer.from(JSON.stringify(rolls)),
+    [`${NAME}.command-states.v8`]: serialize(commandStates),
+    [`${NAME}.install-verdict.txt`]: Buffer.from(install),
+  };
+  const files = {};
+  for (const [name, bytes] of Object.entries(artifacts)) {
+    writeFileSync(path.join(__dirname, name), bytes, { flag: 'wx' });
+    files[name] = { bytes: bytes.length, sha256: sha256Bytes(bytes) };
+  }
+  writeFileSync(
+    path.join(__dirname, `${NAME}.provenance.json`),
+    `${JSON.stringify(
+      {
+        mainSha: MAIN_SHA,
+        rule10StartBranchSha: 'f4311be1f77807fef99467920e6d649ea8c33cf8',
+        capturedAtUtc,
+        nodeVersion: process.version,
+        seed: 8,
+        swampDepth: 2,
+        setup:
+          'Production InteractiveSession with the same constructor/seed wiring as GameEngine.createInteractiveSession, plus transparent injected d6 tracing. Canonical Atlas AS7-D vs Marauder MAD-3R; gunnery 2/piloting 5; radius 7; turn limit 30; a level-2 swamp immediately forward of player deployment. Enter swamp turn 1 and let production End resolution consume its real dice. Complete turns 2 and 3, holding movement and declaring two lowest-damage in-range forward weapons per side through applyAttack; advance every phase through End. Movement-start swamp recovery also rolls. Concede only after entering turn 4. No fabricated events, cached-state edits or substituted dice.',
+        from: placement.position,
+        to: destination,
+        selectedWeapons,
+        lockfileSha256: sha256Bytes(readFileSync('package-lock.json')),
+        installHiddenLockSha256: sha256Bytes(
+          readFileSync('node_modules/.package-lock.json'),
+        ),
+        referenceInstall:
+          'E:/Projects/Personal/_scratch/node-ref-d007a047/node_modules',
+        installVerdict:
+          '988 identical; 0 different; 0 non-optional missing; 206 optional platform packages not installed; 0 only-installed. Read-only compare-lock; no install.',
+        writers: writers.map((sourcePath) => ({
+          path: sourcePath,
+          sha256: sha256Bytes(readFileSync(sourcePath)),
+        })),
+        captureHelperSha256: sha256Bytes(readFileSync(__filename)),
+        files,
+        eventCount: session.events.length,
+        swampSequence: swamp.sequence,
+        swampRoll: swamp.payload.roll,
+        fullLaterTurns: fullTurns,
+        laterD6Draws: rolls.laterDice.length,
+        laterAttacks: attacks.length,
+        laterHits: attacks.filter((event) => event.payload.hit).length,
+        laterPsrs: laterPsrs.map((event) => ({
+          sequence: event.sequence,
+          turn: event.turn,
+          payload: event.payload,
+        })),
+        commandStateCount: commandStates.length,
+        terminalSequence: session.events.at(-1).sequence,
+        completionReason: 'concede after two full later combat turns',
+        traceBoundary:
+          'Live injected d6 values include every draw, even historical adapter-discarded dice. Stack frames identify callers. States are live snapshots after public commands, not an asserted live snapshot at every internal event. Full event rolls and the terminal session are retained separately.',
+      },
+      null,
+      2,
+    )}\n`,
+    { flag: 'wx' },
+  );
+}
+
+describe('unfixed swamp continuation with later combat rolls', () => {
+  const originalClone = Object.getOwnPropertyDescriptor(
+    globalThis,
+    'structuredClone',
+  );
+  beforeAll(async () => {
+    Object.defineProperty(globalThis, 'structuredClone', {
+      configurable: true,
+      writable: true,
+      value: realStructuredClone,
+    });
+    matchLogStorage.close();
+    Object.defineProperty(globalThis, 'indexedDB', {
+      configurable: true,
+      writable: true,
+      value: new IDBFactory(),
+    });
+    if (process.env.CAPTURE_UNFIXED_SWAMP_CONTINUATION === '1') await capture();
+  });
+  afterAll(async () => {
+    await matchLogStorage.flushPendingWrites();
+    matchLogStorage.close();
+    if (originalClone)
+      Object.defineProperty(globalThis, 'structuredClone', originalClone);
+    else Reflect.deleteProperty(globalThis, 'structuredClone');
+  });
+  it('preserves all captured source bytes and hashes', () => {
+    const provenance = JSON.parse(read('provenance.json').toString());
+    expect(provenance.mainSha).toBe(MAIN_SHA);
+    expect(Object.keys(provenance.files)).toHaveLength(6);
+    for (const [filename, expected] of Object.entries(provenance.files)) {
+      const bytes = readFileSync(path.join(__dirname, filename));
+      expect(bytes.length).toBe(expected.bytes);
+      expect(sha256Bytes(bytes)).toBe(expected.sha256);
+    }
+    const { session, records } = objectCapture();
+    expect(records.map((row) => row.event)).toEqual(session.events);
+    expect(read('ndjson').toString()).toBe(
+      `${session.events.map((event) => JSON.stringify(event)).join('\n')}\n`,
+    );
+    expect(read('events.raw-json').toString()).toBe(
+      JSON.stringify(session.events),
+    );
+  });
+  it('retains real swamp failure and at least two full later turns with hits and PSRs', () => {
+    const { session } = objectCapture();
+    const rolls = rollCapture();
+    const swamp = session.events[rolls.swamp.sequence];
+    expect(swamp.payload).toMatchObject({
+      targetNumber: Infinity,
+      passed: false,
+      reasonCode: PSRTrigger.SwampBogDown,
+      roll: rolls.swamp.roll,
+    });
+    const json = JSON.parse(read('events.raw-json').toString());
+    expect(json[swamp.sequence].payload.targetNumber).toBeNull();
+    expect(rolls.fullTurns).toEqual([swamp.turn + 1, swamp.turn + 2]);
+    for (const turn of rolls.fullTurns) {
+      const attacks = session.events.filter(
+        (event) =>
+          event.turn === turn && event.type === GameEventType.AttackResolved,
+      );
+      expect(attacks.length).toBeGreaterThanOrEqual(2);
+      expect(
+        attacks.some((event) => event.payload.hit && event.payload.location),
+      ).toBe(true);
+      expect(
+        rolls.commands.some(
+          (command) => command.turn === turn && command.phase === GamePhase.End,
+        ),
+      ).toBe(true);
+    }
+    expect(
+      rolls.eventRolls.some(
+        (event) =>
+          event.type === GameEventType.PSRResolved &&
+          event.payload.reasonCode === PSRTrigger.SwampUnstuck,
+      ),
+    ).toBe(true);
+    expect(session.events.at(-1).type).toBe(GameEventType.GameEnded);
+    expect(session.currentState.turn).toBe(rolls.fullTurns[1] + 1);
+  });
+  it('retains every live d6 in its original seeded order, including later attack/location rolls', () => {
+    const rolls = rollCapture();
+    const seeded = new SeededD6Roller(rolls.seed);
+    expect(rolls.dice.map((die) => die.value)).toEqual(
+      rolls.dice.map(() => seeded.rollD6()),
+    );
+    expect(rolls.laterDice).toEqual(
+      rolls.dice.slice(rolls.swamp.diceThroughCommand),
+    );
+    expect(rolls.laterDice.length).toBeGreaterThanOrEqual(12);
+    expect(
+      rolls.laterDice.every((die) => die.command > rolls.swamp.command),
+    ).toBe(true);
+    expect(
+      rolls.laterDice.some((die) =>
+        die.callers.some((line) => line.includes('resolveAttack')),
+      ),
+    ).toBe(true);
+    expect(
+      rolls.laterDice.some((die) =>
+        die.callers.some((line) =>
+          /resolveWeaponHit|[Hh]itLocation/.test(line),
+        ),
+      ),
+    ).toBe(true);
+  });
+  it('folds the original recording through every captured live command state to the terminal state', () => {
+    const { session } = objectCapture();
+    const states = deserialize(read('command-states.v8'));
+    for (const boundary of states) {
+      expect(
+        hydrateGameSessionFromEvents(
+          session.id,
+          session.events.slice(0, boundary.eventCount),
+        ).currentState,
+      ).toEqual(boundary.state);
+    }
+    expect(states.at(-1).state).toEqual(session.currentState);
+    expect(states.at(-1).state.status).toBe(GameStatus.Completed);
+  });
+});

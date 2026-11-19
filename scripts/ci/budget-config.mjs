@@ -35,6 +35,27 @@ export const REPORTING_UNITS = Object.freeze({
   criticalPathMs: 'ms',
 });
 
+/**
+ * Count budgets are report-only (PARITY-PLAN §193.2): the job, cache-census
+ * and dependency counts, their targets and the job-time reporting caps. Over
+ * one is reported, never red, and raising one needs no approval. Timeouts,
+ * profiles and any unknown ID are not counts.
+ */
+export function isReportOnlyBudgetId(id) {
+  const parts = String(id).split('.');
+  const [group, name, field] = parts;
+  if (parts.length === 2 && (group === 'limits' || group === 'targets'))
+    return Object.hasOwn(LIMIT_UNITS, name);
+  if (parts.length === 2 && group === 'reporting')
+    return Object.hasOwn(REPORTING_UNITS, name);
+  return (
+    parts.length === 3 &&
+    group === 'dependencies' &&
+    ['root', 'desktop'].includes(name) &&
+    ['lockEntries', 'directDependencies'].includes(field)
+  );
+}
+
 export function exactKeys(value, keys, context) {
   if (
     !value ||

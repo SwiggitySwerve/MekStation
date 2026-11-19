@@ -8,7 +8,10 @@ import type {
   AttackVisualCategory,
   HeatVisualThreshold,
 } from './GameSessionCoreTypes';
-import type { IINarcPodState } from './GameSessionStateTypes';
+import type {
+  IINarcPodState,
+  IPSRTriggerTarget,
+} from './GameSessionStateTypes';
 
 import { Facing, FiringArc, IHexCoordinate } from './HexGridInterfaces';
 import { PSRTrigger } from './PSRTriggerCodes';
@@ -484,7 +487,7 @@ export interface ICriticalHitResolvedPayload {
   readonly rolls?: readonly number[];
 }
 
-export interface IPSRTriggeredPayload {
+export type IPSRTriggeredPayload = {
   readonly unitId: string;
   readonly reason: string;
   readonly additionalModifier: number;
@@ -500,12 +503,6 @@ export interface IPSRTriggeredPayload {
    */
   readonly basePilotingSkill?: number;
   /**
-   * Fixed system target number for PSRs that do not derive from the
-   * pilot's piloting skill. Optional for back-compat with older event
-   * streams and omitted for normal piloting-skill rolls.
-   */
-  readonly fixedTargetNumber?: number;
-  /**
    * Per `structure-psr-reason-as-discriminated-code` (PR E): canonical
    * `PSRTrigger` enum value paired with the human-readable `reason`
    * string. Display consumers (`EventLogDisplay`, `format-event-log.py`)
@@ -515,11 +512,20 @@ export interface IPSRTriggeredPayload {
    * streams written before this field landed.
    */
   readonly reasonCode?: PSRTrigger;
-}
+} & IPSRTriggerTarget;
 
-export interface IPSRResolvedPayload {
+export type IPSRResolutionTarget =
+  | { readonly targetNumber: number; readonly automaticFailure?: never }
+  | {
+      readonly automaticFailure: true;
+      readonly targetNumber?: never;
+      readonly passed: false;
+    };
+
+export type IPSRResolvedPayload = IPSRResolutionTarget & IPSRResolvedDetails;
+
+interface IPSRResolvedDetails {
   readonly unitId: string;
-  readonly targetNumber: number;
   readonly roll: number;
   readonly modifiers: number;
   readonly passed: boolean;

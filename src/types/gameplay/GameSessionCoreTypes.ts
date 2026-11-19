@@ -477,6 +477,12 @@ export interface IGameEventBase {
    * `simulation-reports/games/<ts>/` flat layout.
    */
   readonly replaySource?: ReplaySource;
+  /** The stored image failed its reader schema; the recording is unverifiable. */
+  readonly replayIntegrity?: {
+    readonly status: 'unverifiable';
+    readonly reason: 'unreadable-stored-event';
+    readonly formatId: string;
+  };
 }
 
 export type MovementAnimationMode =

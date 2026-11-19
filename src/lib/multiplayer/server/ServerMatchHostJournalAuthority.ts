@@ -1,16 +1,20 @@
-import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
 /**
  * DECIDE -> APPEND-AT-REVISION -> APPLY-COMMITTED-BATCH -> VERIFY -> PUBLISH.
  * Apply consumes the committed envelope; mismatch rebuilds from the journal.
  * Failures fold into one host-side recovery result (task 2.4).
  */
 
+import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
+
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { nowIso } from '@/types/multiplayer/Protocol';
+import {
+  prepareEventForSerialization,
+  UnreadableStoredEventError,
+} from '@/utils/gameplay/gameEvents/serialization';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
-import type { IMatchStore } from './IMatchStore';
 import type { IMatchCommandReceipt } from './matchCommandBatch';
 import type {
   IJournalAuthorityPathResult,
@@ -23,8 +27,14 @@ import type {
 
 import { hasPublicationOutbox } from './IMatchStore';
 import { intentRefusalMessage as errorMessage } from './intentRefusal';
+import {
+  firstNonContiguousSequence,
+  matchesCommandFingerprint,
+} from './matchCommandBatch';
 import { markMatchCompleted } from './matchCompletion';
 import * as matchJournalAuthority from './matchJournalAuthority';
+import { preflightMatchPublications } from './MatchPublicationReadability';
+import { foldMatchSession } from './MatchSessionProjector';
 import {
   digestCommandPostState,
   type ICommandDecision,
@@ -63,7 +73,6 @@ async function resumeCommittedCommand(
   journal: IJournalAuthorityHostHandle,
   envelope: Pick<IIntent, 'playerId' | 'intentId'>,
   prior: IMatchCommandReceipt,
-  appendCommandBatch: NonNullable<IMatchStore['appendCommandBatch']>,
 ): Promise<IJournalAuthorityPathResult> {
   const stored = await ctx.store.getEvents(ctx.matchId);
   const events = stored.filter(
@@ -71,49 +80,74 @@ async function resumeCommittedCommand(
       event.sequence >= prior.firstRevision &&
       event.sequence <= prior.lastRevision,
   );
-  let result;
+  const batch = {
+    commandId: prior.commandId,
+    actorId: envelope.playerId,
+    expectedRevision: prior.firstRevision,
+    events,
+  };
+  if (
+    prior.actorId !== envelope.playerId ||
+    events.length !== prior.eventCount ||
+    firstNonContiguousSequence(batch) !== null ||
+    !matchesCommandFingerprint(prior.fingerprint, batch)
+  )
+    return persistenceFailure(ctx, journal, envelope, 'integrity-conflict');
+  // A receipt proves these facts committed. Resume their publication; never
+  // offer legacy rows to the current write schema as a second append.
+  let resumed: readonly IServerMessage[];
   try {
-    result = await appendCommandBatch(ctx.matchId, {
-      commandId: prior.commandId,
-      actorId: envelope.playerId,
-      expectedRevision: prior.firstRevision,
-      events,
-      expectedPostStateDigest: prior.expectedPostStateDigest,
-      journalAuthorityCommand: true,
-    });
-  } catch (e) {
-    const reason = e instanceof Error ? e.message : 'Store append failed';
-    return persistenceFailure(ctx, journal, envelope, reason);
-  }
-  if (result.kind === 'duplicate-command') {
-    await markMatchCompleted(ctx.store, ctx.matchId, events);
-    const resumed = hasPublicationOutbox(ctx.store)
+    for (const event of events)
+      prepareEventForSerialization(event, 'match-broadcast');
+    await preflightMatchPublications(ctx.matchId, ctx.store, stored, events);
+    if (
+      prior.expectedPostStateDigest != null &&
+      !matchJournalAuthority.verifyAppliedDigest(
+        digestCommandPostState(
+          foldMatchSession(
+            ctx.matchId,
+            stored.filter((event) => event.sequence <= prior.lastRevision),
+          ),
+        ),
+        prior.expectedPostStateDigest,
+      )
+    )
+      return persistenceFailure(ctx, journal, envelope, 'integrity-conflict');
+    // A previous append may have committed its receipt before journal mirroring
+    // failed. Let the store's recovery owner heal that gap without re-appending.
+    try {
+      const recovered = await ctx.store.recoverJournalBatches?.(ctx.matchId);
+      if (recovered?.kind === 'blocked')
+        return persistenceFailure(ctx, journal, envelope, recovered.reason);
+    } catch (error) {
+      return persistenceFailure(
+        ctx,
+        journal,
+        envelope,
+        error instanceof Error ? error.message : 'journal recovery failed',
+      );
+    }
+    resumed = hasPublicationOutbox(ctx.store)
       ? await resumePendingPublications({
           matchId: ctx.matchId,
           publications: ctx.store,
-          // Undelivered-only so a drained frame never assigns a fresh
-          // delivery number to a viewer whose cursor already holds it.
           broadcastEvent: ctx.broadcastUndeliveredEvent ?? ctx.broadcastEvent,
         })
       : [];
-    await journal.publishDurableCombatOutcome();
-    return finish(journal, resumed, null);
-  }
-  if (result.kind === 'revision-conflict') {
-    const err = errorMessage(
+  } catch (error) {
+    if (!(error instanceof UnreadableStoredEventError)) throw error;
+    const refusal = errorMessage(
       ctx.matchId,
-      'STORE_FAILURE',
-      'sequence-conflict',
+      'INTERNAL_ERROR',
+      error.message,
       envelope.intentId,
     );
-    ctx.sendRefusal(err);
-    return finish(journal, [err], {
-      kind: 'revision-conflict',
-      expectedRevision: result.expectedRevision,
-      actualRevision: result.actualRevision,
-    });
+    ctx.sendRefusal(refusal);
+    return finish(journal, [refusal], null);
   }
-  return persistenceFailure(ctx, journal, envelope, result.kind);
+  await markMatchCompleted(ctx.store, ctx.matchId, events);
+  await journal.publishDurableCombatOutcome();
+  return finish(journal, resumed, null);
 }
 
 export async function commitJournalAuthorityCommand(
@@ -141,17 +175,11 @@ export async function commitJournalAuthorityCommand(
       envelope.intentId,
     );
     if (prior != null) {
-      return resumeCommittedCommand(
-        ctx,
-        journal,
-        envelope,
-        prior,
-        appendCommandBatch,
-      );
+      return resumeCommittedCommand(ctx, journal, envelope, prior);
     }
   }
 
-  ctx.installFreshCapture();
+  const rollbackDice = ctx.installFreshCapture();
   let decided;
   try {
     decided = decide({
@@ -159,6 +187,7 @@ export async function commitJournalAuthorityCommand(
       d6Roller: journal.d6,
     });
   } catch (e) {
+    if (typeof rollbackDice === 'function') rollbackDice();
     const err = errorMessage(
       ctx.matchId,
       'INVALID_INTENT',
@@ -173,7 +202,30 @@ export async function commitJournalAuthorityCommand(
   if (envelope.intentId != null && events.length > 0) {
     events = stampIntentIdOnNewEvents(envelope.intentId, events);
   }
+  try {
+    events = events.map((event) =>
+      prepareEventForSerialization(event, 'match-broadcast'),
+    );
+    await preflightMatchPublications(
+      ctx.matchId,
+      ctx.store,
+      [...ctx.session.getSession().events, ...events],
+      events,
+    );
+  } catch (error) {
+    if (!(error instanceof UnreadableStoredEventError)) throw error;
+    if (typeof rollbackDice === 'function') rollbackDice();
+    const refusal = errorMessage(
+      ctx.matchId,
+      'INTERNAL_ERROR',
+      error.message,
+      envelope.intentId,
+    );
+    ctx.sendRefusal(refusal);
+    return finish(journal, [refusal], null);
+  }
   if (events.length === 0) {
+    if (typeof rollbackDice === 'function') rollbackDice();
     return finish(journal, [], null);
   }
 
@@ -233,13 +285,7 @@ export async function commitJournalAuthorityCommand(
     });
   }
   if (result.kind === 'duplicate-command') {
-    return resumeCommittedCommand(
-      ctx,
-      journal,
-      envelope,
-      result.receipt,
-      appendCommandBatch,
-    );
+    return resumeCommittedCommand(ctx, journal, envelope, result.receipt);
   }
   if (result.kind !== 'committed') {
     return persistenceFailure(ctx, journal, envelope, result.kind);

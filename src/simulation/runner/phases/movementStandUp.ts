@@ -10,6 +10,7 @@ import {
   createStandingUpPSR,
   resolvePSR,
 } from '@/utils/gameplay/pilotingSkillRolls';
+import { projectPsrResolutionTarget } from '@/utils/gameplay/pilotingSkillRolls/eventTargets';
 
 import {
   DEFAULT_COMPONENT_DAMAGE,
@@ -65,19 +66,18 @@ export function resolveRunnerStandUpAttempt(options: {
     0,
   );
   events.push(
-    createPSRResolvedEvent(
+    createPSRResolvedEvent({
       gameId,
-      events.length,
-      currentState.turn,
+      sequence: events.length,
+      turn: currentState.turn,
       phase,
       unitId,
-      result.targetNumber,
-      result.roll,
+      ...projectPsrResolutionTarget(result),
+      roll: result.roll,
       modifiers,
-      result.passed,
-      psr.reason,
-      psr.reasonCode,
-    ),
+      reason: psr.reason,
+      reasonCode: psr.reasonCode,
+    }),
   );
 
   if (result.passed) {

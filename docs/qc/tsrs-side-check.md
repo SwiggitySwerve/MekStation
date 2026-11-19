@@ -1,8 +1,9 @@
 # Advisory tsrs typecheck side-check
 
-`tsrs Side-Check (advisory)` is an extra, non-required Ubuntu job in
-`pr-checks.yml`. It is outside the `Lint and Test` aggregator's `needs`, uses
-`continue-on-error: true`, and must stay outside branch protection. The existing
+The tsrs side-check is two extra, advisory steps at the end of the Ubuntu
+`Simulation Checks and Linux Pack` job in `pr-checks.yml`, so it runs only on code
+changes. Each step uses `continue-on-error: true`, so it never fails that job or
+`Lint and Test`, and it must stay outside branch protection. The existing
 `npm run typecheck` TS7 gate remains authoritative. The historical 32-check-name
 comparison in
 `openspec/planning/2026-09-12-roadmap-completion/evidence/p2cg1s-local-20261018.json`
