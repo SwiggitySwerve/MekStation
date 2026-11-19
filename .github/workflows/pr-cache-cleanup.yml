@@ -1,0 +1,46 @@
+name: PR Cache Cleanup
+
+# A pull request's runs save caches under refs/pull/<n>/merge (the Jest
+# result caches, Windows Electron downloads and native modules). Only that PR
+# can read them, so once it closes they only push live entries toward the
+# repository's 10 GB cache cap. This deletes exactly that ref's entries;
+# scripts/ci/pr-cache-cleanup.mjs never deletes another ref's cache.
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions: {}
+
+# One cleanup per PR at a time (a reopen and second close queues behind it).
+concurrency:
+  group: pr-cache-cleanup-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    name: Delete the closed PR's caches
+    # A fork PR's token cannot get actions: write, so the job would only fail.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      # The script from main: a closed PR's merge ref may be gone, and the
+      # token's write scope runs only trusted code.
+      - name: Checkout the cleanup script from main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          sparse-checkout: scripts/ci/pr-cache-cleanup.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Delete this PR's caches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: node scripts/ci/pr-cache-cleanup.mjs --repo "$REPO" --pr "$PR"
