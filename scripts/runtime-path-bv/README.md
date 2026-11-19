@@ -47,7 +47,7 @@ a worse count and passes a better one by reading the direction from the file, no
 ## Gate inputs: facts and the baseline
 
 Beside the rows, the run writes `facts.ndjson`: per unit the gated facts (`bvExact`, `bvDistance`, `validity`, `weightOwners`, `previewEqualsStatus`, `previewStatusDistance`),
-derived from the row and the Java reference by `scripts/lib/runtime-parity/facts.mjs`. The record-sheet facts read `load.preview`, the BV
+derived from the row and the Java reference by the battlemech deriver (`scripts/lib/runtime-parity/facts-battlemechs.mjs`, read through the `facts.mjs` registry). The record-sheet facts read `load.preview`, the BV
 the real `PreviewTab` hands to the sheet renderer (`header.battleValue` of the `extractData` result), captured after the status read.
 `node scripts/lib/runtime-parity/gate.mjs --measure load --run-dir <out>` compares them with the committed baseline
 `config/parity-runtime/baseline-load.json`. `--write-baseline --reason "<why>" [--pr <n>]` writes that file from the run (SHA,

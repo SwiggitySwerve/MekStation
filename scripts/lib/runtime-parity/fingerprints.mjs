@@ -35,7 +35,10 @@ export const familyDeriverFile = (family) =>
   `facts-${assertFamilyId(family)}.mjs`;
 
 /** Git blob of facts-core.mjs: the part every family's facts depend on. A change rebaselines every family. */
-export const coreDeriverSha = () => siblingBlob('facts-core.mjs');
+/** The shared core's deriver file, beside this module. */
+export const CORE_DERIVER_FILE = 'facts-core.mjs';
+
+export const coreDeriverSha = () => siblingBlob(CORE_DERIVER_FILE);
 
 /**
  * Git blob of facts-<family>.mjs: that family's tables and derivers. A change rebaselines that family only. Refuses a

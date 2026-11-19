@@ -17,7 +17,8 @@
 //     tonight's run (removed or renamed) FAILS CLOSED (exit 2, POPULATION_UNIT_REMOVED), naming the ids.
 //   - FAIL CLOSED (exit 2): baseline missing or malformed, a sidecar that does not match it, any gated fact missing
 //     from a baseline unit, a baseline SHA that is not an ancestor of the run, facts derived by a different
-//     facts.mjs than the baseline's, malformed facts, a narrowed or incomplete run, a removed or renamed unit.
+//     deriver than the baseline's (shared core or the family's own), malformed facts, a narrowed or incomplete run, a
+//     removed or renamed unit.
 //   - Last-green tightening is optional: while the committed baseline (both files) is byte-unchanged since that green
 //     run the gate takes the best of each fact; a missing artifact means the committed baseline alone, reported.
 // Exit: 0 pass, 1 measured regression, 2 fail closed.
@@ -507,7 +508,7 @@ export const defaultRules = {
   missingLastGreenFails: false,
   /** Tighten to last green only while the committed baseline is byte-unchanged since that run. */
   requireSameBaselineBlob: true,
-  /** Tonight's facts must come from the same facts.mjs (and facts schema) as the baseline's. */
+  /** Tonight's facts must come from the same derivers (shared core and family) and facts schema as the baseline's. */
   requireSameDeriver: true,
   /** The sidecar is checked against the main file at load (hashes, units, lines, presence). */
   verifySidecar: true,
@@ -571,7 +572,13 @@ export function evaluate(
     unbaselined: [],
     removed: [],
     population: { baseline: null, tonight: facts.length, overlap: 0 },
-    provenance: { deriverChanged: false, referenceChanged: false },
+    // deriverChangedParts: which fingerprint changed ('core', 'family', or 'legacy' for a pre-split baseline), so a
+    // summary can say who rebaselines without reading the fail-closed wording.
+    provenance: {
+      deriverChanged: false,
+      referenceChanged: false,
+      deriverChangedParts: [],
+    },
     // Measured per unit and shown here, never gated: no baseline entry, no comparison (see REPORTED_DEFS).
     reported: reportedSummary(measure, facts, family),
     lastGreen: { status: 'not-used', detail: '' },
@@ -613,8 +620,10 @@ export function evaluate(
         family,
       });
     } catch (error) {
-      if (error.reason === 'FACTS_DERIVER_CHANGED')
+      if (error.reason === 'FACTS_DERIVER_CHANGED') {
         report.provenance.deriverChanged = true;
+        report.provenance.deriverChangedParts.push('legacy');
+      }
       if (rules.requireBaseline)
         fail(
           error.reason ?? 'BASELINE_MALFORMED',
@@ -662,6 +671,7 @@ export function evaluate(
         provenance.coreDeriverSha !== baseline.coreDeriverSha
       ) {
         report.provenance.deriverChanged = true;
+        report.provenance.deriverChangedParts.push('core');
         fail(
           'FACTS_DERIVER_CHANGED',
           `the shared facts core changed (facts-core.mjs ${baseline.coreDeriverSha} -> ${provenance.coreDeriverSha}): every family rebaselines`,
@@ -672,6 +682,7 @@ export function evaluate(
         provenance.familyDeriverSha !== baseline.familyDeriverSha
       ) {
         report.provenance.deriverChanged = true;
+        report.provenance.deriverChangedParts.push('family');
         fail(
           'FACTS_DERIVER_CHANGED',
           `the ${family} deriver changed (facts-${family}.mjs ${baseline.familyDeriverSha} -> ${provenance.familyDeriverSha}): rebaseline ${family} only`,

@@ -59,6 +59,11 @@ A family adds only its own parts. No gate, baseline-format or census change is n
        Editing it fails **every family's** gate closed until every family gets a header-only rebaseline, so batch core
        changes into one PR to C2 that lists every family's rebaseline.
      - A header-only rebaseline changes 0 unit lines; only `sha`, the changed fingerprint and a new note change.
+     - **Outside the fingerprints:** two inputs can change facts without moving either fingerprint.
+       - `canonicalJson` from `rows.mjs`, which the battlemech deriver uses for `loadedMountLosses` members.
+       - The installed `zod` version, which the facts-row schema in `facts-core.mjs` parses and serializes with.
+       - A change to either also changes `rows.ndjson` or the facts the gate reads, so it shows up as row or fact
+         differences (regressions or gains) in the gate. It is not silent, but it is not named as a deriver change.
 3. **Capture and port entry (`run.mjs` of each port).**
    - Add a `families.<family>` entry: `{capture, toRow, summarize, facts, differencesFile}`.
    - `capture` is a `jestCapture({config, contextEnv})` over the family's own Jest capture file and config. Use a file

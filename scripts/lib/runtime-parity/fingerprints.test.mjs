@@ -80,6 +80,9 @@ test('each fingerprint is git hash-object of its file in the checkout', () => {
 test('familyDeriverSha refuses a name that is not a family id, and a family with no deriver file', () => {
   assert.throws(() => familyDeriverSha('../facts-core'), /not a family name/);
   assert.throws(() => familyDeriverSha('Vehicles'), /not a family name/);
+  // The shared core is not a family: a family named core would fingerprint facts-core.mjs.
+  assert.throws(() => familyDeriverSha('core'), /not a family name/);
+  assert.throws(() => familyDeriverSha('provenance'), /not a family name/);
   assert.throws(
     () => familyDeriverSha('aerospace'),
     /family aerospace has no deriver \(facts-aerospace\.mjs\)/,

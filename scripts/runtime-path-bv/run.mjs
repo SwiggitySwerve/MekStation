@@ -10,7 +10,8 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { jestCapture, runCensus } from '../lib/runtime-parity/census.mjs';
-import { loadFacts } from '../lib/runtime-parity/facts.mjs';
+// The deriver comes from its own (fingerprinted) file, not through the unhashed registry.
+import { loadFacts } from '../lib/runtime-parity/facts-battlemechs.mjs';
 import { capturedToRow, summarize } from './report.mjs';
 
 export {

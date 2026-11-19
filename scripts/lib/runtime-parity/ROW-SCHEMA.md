@@ -129,7 +129,7 @@ and no `documentLosses` path is an editor-owned key.
 
 ## Facts (`facts.ndjson`), derived, not part of the row
 
-The nightly gate's per-unit facts are derived from a row and the Java reference (`facts.mjs`) and written beside the rows; no field is
+The nightly gate's per-unit facts are derived from a row and the Java reference (the family's `facts-<family>.mjs`, read through the `facts.mjs` registry) and written beside the rows; no field is
 added to a row. See `BASELINE-SCHEMA.md`.
 
 ## Run receipt (`receipt.json`)

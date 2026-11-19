@@ -6,12 +6,14 @@ import path from 'node:path';
 import { test } from 'node:test';
 
 import {
-  factsDeriverBlob,
+  CORE_DERIVER_FILE,
+  coreDeriverSha,
+  familyDeriverFile,
+  familyDeriverSha,
   gitBlobSha,
-} from '../lib/runtime-parity/facts-provenance.mjs';
+} from '../lib/runtime-parity/fingerprints.mjs';
 import {
   CENSUS_WORKFLOW,
-  FACTS_DERIVER_FILE,
   MAX_IN_FLIGHT,
   Refusal,
   censusDispatch,
@@ -343,37 +345,99 @@ test('the wait survives API blips, gives up after five in a row, and stops at th
   );
 });
 
-test("deriver pre-check: the gate's fingerprint owner against each enabled family's baseline headers", (t) => {
+test("deriver pre-check: the checkout's core and family fingerprints against each enabled family's baseline headers", (t) => {
   const registry = readRegistry();
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'census-deriver-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
-  const write = (load, reopen) => {
-    for (const [measure, blob] of [
+  const core = coreDeriverSha();
+  const mech = familyDeriverSha('battlemechs');
+  const write = (family, load, reopen, reg = registry) => {
+    for (const [measure, header] of [
       ['load', load],
       ['reopen', reopen],
     ]) {
       const file = path.join(
         root,
-        registry.families.battlemechs.baselines[measure].main,
+        reg.families[family].baselines[measure].main,
       );
       fs.mkdirSync(path.dirname(file), { recursive: true });
-      fs.writeFileSync(
-        file,
-        JSON.stringify(blob === undefined ? {} : { factsDeriverBlob: blob }),
-      );
+      fs.writeFileSync(file, JSON.stringify(header));
     }
   };
-  // The default fingerprint is the owner's (facts-provenance.mjs), not a copy.
-  write(factsDeriverBlob(), factsDeriverBlob());
+  const split = (c = core, f = mech) => ({
+    coreDeriverSha: c,
+    familyDeriverSha: f,
+  });
+  const fingerprints = `This checkout's fingerprints are core ${core}, battlemechs ${mech}`;
+  // Match: the defaults are the owner's (fingerprints.mjs), the values the census writes, not a copy.
+  write('battlemechs', split(), split());
   assert.equal(deriverPrecheck({ registry, root }), null);
-  write('a'.repeat(40), factsDeriverBlob());
+  // A core mismatch: every enabled family must be rebaselined.
+  write('battlemechs', split('a'.repeat(40)), split());
   assert.equal(
     deriverPrecheck({ registry, root }),
-    `deriver fingerprint changed (shared core): every enabled family (battlemechs) must be rebaselined before its gate can pass. This checkout's facts.mjs is ${factsDeriverBlob()}; the baselines were derived with: battlemechs load ${'a'.repeat(40)}.`,
+    `deriver fingerprint changed (shared core): every enabled family (battlemechs) must be rebaselined before its gate can pass. ${fingerprints}; the baselines were derived with: battlemechs load core ${'a'.repeat(40)}.`,
   );
-  // A header without the field (post-split) claims nothing here; it is not an error.
-  write(undefined, undefined);
-  assert.equal(deriverPrecheck({ registry, root }), null);
+  // A family-only mismatch names that family only.
+  write('battlemechs', split(), split(core, 'b'.repeat(40)));
+  assert.equal(
+    deriverPrecheck({ registry, root }),
+    `deriver fingerprint changed (battlemechs deriver): only battlemechs must be rebaselined before its gate can pass. ${fingerprints}; the baselines were derived with: battlemechs reopen battlemechs deriver ${'b'.repeat(40)}.`,
+  );
+  // A pre-split header (neither field) is a legacy note, never an error or a mismatch.
+  write('battlemechs', { factsDeriverBlob: 'c'.repeat(40) }, split());
+  assert.equal(
+    deriverPrecheck({ registry, root }),
+    'legacy note: battlemechs load has a pre-split baseline header (no coreDeriverSha/familyDeriverSha); a header-only rebaseline records them',
+  );
+  // A family with no deriver (no facts-<family>.mjs) is logged and skipped; the other families are still checked.
+  const withAero = {
+    ...registry,
+    families: {
+      ...registry.families,
+      aerospace: {
+        ...registry.families.battlemechs,
+        baselines: {
+          load: {
+            main: 'config/parity-runtime/baseline-aerospace-load.json',
+            sets: null,
+          },
+          reopen: {
+            main: 'config/parity-runtime/baseline-aerospace-reopen.json',
+            sets: null,
+          },
+        },
+      },
+    },
+  };
+  write('aerospace', split(), split(), withAero);
+  write('battlemechs', split(), split(core, 'b'.repeat(40)));
+  const lines = deriverPrecheck({ registry: withAero, root }).split('\n');
+  assert.match(
+    lines[0],
+    /^deriver fingerprint changed \(battlemechs deriver\): only battlemechs/,
+  );
+  assert.equal(
+    lines[1],
+    'aerospace: deriver fingerprint not pre-checked (family aerospace has no deriver (facts-aerospace.mjs)); skipped',
+  );
+  // An unreadable header is the same: logged for that family, never thrown.
+  fs.rmSync(path.join(root, withAero.families.aerospace.baselines.load.main));
+  assert.match(
+    deriverPrecheck({ registry: withAero, root }),
+    /aerospace: deriver fingerprint not pre-checked \(.*\); skipped/,
+  );
+  // A shared core that cannot be fingerprinted skips the whole pre-check, as a message, not a throw.
+  assert.match(
+    deriverPrecheck({
+      registry,
+      root,
+      core: () => {
+        throw new Error('no core');
+      },
+    }),
+    /^deriver fingerprint not pre-checked: the shared core could not be fingerprinted \(no core\)$/,
+  );
 });
 
 test('the pre-check runs only at the ref head with unchanged inputs, and only informs', async (t) => {
@@ -399,9 +463,9 @@ test('the pre-check runs only at the ref head with unchanged inputs, and only in
       'inputs changed locally',
       {
         localHead: () => HEAD,
-        changed: () => ['scripts/lib/runtime-parity/facts.mjs'],
+        changed: () => ['scripts/lib/runtime-parity/facts-core.mjs'],
       },
-      /^deriver fingerprint not pre-checked: scripts\/lib\/runtime-parity\/facts\.mjs changed in this checkout, so it doesn't speak for lane\/branch/m,
+      /^deriver fingerprint not pre-checked: scripts\/lib\/runtime-parity\/facts-core\.mjs changed in this checkout, so it doesn't speak for lane\/branch/m,
       false,
     ],
     [
@@ -448,18 +512,27 @@ test('the pre-check runs only at the ref head with unchanged inputs, and only in
   }
 });
 
-test('the pre-check inputs are the gate owner file and the enabled baselines, read through real git status', async (t) => {
+test('the pre-check inputs are the deriver files and the enabled baselines, read through real git status', async (t) => {
   const registry = readRegistry();
+  // The deriver file names are fingerprints.mjs's own, not a copy.
+  const dir = 'scripts/lib/runtime-parity';
   assert.deepEqual(precheckInputs(registry), [
-    'scripts/lib/runtime-parity/facts.mjs',
+    `${dir}/${CORE_DERIVER_FILE}`,
+    `${dir}/${familyDeriverFile('battlemechs')}`,
     'config/parity-runtime/baseline-load.json',
     'config/parity-runtime/baseline-reopen.json',
   ]);
-  // FACTS_DERIVER_FILE is the file the owner fingerprints.
-  const text = fs
-    .readFileSync(FACTS_DERIVER_FILE, 'utf8')
-    .replace(/\r\n/g, '\n');
-  assert.equal(gitBlobSha(Buffer.from(text, 'utf8')), factsDeriverBlob());
+  assert.equal(CORE_DERIVER_FILE, 'facts-core.mjs');
+  // The listed files are the ones the owner fingerprints.
+  const blobOf = (file) =>
+    gitBlobSha(
+      Buffer.from(fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n'), 'utf8'),
+    );
+  assert.equal(blobOf(`${dir}/${CORE_DERIVER_FILE}`), coreDeriverSha());
+  assert.equal(
+    blobOf(`${dir}/${familyDeriverFile('battlemechs')}`),
+    familyDeriverSha('battlemechs'),
+  );
   // A real repository: a clean checkout is pre-checked; a modified input is skipped by name.
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'census-precheck-git-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));

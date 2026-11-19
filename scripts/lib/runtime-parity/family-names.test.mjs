@@ -11,6 +11,7 @@ import {
   BASELINE_DIR,
   DEFAULT_FAMILY,
   FAMILY_ID_PATTERN,
+  RESERVED_FAMILY_IDS,
   assertFamilyId,
   baselinePath,
   baselineSetsPath,
@@ -39,6 +40,16 @@ test('a family id is lowercase letters, digits and dashes, starting with a lette
   ])
     assert.equal(isFamilyId(bad), false, String(bad));
   assert.throws(() => assertFamilyId('../x'), /not a family name/);
+});
+
+test('core and provenance are never family ids: their facts-<name>.mjs files are not family derivers', () => {
+  assert.deepEqual([...RESERVED_FAMILY_IDS], ['core', 'provenance']);
+  for (const reserved of RESERVED_FAMILY_IDS) {
+    assert.equal(FAMILY_ID_PATTERN.test(reserved), true);
+    assert.equal(isFamilyId(reserved), false, reserved);
+    assert.throws(() => assertFamilyId(reserved), /not a family name/);
+    assert.throws(() => baselinePath('load', reserved), /not a family name/);
+  }
 });
 
 test('baseline names: the default family keeps its old names, every other family carries its id', () => {

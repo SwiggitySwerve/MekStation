@@ -9,8 +9,17 @@ export const FAMILY_ID_PATTERN = /^[a-z][a-z0-9-]*$/;
 /** The family that keeps the names it had before families (baselines, artifacts, last-green chain, output dir). */
 export const DEFAULT_FAMILY = 'battlemechs';
 
+/**
+ * Ids that are never a family. A family's deriver is facts-<family>.mjs (fingerprints.mjs), and these names are other
+ * library files: facts-core.mjs (the shared core, its own fingerprint) and facts-provenance.mjs. A family called `core`
+ * would have its family fingerprint taken from the shared core.
+ */
+export const RESERVED_FAMILY_IDS = Object.freeze(['core', 'provenance']);
+
 export const isFamilyId = (family) =>
-  typeof family === 'string' && FAMILY_ID_PATTERN.test(family);
+  typeof family === 'string' &&
+  FAMILY_ID_PATTERN.test(family) &&
+  !RESERVED_FAMILY_IDS.includes(family);
 
 /** Throws on anything that is not a family id, so a name never becomes a path it should not. */
 export function assertFamilyId(family) {

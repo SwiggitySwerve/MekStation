@@ -1549,3 +1549,79 @@ test('main gates one family: the run, the facts and their provenance must all be
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+// --- review nit 6 ------------------------------------------------------------------------------------------
+
+test('a baseline missing only familyDeriverSha is malformed, not legacy: it has no single-file fingerprint either', () => {
+  const good = JSON.parse(baselineFiles(two(loadFacts(), loadFacts())).main);
+  const { familyDeriverSha: _family, ...noFamilySha } = good;
+  const r = evaluateWith({
+    files: { main: null, sets: null },
+    tonight: two(loadFacts(), loadFacts()),
+    mainOverride: JSON.stringify(noFamilySha),
+  });
+  assert.equal(r.exitCode, 2);
+  assert.equal(r.failClosed[0].reason, 'BASELINE_MALFORMED');
+  assert.match(r.failClosed[0].message, /familyDeriverSha/);
+});
+
+test('a shared-core change fails every family closed: the vehicle gate too, not only battlemechs', () => {
+  const files = vehicleBaselineFiles(vehicleUnits());
+  const r = evaluate({
+    measure: 'reopen',
+    family: 'vehicles',
+    facts: entries(vehicleUnits(), 'reopen'),
+    provenance: { ...PROV, coreDeriverSha: '9'.repeat(40) },
+    baselineText: files.main,
+    setsText: files.sets,
+    lastGreen: null,
+    run: {
+      sha: RUN_SHA,
+      scope: { families: ['vehicles'], populationCount: 2, unitIds: null },
+    },
+    isAncestor: () => true,
+  });
+  assert.equal(r.exitCode, 2);
+  assert.equal(r.failClosed[0].reason, 'FACTS_DERIVER_CHANGED');
+  assert.match(r.failClosed[0].message, /every family rebaselines/);
+  // A vehicle-only deriver change fails the vehicle gate and names vehicles alone.
+  const familyOnly = evaluate({
+    measure: 'reopen',
+    family: 'vehicles',
+    facts: entries(vehicleUnits(), 'reopen'),
+    provenance: { ...PROV, familyDeriverSha: '9'.repeat(40) },
+    baselineText: files.main,
+    setsText: files.sets,
+    lastGreen: null,
+    run: {
+      sha: RUN_SHA,
+      scope: { families: ['vehicles'], populationCount: 2, unitIds: null },
+    },
+    isAncestor: () => true,
+  });
+  assert.equal(familyOnly.exitCode, 2);
+  assert.match(familyOnly.failClosed[0].message, /rebaseline vehicles only/);
+});
+
+test('the gate report names which fingerprint changed, so the summary can say who rebaselines', () => {
+  const base = two(loadFacts(), loadFacts());
+  const parts = (over) =>
+    evaluateWith({ base, tonight: base, provenance: { ...PROV, ...over } })
+      .provenance.deriverChangedParts;
+  assert.deepEqual(parts({}), []);
+  assert.deepEqual(parts({ coreDeriverSha: '9'.repeat(40) }), ['core']);
+  assert.deepEqual(parts({ familyDeriverSha: '9'.repeat(40) }), ['family']);
+  assert.deepEqual(
+    parts({ coreDeriverSha: '9'.repeat(40), familyDeriverSha: '9'.repeat(40) }),
+    ['core', 'family'],
+  );
+  // A pre-split baseline is its own part: the shared single-file fingerprint.
+  const good = JSON.parse(baselineFiles(base).main);
+  const { coreDeriverSha: _core, familyDeriverSha: _family, ...rest } = good;
+  const legacy = evaluateWith({
+    files: { main: null, sets: null },
+    tonight: base,
+    mainOverride: JSON.stringify({ ...rest, factsDeriverBlob: '1'.repeat(40) }),
+  });
+  assert.deepEqual(legacy.provenance.deriverChangedParts, ['legacy']);
+});

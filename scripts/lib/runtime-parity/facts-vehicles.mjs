@@ -1,10 +1,10 @@
 // The vehicle family's facts: its fact tables and its two pure derivers. Its git blob is the vehicle `familyDeriverSha`
-// (facts-provenance.mjs): changing this file rebaselines vehicles only. Shared helpers come from facts-core.mjs.
+// (fingerprints.mjs): changing this file rebaselines vehicles only. Shared helpers come from facts-core.mjs.
 import { distance, identity, sortedSet, unknownOf } from './facts-core.mjs';
 
 /**
- * The vehicle family's gated facts. FACT_DEFS above is the battlemech table, unchanged; each family has its own table and
- * its own baseline files, and this one file stays the single deriver for all of them (one fingerprint, facts-provenance.mjs).
+ * The vehicle family's gated facts. Each family has its own table, its own deriver file and its own baseline files;
+ * this file is the vehicles' (fingerprint: the vehicle familyDeriverSha). The registry, facts.mjs, lists every family.
  */
 export const VEHICLE_FACT_DEFS = {
   load: {

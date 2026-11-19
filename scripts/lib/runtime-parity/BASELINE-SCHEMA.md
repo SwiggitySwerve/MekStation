@@ -235,7 +235,7 @@ facts } }`. The next night tightens to the best of each fact **only while** `bas
 
 `{ schemaVersion, measure, runSha, exitCode, failClosed: [{reason, message}], regressions: [{unit, fact, source:
 "baseline"|"last-green", base, tonight, why, added?}], gains, unprotectedGains, unbaselined: string[], removed: string[],
-population: {baseline, tonight, overlap}, provenance: {deriverChanged, referenceChanged}, lastGreen: {status, detail},
+population: {baseline, tonight, overlap}, provenance: {deriverChanged, referenceChanged, deriverChangedParts}, lastGreen: {status, detail},
 headline }`. `gate-units.ndjson` has one line per regression, removed unit, gain and unbaselined unit. Fail-closed reasons:
 `BASELINE_MISSING`, `BASELINE_MALFORMED`, `BASELINE_SIDECAR_MISMATCH`, `BASELINE_SHA_NOT_ANCESTOR`,
 `BASELINE_SHA_UNCHECKABLE`, `POPULATION_UNIT_REMOVED`, `FACTS_DERIVER_CHANGED`, `FACTS_SCHEMA_CHANGED`,
