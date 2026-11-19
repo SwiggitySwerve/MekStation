@@ -805,8 +805,10 @@ describe('fog of war on the HTTP match-history chain', () => {
  * B14 legacy-filter availability seam: only the registered suites may mock
  * the capability module, each with the canonical comment and overrides.
  * B14-0A owns the first four; B14-0B adds the rest; B14-0 pins equality.
+ * P9 adds the fog-join equivalence suite (same seam, byte-exact).
  */
-const B14_SEAM_ALLOWLIST: Readonly<Record<string, 'B14-0A' | 'B14-0B'>> = {
+type B14SeamOwner = 'B14-0A' | 'B14-0B' | 'P9';
+const B14_SEAM_ALLOWLIST: Readonly<Record<string, B14SeamOwner>> = {
   'src/lib/multiplayer/server/__tests__/CoopOpponentDriver.test.ts': 'B14-0A',
   'src/lib/multiplayer/server/__tests__/customCombatRecovery.recoveryDelivery.test.ts':
     'B14-0A',
@@ -834,6 +836,9 @@ const B14_SEAM_ALLOWLIST: Readonly<Record<string, 'B14-0A' | 'B14-0B'>> = {
     'B14-0B',
   'src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts':
     'B14-0B',
+  // P9 fog-join equivalence; uses the required seam byte-exact.
+  'src/lib/multiplayer/server/__tests__/fogJoinReplayFold.equivalence.test.ts':
+    'P9',
 };
 
 describe('B14 legacy-filter seam allowlist', () => {
