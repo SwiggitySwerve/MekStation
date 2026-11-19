@@ -5,7 +5,8 @@ import path from 'node:path';
 import { test } from 'node:test';
 
 import {
-  factsDeriverBlob,
+  coreDeriverSha,
+  familyDeriverSha,
   parseFactsMeta,
 } from '../lib/runtime-parity/facts-provenance.mjs';
 import { parseFacts } from '../lib/runtime-parity/facts.mjs';
@@ -779,7 +780,8 @@ test('--write-baseline writes baseline-reopen.json and its .sets.ndjson; the gat
     'CT:3:Foo',
     'CT:5:Foo',
   ]);
-  assert.equal(baseline.factsDeriverBlob, factsDeriverBlob());
+  assert.equal(baseline.coreDeriverSha, coreDeriverSha());
+  assert.equal(baseline.familyDeriverSha, familyDeriverSha('battlemechs'));
   const sidecar = fs
     .readFileSync(setsFile, 'utf8')
     .split('\n')

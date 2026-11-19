@@ -1,487 +1,69 @@
-// Per-unit gated facts, derived from a schema row and the Java reference: the one place that says which
-// facts the nightly gate holds a baseline for and how each is read. Rows are not changed; this is a
-// derived output (`facts.ndjson`) written beside them, so the rows' bytes and every accepted run stay
-// as they are.
-//
-// A fact is one of three kinds, and every one can also be UNKNOWN (null). Unknown is never a pass.
-//   bool      true = pass. Worse: true -> false.
-//   distance  a non-negative distance from the target (|runtime - Java|). Worse: it grows beyond tolerance.
-//   set       a sorted, duplicate-free list of strings (cells, mounts). Worse: it gains members.
-// This file is the single, pure deriver: a row and the unit's Java reference row in, facts out. Its git
-// blob sha is recorded in every baseline (facts-provenance.mjs), so changing how a fact is read fails the
-// gate closed until the baseline is regenerated.
-// An error row has every fact unknown.
-import { z } from 'zod';
+// The facts registry: which families have a fact table, and the one place every caller imports facts from. It holds no
+// fact reading of its own and is not fingerprinted: provenance finds a family's deriver by its file name,
+// facts-<family>.mjs (facts-provenance.mjs), never through this file. So wiring a family here cannot point another
+// family's fingerprint anywhere, and registering a new family rebaselines nobody else.
+//   facts-core.mjs          kinds, value contract, facts-row schema, shared helpers  (coreDeriverSha: every family)
+//   facts-<family>.mjs      that family's tables and derivers                       (familyDeriverSha: that family)
+import * as battlemechs from './facts-battlemechs.mjs';
+import { factsIO } from './facts-core.mjs';
+import * as vehicles from './facts-vehicles.mjs';
+import { DEFAULT_FAMILY } from './family-names.mjs';
 
-import { canonicalJson } from './rows.mjs';
-
-export const FACTS_FILE = 'facts.ndjson';
-// 2: the load measure gained previewEqualsStatus (gated) and a per-unit `reported` block (previewStatusDistance,
-// reported and NOT gated), both about the record sheet's BV.
-export const FACTS_SCHEMA_VERSION = 2;
-
-/**
- * The battlemech family's gated facts per measure: name -> kind. This is the whole list; the baseline and the gate read it
- * through factDefs(measure, family), which also holds the other families' tables (VEHICLE_FACT_DEFS).
- */
-export const FACT_DEFS = {
-  load: {
-    bvExact: 'bool',
-    bvDistance: 'distance',
-    validity: 'bool',
-    weightOwners: 'bool',
-    // The BV the real PreviewTab hands to the record-sheet renderer against the status bar's BV.
-    previewEqualsStatus: 'bool',
-  },
-  reopen: {
-    reopenLoad: 'bool',
-    reopenJava: 'bool',
-    reopenJavaDistance: 'distance',
-    // How far reopen moved BV from load, so a unit that already fails reopen = load and gets worse still shows.
-    reopenLoadDistance: 'distance',
-    noLossConfirmationBefore: 'bool',
-    noticeResidual: 'set',
-    noticeMismatch: 'set',
-    rawIdentityLosses: 'set',
-    loadedMountLosses: 'set',
-    reopenValid: 'bool',
-  },
-};
-
-/**
- * REPORTED facts: measured per unit and written to facts.ndjson and the gate report, but NOT gated: they are not in
- * FACT_DEFS, the baseline holds no entry for them and the gate never compares them. previewStatusDistance
- * (|record-sheet BV - status BV|) is reported only because a correct status-bar fix on one of the units whose sheet
- * differs would raise it and turn the night red, which is not a regression of the sheet.
- */
-export const REPORTED_DEFS = {
-  load: { previewStatusDistance: 'distance' },
-  reopen: {},
-};
-
-/**
- * The vehicle family's gated facts. FACT_DEFS above is the battlemech table, unchanged; each family has its own table and
- * its own baseline files, and this one file stays the single deriver for all of them (one fingerprint, facts-provenance.mjs).
- */
-export const VEHICLE_FACT_DEFS = {
-  load: {
-    bvExact: 'bool',
-    bvDistance: 'distance',
-    validity: 'bool',
-    // Sheet = screen: the BV the vehicle record sheet is handed against the status bar's BV.
-    previewEqualsStatus: 'bool',
-  },
-  reopen: {
-    reopenLoad: 'bool',
-    reopenJava: 'bool',
-    reopenJavaDistance: 'distance',
-    reopenLoadDistance: 'distance',
-    // Unrounded used mass at both ends.
-    reopenMass: 'bool',
-    // Validity, completeness and the reason codes (rule ids only; messages are diagnostics in the row, not gated).
-    reopenVerdict: 'bool',
-    reopenMP: 'bool',
-    reopenCrew: 'bool',
-    reopenValid: 'bool',
-    // Source-document key paths the saved document lost or changed, outside the editor-owned list (vehicle-document.mjs).
-    documentLosses: 'set',
-    // Equipment as a multiset: `-<mount>` only in the source, `+<mount>` only in the saved document.
-    mountLosses: 'set',
-  },
-};
-
-/**
- * The vehicle family's reported (never gated) facts. crewOracle is UNAVAILABLE: no crew oracle is committed to the
- * repository (C3 owns committing it), so it is always null (unknown) and the baseline notes say so.
- */
-export const VEHICLE_REPORTED_DEFS = {
-  load: {
-    previewStatusDistance: 'distance',
-    // |status-bar used mass - Java's TestTank weightExact|.
-    massJavaDistance: 'distance',
-    crewOracle: 'bool',
-  },
-  reopen: {},
-};
+export {
+  FACTS_FILE,
+  FACTS_SCHEMA_VERSION,
+  isFactValue,
+  unitKey,
+} from './facts-core.mjs';
+export {
+  FACT_DEFS,
+  REPORTED_DEFS,
+  decodeCell,
+  encodeCell,
+  loadFacts,
+  reopenFacts,
+} from './facts-battlemechs.mjs';
+export {
+  VEHICLE_FACT_DEFS,
+  VEHICLE_REPORTED_DEFS,
+  vehicleLoadFacts,
+  vehicleReopenFacts,
+} from './facts-vehicles.mjs';
 
 const FAMILY_FACT_DEFS = {
-  battlemechs: FACT_DEFS,
-  vehicles: VEHICLE_FACT_DEFS,
+  battlemechs: battlemechs.FACT_DEFS,
+  vehicles: vehicles.VEHICLE_FACT_DEFS,
 };
 const FAMILY_REPORTED_DEFS = {
-  battlemechs: REPORTED_DEFS,
-  vehicles: VEHICLE_REPORTED_DEFS,
+  battlemechs: battlemechs.REPORTED_DEFS,
+  vehicles: vehicles.VEHICLE_REPORTED_DEFS,
 };
 
-/** The families that have a fact table. */
+/** The families that have a fact table. Each has its own deriver file, facts-<family>.mjs. */
 export const FACT_FAMILIES = Object.keys(FAMILY_FACT_DEFS);
 
 /** A family's gated facts for a measure (name -> kind); undefined for an unknown family or measure. */
-export const factDefs = (measure, family = 'battlemechs') =>
+export const factDefs = (measure, family = DEFAULT_FAMILY) =>
   Object.hasOwn(FAMILY_FACT_DEFS, family)
     ? FAMILY_FACT_DEFS[family][measure]
     : undefined;
 
 /** A family's reported facts for a measure; undefined for an unknown family or measure. */
-export const reportedDefs = (measure, family = 'battlemechs') =>
+export const reportedDefs = (measure, family = DEFAULT_FAMILY) =>
   Object.hasOwn(FAMILY_REPORTED_DEFS, family)
     ? FAMILY_REPORTED_DEFS[family][measure]
     : undefined;
 
-const unknownReported = (measure, family) =>
-  Object.fromEntries(
-    Object.keys(reportedDefs(measure, family)).map((name) => [name, null]),
-  );
-
-const unknownFacts = (measure, family) =>
-  Object.fromEntries(
-    Object.keys(factDefs(measure, family)).map((name) => [name, null]),
-  );
-
-const identity = (row) => ({
-  schemaVersion: FACTS_SCHEMA_VERSION,
-  measure: row.measure,
-  family: row.family,
-  unitId: row.unitId,
-  path: row.path,
-});
-
-/** The unit's key in a baseline. Unit ids are unique per family. */
-export const setFactNames = (measure, family = 'battlemechs') =>
+export const setFactNames = (measure, family = DEFAULT_FAMILY) =>
   Object.entries(factDefs(measure, family))
     .filter(([, kind]) => kind === 'set')
     .map(([name]) => name);
 
-export const unitKey = (entry) => `${entry.family}/${entry.unitId}`;
-
-const distance = (a, b) =>
-  a === null || b === null || a === undefined || b === undefined
-    ? null
-    : Math.abs(a - b);
-const sortedSet = (items) => [...new Set(items)].sort();
-
-// Set members are compact, readable text, so a baseline diff can be read. A cell is `LT:4:<token text>`:
-// a short location code, the zero-based slot, then the token (which may contain colons). Locations
-// outside the table are kept as `~<name>`, so the encoding is total and exactly reversible.
-const LOCATION_CODES = {
-  Head: 'HD',
-  'Center Torso': 'CT',
-  'Left Torso': 'LT',
-  'Right Torso': 'RT',
-  'Left Arm': 'LA',
-  'Right Arm': 'RA',
-  'Left Leg': 'LL',
-  'Right Leg': 'RL',
-  'Center Leg': 'CL',
-  'Front Left Leg': 'FLL',
-  'Front Right Leg': 'FRL',
-  'Rear Left Leg': 'RLL',
-  'Rear Right Leg': 'RRL',
-};
-const CODE_LOCATIONS = Object.fromEntries(
-  Object.entries(LOCATION_CODES).map(([name, code]) => [code, name]),
+export const { validateFacts, serializeFacts, parseFacts } = factsIO(
+  (measure, family) => {
+    const facts = factDefs(measure, family);
+    return facts
+      ? { facts, reported: reportedDefs(measure, family) }
+      : undefined;
+  },
 );
-
-export function encodeCell({ location, slot, text }) {
-  const code = LOCATION_CODES[location];
-  if (code === undefined && String(location).includes(':'))
-    throw new Error(
-      `cannot encode the location ${location}: it contains a colon`,
-    );
-  return `${code ?? `~${location}`}:${slot}:${text}`;
-}
-
-export function decodeCell(member) {
-  const first = member.indexOf(':');
-  const second = member.indexOf(':', first + 1);
-  if (first < 0 || second < 0) throw new Error(`not a cell member: ${member}`);
-  const code = member.slice(0, first);
-  return {
-    location: code.startsWith('~') ? code.slice(1) : CODE_LOCATIONS[code],
-    slot: Number(member.slice(first + 1, second)),
-    text: member.slice(second + 1),
-  };
-}
-
-const cellMember = encodeCell;
-/** A notice/round-trip disagreement: `n:` = only the notice has the cell, `r:` = only the round trip does. */
-const taggedCell = (tag, c) => `${tag}:${encodeCell(c)}`;
-
-/** Load row + the unit's Java reference row -> facts. */
-export function loadFacts(row, ref) {
-  if (row.status !== 'ok')
-    return {
-      ...identity(row),
-      status: 'error',
-      facts: unknownFacts('load', row.family),
-      reported: unknownReported('load', row.family),
-    };
-  const { observed } = row.load;
-  const javaBv = ref?.battleValue?.total;
-  const javaValid = ref?.construction?.valid;
-  const sheetBv = row.load.preview?.bv ?? null;
-  return {
-    ...identity(row),
-    status: 'ok',
-    facts: {
-      // A null BV (no calculator result) is a miss, not unknown: the unit ran and had no BV.
-      bvExact: typeof javaBv === 'number' ? observed.bv === javaBv : null,
-      bvDistance:
-        typeof javaBv === 'number' ? distance(observed.bv, javaBv) : null,
-      validity:
-        typeof javaValid === 'boolean'
-          ? (observed.validity === 'valid') === javaValid
-          : null,
-      weightOwners: observed.weight === observed.allocatedWeight,
-      // Unknown (null) when the preview was not captured or either BV is missing; never a pass.
-      previewEqualsStatus:
-        sheetBv === null || observed.bv === null
-          ? null
-          : sheetBv === observed.bv,
-    },
-    // Reported per unit, not gated (see REPORTED_DEFS).
-    reported: { previewStatusDistance: distance(sheetBv, observed.bv) },
-  };
-}
-
-/** The save dialog would not ask: settled, tracking known, no notice entries, no armor loss. Unknown stays null. */
-function noLossConfirmationBefore(loss) {
-  if (!loss.settled || loss.lossTrackingUnknown) return null;
-  return loss.noticeBefore.length === 0 && !loss.armorSaveLoss;
-}
-
-/** Reopen row + the unit's Java reference row -> facts. */
-export function reopenFacts(row, ref) {
-  if (row.status !== 'ok')
-    return {
-      ...identity(row),
-      status: 'error',
-      facts: unknownFacts('reopen', row.family),
-      reported: unknownReported('reopen', row.family),
-    };
-  const r = row.reopen;
-  const javaBv = ref?.battleValue?.total;
-  const hasJava = typeof javaBv === 'number';
-  return {
-    ...identity(row),
-    status: 'ok',
-    facts: {
-      reopenLoad:
-        r.before.bv !== null && r.after.bv !== null
-          ? r.after.bv === r.before.bv
-          : false,
-      reopenJava: hasJava ? r.after.bv === javaBv : null,
-      reopenJavaDistance: hasJava ? distance(r.after.bv, javaBv) : null,
-      reopenLoadDistance: distance(r.after.bv, r.before.bv),
-      noLossConfirmationBefore: noLossConfirmationBefore(r.saveLoss),
-      noticeResidual: sortedSet(r.noticeResidual.residual.map(cellMember)),
-      // What the summary's noticeResidual.equal holds: any cell the notice and the round trip disagree on.
-      noticeMismatch: sortedSet([
-        ...r.noticeResidual.noticeOnly.map((c) => taggedCell('n', c)),
-        ...r.noticeResidual.roundTripOnly.map((c) => taggedCell('r', c)),
-      ]),
-      rawIdentityLosses: sortedSet(r.rawIdentityLosses.map(cellMember)),
-      loadedMountLosses: sortedSet(
-        r.loadedMountLosses.map((m) => canonicalJson(m)),
-      ),
-      reopenValid: r.after.validity === 'valid',
-    },
-    reported: {},
-  };
-}
-
-/** Vehicle load row + the unit's Java reference row -> facts. */
-export function vehicleLoadFacts(row, ref) {
-  if (row.status !== 'ok')
-    return {
-      ...identity(row),
-      status: 'error',
-      facts: unknownFacts('load', row.family),
-      reported: unknownReported('load', row.family),
-    };
-  const { observed } = row.load;
-  const javaBv = ref?.battleValue?.total;
-  const javaValid = ref?.construction?.valid;
-  const javaMass = ref?.construction?.verifierQuantities?.weightExact?.value;
-  const sheetBv = row.load.preview?.bv ?? null;
-  return {
-    ...identity(row),
-    status: 'ok',
-    facts: {
-      // A null BV (the calculator threw) is a miss, not unknown, as for mechs.
-      bvExact: typeof javaBv === 'number' ? observed.bv === javaBv : null,
-      bvDistance:
-        typeof javaBv === 'number' ? distance(observed.bv, javaBv) : null,
-      validity:
-        typeof javaValid === 'boolean'
-          ? (observed.validity === 'valid') === javaValid
-          : null,
-      previewEqualsStatus:
-        sheetBv === null || observed.bv === null
-          ? null
-          : sheetBv === observed.bv,
-    },
-    // Reported per unit, not gated (see VEHICLE_REPORTED_DEFS).
-    reported: {
-      previewStatusDistance: distance(sheetBv, observed.bv),
-      massJavaDistance:
-        typeof javaMass === 'number'
-          ? distance(observed.weight, javaMass)
-          : null,
-      // Unavailable: no committed crew oracle. Always unknown, never gated.
-      crewOracle: null,
-    },
-  };
-}
-
-const sameList = (a, b) =>
-  a.length === b.length && a.every((item, i) => item === b[i]);
-
-/** Vehicle reopen row + the unit's Java reference row -> facts. */
-export function vehicleReopenFacts(row, ref) {
-  if (row.status !== 'ok')
-    return {
-      ...identity(row),
-      status: 'error',
-      facts: unknownFacts('reopen', row.family),
-      reported: unknownReported('reopen', row.family),
-    };
-  const r = row.reopen;
-  const { before, after } = r;
-  const javaBv = ref?.battleValue?.total;
-  const hasJava = typeof javaBv === 'number';
-  return {
-    ...identity(row),
-    status: 'ok',
-    facts: {
-      reopenLoad:
-        before.bv !== null && after.bv !== null
-          ? after.bv === before.bv
-          : false,
-      reopenJava: hasJava ? after.bv === javaBv : null,
-      reopenJavaDistance: hasJava ? distance(after.bv, javaBv) : null,
-      reopenLoadDistance: distance(after.bv, before.bv),
-      // Like a BV, a null (incomplete) mass at either end is a miss, never a pass.
-      reopenMass:
-        before.weight !== null && after.weight !== null
-          ? after.weight === before.weight
-          : false,
-      reopenVerdict:
-        after.validity === before.validity &&
-        after.complete === before.complete &&
-        sameList(after.reasons, before.reasons),
-      reopenMP:
-        after.mp.cruise === before.mp.cruise &&
-        after.mp.flank === before.mp.flank &&
-        after.mp.jump === before.mp.jump,
-      // A null crew is a value the store keeps (explicit unknown), so null at both ends is the same crew.
-      reopenCrew: after.crew === before.crew,
-      reopenValid: after.validity === 'valid',
-      documentLosses: sortedSet(
-        r.documentLosses.map(({ change, path }) => `${change}:${path}`),
-      ),
-      mountLosses: sortedSet([
-        ...r.mountLosses.map((mount) => `-${mount}`),
-        ...r.mountAdditions.map((mount) => `+${mount}`),
-      ]),
-    },
-    reported: {},
-  };
-}
-
-/** One value contract for run facts, committed baselines and optional last green. */
-export function isFactValue(kind, value) {
-  return (
-    value === null ||
-    (kind === 'bool' && typeof value === 'boolean') ||
-    (kind === 'distance' && Number.isFinite(value) && value >= 0) ||
-    (kind === 'set' &&
-      Array.isArray(value) &&
-      value.every(
-        (item, i) =>
-          typeof item === 'string' && (i === 0 || value[i - 1] < item),
-      ))
-  );
-}
-
-const factSchema = (kind) =>
-  z.unknown().refine((value) => isFactValue(kind, value), {
-    message:
-      kind === 'set'
-        ? 'a set fact must be sorted, duplicate-free strings or unknown'
-        : `a ${kind} fact must have a valid value or be unknown`,
-  });
-
-const factsSchemaFor = (measure, family) =>
-  z.strictObject({
-    schemaVersion: z.literal(FACTS_SCHEMA_VERSION),
-    measure: z.literal(measure),
-    family: z.literal(family),
-    unitId: z.string().min(1),
-    path: z.string().min(1),
-    status: z.enum(['ok', 'error']),
-    reported: z.strictObject(
-      Object.fromEntries(
-        Object.entries(reportedDefs(measure, family)).map(([name, kind]) => [
-          name,
-          factSchema(kind),
-        ]),
-      ),
-    ),
-    facts: z.strictObject(
-      Object.fromEntries(
-        Object.entries(factDefs(measure, family)).map(([name, kind]) => [
-          name,
-          factSchema(kind),
-        ]),
-      ),
-    ),
-  });
-
-/** Throws with the unit named when an entry is not a facts row of the measure (read with its own family's fact table). */
-export function validateFacts(measure, entry) {
-  const family = entry?.family;
-  if (typeof family !== 'string' || !factDefs(measure, family))
-    throw new Error(
-      `facts row for ${entry?.unitId ?? '?'} is malformed: no ${measure} facts for the family ${family}`,
-    );
-  const result = factsSchemaFor(measure, family).safeParse(entry);
-  if (!result.success)
-    throw new Error(
-      `facts row for ${entry?.unitId ?? '?'} is malformed: ${result.error.issues
-        .map((i) => `${i.path.join('.')}: ${i.message}`)
-        .join('; ')}`,
-    );
-  return result.data;
-}
-
-/** Sorted by (family, unitId), one JSON line each, validated. */
-export function serializeFacts(measure, entries) {
-  return [...entries]
-    .map((entry) => validateFacts(measure, entry))
-    .sort((a, b) =>
-      unitKey(a) < unitKey(b) ? -1 : unitKey(a) > unitKey(b) ? 1 : 0,
-    )
-    .map((entry) => JSON.stringify(entry) + '\n')
-    .join('');
-}
-
-export function parseFacts(measure, text) {
-  const entries = text
-    .split('\n')
-    .filter(Boolean)
-    .map((line, index) => {
-      try {
-        return validateFacts(measure, JSON.parse(line));
-      } catch (error) {
-        throw new Error(`facts.ndjson line ${index + 1}: ${error.message}`);
-      }
-    });
-  const seen = new Set();
-  for (const entry of entries) {
-    const key = unitKey(entry);
-    if (seen.has(key)) throw new Error(`facts.ndjson has ${key} twice`);
-    seen.add(key);
-  }
-  return entries;
-}

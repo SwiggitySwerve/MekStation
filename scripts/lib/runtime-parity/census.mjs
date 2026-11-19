@@ -20,6 +20,7 @@ import {
   factsProvenance,
 } from './facts-provenance.mjs';
 import { FACTS_FILE, serializeFacts } from './facts.mjs';
+import { DEFAULT_FAMILY } from './family-names.mjs';
 import {
   GateError,
   baselinePath,
@@ -270,7 +271,7 @@ export async function runCensus(argv, deps, spec) {
       out: { type: 'string' },
       sources: { type: 'string' },
       mekfiles: { type: 'string' },
-      family: { type: 'string', default: 'battlemechs' },
+      family: { type: 'string', default: DEFAULT_FAMILY },
       units: { type: 'string' },
       runs: { type: 'string', default: '2' },
       sequential: { type: 'boolean', default: false },
@@ -522,6 +523,7 @@ export async function runCensus(argv, deps, spec) {
             units: [],
           },
           provenance: factsProvenance({
+            family,
             referenceSha256: reference.gzipSha256,
           }),
           existingNotes,

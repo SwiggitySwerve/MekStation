@@ -13,7 +13,8 @@ import {
   selectCaptureMode,
 } from '../lib/runtime-parity/census.mjs';
 import {
-  factsDeriverBlob,
+  coreDeriverSha,
+  familyDeriverSha,
   parseFactsMeta,
 } from '../lib/runtime-parity/facts-provenance.mjs';
 import {
@@ -1179,7 +1180,8 @@ test('main writes facts.ndjson beside the rows: bvExact, distance, validity and 
     [meta.measure, meta.family, meta.factsSchemaVersion, meta.referenceSha256],
     ['load', 'battlemechs', FACTS_SCHEMA_VERSION, hex('d')],
   );
-  assert.equal(meta.factsDeriverBlob, factsDeriverBlob());
+  assert.equal(meta.coreDeriverSha, coreDeriverSha());
+  assert.equal(meta.familyDeriverSha, familyDeriverSha('battlemechs'));
 });
 
 test('--write-baseline writes the baseline of a complete run with its SHA, population hash and note', async () => {
@@ -1198,7 +1200,8 @@ test('--write-baseline writes the baseline of a complete run with its SHA, popul
   assert.equal(baseline.sha, hex('c', 40));
   // Provenance: the facts schema, the deriver's git blob and the reference the facts were derived with.
   assert.equal(baseline.factsSchemaVersion, FACTS_SCHEMA_VERSION);
-  assert.equal(baseline.factsDeriverBlob, factsDeriverBlob());
+  assert.equal(baseline.coreDeriverSha, coreDeriverSha());
+  assert.equal(baseline.familyDeriverSha, familyDeriverSha('battlemechs'));
   assert.equal(baseline.referenceSha256, hex('d'));
   // The load measure has no set facts, so there is no sidecar.
   assert.equal(

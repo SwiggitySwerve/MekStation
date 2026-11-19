@@ -45,18 +45,20 @@ import {
   setFactNames,
   unitKey,
 } from './facts.mjs';
+import {
+  DEFAULT_FAMILY,
+  baselinePath,
+  baselineSetsPath,
+} from './family-names.mjs';
+
+// The baseline file names have one owner, family-names.mjs (dependency-free, so the hosted registry reads it too).
+export {
+  BASELINE_DIR,
+  baselinePath,
+  baselineSetsPath,
+} from './family-names.mjs';
 
 export const BASELINE_SCHEMA_VERSION = 1;
-export const BASELINE_DIR = 'config/parity-runtime';
-/** battlemechs keep the names they had before families: baseline-<measure>; every other family is baseline-<family>-<measure>. */
-const baselineStem = (measure, family) =>
-  family === 'battlemechs'
-    ? `${BASELINE_DIR}/baseline-${measure}`
-    : `${BASELINE_DIR}/baseline-${family}-${measure}`;
-export const baselinePath = (measure, family = 'battlemechs') =>
-  `${baselineStem(measure, family)}.json`;
-export const baselineSetsPath = (measure, family = 'battlemechs') =>
-  `${baselineStem(measure, family)}.sets.ndjson`;
 
 /** A distance that grows by no more than this (relative to max(1, baseline)) is not worse. The term rule's tolerance. */
 export const DISTANCE_TOLERANCE = 1e-9;
@@ -109,8 +111,23 @@ export const BaselineSchema = z.strictObject({
   units: z.record(z.string(), z.record(z.string(), z.unknown())),
 });
 
+/**
+ * A baseline written before per-family fingerprints: it names one `factsDeriverBlob` for the whole facts.mjs and no
+ * `coreDeriverSha` / `familyDeriverSha`. It is not malformed, it is stale: the fix is a header-only rebaseline.
+ */
+const isSingleFingerprintBaseline = (baseline) =>
+  baseline !== null &&
+  typeof baseline === 'object' &&
+  'factsDeriverBlob' in baseline &&
+  !('coreDeriverSha' in baseline);
+
 /** Throws `GateError('BASELINE_MALFORMED', ...)` on anything that is not a well-formed baseline of `measure` for `family`. */
-export function validateBaseline(measure, baseline, family = 'battlemechs') {
+export function validateBaseline(measure, baseline, family = DEFAULT_FAMILY) {
+  if (isSingleFingerprintBaseline(baseline))
+    throw new GateError(
+      'FACTS_DERIVER_CHANGED',
+      `the ${family} baseline has the single-file fingerprint (factsDeriverBlob ${baseline.factsDeriverBlob}) from before per-family fingerprints; a header-only rebaseline is the fix`,
+    );
   const parsed = BaselineSchema.safeParse(baseline);
   if (!parsed.success)
     throw new GateError(
@@ -199,7 +216,7 @@ function lastGreenProblem(measure, artifact, family) {
 //   {"u":"<family>/<unitId>","<setFact>":["<member>",...]}   (a set with no members is omitted; every unit has a line)
 
 /** The committed text of a baseline: `{ main, sets }` (`sets` is null for a measure with no set facts). */
-export function serializeBaseline(baseline, family = 'battlemechs') {
+export function serializeBaseline(baseline, family = DEFAULT_FAMILY) {
   const { units, notes, ...header } = baseline;
   const setNames = setFactNames(baseline.measure, family);
   const keys = Object.keys(units).sort();
@@ -250,7 +267,7 @@ export function parseBaseline(
   measure,
   mainText,
   setsText,
-  { verify = true, family = 'battlemechs' } = {},
+  { verify = true, family = DEFAULT_FAMILY } = {},
 ) {
   let main;
   try {
@@ -383,7 +400,7 @@ export function readBaselineNotes(mainText, measure) {
  */
 export function buildBaseline({
   measure,
-  family = 'battlemechs',
+  family = DEFAULT_FAMILY,
   facts,
   sha,
   note,
@@ -529,7 +546,7 @@ function reportedSummary(measure, facts, family) {
 export function evaluate(
   {
     measure,
-    family = 'battlemechs',
+    family = DEFAULT_FAMILY,
     facts,
     provenance,
     baselineText,
@@ -596,6 +613,8 @@ export function evaluate(
         family,
       });
     } catch (error) {
+      if (error.reason === 'FACTS_DERIVER_CHANGED')
+        report.provenance.deriverChanged = true;
       if (rules.requireBaseline)
         fail(
           error.reason ?? 'BASELINE_MALFORMED',
@@ -620,7 +639,8 @@ export function evaluate(
         `${baseline.sha} is not an ancestor of the run ${run?.sha ?? '?'}`,
       );
   }
-  // Facts derived by a different facts.mjs cannot be compared with this baseline: rebaseline.
+  // Facts derived by a different deriver cannot be compared with this baseline: rebaseline. The shared core
+  // (facts-core.mjs) rebaselines every family; a family's own deriver (facts-<family>.mjs) rebaselines that family.
   if (baseline) {
     if (!provenance)
       fail('FACTS_PROVENANCE_MISSING', `no ${FACTS_META_FILE} for the facts`);
@@ -639,12 +659,22 @@ export function evaluate(
       }
       if (
         rules.requireSameDeriver &&
-        provenance.factsDeriverBlob !== baseline.factsDeriverBlob
+        provenance.coreDeriverSha !== baseline.coreDeriverSha
       ) {
         report.provenance.deriverChanged = true;
         fail(
           'FACTS_DERIVER_CHANGED',
-          `facts.mjs is ${provenance.factsDeriverBlob} but the baseline's facts came from ${baseline.factsDeriverBlob}; a rebaseline PR is the fix`,
+          `the shared facts core changed (facts-core.mjs ${baseline.coreDeriverSha} -> ${provenance.coreDeriverSha}): every family rebaselines`,
+        );
+      }
+      if (
+        rules.requireSameDeriver &&
+        provenance.familyDeriverSha !== baseline.familyDeriverSha
+      ) {
+        report.provenance.deriverChanged = true;
+        fail(
+          'FACTS_DERIVER_CHANGED',
+          `the ${family} deriver changed (facts-${family}.mjs ${baseline.familyDeriverSha} -> ${provenance.familyDeriverSha}): rebaseline ${family} only`,
         );
       }
     }
@@ -828,7 +858,7 @@ export function main(argv = process.argv.slice(2), deps = {}) {
     args: argv,
     options: {
       measure: { type: 'string' },
-      family: { type: 'string', default: 'battlemechs' },
+      family: { type: 'string', default: DEFAULT_FAMILY },
       'run-dir': { type: 'string' },
       baseline: { type: 'string' },
       'last-green': { type: 'string' },
@@ -904,12 +934,12 @@ export function main(argv = process.argv.slice(2), deps = {}) {
         const meta = parseFactsMeta(metaText);
         if (meta.measure !== measure)
           throw new Error(`${FACTS_META_FILE} is for ${meta.measure}`);
-        // A facts-meta.json written before families existed has no family: it was battlemechs.
-        if ((meta.family ?? 'battlemechs') !== family)
+        if (meta.family !== family)
           throw new Error(`${FACTS_META_FILE} is for ${meta.family}`);
         provenance = {
           factsSchemaVersion: meta.factsSchemaVersion,
-          factsDeriverBlob: meta.factsDeriverBlob,
+          coreDeriverSha: meta.coreDeriverSha,
+          familyDeriverSha: meta.familyDeriverSha,
           referenceSha256: meta.referenceSha256,
         };
       } catch (error) {
