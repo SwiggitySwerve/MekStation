@@ -136,6 +136,7 @@
       "location": "FUSELAGE"
     }
   ],
+  "sourceTechType": "Clan Level 3",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 4351,

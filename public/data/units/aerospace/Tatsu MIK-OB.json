@@ -122,6 +122,7 @@
     }
   ],
   "isOmni": true,
+  "sourceTechType": "IS Level 2",
   "omniPodHeatSinks": 2,
   "hasBombBay": false,
   "bombCapacity": 0,

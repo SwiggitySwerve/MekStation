@@ -152,6 +152,7 @@
     }
   ],
   "isOmni": true,
+  "sourceTechType": "Clan Level 4",
   "omniPodHeatSinks": 1,
   "hasBombBay": false,
   "bombCapacity": 0,

@@ -51,6 +51,7 @@
       "location": "AFT"
     }
   ],
+  "sourceTechType": "Mixed (IS Chassis) Advanced",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 8014,

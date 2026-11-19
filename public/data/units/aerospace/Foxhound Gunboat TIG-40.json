@@ -112,6 +112,7 @@
     "crewquarters:0.0:0:-1::-1:0",
     "steeragequarters:20.0:0:-1::-1:0"
   ],
+  "sourceTechType": "IS Level 3",
   "crew": 4,
   "passengers": 0,
   "cargoCapacity": 0.0,

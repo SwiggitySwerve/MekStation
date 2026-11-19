@@ -35,6 +35,7 @@
     }
   },
   "equipment": [],
+  "sourceTechType": "IS Level 1",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 409,

@@ -101,6 +101,7 @@
     "ejectionseats:6.0:0:-1::-1:0",
     "cargobay:5.9:1:2::-1:0"
   ],
+  "sourceTechType": "IS Level 3",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 4676,

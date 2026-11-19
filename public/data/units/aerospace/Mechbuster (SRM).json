@@ -61,6 +61,7 @@
       "location": "FUSELAGE"
     }
   ],
+  "sourceTechType": "IS Level 1",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 2153,

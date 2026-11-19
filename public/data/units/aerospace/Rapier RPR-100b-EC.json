@@ -96,6 +96,7 @@
       "location": "FUSELAGE"
     }
   ],
+  "sourceTechType": "Mixed (IS Chassis) Experimental",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 7690,
