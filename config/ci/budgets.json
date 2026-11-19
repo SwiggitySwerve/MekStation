@@ -196,40 +196,60 @@
       "medianSeconds": 359
     },
     "e2e": {
-      "minutes": 15,
+      "minutes": 21,
       "samples": [
         {
-          "runId": 42171496788,
+          "runId": 42833508736,
           "job": "E2E (2/2)",
-          "seconds": 460
+          "seconds": 715
         },
         {
-          "runId": 42171496788,
+          "runId": 42833508736,
           "job": "E2E (1/2)",
-          "seconds": 436
+          "seconds": 547
         },
         {
-          "runId": 42171314907,
+          "runId": 42832477213,
           "job": "E2E (1/2)",
-          "seconds": 426
+          "seconds": 403
         },
         {
-          "runId": 42171314907,
+          "runId": 42832477213,
           "job": "E2E (2/2)",
-          "seconds": 436
+          "seconds": 605
         },
         {
-          "runId": 42168139279,
-          "job": "E2E (2/2)",
-          "seconds": 498
-        },
-        {
-          "runId": 42168139279,
+          "runId": 42829648207,
           "job": "E2E (1/2)",
-          "seconds": 485
+          "seconds": 378
+        },
+        {
+          "runId": 42829648207,
+          "job": "E2E (2/2)",
+          "seconds": 606
+        },
+        {
+          "runId": 42826940131,
+          "job": "E2E (2/2)",
+          "seconds": 877
+        },
+        {
+          "runId": 42826940131,
+          "job": "E2E (1/2)",
+          "seconds": 469
+        },
+        {
+          "runId": 42779722397,
+          "job": "E2E (1/2)",
+          "seconds": 613
+        },
+        {
+          "runId": 42779722397,
+          "job": "E2E (2/2)",
+          "seconds": 704
         }
       ],
-      "medianSeconds": 448
+      "medianSeconds": 605.5
     },
     "lint-and-test": {
       "minutes": 1,
