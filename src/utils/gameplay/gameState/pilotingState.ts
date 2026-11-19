@@ -11,6 +11,7 @@ import {
 } from '@/types/gameplay';
 import { applyFallPosture } from '@/utils/gameplay/movement/fallPosture';
 import { clearStuck } from '@/utils/gameplay/movement/stuckState';
+import { projectPsrTriggerTarget } from '@/utils/gameplay/pilotingSkillRolls/eventTargets';
 
 import { updateUnitState } from './unitStatePatch';
 
@@ -33,9 +34,7 @@ export function applyPSRTriggered(
           ...(payload.reasonCode !== undefined
             ? { reasonCode: payload.reasonCode }
             : {}),
-          ...(payload.fixedTargetNumber !== undefined
-            ? { fixedTargetNumber: payload.fixedTargetNumber }
-            : {}),
+          ...projectPsrTriggerTarget(payload),
         },
       ],
     };

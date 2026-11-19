@@ -54,7 +54,9 @@ retain raw cohort/run/head/attempt evidence and never reset a later cap upward.
 
 The first count baseline is 10 induced jobs, 57 unkeyable files and
 93 repo-wide keys. Root authorized this bootstrap before any cap existed on
-main. `targets` retains 9/55/80 as tracked goals, displayed through
+main. The repo-wide limit is now 94: the owner raised it by one for
+`src/services/construction/__tests__/editableMechProjection.callers.test.ts`
+(PARITY-PLAN §185). `targets` retains 9/55/80 as tracked goals, displayed through
 `budgetTargetGaps`; missing observations remain unknown. Since PARITY-PLAN
 §193.2 these counts and their targets are report-only and raising them needs no
 approval. Non-count relaxations (timeouts, profiles) require G3's label and

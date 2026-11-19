@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 
+import { readRegistry } from './parity-runtime-families.mjs';
 import { renderRuntimeSummary } from './parity-runtime-summary.mjs';
 
 const report = () => ({
@@ -118,6 +119,49 @@ test('summary reports every fail-closed reason and removed id, and why last gree
   );
 });
 
+test("a family leg names its family and expected units; a deriver change adds the registry's rebaseline list", () => {
+  const registry = readRegistry();
+  const gate = report();
+  gate.population.tonight = 4263;
+  const plain = renderRuntimeSummary(
+    gate,
+    summary(),
+    {},
+    {
+      family: 'battlemechs',
+      registry,
+    },
+  );
+  assert.match(plain, /^## Runtime parity: battlemechs reopen$/m);
+  assert.match(
+    plain,
+    /Expected units \(registry\): 4263; tonight's run: 4263\./,
+  );
+  assert.doesNotMatch(plain, /must be rebaselined/);
+  // Without a family the heading is today's.
+  assert.match(
+    renderRuntimeSummary(gate, summary()),
+    /^## Runtime parity: reopen$/m,
+  );
+  gate.failClosed = [
+    { reason: 'FACTS_DERIVER_CHANGED', message: 'the gate says what changed' },
+  ];
+  const changed = renderRuntimeSummary(
+    gate,
+    summary(),
+    {},
+    {
+      family: 'battlemechs',
+      registry,
+    },
+  );
+  // The gate's own wording is shown verbatim, then the registry's list.
+  assert.match(
+    changed,
+    /- `FACTS_DERIVER_CHANGED`: the gate says what changed\n\nderiver fingerprint changed \(shared core\): every enabled family \(battlemechs\) must be rebaselined before its gate can pass\./,
+  );
+});
+
 test('summary rejects unknown/missing directions and unresolved/non-numeric gated paths', () => {
   for (const direction of [undefined, 'up']) {
     const data = summary();
@@ -180,14 +224,20 @@ test('CLI appends summary on gate failure and exits nonzero on wiring errors', (
   fs.writeFileSync(path.join(root, 'summary.json'), JSON.stringify(summary()));
   const dest = path.join(root, 'step-summary.md');
   fs.writeFileSync(dest, 'prior step\n');
-  const run = () =>
+  const run = (...extra) =>
     spawnSync(
       process.execPath,
-      ['scripts/ci/parity-runtime-summary.mjs', '--run-dir', root],
+      ['scripts/ci/parity-runtime-summary.mjs', '--run-dir', root, ...extra],
       { encoding: 'utf8', env: { ...process.env, GITHUB_STEP_SUMMARY: dest } },
     );
   assert.equal(run().status, 0);
   assert.match(fs.readFileSync(dest, 'utf8'), /^prior step\n[\s\S]*mek\/Atlas/);
+  // The workflow passes the family; the registry is read from the checkout.
+  assert.equal(run('--family', 'battlemechs').status, 0);
+  assert.match(
+    fs.readFileSync(dest, 'utf8'),
+    /## Runtime parity: battlemechs reopen[\s\S]*Expected units \(registry\): 4263/,
+  );
   const bad = summary();
   bad.gates['reopenLoad.equal'].direction = 'unknown';
   fs.writeFileSync(path.join(root, 'summary.json'), JSON.stringify(bad));

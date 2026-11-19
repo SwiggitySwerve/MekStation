@@ -19,6 +19,10 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import { nowIso } from '@/types/multiplayer/Protocol';
+import {
+  prepareEventForSerialization,
+  UnreadableStoredEventError,
+} from '@/utils/gameplay/gameEvents/serialization';
 
 import type { IMatchStore, IPublicationOutboxStore } from './IMatchStore';
 import type {
@@ -29,6 +33,7 @@ import type {
 import { exitForE2EFault } from './DurableMatchStore';
 import { hasPublicationOutbox } from './IMatchStore';
 import { intentRefusalMessage } from './intentRefusal';
+import { readReadablePendingPublications } from './MatchPublicationReadability';
 
 /** What `commitThenPublish` did. */
 export interface ICommitThenPublishResult {
@@ -105,8 +110,31 @@ export interface ICommitThenPublishDeps {
  * capability, where the outbox passes are inert by construction.
  */
 export async function commitThenPublish(
-  deps: ICommitThenPublishDeps,
+  input: ICommitThenPublishDeps,
 ): Promise<ICommitThenPublishResult> {
+  // Check the complete batch before any commit or publication side effect,
+  // including stores that keep events in memory rather than serializing them.
+  let deps: ICommitThenPublishDeps;
+  try {
+    deps = {
+      ...input,
+      events: input.events.map((event) =>
+        prepareEventForSerialization(event, 'match-broadcast'),
+      ),
+    };
+    if (input.publications)
+      await readReadablePendingPublications(input.matchId, input.publications);
+  } catch (error) {
+    if (!(error instanceof UnreadableStoredEventError)) throw error;
+    const refusal = intentRefusalMessage(
+      input.matchId,
+      'INTERNAL_ERROR',
+      error.message,
+      input.intentId,
+    );
+    input.sendRefusal(refusal);
+    return { committed: false, messages: [refusal] };
+  }
   // Pass 0 - resume. Records a previous run committed but never
   // published go out before this command's own work; they are older
   // events, and a client that got this command first would apply the
@@ -343,7 +371,10 @@ export interface IResumePendingPublicationsDeps {
 export async function resumePendingPublications(
   deps: IResumePendingPublicationsDeps,
 ): Promise<readonly IEventMessage[]> {
-  const pending = await deps.publications.listPendingPublications(deps.matchId);
+  const pending = await readReadablePendingPublications(
+    deps.matchId,
+    deps.publications,
+  );
   const published: IEventMessage[] = [];
   for (const record of pending) {
     const envelopeOut: IEventMessage = {

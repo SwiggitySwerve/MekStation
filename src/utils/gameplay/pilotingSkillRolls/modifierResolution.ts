@@ -211,7 +211,7 @@ export function calculatePSRModifiers(
   const { psr } = input;
   const modifiers: IPSRModifier[] = [];
 
-  if (psr.fixedTargetNumber !== undefined) {
+  if (psr.automaticFailure || psr.fixedTargetNumber !== undefined) {
     appendAdditionalPSRModifier(psr, modifiers);
     return modifiers;
   }

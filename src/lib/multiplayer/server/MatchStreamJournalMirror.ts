@@ -48,6 +48,7 @@ import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventJournalWriter } from '@/lib/events/journal/SQLiteEventJournalWriter';
+import { prepareEventForSerialization } from '@/utils/gameplay/gameEvents/serialization';
 
 import type { MatchCommitExpectedRevision } from './matchCommitJournalHead';
 
@@ -183,7 +184,9 @@ function toMatchJournalBatch(
         // Stripped HERE rather than at the call site: the raw batch is
         // canonicalized twice - once for the command identity and once
         // for each event digest - and both must see one form.
-        matchEvent: withoutUndefinedProperties(matchEvent),
+        matchEvent: withoutUndefinedProperties(
+          prepareEventForSerialization(matchEvent, 'match-broadcast'),
+        ),
         expectedPostStateDigest:
           index === last ? (input.expectedPostStateDigest ?? null) : null,
       },

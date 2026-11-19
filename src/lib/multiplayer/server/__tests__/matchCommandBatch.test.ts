@@ -77,7 +77,7 @@ function makeEvent(matchId: string, sequence: number): IGameEvent {
     type: GameEventType.PhaseChanged,
     turn: 1,
     phase: GamePhase.Initiative,
-    payload: {} as never,
+    payload: { fromPhase: GamePhase.End, toPhase: GamePhase.Initiative },
   } as IGameEvent;
 }
 
@@ -90,7 +90,10 @@ function makeRestartBatch(): IMatchCommandBatch {
     expectedRevision: 0,
     events: [
       Object.assign(makeEvent(RESTART_MATCH_ID, 0), {
-        payload: { target: 'alpha', damage: 7 },
+        // Both turn markers accept {}, so the type-identity test below
+        // can change only the type while keeping both events readable.
+        type: GameEventType.TurnStarted,
+        payload: {},
       }),
     ],
   };
@@ -389,8 +392,8 @@ describe('durable command identity after restart', () => {
           ...batch,
           events: [
             Object.assign(makeEvent(RESTART_MATCH_ID, 0), {
-              type: GameEventType.GameEnded,
-              payload: { target: 'alpha', damage: 7 },
+              type: GameEventType.TurnEnded,
+              payload: {},
             }),
           ],
         });
@@ -418,7 +421,8 @@ describe('durable command identity after restart', () => {
           ...batch,
           events: [
             Object.assign(makeEvent(RESTART_MATCH_ID, 0), {
-              payload: { target: 'alpha', damage: 8 },
+              type: GameEventType.TurnStarted,
+              payload: { _type: 'turn_started' },
             }),
           ],
         });

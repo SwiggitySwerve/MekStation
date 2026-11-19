@@ -1,11 +1,43 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
 
 import { quantile } from '../lib/statistics.mjs';
 import * as budgets from './budget-config.mjs';
+import { readJestArtifacts } from './budget-report.mjs';
 import { projectTimingLimits, readWorkflow } from './budget-workflow.mjs';
 import { evaluateBudgetRaiseApproval } from './garden-approval.mjs';
+
+test('the reporter reads every unit shard Jest artifact, in shard order, whatever the count', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-jest-'));
+  try {
+    // Four shards, as the PR matrix runs, written out of order, plus a name
+    // that is not a shard artifact.
+    for (const shard of [4, 2, 1, 3]) {
+      const dir = path.join(root, `ci-budget-jest-${shard}`);
+      fs.mkdirSync(dir);
+      fs.writeFileSync(
+        path.join(dir, `jest-results-unit-${shard}.json`),
+        JSON.stringify({ shard, project: 'unit' }),
+      );
+    }
+    fs.writeFileSync(
+      path.join(root, 'ci-budget-jest-4', 'jest-results-corpus-4.json'),
+      JSON.stringify({ shard: 4, project: 'corpus' }),
+    );
+    fs.mkdirSync(path.join(root, 'ci-budget-jest-x'));
+    assert.deepEqual(
+      readJestArtifacts(root).map(
+        ({ shard, project }) => `${project}-${shard}`,
+      ),
+      ['unit-1', 'unit-2', 'unit-3', 'unit-4', 'corpus-4'],
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
 
 const original = budgets.loadBudgets();
 // Keep legacy-schema coverage independent of the deployed reporting caps.

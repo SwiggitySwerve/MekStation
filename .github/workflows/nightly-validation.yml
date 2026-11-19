@@ -421,18 +421,47 @@ jobs:
           retention-days: 7
 
   # ---------------------------------------------------------------
-  # Per-unit runtime parity, independent measures so one failure cannot hide
-  # the other's report. Counts and the previous-nightly SHA range are
-  # informational. The called gate owns enforcement: the committed baseline,
-  # tightened by the last green main Nightly while that baseline is unchanged.
+  # Per-unit runtime parity, one independent job per (family, measure) so one
+  # failure cannot hide another's report. Counts and the previous-nightly SHA
+  # range are informational. The called gate owns enforcement: the committed
+  # baseline, tightened by the last green main Nightly while that baseline is
+  # unchanged. The matrix is every enabled family in
+  # config/parity-runtime/families.json, both measures; enabling a family there
+  # adds it here.
+  parity-runtime-plan:
+    name: Parity Runtime Plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Plan the census matrix
+        id: plan
+        run: node scripts/ci/parity-runtime-families.mjs plan --families all --measures both
+
   parity-runtime:
+    needs: parity-runtime-plan
     strategy:
       fail-fast: false
-      matrix:
-        measure: [load, reopen]
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.parity-runtime-plan.outputs.matrix) }}
     uses: ./.github/workflows/parity-runtime.yml
     with:
+      family: ${{ matrix.family }}
       measure: ${{ matrix.measure }}
+      timeout-minutes: ${{ matrix.timeout }}
     permissions:
       contents: read
       actions: read
@@ -456,6 +485,7 @@ jobs:
         coverage,
         scenario-pack-recapture,
         subsystem-lanes,
+        parity-runtime-plan,
         parity-runtime,
       ]
     if: failure() && github.ref == 'refs/heads/main'

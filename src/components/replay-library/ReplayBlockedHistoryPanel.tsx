@@ -73,6 +73,16 @@ export function ReplayBlockedHistoryPanel({
           The stored file was <strong>not</strong> modified.
         </p>
 
+        {blocked.blockedLines.some(
+          (entry) => entry.reason === 'unverifiable-event',
+        ) && (
+          <p className="text-text-theme-secondary text-sm">
+            The recording writer found an event that the replay reader cannot
+            verify and marked the recording as unverifiable. The battle was
+            allowed to continue.
+          </p>
+        )}
+
         <dl className="text-text-theme-secondary grid grid-cols-1 gap-1 text-xs sm:grid-cols-[auto_1fr] sm:gap-x-4">
           <dt className="text-text-theme-muted">Source</dt>
           <dd className="font-mono break-all">{blocked.sourceId}</dd>
@@ -112,16 +122,15 @@ export function ReplayBlockedHistoryPanel({
           </p>
           <ul className="list-inside list-disc space-y-0.5">
             <li>
-              Watch a different replay — recordings made by the current game
-              version load normally.
+              Watch a different replay while this recording remains blocked.
             </li>
             <li>
-              Keep the file as-is: older recordings may become loadable when an
-              adapter for their format ships.
+              Keep the file as-is: future replay support may make it loadable.
             </li>
             <li>
-              If this replay was just recorded, report it — a current-version
-              recording should never be blocked.
+              If this replay was just recorded, report it with the source and
+              digest above. Current-version recordings can also contain
+              unverifiable events.
             </li>
           </ul>
         </div>
