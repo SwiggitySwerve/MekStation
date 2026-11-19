@@ -74,9 +74,11 @@ which is not a regression of the sheet. `previewEqualsStatus` (true -> false) is
 
 ### Families
 
-Each family has its own fact table (`factDefs(measure, family)` in `facts.mjs`) and its own baseline files, and a run and a
-gate cover exactly one family (`--family`, default `battlemechs`). The tables above are the `battlemechs` ones. `facts.mjs`
-stays the one deriver for every family, so its blob is shared: changing it rebaselines every family's header.
+Each family has its own fact table and derivers (`facts-<family>.mjs`, read through `factDefs(measure, family)` in the
+`facts.mjs` registry) and its own baseline files. A run and a gate cover exactly one family (`--family`, default
+`battlemechs`). The tables above are the `battlemechs` ones (`facts-battlemechs.mjs`). Each family is fingerprinted by
+its own deriver file plus the shared core (`facts-core.mjs`): a family-file change rebaselines that family only, and a
+core change rebaselines every family.
 
 `vehicles`, `load`: `bvExact`, `bvDistance`, `validity` and `previewEqualsStatus` as above. Reported, not gated:
 `previewStatusDistance`, `massJavaDistance` (`abs(status-bar used mass - Java TestTank weightExact)`) and `crewOracle`, which
@@ -105,17 +107,25 @@ another line did.
 ### `facts-meta.json` (provenance of the facts)
 
 ```
-{ schemaVersion: 1, measure, factsSchemaVersion: number, factsDeriverBlob: string /* 40 hex */, referenceSha256: string /* 64 hex */ }
+{ schemaVersion: 2, measure, family, factsSchemaVersion: number,
+  coreDeriverSha: string /* 40 hex */, familyDeriverSha: string /* 40 hex */, referenceSha256: string /* 64 hex */ }
 ```
 
-`factsDeriverBlob` is the git blob sha of `facts.mjs` over its LF-normalised bytes (so Windows and Linux agree), computed by
-`facts-provenance.mjs`; `facts.mjs` itself stays the one pure deriver (a row and the Java reference row in, facts out).
-`referenceSha256` is the sha256 of the committed Java reference the facts were derived against.
+- `coreDeriverSha` is the git blob sha of `facts-core.mjs`, and `familyDeriverSha` that of `facts-<family>.mjs`.
+  - Both are taken over LF-normalised bytes, so Windows and Linux agree and `git hash-object` reproduces them.
+  - Both are computed by `fingerprints.mjs` (re-exported by `facts-provenance.mjs`; Node built-ins only, so they can be
+    computed on a bare checkout before `npm ci`). It finds the family file by its name, never through the `facts.mjs`
+    registry (the registry is not fingerprinted).
+- `family` is required.
+  - In schema version 1 (V0) it was optional, and an absent family meant `battlemechs`.
+  - Schema version 1 (one `factsDeriverBlob` for the whole of `facts.mjs`) is no longer read. A run writes version 2.
+  - A facts-meta with no `family` is refused by name (`FACTS_MALFORMED`, "family: ...").
+- `referenceSha256` is the sha256 of the committed Java reference the facts were derived against.
 
 ## Baseline: two text files per measure
 
 A family other than `battlemechs` names its files `baseline-<family>-<measure>.json` and `baseline-<family>-<measure>.sets.ndjson`
-(`baselinePath` / `baselineSetsPath` in `gate.mjs`); the battlemech files keep the names below. Every unit key in a family's
+(`baselinePath` / `baselineSetsPath` in `family-names.mjs`, re-exported by `gate.mjs`); the battlemech files keep the names below. Every unit key in a family's
 baseline starts with `<family>/` (`BASELINE_MALFORMED` otherwise).
 
 Written **only** by a port's `--write-baseline`; never by hand (the population hash, the sidecar check and the notes
@@ -130,7 +140,8 @@ gzip, no index tables.**
   "measure": "load"|"reopen",
   "sha": string,                    // 40 hex: the commit the run was made at; must be an ancestor of any run it gates
   "factsSchemaVersion": number,     // provenance: must equal tonight's facts-meta.json
-  "factsDeriverBlob": string,       // 40 hex: git blob of facts.mjs; must equal tonight's
+  "coreDeriverSha": string,         // 40 hex: git blob of facts-core.mjs; must equal tonight's
+  "familyDeriverSha": string,       // 40 hex: git blob of facts-<family>.mjs; must equal tonight's
   "referenceSha256": string,        // 64 hex: the Java reference the facts were derived with (a difference is reported, not a failure)
   "populationCount": number,        // = the number of keys in "units"
   "populationHash": string,         // 64 hex: sha256 of the sorted unit keys joined by "\n", newline-terminated
@@ -185,8 +196,9 @@ regenerates the baseline with a note.
   - Check each one against the PR's stated prediction and direction: a boolean flipping, a distance changing, a set's `n`/`h` changing, a unit added or removed.
   - Also check the new `notes[]` entry: reason, PR and SHA.
 - **The sidecar's diff isn't read by eye.** It's expected to be large. The gate checks it mechanically: any line whose members don't hash to the main file's `n`/`h` fails closed with `BASELINE_SIDECAR_MISMATCH`.
-- **A deriver-only rebaseline has zero changed unit lines.** A change to `facts.mjs` that alters no unit's facts still forces a rebaseline, because the gate fails closed on the deriver's blob (`FACTS_DERIVER_CHANGED`). That's the intended, safe behaviour.
-  - In such a PR, only the header changes: `sha`, `factsDeriverBlob` and the appended `notes[]` entry.
+- **A deriver-only rebaseline has zero changed unit lines.** A deriver change that alters no unit's facts still forces a rebaseline, because the gate fails closed on the changed fingerprint (`FACTS_DERIVER_CHANGED`). A `facts-<family>.mjs` change rebaselines that family; a `facts-core.mjs` change rebaselines every family. That's the intended, safe behaviour.
+  - In such a PR, only the header changes: `sha`, the changed fingerprint (`coreDeriverSha` or `familyDeriverSha`) and the appended `notes[]` entry.
+  - A baseline written before per-family fingerprints (it has `factsDeriverBlob`) is read as stale, not malformed: `FACTS_DERIVER_CHANGED`, fixed by the same header-only rebaseline.
   - **Every unit line in both files must be byte-identical.** That's exactly what the reviewer checks, for example with `git diff --stat` plus a diff limited to unit lines.
   - Any changed unit line means the deriver change wasn't fact-neutral, and it needs its own explanation.
 
@@ -199,7 +211,7 @@ regenerates the baseline with a note.
    recomputes each unit's member-set hash and size from its sidecar line and checks them against the main file; the two files
    list exactly the same units; every sidecar line is well formed; the sidecar exists.
 3. **Ancestry (exit 2, `BASELINE_SHA_NOT_ANCESTOR`):** `git merge-base --is-ancestor <baseline sha> <run sha>`.
-4. **Provenance (exit 2):** tonight's `factsDeriverBlob` differs from the baseline's (`FACTS_DERIVER_CHANGED`) or the facts
+4. **Provenance (exit 2):** tonight's `coreDeriverSha` or `familyDeriverSha` differs from the baseline's (`FACTS_DERIVER_CHANGED`; the message names which), or the facts
    schema version differs (`FACTS_SCHEMA_CHANGED`), or `facts-meta.json` is missing (`FACTS_PROVENANCE_MISSING`). The fix is a
    rebaseline PR. A different `referenceSha256` is reported (`provenance.referenceChanged`), not a failure.
 5. **Population:** units only in tonight's run are **unbaselined** (counted in the headline, listed by id, never a fail). A
@@ -223,7 +235,7 @@ facts } }`. The next night tightens to the best of each fact **only while** `bas
 
 `{ schemaVersion, measure, runSha, exitCode, failClosed: [{reason, message}], regressions: [{unit, fact, source:
 "baseline"|"last-green", base, tonight, why, added?}], gains, unprotectedGains, unbaselined: string[], removed: string[],
-population: {baseline, tonight, overlap}, provenance: {deriverChanged, referenceChanged}, lastGreen: {status, detail},
+population: {baseline, tonight, overlap}, provenance: {deriverChanged, referenceChanged, deriverChangedParts}, lastGreen: {status, detail},
 headline }`. `gate-units.ndjson` has one line per regression, removed unit, gain and unbaselined unit. Fail-closed reasons:
 `BASELINE_MISSING`, `BASELINE_MALFORMED`, `BASELINE_SIDECAR_MISMATCH`, `BASELINE_SHA_NOT_ANCESTOR`,
 `BASELINE_SHA_UNCHECKABLE`, `POPULATION_UNIT_REMOVED`, `FACTS_DERIVER_CHANGED`, `FACTS_SCHEMA_CHANGED`,

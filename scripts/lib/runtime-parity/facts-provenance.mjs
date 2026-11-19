@@ -1,64 +1,56 @@
 // Where a set of facts came from, so a baseline can tell when tonight's facts were derived differently.
-// facts.mjs stays the single pure deriver; this module only fingerprints it (and writes/reads the
-// `facts-meta.json` that travels with `facts.ndjson`).
-import { createHash } from 'node:crypto';
-import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
+// Two fingerprints per family: the shared core (facts-core.mjs, `coreDeriverSha`) and the family's own deriver
+// (facts-<family>.mjs, `familyDeriverSha`). Both come from fingerprints.mjs, their one owner (dependency-free, so the
+// hosted pre-dispatch check calls the same functions before npm ci); this module re-exports them and writes/reads the
+// `facts-meta.json` that travels with `facts.ndjson`.
 import { z } from 'zod';
 
-import { FACTS_SCHEMA_VERSION } from './facts.mjs';
+import { FACTS_SCHEMA_VERSION } from './facts-core.mjs';
+import { coreDeriverSha, familyDeriverSha } from './fingerprints.mjs';
+
+export {
+  coreDeriverSha,
+  familyDeriverFile,
+  familyDeriverSha,
+  gitBlobSha,
+} from './fingerprints.mjs';
 
 export const FACTS_META_FILE = 'facts-meta.json';
 
-/** The git blob sha of some bytes: sha1("blob <length>\0" + bytes). */
-export const gitBlobSha = (bytes) =>
-  createHash('sha1')
-    .update(`blob ${bytes.length}\0`)
-    .update(bytes)
-    .digest('hex');
-
-/**
- * The git blob sha of facts.mjs, over its LF-normalised bytes (the repo stores LF; a Windows checkout may
- * hold CRLF), so a Windows run and the hosted run agree on one value for one committed file.
- */
-export function factsDeriverBlob() {
-  const file = fileURLToPath(new URL('./facts.mjs', import.meta.url));
-  const text = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
-  return gitBlobSha(Buffer.from(text, 'utf8'));
-}
+const blob = z.string().regex(/^[a-f0-9]{40}$/);
 
 export const ProvenanceSchema = z.strictObject({
   /** The facts row layout and fact list version (FACTS_SCHEMA_VERSION). */
   factsSchemaVersion: z.int().positive(),
-  /** Git blob sha of facts.mjs, the deriver. A different value means the facts were read differently. */
-  factsDeriverBlob: z.string().regex(/^[a-f0-9]{40}$/),
+  /** Git blob of facts-core.mjs. */
+  coreDeriverSha: blob,
+  /** Git blob of facts-<family>.mjs. */
+  familyDeriverSha: blob,
   /** sha256 of the committed Java reference (config/reference gzip) the facts were derived against. */
   referenceSha256: z.string().regex(/^[a-f0-9]{64}$/),
 });
 
-export const factsProvenance = ({ referenceSha256 }) =>
+export const factsProvenance = ({ family, referenceSha256 }) =>
   ProvenanceSchema.parse({
     factsSchemaVersion: FACTS_SCHEMA_VERSION,
-    factsDeriverBlob: factsDeriverBlob(),
+    coreDeriverSha: coreDeriverSha(),
+    familyDeriverSha: familyDeriverSha(family),
     referenceSha256,
   });
 
-export const FactsMetaSchema = ProvenanceSchema.extend({
-  schemaVersion: z.literal(1),
+/** 2: per-family fingerprints (`coreDeriverSha`, `familyDeriverSha`) replace the single `factsDeriverBlob`; `family` is required. */
+export const FactsMetaSchema = z.strictObject({
+  schemaVersion: z.literal(2),
   measure: z.string().min(1),
-  /** The family the facts describe. Optional so a facts-meta.json written before families existed (battlemechs) still reads. */
-  family: z.string().min(1).optional(),
+  family: z.string().min(1),
+  ...ProvenanceSchema.shape,
 });
 
-export const factsMeta = ({
-  measure,
-  family = 'battlemechs',
-  referenceSha256,
-}) => ({
-  schemaVersion: 1,
+export const factsMeta = ({ measure, family, referenceSha256 }) => ({
+  schemaVersion: 2,
   measure,
   family,
-  ...factsProvenance({ referenceSha256 }),
+  ...factsProvenance({ family, referenceSha256 }),
 });
 
 /** Parse a facts-meta.json text; throws a plain Error naming the problem. */

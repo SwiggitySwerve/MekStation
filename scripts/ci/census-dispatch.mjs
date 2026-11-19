@@ -5,9 +5,10 @@
 // MAX_IN_FLIGHT runs in flight repo-wide (2 runs x 5 jobs leaves at least 10 of the 20 hosted jobs for PR runs).
 // It dispatches, takes the run id from the URL `gh workflow run` prints (never from `gh run list`, which can name
 // another lane's run), waits, then prints each job's conclusion, its gate summary and the run's artifact names.
-// Before dispatching, when this checkout is the ref head and facts.mjs and the baselines are unchanged from HEAD, it
-// compares the fingerprint of facts.mjs (the gate owner, factsDeriverBlob) with each enabled family baseline header and
-// prints a plain message on a mismatch. It never refuses; a pre-check error is logged and the dispatch goes ahead.
+// Before dispatching, when this checkout is the ref head and the deriver files and the baselines are unchanged from HEAD,
+// it compares this checkout's deriver fingerprints (fingerprints.mjs: coreDeriverSha, familyDeriverSha) with each enabled
+// family's baseline headers and prints a plain message on a mismatch. It never refuses; a pre-check error is logged and
+// the dispatch goes ahead.
 // Exit: 0 the run succeeded; 1 it failed, the wait timed out or gh failed; 2 refused before dispatching.
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -16,12 +17,18 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
-import { factsDeriverBlob } from '../lib/runtime-parity/facts-provenance.mjs';
+import {
+  CORE_DERIVER_FILE,
+  coreDeriverSha,
+  familyDeriverFile,
+  familyDeriverSha,
+} from '../lib/runtime-parity/fingerprints.mjs';
 import {
   DERIVER_FIELDS,
   MEASURES,
   deriverChangedMessage,
   enabledFamilies,
+  familyDeriverChangedMessage,
   parityRuntimeNames,
   planCensus,
   readRegistry,
@@ -75,37 +82,100 @@ export function checkInFlight(runs, ref) {
 }
 
 /**
- * Before dispatching: does this checkout's deriver fingerprint (the gate's owner, factsDeriverBlob) still match every
- * enabled family's committed baselines? A mismatch means each gate will fail closed with FACTS_DERIVER_CHANGED, so the
- * plain message is printed up front. A baseline header without the field (a post-split one) claims nothing here.
- * Returns the message, or null when every fingerprint matches.
+ * Before dispatching: do this checkout's deriver fingerprints still match every enabled family's committed baseline
+ * headers? The values come only from fingerprints.mjs (coreDeriverSha(), familyDeriverSha(family): exactly what the
+ * census writes); this file holds no hash code. A mismatch means that gate will fail closed with
+ * FACTS_DERIVER_CHANGED, so a plain message is printed up front. It informs and never refuses:
+ *   - a `coreDeriverSha` mismatch: every enabled family must be rebaselined;
+ *   - a `familyDeriverSha` mismatch: that family only;
+ *   - a pre-split header (neither field): a legacy note, not an error;
+ *   - any error for one family (no facts-<family>.mjs, an unreadable header): logged, that family skipped, the rest
+ *     still checked.
+ * Returns the lines to log, or null when every enabled family matches.
  */
 export function deriverPrecheck({
   registry,
   root = process.cwd(),
-  current = factsDeriverBlob(),
+  core = coreDeriverSha,
+  family = familyDeriverSha,
 }) {
-  const stale = [];
-  for (const family of enabledFamilies(registry))
-    for (const measure of MEASURES) {
-      const file = registry.families[family].baselines[measure].main;
-      const baselined = JSON.parse(
-        fs.readFileSync(path.join(root, file), 'utf8'),
-      )[DERIVER_FIELDS.legacy];
-      if (baselined && baselined !== current)
-        stale.push(`${family} ${measure} ${baselined}`);
+  let checkoutCore;
+  try {
+    checkoutCore = core();
+  } catch (error) {
+    return `deriver fingerprint not pre-checked: the shared core could not be fingerprinted (${error.message})`;
+  }
+  const coreStale = [];
+  const familyStale = [];
+  const notes = [];
+  const checked = [`core ${checkoutCore}`];
+  for (const name of enabledFamilies(registry)) {
+    try {
+      const checkoutFamily = family(name);
+      const coreHere = [];
+      const familyHere = [];
+      const notesHere = [];
+      for (const measure of MEASURES) {
+        const file = registry.families[name].baselines[measure].main;
+        const header = JSON.parse(
+          fs.readFileSync(path.join(root, file), 'utf8'),
+        );
+        const baselinedCore = header[DERIVER_FIELDS.core];
+        const baselinedFamily = header[DERIVER_FIELDS.family];
+        if (baselinedCore === undefined && baselinedFamily === undefined) {
+          notesHere.push(
+            `legacy note: ${name} ${measure} has a pre-split baseline header (no ${DERIVER_FIELDS.core}/${DERIVER_FIELDS.family}); a header-only rebaseline records them`,
+          );
+          continue;
+        }
+        if (baselinedCore !== checkoutCore)
+          coreHere.push(`${name} ${measure} core ${baselinedCore}`);
+        if (baselinedFamily !== checkoutFamily)
+          familyHere.push(
+            `${name} ${measure} ${name} deriver ${baselinedFamily}`,
+          );
+      }
+      coreStale.push(...coreHere);
+      familyStale.push(...familyHere.map((text) => ({ name, text })));
+      notes.push(...notesHere);
+      checked.push(`${name} ${checkoutFamily}`);
+    } catch (error) {
+      notes.push(
+        `${name}: deriver fingerprint not pre-checked (${error.message}); skipped`,
+      );
     }
-  return stale.length
-    ? `${deriverChangedMessage(registry)} This checkout's facts.mjs is ${current}; the baselines were derived with: ${stale.join(', ')}.`
-    : null;
+  }
+  const lines = [];
+  if (coreStale.length || familyStale.length) {
+    const message = coreStale.length
+      ? deriverChangedMessage(registry)
+      : familyDeriverChangedMessage([
+          ...new Set(familyStale.map((stale) => stale.name)),
+        ]);
+    lines.push(
+      `${message} This checkout's fingerprints are ${checked.join(', ')}; the baselines were derived with: ${[...coreStale, ...familyStale.map((stale) => stale.text)].join(', ')}.`,
+    );
+  }
+  lines.push(...notes);
+  return lines.length ? lines.join('\n') : null;
 }
 
-/** The file the gate's owner fingerprints (factsDeriverBlob); the test pins the two together. */
-export const FACTS_DERIVER_FILE = 'scripts/lib/runtime-parity/facts.mjs';
+const RUNTIME_PARITY_DIR = 'scripts/lib/runtime-parity';
 
-/** What the pre-check reads: facts.mjs and every enabled family's baseline headers. */
+/**
+ * What the pre-check reads: the shared core's and each enabled family's deriver files (named by fingerprints.mjs) and
+ * those families' baseline header files. A family id the provenance refuses has no deriver file to list; the pre-check
+ * itself logs and skips that family.
+ */
 export const precheckInputs = (registry) => [
-  FACTS_DERIVER_FILE,
+  `${RUNTIME_PARITY_DIR}/${CORE_DERIVER_FILE}`,
+  ...enabledFamilies(registry).flatMap((family) => {
+    try {
+      return [`${RUNTIME_PARITY_DIR}/${familyDeriverFile(family)}`];
+    } catch {
+      return [];
+    }
+  }),
   ...enabledFamilies(registry).flatMap((family) =>
     MEASURES.map(
       (measure) => registry.families[family].baselines[measure].main,

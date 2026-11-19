@@ -255,18 +255,26 @@ export function resolveLeg(registry, { family, measure, timeoutInput }) {
 
 /**
  * The registry's part of a deriver-change message: which enabled families must be rebaselined. The gate's own
- * fail-closed message (shown verbatim beside this) says what changed. Until the split there is one shared fingerprint,
- * so every enabled family must be rebaselined. A pre-split baseline is legacy, not an error.
+ * fail-closed message (shown verbatim beside this) says what changed, and its report says which fingerprint did
+ * (`provenance.deriverChangedParts`). Only the family's own deriver changed: that family alone rebaselines. The shared
+ * core, a pre-split baseline, or a report that does not say: every enabled family.
  */
 export function rebaselineNotice(report, registry) {
   if (!report?.failClosed?.some((row) => row.reason === DERIVER_CHANGED_REASON))
     return null;
+  const parts = report.provenance?.deriverChangedParts ?? [];
+  if (parts.length && parts.every((part) => part === 'family'))
+    return familyDeriverChangedMessage([report.family ?? DEFAULT_FAMILY]);
   return deriverChangedMessage(registry);
 }
 
 /** The one wording of a deriver change, shared by the job summary and the dispatch wrapper's pre-check. */
 export const deriverChangedMessage = (registry) =>
   `deriver fingerprint changed (shared core): every enabled family (${enabledFamilies(registry).join(', ')}) must be rebaselined before its gate can pass.`;
+
+/** The wording when only some families' own derivers changed: those families rebaseline, nobody else. */
+export const familyDeriverChangedMessage = (families) =>
+  `deriver fingerprint changed (${families.join(', ')} deriver): only ${families.join(', ')} must be rebaselined before its gate can pass.`;
 
 function writeOutputs(outputs) {
   const text = Object.entries(outputs)

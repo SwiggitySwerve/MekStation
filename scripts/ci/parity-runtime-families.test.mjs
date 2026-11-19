@@ -288,6 +288,23 @@ test("a deriver change adds the registry's rebaseline list; anything else adds n
     ),
     /^deriver fingerprint changed \(shared core\): every enabled family \(battlemechs\) must be rebaselined before its gate can pass\.$/,
   );
+  // The gate says which fingerprint changed: the family's own deriver alone names that family only; the shared core
+  // or a pre-split baseline names every enabled family.
+  const deriverChanged = (parts, family) => ({
+    family,
+    failClosed: [{ reason: 'FACTS_DERIVER_CHANGED', message: 'gate words' }],
+    provenance: { deriverChangedParts: parts },
+  });
+  assert.equal(
+    rebaselineNotice(deriverChanged(['family'], 'vehicles'), registry),
+    'deriver fingerprint changed (vehicles deriver): only vehicles must be rebaselined before its gate can pass.',
+  );
+  for (const parts of [['core'], ['core', 'family'], ['legacy']])
+    assert.match(
+      rebaselineNotice(deriverChanged(parts, 'vehicles'), registry),
+      /^deriver fingerprint changed \(shared core\): every enabled family/,
+      parts.join('+'),
+    );
   // The list is every enabled family.
   const two = structuredClone(registry);
   Object.assign(two.families.vehicles, {

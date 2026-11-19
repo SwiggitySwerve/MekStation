@@ -20,6 +20,7 @@ import {
   factsProvenance,
 } from './facts-provenance.mjs';
 import { FACTS_FILE, serializeFacts } from './facts.mjs';
+import { DEFAULT_FAMILY } from './family-names.mjs';
 import {
   GateError,
   baselinePath,
@@ -255,7 +256,8 @@ export function differingUnits(texts) {
  * spec: { measure, repoRoot, families: { <family>: { capture, toRow, summarize, differencesFile, facts } } }
  *   One entry per supported family; a run measures exactly one family (`--family`, default battlemechs).
  *   toRow(record) -> row; summarize({rows, referenceByPath, scope, deterministic}) -> {summary, differences};
- *   facts(row, javaReferenceRow) -> the unit's gated facts (scripts/lib/runtime-parity/facts.mjs), written to
+ *   facts(row, javaReferenceRow) -> the unit's gated facts (the family's deriver, imported by the port from its own
+ *   facts-<family>.mjs), written to
  *   facts.ndjson beside the rows for the nightly gate.
  *
  * `--write-baseline --reason <text> [--pr <n>] [--baseline-dir <dir>]` also writes the family's baseline (gate.mjs baselinePath:
@@ -270,7 +272,7 @@ export async function runCensus(argv, deps, spec) {
       out: { type: 'string' },
       sources: { type: 'string' },
       mekfiles: { type: 'string' },
-      family: { type: 'string', default: 'battlemechs' },
+      family: { type: 'string', default: DEFAULT_FAMILY },
       units: { type: 'string' },
       runs: { type: 'string', default: '2' },
       sequential: { type: 'boolean', default: false },
@@ -422,7 +424,7 @@ export async function runCensus(argv, deps, spec) {
         path.join(out, FACTS_FILE),
         serializeFacts(spec.measure, facts),
       );
-      // Where the facts came from: the gate fails closed if facts.mjs changed since the baseline.
+      // Where the facts came from: the gate fails closed if the shared core or this family's deriver changed since the baseline.
       fs.writeFileSync(
         path.join(out, FACTS_META_FILE),
         JSON.stringify(
@@ -522,6 +524,7 @@ export async function runCensus(argv, deps, spec) {
             units: [],
           },
           provenance: factsProvenance({
+            family,
             referenceSha256: reference.gzipSha256,
           }),
           existingNotes,

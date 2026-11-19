@@ -13,11 +13,23 @@ Every run, facts file, baseline and gate covers exactly **one family** (`--famil
 never collide.
 
 - **Rows:** each family's rows go to its own `--out` directory.
-- **Baselines:** each family has its own files (`baselinePath` / `baselineSetsPath` in `gate.mjs`). Battlemechs keep the
+- **Baselines:** each family has its own files (`baselinePath` / `baselineSetsPath` in `family-names.mjs`, re-exported by `gate.mjs`). Battlemechs keep the
   `baseline-<measure>` names; every other family uses `baseline-<family>-<measure>`.
 - **Gate:** the gate fails closed if the run, the facts, the facts-meta or a baseline unit key belongs to another family.
 - **Registered today:** `battlemechs` (both measures). `vehicles` has its row shape and fact table, and its capture
   registers in V2.
+
+## Family names
+
+`family-names.mjs` is the one owner of family ids and the file names they map to.
+
+- **Ids:** a family id matches `FAMILY_ID_PATTERN`, `^[a-z][a-z0-9-]*$` (lowercase letters, digits and dashes, starting
+  with a letter). The default family is `DEFAULT_FAMILY` (`battlemechs`).
+- **File names:** `baselinePath` and `baselineSetsPath` give each family's baseline files.
+- **No copies:** the gate, the census, the deriver provenance and the hosted family registry
+  (`scripts/ci/parity-runtime-families.mjs`, `config/parity-runtime/families.json`) read these and keep no copy.
+  `family-names.test.mjs` checks that the registry's baseline paths agree.
+- **Imports nothing:** so the registry's plan step, which runs without `npm ci`, can import it.
 
 ## Adding a family
 
@@ -31,19 +43,27 @@ A family adds only its own parts. No gate, baseline-format or census change is n
      for that family only.
    - Regenerate the schema: `node scripts/lib/runtime-parity/rows.mjs --write-schema`, then `npx oxfmt` the two schema files.
    - Document the shape in `ROW-SCHEMA.md`.
-2. **Fact table and derivers (`facts.mjs`).**
-   - Add `<FAMILY>_FACT_DEFS` and `<FAMILY>_REPORTED_DEFS` (`{load: {...}, reopen: {...}}`, each fact `bool`, `distance`
-     or `set`) to `FAMILY_FACT_DEFS` and `FAMILY_REPORTED_DEFS`.
-   - Add one pure deriver per measure, taking `(row, javaReferenceRow)` and returning facts. An error row has every fact
-     `null`; reuse `unknownFacts(measure, row.family)`.
+2. **Fact table and derivers (`facts-<family>.mjs`, registered in `facts.mjs`).**
+   - Create `facts-<family>.mjs` (the name must be the family name; provenance finds the file by it). It holds the
+     family's `<FAMILY>_FACT_DEFS` and `<FAMILY>_REPORTED_DEFS` (`{load: {...}, reopen: {...}}`, each fact `bool`,
+     `distance` or `set`) and one pure deriver per measure, taking `(row, javaReferenceRow)` and returning facts.
+     - Build the identity with `identity(row)` from `facts-core.mjs`.
+     - An error row has every fact `null`: `unknownOf(<FAMILY>_FACT_DEFS.<measure>)`.
+   - Register it in `facts.mjs`: add it to `FAMILY_FACT_DEFS` and `FAMILY_REPORTED_DEFS`, and re-export its derivers.
+     `facts.mjs` is wiring only and isn't fingerprinted, so registering a family rebaselines nobody else.
    - Document the facts in `BASELINE-SCHEMA.md` under "Families".
-   - **Any edit to `facts.mjs`, for any family, needs a header-only rebaseline of EVERY family's baselines.**
-     - Why: `facts.mjs` is one file with one fingerprint (`factsDeriverBlob`, `facts-provenance.mjs`), shared by every
-       family, so an edit fails every family's gate closed (`FACTS_DERIVER_CHANGED`) until then.
-     - The rebaseline changes 0 unit lines; only the header (`sha`, `factsDeriverBlob`) and a new note change.
-     - Batch fact-table changes into one PR to C2, and list every family's rebaseline in it.
-     - This is the one cross-family coupling in the library. Per-family deriver files would remove it if fact-table
-       edits become frequent, but that is a deliberate later change, not something to do per family.
+   - **What rebaselines what.** Each family's gate checks two fingerprints, owned by `fingerprints.mjs` (`coreDeriverSha()`, `familyDeriverSha(family)`). That module imports only Node built-ins, so the hosted pre-dispatch check calls the same functions before `npm ci`:
+     - `familyDeriverSha`, the git blob of `facts-<family>.mjs`. Editing it fails **that family's** gate closed
+       (`FACTS_DERIVER_CHANGED`) until that family gets a header-only rebaseline.
+     - `coreDeriverSha`, the git blob of `facts-core.mjs` (the fact kinds, the facts-row schema, the shared helpers).
+       Editing it fails **every family's** gate closed until every family gets a header-only rebaseline, so batch core
+       changes into one PR to C2 that lists every family's rebaseline.
+     - A header-only rebaseline changes 0 unit lines; only `sha`, the changed fingerprint and a new note change.
+     - **Outside the fingerprints:** two inputs can change facts without moving either fingerprint.
+       - `canonicalJson` from `rows.mjs`, which the battlemech deriver uses for `loadedMountLosses` members.
+       - The installed `zod` version, which the facts-row schema in `facts-core.mjs` parses and serializes with.
+       - A change to either also changes `rows.ndjson` or the facts the gate reads, so it shows up as row or fact
+         differences (regressions or gains) in the gate. It is not silent, but it is not named as a deriver change.
 3. **Capture and port entry (`run.mjs` of each port).**
    - Add a `families.<family>` entry: `{capture, toRow, summarize, facts, differencesFile}`.
    - `capture` is a `jestCapture({config, contextEnv})` over the family's own Jest capture file and config. Use a file
