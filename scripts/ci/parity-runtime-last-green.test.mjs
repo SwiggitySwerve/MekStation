@@ -92,6 +92,45 @@ test('chooses latest main nightly artifact regardless of overall conclusion, ski
   assert.doesNotMatch(calls[0], /status=success|conclusion=/);
 });
 
+test("each family follows its own chain: battlemechs keeps today's name, others carry the family", async (t) => {
+  for (const [family, name] of [
+    [undefined, 'parity-runtime-last-green-load'],
+    ['battlemechs', 'parity-runtime-last-green-load'],
+    ['vehicles', 'parity-runtime-last-green-vehicles-load'],
+  ]) {
+    const options = { ...fixture(t), family };
+    options.download = async ({ destination, name: downloaded }) => {
+      assert.equal(downloaded, name);
+      fs.writeFileSync(
+        path.join(destination, 'last-green.json'),
+        JSON.stringify({ runSha: sha, measure: 'load' }),
+      );
+    };
+    options.api = async (_method, route) => {
+      if (route.includes('/workflows/'))
+        return { workflow_runs: [run(6), run(5)] };
+      // Run 6 holds only the other family's artifact, which must be skipped.
+      if (route.includes('/6/'))
+        return {
+          artifacts: [
+            artifact({
+              name:
+                name === 'parity-runtime-last-green-load'
+                  ? 'parity-runtime-last-green-vehicles-load'
+                  : 'parity-runtime-last-green-load',
+            }),
+          ],
+        };
+      return { artifacts: [artifact({ name })] };
+    };
+    const result = await retrieveLastGreen(options);
+    assert.equal(result.status, 'found', String(family));
+  }
+  const bad = await retrieveLastGreen({ ...fixture(t), family: 'Bad Family' });
+  assert.equal(bad.status, 'failed');
+  assert.match(bad.reason, /invalid family/);
+});
+
 test('run and artifact pagination find older main green instead of stopping on a full page', async (t) => {
   const options = fixture(t);
   options.api = async (_method, route) => {
