@@ -61,6 +61,7 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import { parseCustomCombatDefinition } from '@/services/units/customCombatDefinition';
 import { generateKeyPair } from '@/services/vault/IdentityService';
 import {
   Facing,
@@ -74,6 +75,8 @@ import {
 import { defaultSeats } from '@/types/multiplayer/Lobby';
 import { encodeTokenForWire } from '@/types/multiplayer/Player';
 import { deriveState } from '@/utils/gameplay/gameState';
+
+import atlas from '../../../../public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json';
 
 const MATCH_ID = 'match-history-fog';
 const AT = '2026-10-17T12:00:00.000Z';
@@ -166,6 +169,15 @@ function slotManifest(secret: string) {
   };
 }
 
+function savedDesign(id: string, secret: string) {
+  const snapshot = parseCustomCombatDefinition(
+    { ...atlas, id, chassis: secret },
+    id,
+  );
+  if (!snapshot) throw new Error('Expected valid saved-design fixture');
+  return snapshot;
+}
+
 function createdEvent(): IGameEvent {
   const baseline = JSON.parse(
     JSON.stringify(VALID_COMBAT_LIFECYCLE_EVENT_PAYLOADS.game_created),
@@ -187,7 +199,7 @@ function createdEvent(): IGameEvent {
           id: 'host-unit',
           side: GameSide.Player,
           unitRef: 'custom-host',
-          customUnitDefinition: { id: 'custom-host', marker: HOST_DESIGN },
+          customUnitDefinition: savedDesign('custom-host', HOST_DESIGN),
           criticalSlotManifest: slotManifest(HOST_SLOT),
         },
         {
@@ -195,10 +207,7 @@ function createdEvent(): IGameEvent {
           id: 'opponent-unit',
           side: GameSide.Opponent,
           unitRef: 'custom-opponent',
-          customUnitDefinition: {
-            id: 'custom-opponent',
-            marker: OPPONENT_DESIGN,
-          },
+          customUnitDefinition: savedDesign('custom-opponent', OPPONENT_DESIGN),
           criticalSlotManifest: slotManifest(OPPONENT_SLOT),
         },
       ],
@@ -265,7 +274,7 @@ function matchEvents(): readonly IGameEvent[] {
       GamePhase.Movement,
       GameEventType.MovementLocked,
       'host-unit',
-      { unitId: 'host-unit', marker: HOST_OUT_OF_LOS },
+      { unitId: 'host-unit', intentId: HOST_OUT_OF_LOS },
       'observer-visible',
     ),
     move(ID.moveBack, 3, beside),
@@ -275,7 +284,7 @@ function matchEvents(): readonly IGameEvent[] {
       GamePhase.Movement,
       GameEventType.MovementLocked,
       'host-unit',
-      { unitId: 'host-unit', marker: HOST_IN_LOS },
+      { unitId: 'host-unit', intentId: HOST_IN_LOS },
       'observer-visible',
     ),
     at(
@@ -284,7 +293,7 @@ function matchEvents(): readonly IGameEvent[] {
       GamePhase.WeaponAttack,
       GameEventType.AttackLocked,
       'host-unit',
-      { unitId: 'host-unit', marker: HOST_LOCK },
+      { unitId: 'host-unit', intentId: HOST_LOCK },
       'actor-only',
     ),
     at(
@@ -293,7 +302,7 @@ function matchEvents(): readonly IGameEvent[] {
       GamePhase.WeaponAttack,
       GameEventType.AttackLocked,
       'opponent-unit',
-      { unitId: 'opponent-unit', marker: OPPONENT_LOCK },
+      { unitId: 'opponent-unit', intentId: OPPONENT_LOCK },
       'actor-only',
     ),
     at(
@@ -306,7 +315,9 @@ function matchEvents(): readonly IGameEvent[] {
         attackerId: 'host-unit',
         targetId: 'opponent-unit',
         weapons: [],
-        marker: HOST_SEALED,
+        toHitNumber: 7,
+        modifiers: [],
+        intentId: HOST_SEALED,
       },
     ),
     at(
@@ -319,7 +330,9 @@ function matchEvents(): readonly IGameEvent[] {
         attackerId: 'opponent-unit',
         targetId: 'host-unit',
         weapons: [],
-        marker: OPPONENT_SEALED,
+        toHitNumber: 7,
+        modifiers: [],
+        intentId: OPPONENT_SEALED,
       },
     ),
   ];

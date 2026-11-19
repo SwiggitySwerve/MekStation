@@ -213,7 +213,10 @@ function publicPhaseEvent(sequence: number): IGameEvent {
     turn: 1,
     phase: GamePhase.Movement,
     visibility: 'public',
-    payload: { phase: GamePhase.Movement } as never,
+    payload: {
+      fromPhase: GamePhase.Initiative,
+      toPhase: GamePhase.Movement,
+    },
   } as IGameEvent;
 }
 

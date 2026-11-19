@@ -69,7 +69,7 @@ function makeEvent(matchId: string, sequence: number): IGameEvent {
     type: GameEventType.PhaseChanged,
     turn: 1,
     phase: GamePhase.Initiative,
-    payload: { note: 'stress-payload', sequence } as never,
+    payload: { fromPhase: GamePhase.End, toPhase: GamePhase.Initiative },
   } as IGameEvent;
 }
 

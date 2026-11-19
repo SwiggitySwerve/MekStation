@@ -138,7 +138,7 @@ function createMockGame() {
         sequence: 2,
         timestamp: '2025-01-01T00:05:00Z',
         actorId: 'unit-1',
-        payload: { unitId: 'unit-1', reason: 'destroyed' },
+        payload: { unitId: 'unit-1', cause: 'damage' },
       },
       {
         id: 'event-3',
@@ -149,7 +149,7 @@ function createMockGame() {
         phase: GamePhase.End,
         sequence: 3,
         timestamp: '2025-01-01T00:10:00Z',
-        payload: { winner: 'player', reason: 'all_enemies_destroyed' },
+        payload: { winner: 'player', reason: 'destruction' },
       },
     ],
     winner: 'player' as const,

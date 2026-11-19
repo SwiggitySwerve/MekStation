@@ -249,7 +249,17 @@ export function bindLegacyByteEvent(
       'Raw line bytes are not one valid UTF-8 JSON value',
     );
   }
-  return attribute(format, record, evidenceDigest, bound.byteLength);
+  try {
+    return attribute(format, record, evidenceDigest, bound.byteLength);
+  } catch (error) {
+    if (error instanceof LegacySourceAttributionError) throw error;
+    attributionFailure(
+      'invalid-source-event',
+      formatId,
+      formatVersion,
+      'Record is not canonically encodable',
+    );
+  }
 }
 
 /**

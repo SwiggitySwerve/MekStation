@@ -261,10 +261,13 @@ describe('the create path seeds the match journal stream', () => {
     for (let sequence = 0; sequence < OPENING_EVENT_COUNT; sequence += 1) {
       await store!.appendEvent(MATCH_ID, {
         id: `legacy-${sequence}`,
+        gameId: MATCH_ID,
         sequence,
         type: 'phase_changed',
         timestamp: AT,
-        payload: {},
+        turn: 1,
+        phase: 'movement',
+        payload: { fromPhase: 'initiative', toPhase: 'movement' },
       } as unknown as IGameEvent);
     }
 
