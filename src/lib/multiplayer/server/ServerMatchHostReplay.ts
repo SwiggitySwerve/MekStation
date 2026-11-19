@@ -19,7 +19,7 @@ import {
   type MatchLogStorage,
 } from '@/lib/p2p/matchLogStorage';
 import { nowIso } from '@/types/multiplayer/Protocol';
-import { deriveState } from '@/utils/gameplay/gameState';
+import { applyEvent, createInitialGameState } from '@/utils/gameplay/gameState';
 
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
 import type { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
@@ -490,7 +490,6 @@ async function getReplayEventsForPlayer(
 
   const allEvents = await getEventsFromSeq(ctx, 0);
   const visible: IGameEvent[] = [];
-  const prefix: IGameEvent[] = [];
   const replayCache = new FogOfWarVisibilityCache();
   const gameId = ctx.session.getSession().id;
   // M3 design D6 — a spectator's replay is filtered through the
@@ -499,14 +498,22 @@ async function getReplayEventsForPlayer(
   // hidden-unit event.
   const spectator = isSpectatorPlayer(meta.seats ?? [], playerId);
 
+  // Each event is filtered against the state AFTER it. That state is
+  // `deriveState(gameId, prefix)`, which is this same fold run from the
+  // start, so carrying it forward gives the same state per event in one
+  // pass instead of one full re-derivation per event (P9: quadratic per
+  // join). Events before `fromSeq` still fold: they shape the state.
+  let derived = createInitialGameState(gameId);
   for (const event of allEvents) {
-    prefix.push(event);
+    derived = applyEvent(derived, event);
     if (event.sequence < fromSeq) continue;
     if (isMatchWireSealedDeclaration(event)) {
       visible.push(event);
       continue;
     }
-    const state = withVisibilityAssignments(deriveState(gameId, prefix), meta);
+    // A fresh wrapper per event, as before: the visibility cache keys on
+    // state identity, so its hits stay exactly what they were.
+    const state = withVisibilityAssignments(derived, meta);
     const filtered = spectator
       ? filterEventForSpectator(event, state, {
           config: meta.config,
