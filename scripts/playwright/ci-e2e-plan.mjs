@@ -86,8 +86,16 @@ export function nightlySuites(tests) {
 // Playwright arguments, owned here so a runner change cannot drift from the
 // invocation the contract tests pin. PR selection names its spec files; Nightly
 // selects by the generated --test-list inside the grep-filtered census.
-export const prCensusArgs = (suites) =>
-  suites.flatMap(({ files }) => files.map((f) => `e2e/${f}`));
+
+// The committed screenshot baselines are win32-only, so CI never compares them:
+// toHaveScreenshot specs (audit-capture, visual-regression) run as page checks.
+// Nightly and every PR suite, the data-keyed one included (#3448), use this.
+export const SNAPSHOT_ARGS = ['--ignore-snapshots'];
+
+export const prCensusArgs = (suites) => [
+  ...suites.flatMap(({ files }) => files.map((f) => `e2e/${f}`)),
+  ...SNAPSHOT_ARGS,
+];
 
 export const prTaskArgs = (suite, list) => [
   ...suite.files.map((f) => `e2e/${f}`),
@@ -95,11 +103,12 @@ export const prTaskArgs = (suite, list) => [
   '--project=chromium',
   `--workers=${suite.workers}`,
   ...suite.options,
+  ...SNAPSHOT_ARGS,
   `--output=test-results/${suite.name}`,
 ];
 
 export const nightlyCensusArgs = () => [
-  '--ignore-snapshots',
+  ...SNAPSHOT_ARGS,
   '--grep-invert',
   NIGHTLY_GREP_INVERT,
 ];
