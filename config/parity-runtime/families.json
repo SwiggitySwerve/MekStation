@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "families": {
+    "battlemechs": {
+      "enabled": true,
+      "expectedUnits": 4263,
+      "entryFlags": [],
+      "baselines": {
+        "load": {
+          "main": "config/parity-runtime/baseline-load.json",
+          "sets": null
+        },
+        "reopen": {
+          "main": "config/parity-runtime/baseline-reopen.json",
+          "sets": "config/parity-runtime/baseline-reopen.sets.ndjson"
+        }
+      },
+      "timeoutMinutes": { "load": 15, "reopen": 20 },
+      "coreDeriverSha": null,
+      "familyDeriverSha": null
+    },
+    "vehicles": {
+      "enabled": false,
+      "expectedUnits": 1444,
+      "entryFlags": ["--family", "vehicles"],
+      "baselines": null,
+      "timeoutMinutes": { "load": null, "reopen": null },
+      "coreDeriverSha": null,
+      "familyDeriverSha": null
+    }
+  }
+}
