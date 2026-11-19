@@ -180,6 +180,7 @@
   "role": "Sniper",
   "source": "RG22",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

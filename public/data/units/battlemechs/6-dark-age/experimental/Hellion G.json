@@ -187,6 +187,7 @@
   "mulId": 6939,
   "role": "Striker",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

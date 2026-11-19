@@ -207,6 +207,7 @@
     "RA:3:Mek Taser": ["stable_weapon"]
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

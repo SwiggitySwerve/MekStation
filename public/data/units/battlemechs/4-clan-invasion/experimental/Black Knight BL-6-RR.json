@@ -200,6 +200,7 @@
   "role": "Brawler",
   "source": "TR:3050,R&R",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

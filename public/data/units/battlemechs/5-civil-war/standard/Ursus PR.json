@@ -200,6 +200,7 @@
   "role": "Brawler",
   "source": "XTR:Clans",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "INNER_SPHERE"
   }
 }

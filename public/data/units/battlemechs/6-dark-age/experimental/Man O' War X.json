@@ -213,6 +213,7 @@
     "RA:7:CLERMediumLaser": ["stable_weapon"]
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

@@ -216,6 +216,7 @@
   "role": "Missile Boat",
   "source": "TR:CI",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

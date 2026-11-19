@@ -51,6 +51,7 @@
       "location": "AFT"
     }
   ],
+  "clanEngine": false,
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 8014,
@@ -65,6 +66,7 @@
     "primaryFactory": "Skye"
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "CLAN"
   }
 }

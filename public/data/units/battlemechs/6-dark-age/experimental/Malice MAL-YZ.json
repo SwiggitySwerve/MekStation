@@ -195,6 +195,7 @@
   "role": "Sniper",
   "source": "TR:3145:RotS,TR:DA",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

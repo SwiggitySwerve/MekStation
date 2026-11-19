@@ -197,6 +197,7 @@
   "role": "Skirmisher",
   "source": "HTP:Luzerne",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

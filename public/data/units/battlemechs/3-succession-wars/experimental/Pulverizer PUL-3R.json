@@ -187,6 +187,7 @@
     "RT:3:CLWERPPC": ["accurate"]
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

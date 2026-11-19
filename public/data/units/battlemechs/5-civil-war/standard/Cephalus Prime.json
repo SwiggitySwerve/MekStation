@@ -185,6 +185,7 @@
   "role": "Scout",
   "source": "WoR,WoRS",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

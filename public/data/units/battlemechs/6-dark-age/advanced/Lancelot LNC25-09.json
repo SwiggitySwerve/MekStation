@@ -184,6 +184,7 @@
   "role": "Skirmisher",
   "source": "RG23",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

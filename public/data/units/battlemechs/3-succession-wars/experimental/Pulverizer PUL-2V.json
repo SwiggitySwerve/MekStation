@@ -184,6 +184,7 @@
   "role": "Brawler",
   "source": "JSBD,TR:GC",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "INNER_SPHERE"
   }
 }

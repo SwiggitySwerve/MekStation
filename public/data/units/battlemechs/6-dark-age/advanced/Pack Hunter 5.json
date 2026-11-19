@@ -173,6 +173,7 @@
   "role": "Sniper",
   "source": "RG01",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "INNER_SPHERE"
   }
 }

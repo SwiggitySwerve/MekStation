@@ -96,6 +96,7 @@
     }
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "armor": "CLAN"
   }
 }

@@ -76,6 +76,7 @@
       "location": "FUSELAGE"
     }
   ],
+  "clanEngine": false,
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 2966,
@@ -90,6 +91,7 @@
     "primaryFactory": "Ramora"
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "CLAN"
   }
 }

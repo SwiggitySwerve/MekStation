@@ -189,6 +189,7 @@
   "role": "Brawler",
   "source": "RG15,RGv1",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

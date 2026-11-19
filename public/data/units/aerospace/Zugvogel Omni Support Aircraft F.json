@@ -218,6 +218,7 @@
     }
   ],
   "isOmni": true,
+  "clanEngine": false,
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 6807,
@@ -231,6 +232,7 @@
     "primaryFactory": "Gibbs"
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "INNER_SPHERE"
   }
 }

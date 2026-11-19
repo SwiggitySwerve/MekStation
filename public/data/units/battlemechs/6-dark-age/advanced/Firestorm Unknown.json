@@ -193,6 +193,7 @@
   "role": "Skirmisher",
   "source": "RG13",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

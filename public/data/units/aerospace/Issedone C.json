@@ -112,6 +112,7 @@
     "primaryFactory": "Lum|Twycross"
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "armor": "CLAN"
   }
 }

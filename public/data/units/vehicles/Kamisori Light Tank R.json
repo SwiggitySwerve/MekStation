@@ -47,6 +47,7 @@
     }
   ],
   "isOmni": true,
+  "clanEngine": false,
   "baseChassisTurretWeight": 0.5,
   "baseChassisTurret2Weight": 0.0,
   "armorTechRating": 0,
@@ -72,6 +73,7 @@
     }
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "INNER_SPHERE"
   }
 }

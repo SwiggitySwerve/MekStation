@@ -204,6 +204,7 @@
   "role": "Brawler",
   "source": "TR:3058U,TR:CI",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

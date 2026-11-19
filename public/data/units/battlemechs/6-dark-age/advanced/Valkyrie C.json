@@ -177,6 +177,7 @@
   "role": "Missile Boat",
   "source": "RG09,RGv1",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

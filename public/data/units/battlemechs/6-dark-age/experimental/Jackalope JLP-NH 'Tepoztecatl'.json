@@ -185,6 +185,7 @@
   "role": "Striker",
   "source": "Shrap16",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

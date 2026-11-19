@@ -191,6 +191,7 @@
   "role": "Missile Boat",
   "source": "XTR:Davion",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

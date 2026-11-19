@@ -192,6 +192,7 @@
   "role": "Brawler",
   "source": "SO:UF,TR:DA",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "CLAN"
   }
 }

@@ -72,6 +72,7 @@
     }
   ],
   "isOmni": true,
+  "clanEngine": false,
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 5746,
@@ -86,6 +87,7 @@
     "primaryFactory": "Ramora"
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "INNER_SPHERE"
   }
 }

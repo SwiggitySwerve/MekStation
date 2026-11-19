@@ -180,6 +180,7 @@
   "role": "Juggernaut",
   "source": "TR:3150",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

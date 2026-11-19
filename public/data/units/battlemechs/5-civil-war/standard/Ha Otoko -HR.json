@@ -177,6 +177,7 @@
   "role": "Missile Boat",
   "source": "XTR:Clans",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "INNER_SPHERE"
   }
 }

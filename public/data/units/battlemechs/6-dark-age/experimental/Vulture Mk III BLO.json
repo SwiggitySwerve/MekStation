@@ -204,6 +204,7 @@
   "role": "Missile Boat",
   "source": "SO:UF,TR:DA",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

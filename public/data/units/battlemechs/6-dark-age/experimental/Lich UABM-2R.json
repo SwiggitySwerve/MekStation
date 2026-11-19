@@ -178,6 +178,7 @@
     "RT:4:ISLightGaussRifle": ["mod_weapons"]
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

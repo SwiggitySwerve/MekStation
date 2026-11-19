@@ -180,6 +180,7 @@
   "role": "Striker",
   "source": "TR:3085",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

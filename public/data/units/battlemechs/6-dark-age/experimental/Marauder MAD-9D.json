@@ -200,6 +200,7 @@
     "RT:3:ISSBGR": ["exposed_linkage"]
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

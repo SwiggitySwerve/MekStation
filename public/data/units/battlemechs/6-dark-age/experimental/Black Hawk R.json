@@ -209,6 +209,7 @@
   "role": "Skirmisher",
   "source": "RG14",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

@@ -194,6 +194,7 @@
   "role": "Missile Boat",
   "source": "XTR:Comstar",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "CLAN"
   }
 }

@@ -97,6 +97,7 @@
     }
   ],
   "isOmni": true,
+  "clanEngine": true,
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 7667,
@@ -116,6 +117,7 @@
     "primaryFactory": "Irece"
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "armor": "CLAN"
   }
 }

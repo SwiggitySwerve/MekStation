@@ -215,6 +215,7 @@
     "RA:3:TSEMP Cannon": ["stable_weapon"]
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

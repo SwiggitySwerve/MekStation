@@ -191,6 +191,7 @@
     "RA:2:ISLBXAC10": ["mod_weapons"]
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

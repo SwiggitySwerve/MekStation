@@ -193,6 +193,7 @@
   "role": "Striker",
   "source": "XTR:Steiner",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

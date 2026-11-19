@@ -204,6 +204,7 @@
   "role": "Juggernaut",
   "source": "RG17",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

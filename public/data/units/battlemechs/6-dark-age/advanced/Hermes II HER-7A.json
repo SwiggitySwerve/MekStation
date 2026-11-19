@@ -180,6 +180,7 @@
   "role": "Sniper",
   "source": "RG26",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

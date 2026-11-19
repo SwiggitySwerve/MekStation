@@ -186,6 +186,7 @@
     "RA:4:CLERLargeLaser": ["em_interference"]
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

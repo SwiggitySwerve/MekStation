@@ -195,6 +195,7 @@
     "CT:11:Medium Laser": ["stable_weapon"]
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

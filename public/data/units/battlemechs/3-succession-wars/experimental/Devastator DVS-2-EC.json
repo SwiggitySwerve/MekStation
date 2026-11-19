@@ -192,6 +192,7 @@
   "role": "Sniper",
   "source": "TR:GC",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "INNER_SPHERE"
   }
 }

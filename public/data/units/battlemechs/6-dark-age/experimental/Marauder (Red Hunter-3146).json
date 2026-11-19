@@ -196,6 +196,7 @@
     "RT:3:CLUltraAC10": ["exposed_linkage"]
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

@@ -185,6 +185,7 @@
   "role": "Striker",
   "source": "XTR:Royal Fantasy",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }
