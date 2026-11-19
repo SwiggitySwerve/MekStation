@@ -72,7 +72,10 @@ import type { ReplayProjector } from '../replay/ReplayProjectorRegistry';
 import type { ReplaySchemaRegistry } from '../replay/ReplaySchemaRegistry';
 
 import { canonicalizeJsonV1 } from '../journal/EventJournalCanonicalizer';
-import { SQLiteReplayCheckpointRepository } from '../journal/SQLiteReplayCheckpointRepository';
+import {
+  duplicateCheckpointError,
+  SQLiteReplayCheckpointRepository,
+} from '../journal/SQLiteReplayCheckpointRepository';
 import {
   ReplayCheckpointError,
   digestReplayCheckpointState,
@@ -271,23 +274,85 @@ export class BranchCheckpointCache {
       // The slot is occupied. Immutability means it is never overwritten;
       // the only remaining question is whether the occupant is the same
       // claim - and the digest law answers it, not the row's word.
-      const occupant = this.repository.selectRecoveryBase(
-        expectationFor(pipeline, sourceTailDigest),
+      const occupantId = this.identicalOccupant(
+        pipeline,
         headRevision,
+        sourceTailDigest,
+        stateDigest,
       );
-      if (
-        occupant.kind === 'checkpoint' &&
-        occupant.checkpoint.metadata.revision === headRevision &&
-        occupant.checkpoint.metadata.stateDigest === stateDigest
-      ) {
+      if (occupantId !== null) {
         return Object.freeze({
           kind: 'already-recorded',
-          checkpointId: occupant.checkpoint.checkpointId,
+          checkpointId: occupantId,
           revision: headRevision,
         });
       }
       throw error;
     }
+  }
+
+  /**
+   * Throw exactly what `record` would throw for this claim on a taken
+   * slot, without writing: a caller that defers the write (boot writes
+   * after listen) can still fail where the write would have failed.
+   *
+   * An empty slot costs one indexed lookup and nothing else. Only an
+   * occupied slot pays for the claim's digests, through `claim`, and then
+   * meets the same occupant rule `record` applies.
+   */
+  public async assertSlotAccepts(
+    pipeline: IBranchCheckpointPipeline,
+    headRevision: number,
+    claim: () => Promise<{
+      readonly sourceTailDigest: string;
+      readonly state: unknown;
+    } | null>,
+  ): Promise<void> {
+    const checkpointId = checkpointIdFor(pipeline, headRevision);
+    if (
+      !this.repository.occupiesSlot(checkpointId, {
+        streamId: checkpointStreamKey(pipeline.stream),
+        branchId: pipeline.branchId,
+        projectorId: pipeline.projectorId,
+        projectorVersion: pipeline.projectorVersion,
+        schemaPipelineFingerprint: pipeline.schemaPipelineFingerprint,
+        revision: headRevision,
+      })
+    ) {
+      return;
+    }
+    const claimed = await claim();
+    // No claim, no write: nothing to collide.
+    if (claimed === null) return;
+    const occupantId = this.identicalOccupant(
+      pipeline,
+      headRevision,
+      claimed.sourceTailDigest,
+      digestReplayCheckpointState(claimed.state),
+    );
+    if (occupantId === null) throw duplicateCheckpointError();
+  }
+
+  /**
+   * The occupant rule, in one place: the row in a taken slot is the same
+   * claim only when the digest law returns it at exactly this revision for
+   * this history, holding this state. Its checkpoint id, or null.
+   */
+  private identicalOccupant(
+    pipeline: IBranchCheckpointPipeline,
+    headRevision: number,
+    sourceTailDigest: string,
+    stateDigest: string,
+  ): string | null {
+    const occupant = this.repository.selectRecoveryBase(
+      expectationFor(pipeline, sourceTailDigest),
+      headRevision,
+    );
+    return occupant.kind === 'checkpoint' &&
+      occupant.checkpoint.metadata.revision === headRevision &&
+      occupant.checkpoint.metadata.stateDigest === stateDigest
+      ? occupant.checkpoint.checkpointId
+      : null;
   }
 
   /**

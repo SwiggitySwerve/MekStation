@@ -50,12 +50,13 @@ async function chainMatchEvents(
 
 /**
  * `buildOnce`: the chain is read and hashed on the first call and every
- * later call reads that one build. For a caller that rebuilds one match
- * once (recovery), where re-reading the whole log and re-hashing it per
- * call is pure repetition. Safe because the log is append-only: a later
- * read could only add revisions past the build's head, and the digest at
- * any revision the build holds is a function of the prefix up to it.
- * A failed build is not kept, so the next call reads again.
+ * later call reads that one build. For a caller that reads one fixed view
+ * of a match several times: recovery's offer, before the server listens
+ * and nothing can write, or a reader over a captured events array. The
+ * build is a snapshot, not a live view - the store's tail can be
+ * superseded later - so a caller that must see the log as it is now
+ * leaves this off. A failed build is not kept, so the next call reads
+ * again.
  */
 export function matchStoreHistoryReader(
   source: IMatchEventSource,

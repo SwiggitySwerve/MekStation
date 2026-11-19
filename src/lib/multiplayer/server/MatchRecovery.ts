@@ -27,7 +27,6 @@ import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type {
   AuthorityRecoveryBlockedReason,
   IBranchCheckpointPipeline,
-  IBranchHistoryReader,
 } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
 import type { ReplayQuarantineRegistry } from '@/lib/events/replay/ReplayQuarantineRegistry';
 import type {
@@ -121,31 +120,56 @@ export interface IDeferredCheckpointWrite {
 }
 
 /**
- * The checkpoint write for one recovered match, at the head it was
- * recovered to. The events array is captured now so a deferred write
- * records the state recovery produced even after the live host has moved
- * on; the digest is read at `headRevision`, which an append-only log
- * keeps fixed however far it has grown since.
+ * The checkpoint for one recovered match, at the head it was recovered to.
+ *
+ * The row's chain digest is computed from the row's OWN events, captured
+ * here, never from the store at write time: the store's tail can be
+ * superseded between recovery and a deferred write, and a digest read
+ * then would vouch for events the row does not hold. Computed this way a
+ * row's events always chain to its `source_tail_digest`, so an offer that
+ * matches that digest against the live chain has matched the events too.
+ *
+ * The session copy is shallow: `events` is a new array, while
+ * `currentState`, `units` and `config` stay shared with the session the
+ * host adopts. That is enough because nothing updates a session in place
+ * (every engine path replaces it), so the row records what recovery
+ * produced.
  */
-function checkpointWrite(
+function recoveredCheckpoint(
   cache: BranchCheckpointCache,
   pipeline: IBranchCheckpointPipeline,
-  history: IBranchHistoryReader,
   headRevision: number,
   state: IGameSession,
-): () => Promise<void> {
+): {
+  readonly assertSlotAccepts: () => Promise<void>;
+  readonly write: () => Promise<void>;
+} {
   const recovered: IGameSession = { ...state, events: [...state.events] };
-  return async () => {
-    const digest = await history.chainDigestAt(headRevision);
-    if (digest !== null) {
-      cache.record(
-        pipeline,
-        headRevision,
-        digest,
-        recovered,
-        recovered.updatedAt,
-      );
-    }
+  const ownHistory = matchStoreHistoryReader(
+    { getEvents: async () => recovered.events },
+    recovered.matchId ?? recovered.id,
+    { buildOnce: true },
+  );
+  return {
+    assertSlotAccepts: () =>
+      cache.assertSlotAccepts(pipeline, headRevision, async () => {
+        const digest = await ownHistory.chainDigestAt(headRevision);
+        return digest === null
+          ? null
+          : { sourceTailDigest: digest, state: recovered };
+      }),
+    write: async () => {
+      const digest = await ownHistory.chainDigestAt(headRevision);
+      if (digest !== null) {
+        cache.record(
+          pipeline,
+          headRevision,
+          digest,
+          recovered,
+          recovered.updatedAt,
+        );
+      }
+    },
   };
 }
 
@@ -348,8 +372,9 @@ export async function recoverActiveMatches(
         projector === null
           ? null
           : matchAuthoritativePipeline(meta.matchId, projector);
-      // One chain build per recovery: the offer and the checkpoint write
-      // read the same digests, so neither re-reads and re-hashes the log.
+      // One build of the live chain per recovery, shared by every digest
+      // the offer reads. (The checkpoint write chains its own captured
+      // events instead; see recoveredCheckpoint.)
       const history =
         cache === null
           ? null
@@ -420,9 +445,13 @@ export async function recoverActiveMatches(
           digest: null,
         }),
         // Exactly one full fold on either path. With a checkpoint, the
-        // cached events (attested by the live chain digest at the base)
-        // plus the tail; an empty tail still folds, so no derived state
-        // is ever taken from the cache.
+        // cached events plus the tail; an empty tail still folds, so no
+        // derived state is ever taken from the cache. The cached events
+        // ARE trusted: the offer checks the row's claimed chain digest
+        // against the live chain, not the events inside it. That holds
+        // for every row written by recoveredCheckpoint (its digest is
+        // computed from its own events); rows written before that
+        // relied on the write reading the same log the fold did.
         fold: (events, base) =>
           foldMatchSession(
             meta.matchId,
@@ -460,15 +489,22 @@ export async function recoverActiveMatches(
         history !== null &&
         headRevision >= 1
       ) {
-        const writeCheckpoint = checkpointWrite(
+        const checkpoint = recoveredCheckpoint(
           cache,
           pipeline,
-          history,
           headRevision,
           verdict.state,
         );
-        if (deferred === null) await writeCheckpoint();
-        else deferred.push({ matchId: meta.matchId, write: writeCheckpoint });
+        if (deferred === null) {
+          await checkpoint.write();
+        } else {
+          // Fail closed here, where the inline write would fail: a head
+          // slot already holding another claim (drifted, corrupt or
+          // attesting another history) throws the same duplicate-checkpoint
+          // error into this match's catch, before any host exists.
+          await checkpoint.assertSlotAccepts();
+          deferred.push({ matchId: meta.matchId, write: checkpoint.write });
+        }
       }
       await registerRecoveredHost(hosts, store, meta.matchId, verdict.state);
     } catch (e) {

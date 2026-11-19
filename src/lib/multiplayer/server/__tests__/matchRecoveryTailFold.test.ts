@@ -52,6 +52,7 @@ import {
   lockMovement,
   startGame,
 } from '@/utils/gameplay/gameSession';
+import { logger } from '@/utils/logger';
 
 import type { IMatchMeta, IMatchStore } from '../IMatchStore';
 
@@ -374,6 +375,78 @@ async function expectReferenceEquivalent(): Promise<void> {
   );
 }
 
+/**
+ * A row recorded for ANOTHER history at `revision`: valid bytes and digests,
+ * but its source-tail digest is not this log's chain at that revision.
+ */
+async function recordOtherHistory(revision: number): Promise<void> {
+  const other = buildLog('match-other-history').map((event) => ({
+    ...event,
+    gameId: MATCH_ID,
+  }));
+  const otherStore = new DurableMatchStore({
+    path: path.join(dir, `other-${revision}.db`),
+  });
+  await writeLog(otherStore, MATCH_ID, other);
+  const digest = await matchStoreHistoryReader(
+    otherStore,
+    MATCH_ID,
+  ).chainDigestAt(revision);
+  otherStore.close();
+  cache().record(
+    pipelineFor(MATCH_ID),
+    revision,
+    digest!,
+    foldMatchSession(MATCH_ID, prefixTo(other, revision)),
+    RECORDED_AT,
+  );
+}
+
+/**
+ * Tamper the row at `revision` so its bytes no longer hash to its digest.
+ * Rows are write-once (an UPDATE trigger aborts), so a torn or tampered
+ * row is a delete and a raw re-insert with the old digest. Folded, the
+ * tampered events would change the session's config: a door that skipped
+ * the digest check would recover a different match.
+ */
+function corruptRowAt(revision: number): void {
+  const db = getSQLiteService().getDatabase();
+  const row = db
+    .prepare(`SELECT * FROM replay_checkpoints WHERE revision = ?`)
+    .get(revision) as Record<string, unknown>;
+  const state = JSON.parse(row.state_json as string) as IGameSession;
+  const created = state.events[0]!;
+  const createdPayload = created.payload as {
+    config: { turnLimit: number };
+  };
+  const tampered = {
+    ...state,
+    events: [
+      {
+        ...created,
+        payload: {
+          ...createdPayload,
+          config: {
+            ...createdPayload.config,
+            turnLimit: createdPayload.config.turnLimit + 7,
+          },
+        },
+      },
+      ...state.events.slice(1),
+    ],
+  };
+  db.prepare(`DELETE FROM replay_checkpoints WHERE revision = ?`).run(revision);
+  const columns = Object.keys(row);
+  db.prepare(
+    `INSERT INTO replay_checkpoints (${columns.join(', ')})
+     VALUES (${columns.map(() => '?').join(', ')})`,
+  ).run(
+    ...columns.map((column) =>
+      column === 'state_json' ? canonicalizeJsonV1(tampered) : row[column],
+    ),
+  );
+}
+
 describe('match recovery folds once and matches the frozen reference', () => {
   it('stores the automatic-fail PSR as null, as production does', async () => {
     const stored = await store.getEvents(MATCH_ID, 0);
@@ -401,79 +474,18 @@ describe('match recovery folds once and matches the frozen reference', () => {
 
   it('with a stale row recorded for a history this log does not hold', async () => {
     // Same revision, a different history: the live chain cannot attest it.
-    const other = buildLog('match-other-history').map((event) => ({
-      ...event,
-      gameId: MATCH_ID,
-    }));
-    const otherStore = new DurableMatchStore({
-      path: path.join(dir, 'other.db'),
-    });
-    await writeLog(otherStore, MATCH_ID, other);
-    const revision = HEAD - 2;
-    const digest = await matchStoreHistoryReader(
-      otherStore,
-      MATCH_ID,
-    ).chainDigestAt(revision);
-    otherStore.close();
-    cache().record(
-      pipelineFor(MATCH_ID),
-      revision,
-      digest!,
-      foldMatchSession(MATCH_ID, prefixTo(other, revision)),
-      RECORDED_AT,
-    );
+    await recordOtherHistory(HEAD - 2);
     await expectReferenceEquivalent();
   });
 
   it('with a corrupt row whose bytes no longer hash to their digest', async () => {
-    const revision = HEAD - 1;
     await recordAt(
       store,
       MATCH_ID,
-      revision,
-      foldMatchSession(MATCH_ID, prefixTo(EVENTS, revision)),
+      HEAD - 1,
+      foldMatchSession(MATCH_ID, prefixTo(EVENTS, HEAD - 1)),
     );
-    // Rows are write-once (an UPDATE trigger aborts), so a torn or
-    // tampered row is a delete and a raw re-insert with the old digest.
-    const db = getSQLiteService().getDatabase();
-    const row = db
-      .prepare(`SELECT * FROM replay_checkpoints WHERE revision = ?`)
-      .get(revision) as Record<string, unknown>;
-    const state = JSON.parse(row.state_json as string) as IGameSession;
-    // Folded, these events would change the session's config: a door
-    // that skipped the digest check would recover a different match.
-    const created = state.events[0]!;
-    const createdPayload = created.payload as {
-      config: { turnLimit: number };
-    };
-    const tampered = {
-      ...state,
-      events: [
-        {
-          ...created,
-          payload: {
-            ...createdPayload,
-            config: {
-              ...createdPayload.config,
-              turnLimit: createdPayload.config.turnLimit + 7,
-            },
-          },
-        },
-        ...state.events.slice(1),
-      ],
-    };
-    db.prepare(`DELETE FROM replay_checkpoints WHERE revision = ?`).run(
-      revision,
-    );
-    const columns = Object.keys(row);
-    db.prepare(
-      `INSERT INTO replay_checkpoints (${columns.join(', ')})
-       VALUES (${columns.map(() => '?').join(', ')})`,
-    ).run(
-      ...columns.map((column) =>
-        column === 'state_json' ? canonicalizeJsonV1(tampered) : row[column],
-      ),
-    );
+    corruptRowAt(HEAD - 1);
     await expectReferenceEquivalent();
   });
 
@@ -492,41 +504,78 @@ describe('match recovery folds once and matches the frozen reference', () => {
     await expectReferenceEquivalent();
   });
 
-  it('with that row AT the head: the recovered state is the fold, never the cached one', async () => {
-    await recordDrifted(HEAD);
-    const reference = canonicalizeJsonV1(
-      await referenceRecover(store, MATCH_ID, HEAD),
-    );
-    expect(reference).toBe(
-      canonicalizeJsonV1(foldMatchSession(MATCH_ID, EVENTS)),
-    );
+  /**
+   * D-8 fail-closed (C4 ruling): a head slot already holding ANOTHER claim
+   * fails the match, inline and at boot, exactly as 8c8577add did: the
+   * same duplicate-checkpoint error in the per-match catch, failed and
+   * not blocked, no host, no quarantine, the match still active, and no
+   * checkpoint write queued for it. The offer only ever returns the
+   * drifted occupant, so the check reads the slot itself.
+   */
+  it.each([
+    ["drifted (valid digests, another reducer's state)", 'drifted'],
+    ['corrupt (bytes no longer hash to the digest)', 'corrupt'],
+    ['attesting another history', 'unattested'],
+  ])(
+    'fails the match closed when the head slot holds a row %s',
+    async (_label, occupant) => {
+      if (occupant === 'drifted') await recordDrifted(HEAD);
+      if (occupant === 'corrupt') {
+        await recordAt(
+          store,
+          MATCH_ID,
+          HEAD,
+          foldMatchSession(MATCH_ID, EVENTS),
+        );
+        corruptRowAt(HEAD);
+      }
+      if (occupant === 'unattested') await recordOtherHistory(HEAD);
+      const warn = jest.spyOn(logger, 'warn');
+      const rejections = (): unknown[] =>
+        warn.mock.calls
+          .filter(
+            ([message]) =>
+              message === `[MatchRecovery] failed to rebuild match ${MATCH_ID}`,
+          )
+          .map(([, error]) => error);
+      const duplicate = {
+        name: 'ReplayCheckpointError',
+        code: 'duplicate-checkpoint',
+        message:
+          'A checkpoint already occupies this identity slot; discard it before re-recording',
+      };
+      try {
+        const inline = await recoverActiveMatches(store);
+        expect({
+          failed: inline.failed,
+          blocked: inline.blocked,
+          host: inline.hosts.has(MATCH_ID),
+        }).toStrictEqual({ failed: [MATCH_ID], blocked: [], host: false });
+        expect(rejections()).toMatchObject([duplicate]);
 
-    // Inline (unchanged from 8c8577add): the head slot is taken by a row
-    // with another state digest, so the write after recovery throws and
-    // the sweep names the match failed.
-    const inline = await recoverActiveMatches(store);
-    expect(inline.failed).toStrictEqual([MATCH_ID]);
-    expect(inline.hosts.has(MATCH_ID)).toBe(false);
-
-    // Boot: the same write now runs after listen, so it can no longer
-    // fail the match. The match recovers to the fold; the write fails
-    // and is reported, and the drifted row stays as it was.
-    _setDefaultMatchStoreForTests(store);
-    expect(
-      await bootstrapMultiplayerServer({ deferCheckpointWrites: true }),
-    ).toStrictEqual({
-      recovered: 1,
-      failed: 0,
-      writeDeferredCheckpoints: writeDeferredRecoveryCheckpoints,
-    });
-    const host = getMatchHostRegistry().get(MATCH_ID);
-    expect(canonicalizeJsonV1(host!.getSessionForTests())).toBe(reference);
-    expect(await writeDeferredRecoveryCheckpoints()).toStrictEqual({
-      written: 0,
-      failed: 1,
-    });
-    expect(rowCount(getSQLiteService().getDatabase(), MATCH_ID)).toBe(1);
-  });
+        _setDefaultMatchStoreForTests(store);
+        const boot = await bootstrapMultiplayerServer({
+          deferCheckpointWrites: true,
+        });
+        expect({
+          recovered: boot.recovered,
+          failed: boot.failed,
+        }).toStrictEqual({ recovered: 0, failed: 1 });
+        expect(rejections()).toMatchObject([duplicate, duplicate]);
+        expect(getMatchHostRegistry().get(MATCH_ID)).toBeNull();
+        expect(getMatchHostRegistry().isQuarantined(MATCH_ID)).toBe(false);
+        expect((await store.getMatchMeta(MATCH_ID)).status).toBe('active');
+        // Nothing was queued for the failed match, and its row is untouched.
+        expect(await writeDeferredRecoveryCheckpoints()).toStrictEqual({
+          written: 0,
+          failed: 0,
+        });
+        expect(rowCount(getSQLiteService().getDatabase(), MATCH_ID)).toBe(1);
+      } finally {
+        warn.mockRestore();
+      }
+    },
+  );
 
   it('on the journal arm with a checkpoint behind the head', async () => {
     _setCombatJournalAuthorityModeForTests('shadow');
@@ -544,19 +593,33 @@ describe('match recovery folds once and matches the frozen reference', () => {
     await expectReferenceEquivalent();
   });
 
-  it('builds the digest chain once per recovery', async () => {
+  it('builds the live chain once per recovery, before listen', async () => {
+    // Two candidates: the newest is not attested by this log, so the
+    // offer reads a digest for each before taking the older one.
+    await recordOtherHistory(HEAD - 1);
     await recordAt(
       store,
       MATCH_ID,
-      HEAD - 2,
-      foldMatchSession(MATCH_ID, prefixTo(EVENTS, HEAD - 2)),
+      HEAD - 3,
+      foldMatchSession(MATCH_ID, prefixTo(EVENTS, HEAD - 3)),
     );
     const links = jest.mocked(matchEventChainDigest);
     links.mockClear();
-    const result = await recoverActiveMatches(store);
-    expect(result.failed).toStrictEqual([]);
-    // One link per event: ONE chain build served both the offer and the
-    // checkpoint write. Before, the write rebuilt it (twice the links).
+    _setDefaultMatchStoreForTests(store);
+    const boot = await bootstrapMultiplayerServer({
+      deferCheckpointWrites: true,
+    });
+    expect(boot.failed).toBe(0);
+    // Before listen: ONE build of the live chain, one link per event,
+    // serving both of the offer's digests. 8c8577add built it once per
+    // digest and again for the write, all before listen.
+    expect(links).toHaveBeenCalledTimes(EVENTS.length);
+    // After listen the row chains its own captured events, once.
+    links.mockClear();
+    expect(await boot.writeDeferredCheckpoints!()).toStrictEqual({
+      written: 1,
+      failed: 0,
+    });
     expect(links).toHaveBeenCalledTimes(EVENTS.length);
   });
 });
@@ -662,6 +725,68 @@ describe('boot writes checkpoints after listen', () => {
       Array.from(logs.keys()).flatMap(() => ['write', 'io']),
     );
   });
+
+  /**
+   * S1: the store's tail is not append-only - supersedeFrom moves it aside
+   * and a different event takes the same sequence. A supersede between
+   * listen and the drain must not leave a row that vouches for events it
+   * does not hold, so the next boot never serves the superseded events.
+   */
+  it.each([
+    ['at the same head, the next boot fails closed', false],
+    ['and play moves on, the next boot recovers the live log', true],
+  ])(
+    'after a supersede between listen and the drain, %s',
+    async (_label, movesOn) => {
+      _setDefaultMatchStoreForTests(store);
+      await bootstrapMultiplayerServer({ deferCheckpointWrites: true });
+      const last = EVENTS[EVENTS.length - 1]!;
+      await store.supersedeFrom!(MATCH_ID, last.sequence, RECORDED_AT);
+      await store.appendEvent(MATCH_ID, {
+        ...last,
+        id: `${last.id}-rewound`,
+        payload: { ...(last.payload as object), roll: 3 },
+      } as IGameEvent);
+      if (movesOn) {
+        await store.appendEvent(MATCH_ID, {
+          ...last,
+          id: `${last.id}-next`,
+          sequence: last.sequence + 1,
+        });
+      }
+      expect(await writeDeferredRecoveryCheckpoints()).toStrictEqual({
+        written: 1,
+        failed: 0,
+      });
+      // The row vouches only for its own events: its digest is their chain.
+      const row = rowAt(getSQLiteService().getDatabase(), MATCH_ID, HEAD)!;
+      const rowEvents = (JSON.parse(row.state_json) as IGameSession).events;
+      expect(row.source_tail_digest).toBe(
+        chainDigests(rowEvents)[rowEvents.length - 1],
+      );
+
+      // The process dies; the next one opens the same files.
+      abandoned.push(store);
+      _resetDefaultMatchStore();
+      resetSQLiteService();
+      await openStores();
+      const live = await store.getEvents(MATCH_ID, 0);
+      const next = await recoverActiveMatches(store);
+      if (movesOn) {
+        expect(next.failed).toStrictEqual([]);
+        expect(
+          canonicalizeJsonV1(next.hosts.get(MATCH_ID)!.getSessionForTests()),
+        ).toBe(canonicalizeJsonV1(foldMatchSession(MATCH_ID, live)));
+      } else {
+        // The head slot holds a row this log does not attest: fail closed,
+        // as 8c8577add does for any such row.
+        expect({
+          failed: next.failed,
+          host: next.hosts.has(MATCH_ID),
+        }).toStrictEqual({ failed: [MATCH_ID], host: false });
+      }
+    },
+  );
 
   it.each([
     ['with no earlier checkpoint', false],

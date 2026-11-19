@@ -80,6 +80,14 @@ interface ICheckpointRow {
 const ROW_COLUMNS =
   'checkpoint_id, stream_id, branch_id, revision, schema_pipeline_fingerprint, projector_id, projector_version, source_tail_digest, state_digest, state_json';
 
+/** The one error a taken identity slot raises, wherever it is detected. */
+export function duplicateCheckpointError(): ReplayCheckpointError {
+  return new ReplayCheckpointError(
+    'duplicate-checkpoint',
+    `A checkpoint already occupies this identity slot; discard it before re-recording`,
+  );
+}
+
 export class SQLiteReplayCheckpointRepository {
   public constructor(private readonly db: Database.Database) {}
 
@@ -140,12 +148,48 @@ export class SQLiteReplayCheckpointRepository {
         );
     } catch (error) {
       if (isSqliteUniqueConstraintError(error))
-        throw new ReplayCheckpointError(
-          'duplicate-checkpoint',
-          `A checkpoint already occupies this identity slot; discard it before re-recording`,
-        );
+        throw duplicateCheckpointError();
       throw error;
     }
+  }
+
+  /**
+   * Whether `record` would collide: a row already holds this checkpoint id
+   * or this identity tuple (the table's two uniqueness constraints).
+   * Writes nothing, so a caller can learn a write's fate before making it.
+   */
+  public occupiesSlot(
+    checkpointId: string,
+    identity: Pick<
+      IReplayCheckpointMetadata,
+      | 'streamId'
+      | 'branchId'
+      | 'projectorId'
+      | 'projectorVersion'
+      | 'schemaPipelineFingerprint'
+      | 'revision'
+    >,
+  ): boolean {
+    return (
+      this.db
+        .prepare(
+          `SELECT 1 FROM replay_checkpoints
+            WHERE checkpoint_id = ?
+               OR (stream_id = ? AND branch_id = ? AND projector_id = ?
+                   AND projector_version = ? AND schema_pipeline_fingerprint = ?
+                   AND revision = ?)
+            LIMIT 1`,
+        )
+        .get(
+          checkpointId,
+          identity.streamId,
+          identity.branchId,
+          identity.projectorId,
+          identity.projectorVersion,
+          identity.schemaPipelineFingerprint,
+          identity.revision,
+        ) !== undefined
+    );
   }
 
   /** Explicit disposal of one cache row. Never touches the journal. */
