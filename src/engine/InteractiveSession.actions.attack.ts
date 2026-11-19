@@ -257,6 +257,7 @@ export function declareInteractiveSessionAttackGroup(
   );
   session = enrichAttackDeclaredEventFromProjection({
     session,
+    appendedFromIndex: input.session.events.length,
     attackerId: input.attackerId,
     targetId: input.targetId,
     projection: committedAttackProjection,
