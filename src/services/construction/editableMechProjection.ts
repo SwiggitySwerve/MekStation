@@ -75,6 +75,7 @@ export interface IEditableMechProjectionInput {
   readonly engineType: IEditableMech['engineType'];
   readonly engineRating: number;
   readonly internalStructureType: IEditableMech['structureType'];
+  readonly frankenStructure?: IEditableMech['frankenStructure'];
   readonly gyroType: IEditableMech['gyroType'];
   readonly cockpitType: IEditableMech['cockpitType'];
   readonly armorType: IEditableMech['armorType'];
@@ -117,6 +118,7 @@ const PROJECTION_INPUT_FIELDS = {
   engineType: true,
   engineRating: true,
   internalStructureType: true,
+  frankenStructure: true,
   gyroType: true,
   cockpitType: true,
   armorType: true,
@@ -185,6 +187,7 @@ export function projectEditableMech(
     engineRating: state.engineRating,
     walkMP,
     structureType: state.internalStructureType,
+    frankenStructure: state.frankenStructure,
     gyroType: state.gyroType,
     cockpitType: state.cockpitType,
     armorType: state.armorType,
@@ -375,6 +378,9 @@ export function buildEditableMechBVInput(mech: IEditableMech): UnitData {
       source?.cockpit,
     ),
     structure: {
+      locationTonnage: mech.frankenStructure?.locationTonnage
+        ? { ...mech.frankenStructure.locationTonnage }
+        : undefined,
       type: sourceType(
         String(mech.structureType),
         types?.internalStructureType,
