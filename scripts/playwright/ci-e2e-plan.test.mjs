@@ -363,6 +363,7 @@ test('the workflow command cannot drop a spec, shard, retry contract or worker l
       `--output=test-results/${suite.name}`,
     ];
     assert.equal(parseInvocation(args).shardIndex, 2);
+    assert.equal(parseInvocation(args).shardCount, 2);
     assert.equal(parseInvocation(args).suite.name, suite.name);
     assert.throws(() =>
       parseInvocation(args.filter((arg) => !arg.startsWith('e2e/'))),
@@ -374,6 +375,80 @@ test('the workflow command cannot drop a spec, shard, retry contract or worker l
     );
     assert.throws(() => parseInvocation([...args, '--retries=10']));
     assert.throws(() => parseInvocation([...args, '--grep=one-test']));
+  }
+});
+
+test('PR invocations name their shard count explicitly, from 2 to 6', () => {
+  const gates = CI_SUITES.find(({ name }) => name === 'gates');
+  const args = (shard) => [
+    'test',
+    ...gates.files.map((f) => `e2e/${f}`),
+    '--project=chromium',
+    ...gates.options,
+    `--workers=${gates.workers}`,
+    shard,
+    '--output=test-results/gates',
+  ];
+  const parsed = parseInvocation(args('--shard=3/4'));
+  assert.equal(parsed.suite.name, 'gates');
+  assert.equal(parsed.shardIndex, 3);
+  assert.equal(parsed.shardCount, 4);
+  assert.equal(parseInvocation(args('--shard=6/6')).shardCount, 6);
+  for (const bad of [
+    '--shard=1',
+    '--shard=5/4',
+    '--shard=0/4',
+    '--shard=1/1',
+    '--shard=1/7',
+    '--shard=01/4',
+    '--shard=1/4x',
+  ])
+    assert.throws(() => parseInvocation(args(bad)), undefined, bad);
+});
+
+// The committed duration seed is the PR census the planner balances; a PR
+// suite file the seed has not recorded yet joins at the fallback weight.
+function seededPrCensus() {
+  const timing = JSON.parse(
+    fs.readFileSync(
+      new URL('../../config/playwright/ci-durations.json', import.meta.url),
+      'utf8',
+    ),
+  );
+  const files = new Set(CI_SUITES.flatMap((suite) => suite.files));
+  const tests = Object.keys(timing.milliseconds)
+    .map((key) => {
+      const [project, file, ...titles] = key.split(' › ');
+      const row = { file, titles, project: project.slice(1, -1) };
+      return { ...row, key: testDescription(row) };
+    })
+    .filter(({ file }) => files.has(file));
+  for (const file of files)
+    if (!tests.some((row) => row.file === file)) tests.push(...rows([file], 1));
+  return { tests, timing };
+}
+
+test('four PR shards partition the census, keep files whole and balance', () => {
+  for (const { tests, timing } of [
+    seededPrCensus(),
+    { tests: census(), timing: seed(census()) },
+  ]) {
+    const plan = planShards(tests, timing, 4);
+    assert.equal(plan.shards.length, 4);
+    assertShardsCoverCensus(shardTestLists(plan), tests);
+    for (const list of shardTestLists(plan)) assertShardNotEmpty(list, 'pr');
+    for (const file of CI_SUITES.filter(
+      ({ split }) => split !== 'test',
+    ).flatMap(({ files }) => files))
+      assert.equal(
+        shardTestLists(plan).filter((list) => list.some((t) => t.file === file))
+          .length,
+        1,
+        file,
+      );
+    const ms = plan.shards.map(({ milliseconds }) => milliseconds);
+    const mean = ms.reduce((a, b) => a + b) / ms.length;
+    assert.ok(Math.max(...ms) <= 1.25 * mean, JSON.stringify(ms));
   }
 });
 

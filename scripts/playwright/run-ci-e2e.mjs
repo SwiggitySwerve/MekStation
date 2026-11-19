@@ -43,9 +43,7 @@ const {
   suite: requestedSuite,
   shardIndex,
   shardCount,
-} = nightly
-  ? parseNightlyInvocation(argv)
-  : { ...parseInvocation(argv, dataSpecs), shardCount: 2 };
+} = nightly ? parseNightlyInvocation(argv) : parseInvocation(argv, dataSpecs);
 // The data step names what it cannot see: a green data step does not mean no
 // spec depends on the changed data (family/glob selection is not selected).
 if (requestedSuite.name === 'data') console.log(LIMIT);
@@ -120,16 +118,15 @@ if (nightly && !fs.existsSync(durations))
 const timing = JSON.parse(fs.readFileSync(durations, 'utf8'));
 const plan = nightly
   ? planSuiteShards(tests, timing, shardCount, suites)
-  : planShards(tests, timing, 2, dataSpecs);
-if (nightly) {
-  // Every shard process re-derives the same plan: prove it partitions the
-  // census and that this shard has something to run.
-  assertShardsCoverCensus(shardTestLists(plan), tests);
-  assertShardNotEmpty(
-    shardTestLists(plan)[shardIndex - 1],
-    `${shardIndex}/${shardCount}`,
-  );
-}
+  : planShards(tests, timing, shardCount, dataSpecs);
+// Every shard process re-derives the same plan: prove it partitions the census
+// and that this shard has something to run. A PR step runs only its own suite's
+// task, so one suite may have nothing on this shard; the shard as a whole may not.
+assertShardsCoverCensus(shardTestLists(plan), tests);
+assertShardNotEmpty(
+  shardTestLists(plan)[shardIndex - 1],
+  `${shardIndex}/${shardCount}`,
+);
 fs.writeFileSync(
   path.join(output, `plan-${requestedSuite.name}.json`),
   JSON.stringify(plan, null, 2),

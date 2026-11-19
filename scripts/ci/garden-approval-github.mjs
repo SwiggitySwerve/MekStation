@@ -1,3 +1,4 @@
+import { isReportOnlyBudgetId } from './budget-config.mjs';
 import {
   BUDGET_RAISE_RECORD_PATH,
   evaluateBudgetRaiseApproval,
@@ -55,8 +56,12 @@ export async function checkBudgetRaise({
     // The trusted G1 owner validates both schemas and detects every relaxation.
     raises = budgetRaises(base, head);
     // Owner rulings are read at the base only: an entry the PR adds itself is
-    // invisible here until a separate, reviewed PR has put it on main.
-    if (raises.length && isOwnerAuthored(metadata.owner, pr))
+    // invisible here until a separate, reviewed PR has put it on main. Count
+    // raises are report-only and never need one (PARITY-PLAN §193.2).
+    if (
+      raises.some((raise) => !isReportOnlyBudgetId(raise?.id)) &&
+      isOwnerAuthored(metadata.owner, pr)
+    )
       approvalRecord = await readJson(
         BUDGET_RAISE_RECORD_PATH,
         pr.base.sha,

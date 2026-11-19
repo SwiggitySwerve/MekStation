@@ -1,22 +1,25 @@
-# MegaMek-Web Licensing Information
+# MekStation Licensing Information
 
-This project uses a dual-licensing approach to properly attribute and comply with
-upstream MegaMek project licensing requirements.
+This project uses a dual-licensing approach, mirroring the upstream MegaMek
+project: GPL-3.0-or-later for code and CC BY-NC-SA 4.0 for game data and assets
+derived from MegaMek.
 
 ## License Overview
 
-1. **Apache License 2.0** for all original source code
-2. **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC-BY-NC-SA-4.0)** for game data and assets derived from MegaMek
+1. **GNU General Public License v3.0 or later (GPL-3.0-or-later)** for all original source code
+2. **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)** for game data and assets derived from MegaMek
 
 ## Code License Details
 
-All original source code in this repository is licensed under the Apache License 2.0.
+All original source code in this repository is licensed under the GNU General
+Public License, version 3 or (at your option) any later version.
 
 **What this means:**
 
 - You can use, modify, and distribute the code
-- You must provide attribution to the original authors
-- You must include the license notice in distributions
+- Any modifications or derivative works you distribute must also be licensed under the GPL
+- You must provide source code for any distributed modifications
+- The code has patent protection provisions
 - Full license text: [LICENSE.code](LICENSE.code)
 
 **Applies to:**
@@ -28,14 +31,14 @@ All original source code in this repository is licensed under the Apache License
 
 ## Data/Assets License Details
 
-All game data and assets derived from the MegaMek project are licensed under CC-BY-NC-SA-4.0.
+All game data and assets derived from the MegaMek project are licensed under CC BY-NC-SA 4.0.
 
 **What this means:**
 
 - You can share and adapt the materials
 - You must give appropriate credit to the MegaMek project
 - You **cannot** use the materials for commercial purposes
-- You must license derivatives under CC-BY-NC-SA-4.0 or compatible
+- You must license derivatives under CC BY-NC-SA 4.0 or compatible
 - Full license text: [LICENSE.assets](LICENSE.assets)
 
 **Applies to:**
@@ -51,14 +54,14 @@ The licenses apply to the following:
 
 | Directory | License |
 |-----------|---------|
-| `src/` | Apache 2.0 |
-| `scripts/` | Apache 2.0 |
-| `openspec/` | Apache 2.0 |
-| `docs/` | Apache 2.0 |
-| `desktop/` | Apache 2.0 |
-| `public/data/units/` | CC-BY-NC-SA-4.0 |
-| `public/data/equipment/` | CC-BY-NC-SA-4.0 (derived data) |
-| `public/record-sheets/` | CC-BY-NC-SA-4.0 |
+| `src/` | GPL-3.0-or-later |
+| `scripts/` | GPL-3.0-or-later |
+| `openspec/` | GPL-3.0-or-later |
+| `docs/` | GPL-3.0-or-later |
+| `desktop/` | GPL-3.0-or-later |
+| `public/data/units/` | CC BY-NC-SA 4.0 |
+| `public/data/equipment/` | CC BY-NC-SA 4.0 (derived data) |
+| `public/record-sheets/` | CC BY-NC-SA 4.0 |
 
 ## Attribution
 
@@ -69,7 +72,7 @@ Record sheet templates and pip graphics are derived from MegaMek project assets.
 
 - **Project:** MegaMek (https://megamek.org)
 - **Repository:** https://github.com/MegaMek
-- **Original License:** CC-BY-NC-SA-4.0 for data/assets, GPLv3 for code
+- **Original License:** CC BY-NC-SA 4.0 for data/assets, GPLv3 for code
 
 ### BattleTech Intellectual Property
 
@@ -78,6 +81,8 @@ The Topps Company, Inc. All Rights Reserved.
 
 Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of
 InMediaRes Productions, LLC.
+
+The BattleTech name for electronic games is a trademark of Microsoft Corporation.
 
 This project was created under Microsoft's "Game Content Usage Rules" for
 electronic BattleTech games, and is not endorsed by or affiliated with Microsoft.
@@ -88,7 +93,7 @@ or Catalyst Game Labs.
 
 ## Non-Commercial Use Only
 
-Due to the CC-BY-NC-SA-4.0 licensing of derived game data and assets, this project
+Due to the CC BY-NC-SA 4.0 licensing of derived game data and assets, this project
 as a whole cannot be used for commercial purposes when incorporating those materials.
 
 **What is NOT permitted:**
@@ -118,9 +123,9 @@ The key distinction: you're monetizing your creative work about the application
 
 By contributing to this project, you agree that:
 
-- Code contributions will be licensed under Apache 2.0
-- Data and asset contributions derived from MegaMek will be licensed under CC-BY-NC-SA-4.0
-- Original data and assets you create will be clearly marked and may use Apache 2.0
+- Code contributions will be licensed under GPL-3.0-or-later, the same license as the project's code
+- Data and asset contributions derived from MegaMek will be licensed under CC BY-NC-SA 4.0
+- Original data and assets you create will be clearly marked and are licensed under GPL-3.0-or-later unless marked otherwise
 
 ## Questions
 
@@ -128,4 +133,4 @@ If you have questions about licensing, please open an issue in the repository.
 
 ---
 
-Copyright 2025 megamek-web contributors
+Copyright (C) 2025-2026 SwiggitySwerve

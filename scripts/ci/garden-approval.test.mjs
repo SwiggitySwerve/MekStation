@@ -89,13 +89,13 @@ test('a newer owner approval can authorize the current head after an older rejec
 // Owner-authored raises: a committed record of owner rulings (PARITY-PLAN §186.2).
 const ruling = {
   section: 'PARITY-PLAN §185',
-  quote: 'Raise the limit to 94 for PR-O.',
+  quote: 'Raise the E2E timeout to 16 minutes for PR-O.',
 };
 const entry = (change = {}) => ({
   pr: 3418,
-  key: 'limits.repoWideKeys',
-  from: 93,
-  to: 94,
+  key: 'timeouts.e2e.minutes',
+  from: 15,
+  to: 16,
   ruling,
   ...change,
 });
@@ -104,7 +104,7 @@ const recordOf = (...approvals) => ({
   approvals,
 });
 const ownerContext = () => ({
-  raises: [{ id: 'limits.repoWideKeys', before: 93, after: 94 }],
+  raises: [{ id: 'timeouts.e2e.minutes', before: 15, after: 16 }],
   repositoryOwner: owner,
   pullRequest: {
     number: 3418,
@@ -121,7 +121,7 @@ test('an owner-authored raise passes with the label and a matching base record e
   assert.equal(result.allowed, true, result.message);
   assert.equal(result.code, 'owner-ruling-record');
   assert.match(result.message, /PARITY-PLAN §185/);
-  assert.match(result.message, /limits\.repoWideKeys/);
+  assert.match(result.message, /timeouts\.e2e\.minutes/);
 });
 
 test('an owner-authored raise with no record at the base keeps the self-approval refusal', () => {
@@ -139,10 +139,13 @@ test('an owner-authored raise with no record at the base keeps the self-approval
 
 test('every raise needs its own entry with the same pr, key, from and to', () => {
   const cases = [
-    [entry({ to: 95 }), 'approval-record-mismatch'],
-    [entry({ from: 92 }), 'approval-record-mismatch'],
+    [entry({ to: 17 }), 'approval-record-mismatch'],
+    [entry({ from: 14 }), 'approval-record-mismatch'],
     [entry({ pr: 3399 }), 'missing-approval-record'],
-    [entry({ key: 'limits.unkeyableTests' }), 'missing-approval-record'],
+    [
+      entry({ key: 'timeouts.static-checks.minutes' }),
+      'missing-approval-record',
+    ],
   ];
   for (const [changed, code] of cases) {
     const input = ownerContext();
@@ -150,15 +153,19 @@ test('every raise needs its own entry with the same pr, key, from and to', () =>
     const result = evaluateBudgetRaiseApproval(input);
     assert.equal(result.allowed, false, JSON.stringify(changed));
     assert.equal(result.code, code, JSON.stringify(changed));
-    assert.match(result.message, /limits\.repoWideKeys/);
+    assert.match(result.message, /timeouts\.e2e\.minutes/);
   }
   const two = ownerContext();
-  two.raises.push({ id: 'limits.unkeyableTests', before: 57, after: 58 });
+  two.raises.push({
+    id: 'timeouts.static-checks.minutes',
+    before: 13,
+    after: 14,
+  });
   const result = evaluateBudgetRaiseApproval(two);
   assert.equal(result.code, 'missing-approval-record');
-  assert.match(result.message, /limits\.unkeyableTests/);
+  assert.match(result.message, /timeouts\.static-checks\.minutes/);
   two.approvalRecord.approvals.push(
-    entry({ key: 'limits.unkeyableTests', from: 57, to: 58 }),
+    entry({ key: 'timeouts.static-checks.minutes', from: 13, to: 14 }),
   );
   assert.equal(evaluateBudgetRaiseApproval(two).allowed, true);
 });
@@ -204,7 +211,7 @@ test('the record path still requires the ci-budget-raise label', () => {
 test('a record never replaces owner review for a non-owner author', () => {
   const input = context();
   input.approvalRecord = recordOf(entry());
-  input.raises = [{ id: 'limits.repoWideKeys', before: 93, after: 94 }];
+  input.raises = [{ id: 'timeouts.e2e.minutes', before: 15, after: 16 }];
   input.pullRequest.number = 3418;
   input.reviews = [];
   assert.equal(
@@ -235,4 +242,89 @@ test('validateApprovalRecord accepts the committed record', async () => {
     ]),
     [[3418, 'limits.repoWideKeys', 93, 94, 'PARITY-PLAN §185']],
   );
+});
+
+// PARITY-PLAN §193.2: count budgets are report-only; raising one needs no approval.
+const countRaises = () => [
+  { id: 'limits.repoWideKeys', before: 93, after: 96 },
+  { id: 'limits.unkeyableTests', before: 57, after: 58 },
+  { id: 'limits.typicalPrJobs', before: 10, after: 11 },
+  { id: 'targets.repoWideKeys', before: 80, after: 81 },
+  { id: 'dependencies.root.lockEntries', before: 1194, after: 1200 },
+  { id: 'dependencies.desktop.directDependencies', before: 15, after: 16 },
+  { id: 'reporting.jobMinutes', before: 53, after: 60 },
+];
+
+test('a count-only raise passes as count-report-only and reports each delta', () => {
+  for (const author of ['contributor', 'owner']) {
+    const input = author === 'owner' ? ownerContext() : context();
+    input.raises = countRaises();
+    // No label, no review and no record are needed for counts.
+    input.pullRequest.labels = [];
+    input.reviews = [];
+    input.approvalRecord = null;
+    const result = evaluateBudgetRaiseApproval(input);
+    assert.equal(result.allowed, true, author);
+    assert.equal(result.code, 'count-report-only', author);
+    for (const fragment of [
+      'limits.repoWideKeys 93->96 (+3)',
+      'limits.unkeyableTests 57->58 (+1)',
+      'limits.typicalPrJobs 10->11 (+1)',
+      'targets.repoWideKeys 80->81 (+1)',
+      'dependencies.root.lockEntries 1194->1200 (+6)',
+      'dependencies.desktop.directDependencies 15->16 (+1)',
+      'reporting.jobMinutes 53->60 (+7)',
+    ])
+      assert.ok(result.message.includes(fragment), `${author}: ${fragment}`);
+  }
+});
+
+test('a timeout raise keeps the label and owner-approval rules', () => {
+  const input = context();
+  input.raises = [{ id: 'timeouts.e2e.minutes', before: 15, after: 16 }];
+  input.pullRequest.labels = [];
+  assert.equal(evaluateBudgetRaiseApproval(input).code, 'missing-label');
+  input.pullRequest.labels = [{ name: 'ci-budget-raise' }];
+  input.reviews = [];
+  assert.equal(
+    evaluateBudgetRaiseApproval(input).code,
+    'owner-approval-required',
+  );
+  const self = ownerContext();
+  self.approvalRecord = null;
+  assert.equal(evaluateBudgetRaiseApproval(self).code, 'self-approval');
+});
+
+test('a mixed raise needs approval for its non-count keys only, and still reports count deltas', () => {
+  const unapproved = context();
+  unapproved.raises = [
+    ...countRaises(),
+    { id: 'timeouts.e2e.minutes', before: 15, after: 16 },
+  ];
+  unapproved.reviews = [];
+  assert.equal(
+    evaluateBudgetRaiseApproval(unapproved).code,
+    'owner-approval-required',
+  );
+  // The record needs an entry for the timeout only, not for the counts.
+  const owned = ownerContext();
+  owned.raises = [
+    ...countRaises(),
+    { id: 'timeouts.e2e.minutes', before: 15, after: 16 },
+  ];
+  const result = evaluateBudgetRaiseApproval(owned);
+  assert.equal(result.allowed, true, result.message);
+  assert.equal(result.code, 'owner-ruling-record');
+  assert.match(result.message, /timeouts\.e2e\.minutes 15->16/);
+  assert.match(
+    result.message,
+    /Report-only counts: limits\.repoWideKeys 93->96 \(\+3\)/,
+  );
+  // A profile drop or an unknown key is never a count.
+  for (const id of ['profiles.docs', 'limits.somethingElse', 'from-g1']) {
+    const input = context();
+    input.raises = [{ id, before: 1, after: 2 }];
+    input.pullRequest.labels = [];
+    assert.equal(evaluateBudgetRaiseApproval(input).code, 'missing-label', id);
+  }
 });

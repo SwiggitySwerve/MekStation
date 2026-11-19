@@ -143,7 +143,7 @@ test('the sparse set covers every transitive static import and contains no budge
     );
 });
 
-test('main validator rejects the live PR count raise despite unchanged side-checkout budgets', async () => {
+test('main validator rejects the live PR timeout raise despite unchanged side-checkout budgets', async () => {
   const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-source-'));
   try {
     const validatorRoot = path.join(workspace, '.budget-validator');
@@ -159,8 +159,13 @@ test('main validator rejects the live PR count raise despite unchanged side-chec
       root: { lockEntries: 1, directDependencies: 1 },
       desktop: { lockEntries: 1, directDependencies: 1 },
     };
+    // A timeout, not a count: count raises are report-only (PARITY-PLAN §193.2).
     const head = structuredClone(base);
-    head.limits.unkeyableTests += 1;
+    head.timeouts.e2e.minutes += 1;
+    head.timeouts.e2e.medianSeconds = head.timeouts.e2e.minutes * 30 - 10;
+    head.timeouts.e2e.samples = [
+      { runId: 1, job: 'E2E (1/2)', seconds: head.timeouts.e2e.medianSeconds },
+    ];
     // A mistaken local read would see no raise. PR code must never execute.
     fs.mkdirSync(path.join(validatorRoot, 'config/ci'), { recursive: true });
     fs.writeFileSync(
