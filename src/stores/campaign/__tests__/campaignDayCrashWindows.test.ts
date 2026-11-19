@@ -144,6 +144,15 @@ function buildStart(): Record<string, string> {
     currentDate: START,
     missions: new Map([['c1', contract]]),
     finances: { transactions: [], balance: new Money(0) },
+    // T1 launch manifest recorded at session creation: session unit `a`
+    // is roster unit `a`.
+    battleUnitManifests: {
+      'crash-window-win': {
+        units: { a: { rosterUnitId: 'a' } },
+        complete: true,
+        recordedOn: START.toISOString(),
+      },
+    },
   });
   store.getState().enqueueOutcome(winForContract('c1'));
   store.getState().saveCampaign();

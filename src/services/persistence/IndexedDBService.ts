@@ -14,7 +14,7 @@ import {
 import { StorageError } from '../common/errors';
 
 const DB_NAME = 'mekstation';
-const DB_VERSION = 4; // Bumped for campaign instances stores
+const DB_VERSION = 5; // Bumped for the legacy combat-state quarantine store
 
 /**
  * Object store names
@@ -26,6 +26,8 @@ export const STORES = {
   PILOTS: 'pilots',
   CAMPAIGN_UNIT_INSTANCES: 'campaign-unit-instances',
   CAMPAIGN_PILOT_INSTANCES: 'campaign-pilot-instances',
+  /** T1: legacy session-keyed combat states, kept outside the campaign payload. */
+  LEGACY_COMBAT_STATE_QUARANTINE: 'legacy-combat-state-quarantine',
 } as const;
 
 type StoreName = (typeof STORES)[keyof typeof STORES];
@@ -38,6 +40,12 @@ export interface IIndexedDBService {
   put<T>(store: StoreName, key: string, value: T): Promise<void>;
   get<T>(store: StoreName, key: string): Promise<T | undefined>;
   delete(store: StoreName, key: string): Promise<void>;
+  /** Read, transform and write one key in ONE readwrite transaction. */
+  update<T>(
+    store: StoreName,
+    key: string,
+    next: (current: T | undefined) => T,
+  ): Promise<void>;
   getAll<T>(store: StoreName): Promise<T[]>;
   clear(store: StoreName): Promise<void>;
   close(): void;
@@ -109,6 +117,12 @@ export class IndexedDBService implements IIndexedDBService {
         if (!db.objectStoreNames.contains(STORES.CAMPAIGN_PILOT_INSTANCES)) {
           db.createObjectStore(STORES.CAMPAIGN_PILOT_INSTANCES);
         }
+        // Legacy combat-state quarantine (added in v5)
+        if (
+          !db.objectStoreNames.contains(STORES.LEGACY_COMBAT_STATE_QUARANTINE)
+        ) {
+          db.createObjectStore(STORES.LEGACY_COMBAT_STATE_QUARANTINE);
+        }
       };
     });
   }
@@ -171,6 +185,40 @@ export class IndexedDBService implements IIndexedDBService {
       request.onsuccess = () => {
         resolve(request.result as T | undefined);
       };
+    });
+  };
+
+  /**
+   * Read, transform and write one key in a single readwrite transaction, so
+   * concurrent read-modify-write callers cannot overwrite each other.
+   */
+  update = async <T>(
+    store: StoreName,
+    key: string,
+    next: (current: T | undefined) => T,
+  ): Promise<void> => {
+    const db = this.ensureDb();
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(store, 'readwrite');
+      const objectStore = transaction.objectStore(store);
+      const fail = (error: DOMException | null): void => {
+        reject(
+          new StorageError(`Failed to update item in ${store}`, {
+            key,
+            error: error?.message,
+          }),
+        );
+      };
+      const read = objectStore.get(key);
+      read.onerror = () => fail(read.error);
+      read.onsuccess = () => {
+        const write = objectStore.put(next(read.result as T | undefined), key);
+        write.onerror = () => fail(write.error);
+      };
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => fail(transaction.error);
+      transaction.onabort = () => fail(transaction.error);
     });
   };
 

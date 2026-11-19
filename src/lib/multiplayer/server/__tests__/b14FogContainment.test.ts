@@ -44,7 +44,7 @@ import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 
 /**
  * The legacy-filter availability seam, byte for byte (B14-0A/B14-0B). Only
- * these 14 suites may carry it; each must (CF-B14B-1). The FOG chain shrinks
+ * these 15 suites may carry it; each must (CF-B14B-1). The FOG chain shrinks
  * this list when a real per-viewer reveal projection lands (CF-B14B-3).
  */
 // Spelled through JEST so this file is not itself read as a seam.
@@ -75,6 +75,8 @@ const B14_SEAM_ALLOWLIST = [
   'src/lib/multiplayer/server/__tests__/viewerDeliverySequence.test.ts',
   'src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts',
   'src/lib/multiplayer/server/__tests__/fogViewerSequenceSparsity.test.ts',
+  // P9 fog-join equivalence; uses the required seam byte-exact.
+  'src/lib/multiplayer/server/__tests__/fogJoinReplayFold.equivalence.test.ts',
 ] as const;
 /** Test files that may name the capability module at all. */
 const B14_CAPABILITY_REFERENCES = [
@@ -477,7 +479,7 @@ describe('B14-0 fog containment', () => {
       ),
     ).resolves.toBe('unavailable');
   });
-  it('pins the byte-exact seam in exactly the 14 registered suites and nowhere else', () => {
+  it('pins the byte-exact seam in exactly the 15 registered suites and nowhere else', () => {
     const repo = path.resolve(__dirname, '../../../../..');
     const tests = new Map<string, string>();
     const walk = (dir: string, inTests: boolean): void => {

@@ -43,14 +43,16 @@ function loadDurations(
  * `<project>/<shardCount>`; a project and count with no entry get an even plan.
  *
  * `unit/4` follows the pr-checks.yml job layout: shards 1 and 2 also run a corpus
- * shard (medians 46 s and 60 s), shard 3 the Validate Combat Suite (median 75 s) and
- * shard 4 nothing else, measured on main pushes 44380502881, 44382241623,
- * 44384341452, 44387833172 and 44389999021 (2026-11-18). Seconds become weight at
- * 4,157 committed ms per second, the rate measured for the earlier 3-shard layout
- * (its unit steps ran 231 s for a planned 960,000 each). Re-measure these when the
- * job layout changes.
+ * shard (medians 46 s and 60 s), shard 3 the Validate Combat Suite (median 75 s),
+ * measured on main pushes 44380502881, 44382241623, 44384341452, 44387833172 and
+ * 44389999021 (2026-11-18), and shard 4 the roadmap tooling tests (median 120 s
+ * over the 33 Static Checks runs that ran them, 2026-11-18/19). Seconds become
+ * weight at 4,157 committed ms per second, the rate measured for the earlier
+ * 3-shard layout (its unit steps ran 231 s for a planned 960,000 each). Each
+ * preload is weighed whether or not its gate is on. Re-measure these when the job
+ * layout changes.
  */
-const SHARD_PRELOAD_MS = { 'unit/4': [191000, 249000, 312000, 0] };
+const SHARD_PRELOAD_MS = { 'unit/4': [191000, 249000, 312000, 499000] };
 
 /**
  * The preload for a shard plan over tests of the given projects (their display

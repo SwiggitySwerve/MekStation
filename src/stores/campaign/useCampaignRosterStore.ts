@@ -51,7 +51,6 @@ import type {
 } from './campaignRosterStore.types';
 
 import {
-  buildNextCombatStateMap,
   generateId,
   refreshUnitsReadiness,
 } from './campaignRosterStore.helpers';
@@ -252,53 +251,29 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
           activeMissionId: null,
         }));
 
-        // Apply damage carry-forward — proxies into canonical state
-        // (`useCampaignStore.campaign.unitCombatStates`) AND refreshes
-        // the projection's readiness field. See `applyDamageCarryForward`.
+        // Refresh the projection's readiness from the carry-forward
+        // payload. See `applyDamageCarryForward`.
         get().applyDamageCarryForward(damageStates);
       },
 
       applyDamageCarryForward: (damageStates) => {
-        // Step 1: refresh projection readiness in this store. Cached
-        // readiness is what selectors render — source-of-truth derivation
-        // happens via `deriveRosterReadiness` against canonical state
-        // computed below.
+        // Refresh projection readiness in this store. Cached readiness is
+        // what selectors render; source-of-truth derivation happens via
+        // `deriveRosterReadiness` against canonical state.
         //
-        // Step 2: write canonical combat-state deltas into the campaign
-        // store. The campaign-store accessor (`useCampaignStore`) is a
-        // singleton getter — calling it here returns the StoreApi, not
-        // a React hook value, despite the misleading `use*` prefix.
+        // T1 (review R6): canonical `unitCombatStates` is written only by
+        // `postBattleProcessor`, keyed by roster unit through the launch
+        // manifest. This bridge used to write it too, but its callers
+        // match game units to roster units by id (a campaign session unit
+        // id, `player-<n>-<unitRef>`, never equals a roster unitId), so it
+        // never wrote real damage.
         //
-        // The active mission id is the closest analog to a `matchId`
-        // for the legacy bridge — it's what `createMission` minted when
-        // the encounter started. Falls back to a synthesized id when
-        // the bridge is invoked outside a mission flow (defensive only;
-        // production callers always have an active mission).
+        // The active mission id is the closest analog to a `matchId` for
+        // the legacy bridge; a synthesized id covers calls outside a
+        // mission flow (defensive only).
         const matchId =
           get().activeMissionId ?? `legacy-bridge-${generateId()}`;
 
-        const campaignStore = getCampaignStoreForRoster();
-        const campaign = campaignStore?.getState().campaign ?? null;
-
-        // Compute next canonical map from prior map + per-unit deltas.
-        // Skip the canonical write entirely when no campaign is loaded —
-        // tests / orphan flows still get the readiness refresh.
-        if (campaign) {
-          const nextMap = buildNextCombatStateMap(
-            campaign.unitCombatStates,
-            damageStates,
-            matchId,
-          );
-          campaignStore?.getState().updateCampaign({
-            unitCombatStates: nextMap,
-          });
-        }
-
-        // Step 1 (continued): refresh projection readiness based on the
-        // damage payload. We compute this from the carry-forward delta
-        // directly so the projection update doesn't depend on the
-        // canonical write completing — keeps the two paths cleanly
-        // independent.
         set((state) => ({
           units: refreshUnitsReadiness(state.units, damageStates, matchId),
         }));

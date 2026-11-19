@@ -80,10 +80,12 @@ import {
 } from '@/services/encounter/encounterLifecycleClient';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getPilotRepository } from '@/services/pilots/PilotRepository';
+import { recordCampaignBattleUnitManifest } from '@/stores/campaign/campaignBattleUnitManifests';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { usePilotStore } from '@/stores/usePilotStore';
 import { createMission } from '@/types/campaign/Mission';
+import { GameSide } from '@/types/gameplay';
 import { PilotType } from '@/types/pilot';
 
 import type { FastForwardBridgedScenarioHandoff } from './fastForwardCampaign';
@@ -502,6 +504,28 @@ export async function runFastForwardBattle(
   // materialized encounter is a fresh row, so no restart intent is sent.
   await linkEncounterSession(session, {}, fetchImpl);
   await completeEncounterSession(session, fetchImpl);
+
+  // T1: the launch manifest lands on the campaign before the outcome, so
+  // the apply can key damage by roster unit.
+  if (
+    !recordCampaignBattleUnitManifest({
+      campaignId: campaign.id,
+      matchId: outcome.matchId,
+      units: prepared.unitManifest,
+      playerUnits: prepared.gameUnits
+        .filter((unit) => unit.side === GameSide.Player)
+        .map((unit) => ({
+          unitId: unit.id,
+          unitRef: unit.unitRef,
+          pilotRef: unit.pilotRef,
+        })),
+      scenarioId: handoff.scenarioId,
+    })
+  ) {
+    throw new Error(
+      `fastForwardCombatRunner: could not record the launch manifest for match ${outcome.matchId} on campaign ${campaign.id}`,
+    );
+  }
 
   const delivered = publishCombatOutcome({ matchId: outcome.matchId, outcome });
   if (!delivered) {

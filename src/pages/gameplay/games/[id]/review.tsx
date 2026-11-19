@@ -283,7 +283,22 @@ export default function PostBattleReviewPage(): React.ReactElement {
         return;
       }
       if (isOutcomeApplied(state, campaign, outcome.matchId)) return;
-      const result = applyPostBattle(outcome, campaign);
+      let result: ReturnType<typeof applyPostBattle>;
+      try {
+        result = applyPostBattle(outcome, campaign);
+      } catch (err) {
+        // T3: a failed apply commits nothing and leaves the outcome queued,
+        // so record the error and offer the retry instead of reviewing it.
+        const error = err instanceof Error ? err.message : String(err);
+        store.setState({
+          outcomeApplyErrors: {
+            ...store.getState().outcomeApplyErrors,
+            [outcome.matchId]: error,
+          },
+        });
+        setRetryFailureMessage(error);
+        return;
+      }
       state.updateCampaign(result.campaign);
       appendContractPaymentActivityEntries(
         state.appendActivityLogEntry,

@@ -36,6 +36,8 @@ export interface AssignmentRow {
   position: string;
   slot: number;
   notes: string | null;
+  /** Absent on rows read before the column existed. */
+  roster_unit_id?: string | null;
 }
 
 export function rowToAssignment(row: AssignmentRow): IAssignment {
@@ -46,6 +48,7 @@ export function rowToAssignment(row: AssignmentRow): IAssignment {
     position: row.position as ForcePosition,
     slot: row.slot,
     notes: row.notes ?? undefined,
+    ...(row.roster_unit_id ? { rosterUnitId: row.roster_unit_id } : {}),
   };
 }
 

@@ -164,9 +164,9 @@ export interface CampaignRosterActions {
   /**
    * Apply damage carry-forward from battle results.
    *
-   * Per PR-B: writes canonical combat-state deltas into
-   * `useCampaignStore.campaign.unitCombatStates` and refreshes the
-   * roster projection's `readiness` field. Does NOT store armor /
+   * Refreshes the roster projection's `readiness` field. Canonical
+   * `unitCombatStates` is written only by `postBattleProcessor` (T1);
+   * this no longer writes it. Does NOT store armor /
    * structure / destroyed-component lists on the projection itself
    * (that conflated legacy roster-unit shape was deleted in PR-C).
    */
