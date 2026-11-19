@@ -17,6 +17,7 @@ import {
   collectRuntimePackages,
   collectTurbopackExternals,
   createPackageSourcePreflight,
+  runtimeLoaders,
 } from './next/runtime-packages.mjs';
 
 const root = process.cwd();
@@ -38,8 +39,7 @@ const megaMekBVCacheRelativePath = path.join(
   'megamek-bv-cache.json',
 );
 
-// tsx owns its nested compiler and platform binary through its package graph.
-const runtimeModuleDirs = ['tsx', 'ws'];
+const runtimeModuleDirs = runtimeLoaders;
 
 function rel(filePath) {
   return path.relative(root, filePath);
