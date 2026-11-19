@@ -147,6 +147,11 @@ test.describe('Campaign Round-Trip — single contract play loop', () => {
               },
             },
           ],
+          // T1: the launch manifest the apply requires, as the Jest twin's
+          // `withIdentityManifest` attaches it (phase4CampaignRoundTrip):
+          // each player delta's unitId already IS its roster unit id. Inline
+          // because the evaluate sandbox cannot import the helper.
+          unitManifest: { 'e2e-unit-A': { rosterUnitId: 'e2e-unit-A' } },
           capturedAt: new Date().toISOString(),
         };
 

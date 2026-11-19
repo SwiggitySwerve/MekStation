@@ -45,6 +45,7 @@ import {
   _resetCombatOutcomeBus,
   publishCombatOutcome,
 } from '@/engine/combatOutcomeBus';
+import { withIdentityManifest } from '@/lib/campaign/__tests__/identityBattleUnitManifest';
 import { _resetDayPipeline } from '@/lib/campaign/dayPipeline';
 import { _resetBuiltinRegistration } from '@/lib/campaign/processors';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
@@ -121,7 +122,7 @@ function makeOutcome(opts: {
     mvpUnitId: null,
     log: [],
   };
-  return {
+  return withIdentityManifest({
     version: COMBAT_OUTCOME_VERSION,
     matchId: opts.matchId,
     contractId: opts.contractId,
@@ -130,7 +131,7 @@ function makeOutcome(opts: {
     report,
     unitDeltas: opts.unitDeltas,
     capturedAt: '3025-06-15T12:00:00Z',
-  };
+  });
 }
 
 /**

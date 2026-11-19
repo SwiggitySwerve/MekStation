@@ -83,6 +83,7 @@ import {
   assertXpApplicationUnchangedByDuplicate,
   assertXpNonDecreasing,
 } from '@/lib/campaign/fastForward/invariants/xp';
+import { prepareCampaignUnitMaxStates } from '@/stores/campaign/campaignUnitMaxStates';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
@@ -175,11 +176,32 @@ describe('fastForwardCampaign — capstone: full continuous chain, real engine c
 
     const captured: CapturedBattleOutcome[] = [];
 
-    const report = await fastForwardCampaign(fixture.campaign, {
-      days: 2,
-      runBridgedScenario: createCapturingRunner(captured),
-      expectations: { minScenariosBridged: 1, minBattles: 1 },
-    });
+    // Real construction maxima through the production writer, keyed by
+    // ROSTER unitId (as the T1 red test seeds them), so the maintenance
+    // invariants below run against real data, not an empty map.
+    const seededMaxStates = await prepareCampaignUnitMaxStates(
+      useCampaignRosterStore.getState().units,
+      undefined,
+    );
+    if (
+      !seededMaxStates ||
+      useCampaignRosterStore
+        .getState()
+        .units.some((unit) => !seededMaxStates[unit.unitId])
+    ) {
+      throw new Error(
+        'setup: prepareCampaignUnitMaxStates did not resolve maxima for every roster unit',
+      );
+    }
+
+    const report = await fastForwardCampaign(
+      { ...fixture.campaign, unitMaxStates: seededMaxStates },
+      {
+        days: 2,
+        runBridgedScenario: createCapturingRunner(captured),
+        expectations: { minScenariosBridged: 1, minBattles: 1 },
+      },
+    );
 
     // The production pipeline ran, not a fixture shortcut: bridged
     // scenarios exist and every one of them was fought and applied.
@@ -305,26 +327,15 @@ describe('fastForwardCampaign — capstone: full continuous chain, real engine c
     );
 
     // ---------------------------------------------------------------
-    // Maintenance invariants (`invariants/maintenance.ts`) — called with
-    // the run's real (possibly-empty) repair-queue/max-state data.
-    // Production does not currently populate `campaign.unitMaxStates`
-    // from fast-forward-driven combat (verified during authoring: only
-    // hand-built fixtures like `phase4CampaignRoundTrip.test.ts` seed it
-    // manually; `repairQueueBuilderProcessor.ts:97-99` skips ticket
-    // creation entirely without it) — so these calls are honest but may
-    // be vacuously satisfied on a real run. The substantive
-    // passing/violated-fixture coverage for these functions lives in
-    // task 4.2's dedicated `maintenance.test.ts`; this capstone still
-    // exercises them against real end-state data rather than skipping
-    // them, per the "all three invariant modules pass over the end
-    // state" acceptance. This exact bound is now recorded as an explicit
-    // spec delta (W3 review-fix) — spec.md's "Maintenance and Repair
-    // Invariants Across a Fast-Forwarded Run" requirement's "Run-level
-    // engagement bound" paragraph + its "Run-level assertions run against
-    // real, possibly-empty repair state" scenario — rather than living
-    // only in this comment; the production gap itself (no writer for
-    // `campaign.unitMaxStates` on the fast-forward path) is tracked as an
-    // Open Question in design.md, matching how R9 is handled.
+    // Maintenance invariants (`invariants/maintenance.ts`) over real
+    // repair-queue/max-state data. The maxima were seeded before the run
+    // by the production writer (`prepareCampaignUnitMaxStates`, keyed by
+    // roster unitId), and since T1 battle damage is keyed by the same
+    // roster unitId, so the queue builder diffs real state against real
+    // maxima and these checks are not vacuous: the fought unit has state,
+    // every state has maxima, and at least one ticket exists, all keyed
+    // by roster unitId. Task 4.2's `maintenance.test.ts` keeps the
+    // passing/violated-fixture coverage for the functions themselves.
     // ---------------------------------------------------------------
     const finalRepairQueue: readonly IRepairTicket[] =
       (
@@ -341,6 +352,15 @@ describe('fastForwardCampaign — capstone: full continuous chain, real engine c
       ).unitMaxStates ?? {};
     const unitCombatStates: Readonly<Record<string, IUnitCombatState>> =
       finalCampaign.unitCombatStates ?? {};
+    const rosterUnitIds = new Set(finalRosterUnits.map((unit) => unit.unitId));
+    const stateKeys = Object.keys(unitCombatStates);
+    expect(stateKeys).toContain(fightUnitId);
+    expect(stateKeys.filter((key) => !rosterUnitIds.has(key))).toEqual([]);
+    expect(stateKeys.filter((key) => !unitMaxStates[key])).toEqual([]);
+    expect(finalRepairQueue.length).toBeGreaterThan(0);
+    expect(
+      finalRepairQueue.filter((ticket) => !rosterUnitIds.has(ticket.unitId)),
+    ).toEqual([]);
     assertRepairsWithinMaxCaps(unitCombatStates, unitMaxStates);
   });
 

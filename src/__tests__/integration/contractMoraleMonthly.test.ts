@@ -16,6 +16,7 @@ import type { ICampaign } from '@/types/campaign/Campaign';
  * @spec openspec/changes/add-contract-morale-monthly-check/specs/mission-contracts/spec.md
  */
 import { toast } from '@/components/shared/Toast';
+import { withIdentityManifest } from '@/lib/campaign/__tests__/identityBattleUnitManifest';
 import { buildOutcomePaymentTerms } from '@/lib/campaign/contracts/contractPayment';
 import { DayPipelineRegistry, DayPhase } from '@/lib/campaign/dayPipeline';
 import { _resetDayPipeline } from '@/lib/campaign/dayPipeline';
@@ -138,7 +139,7 @@ function battle(
     { ...session, id: `m2-${matchSeq}` },
     { contractId },
   );
-  return {
+  return withIdentityManifest({
     ...derived,
     endReason: CombatEndReason.Withdrawal,
     report: {
@@ -150,7 +151,7 @@ function battle(
             ? GameSide.Opponent
             : 'draw',
     },
-  };
+  });
 }
 
 // ---- world ------------------------------------------------------------------

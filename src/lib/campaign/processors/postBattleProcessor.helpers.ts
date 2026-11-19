@@ -171,12 +171,68 @@ export function applyPilotDelta(context: {
 // Unit Combat-State Application
 // =============================================================================
 
+/** A delta location whose value was not a finite number and was not written. */
+export interface ISkippedNonFiniteLocation {
+  readonly kind: 'armor' | 'structure';
+  readonly location: string;
+  /** The raw value as text (`NaN`, `undefined`, ...), so it survives JSON. */
+  readonly value: string;
+}
+
+/** A skipped location, attributed to the roster unit and battle. */
+export interface ISkippedNonFiniteUnitLocation extends ISkippedNonFiniteLocation {
+  readonly unitId: string;
+  readonly matchId: string;
+}
+
+/**
+ * The `onSkippedLocation` callback for one roster unit's apply: collects
+ * the skip into `into` and warns, so the engine-side gap is never silent.
+ */
+export function recordSkippedLocation(
+  into: ISkippedNonFiniteUnitLocation[],
+  unitId: string,
+  matchId: string,
+): (skip: ISkippedNonFiniteLocation) => void {
+  return (skip) => {
+    const skipped = { unitId, matchId, ...skip };
+    into.push(skipped);
+    logger.warn(
+      '[postBattleProcessor] Skipped a non-finite combat-state value (not written):',
+      skipped,
+    );
+  };
+}
+
+/**
+ * Drop entries that are not finite numbers, reporting each one. A location
+ * with no numeric value carries no reading: it is never written as NaN
+ * (which persists as null) and never invented. 0 is finite and kept.
+ */
+function finiteLocations(
+  values: Readonly<Record<string, number>>,
+  kind: ISkippedNonFiniteLocation['kind'],
+  onSkip: ((skip: ISkippedNonFiniteLocation) => void) | undefined,
+): Record<string, number> {
+  const finite: Record<string, number> = {};
+  for (const [location, value] of Object.entries(values)) {
+    if (Number.isFinite(value)) {
+      finite[location] = value;
+    } else {
+      onSkip?.({ kind, location, value: String(value) });
+    }
+  }
+  return finite;
+}
+
 /**
  * Merge a single delta into the persisted combat state for the unit.
  * Always returns a fresh state object — never mutates inputs.
  *
  * `lostOnField` marks a unit left behind as a wreck the player does not
  * recover (see `isLostOnField`); it is no longer combat ready.
+ * `onSkippedLocation` hears about every armor/structure value that was not
+ * a finite number and so was not written.
  */
 export function applyUnitDelta(
   existing: IUnitCombatState | undefined,
@@ -184,13 +240,24 @@ export function applyUnitDelta(
   matchId: string,
   nowIso: string,
   lostOnField = false,
+  onSkippedLocation?: (skip: ISkippedNonFiniteLocation) => void,
 ): IUnitCombatState {
+  const armorRemaining = finiteLocations(
+    delta.armorRemaining,
+    'armor',
+    onSkippedLocation,
+  );
+  const internalsRemaining = finiteLocations(
+    delta.internalsRemaining,
+    'structure',
+    onSkippedLocation,
+  );
   const base: IUnitCombatState =
     existing ??
     createInitialCombatState({
       unitId: delta.unitId,
-      armorPerLocation: delta.armorRemaining,
-      structurePerLocation: delta.internalsRemaining,
+      armorPerLocation: armorRemaining,
+      structurePerLocation: internalsRemaining,
       ammoPerBin: delta.ammoRemaining,
     });
 
@@ -198,14 +265,14 @@ export function applyUnitDelta(
   // is the *remaining* armor at end of battle, so it already reflects
   // damage dealt during this match.
   const nextArmor: Record<string, number> = { ...base.currentArmorPerLocation };
-  for (const [loc, value] of Object.entries(delta.armorRemaining)) {
+  for (const [loc, value] of Object.entries(armorRemaining)) {
     nextArmor[loc] = Math.max(0, value);
   }
 
   const nextStructure: Record<string, number> = {
     ...base.currentStructurePerLocation,
   };
-  for (const [loc, value] of Object.entries(delta.internalsRemaining)) {
+  for (const [loc, value] of Object.entries(internalsRemaining)) {
     nextStructure[loc] = Math.max(0, value);
   }
 
