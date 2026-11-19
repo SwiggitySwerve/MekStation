@@ -83,3 +83,56 @@ add reverse-proxy routing; remote or LAN access is unsupported.
 - **WHEN** they publish the container port
 - **THEN** every published port MUST carry the `127.0.0.1:` host prefix
 - **AND** no compose service MUST carry reverse-proxy routing labels
+
+### Requirement: Packaged Listener Authority Is Process-Proven
+
+The packaged-socket validator SHALL prove the operating system socket identity
+through a closed machine record derived from `server.address()` for both the
+initial packaged start and the restart. A configured environment variable,
+Next.js option, human-readable log, static source assertion, or successful
+loopback request MUST NOT satisfy this requirement by itself.
+
+#### Scenario: Initial start and restart prove matching listener identities
+
+- **WHEN** `validate:multiplayer:packaged-socket` starts the production server,
+  exercises the existing HTTP/WebSocket flow, restarts it, and reconnects
+- **THEN** initial MUST omit `HOSTNAME`/`NODE_ENV`; restart MUST set loopback
+  plus ambient `NODE_ENV=development`, yet both MUST select packaged mode
+- **AND** each owned process MUST publish exactly one closed listener record
+- **AND** each record's actual address, family, and port MUST match that
+  invocation's configured address and requested port
+- **AND** the initial and restarted processes MUST prove the same loopback
+  identity
+- **AND** the existing match creation, replay, persistence, and same-match
+  reconnect assertions MUST still pass
+
+#### Scenario: Invalid listener evidence fails the gate
+
+- **WHEN** a listener record is missing, duplicate, malformed, has unknown
+  fields, reports a pipe address, reports the wrong port or family, reports an
+  unspecified or non-loopback address, or differs from its configured address
+- **THEN** the validator MUST fail before publishing a successful result
+- **AND** any line containing the listener prefix outside the exact
+  `MEKSTATION_LISTENER_READY <compact-json>\n` framing MUST fail
+- **AND** it MUST reject a ready line over 1024 bytes or a non-integer/out-of-range
+  port, accept exact framing split across chunks, and reject coalesced duplicates
+
+#### Scenario: Runtime probes reject both unspecified address families
+
+- **WHEN** the validator runs bounded production probes with
+  `HOSTNAME=0.0.0.0` and `HOSTNAME=::`, with `MEKSTATION_CONTAINER_LISTEN`
+  removed from each probe's environment so an exported container opt-in
+  cannot satisfy or bypass the probe
+- **THEN** each process MUST exit non-zero before publishing listener-ready
+  evidence or accepting a connection
+- **AND** each process plus owned cleanup MUST finish within 5 seconds
+- **AND** cleanup MUST await close and rebind/close the port without fixed delay
+- **AND** the authority result MUST record
+  `unspecifiedAddressRejected=true` only after both rejections are proven
+
+#### Scenario: Positive IPv6 loopback is unsupported in CAMP-00
+
+- **WHEN** the validator runs a bounded production probe with `HOSTNAME=::1`
+- **THEN** the process MUST exit non-zero before publishing listener-ready
+  evidence or accepting a connection
+- **AND** the validator MUST NOT format or exercise an IPv6 HTTP/WebSocket URL

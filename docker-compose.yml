@@ -55,6 +55,11 @@ services:
 
   # ==========================================================================
   # Development Server with Hot Reload
+  # UNSUPPORTED: this service cannot serve. The development server accepts only
+  # a localhost/127.0.0.1 HOSTNAME (server.js, since c9bc06ef3) and the
+  # container opt-in applies to the production image only, so nothing in this
+  # container is reachable through the published port. Run `npm run dev` on
+  # the host instead.
   # ==========================================================================
   dev:
     build:

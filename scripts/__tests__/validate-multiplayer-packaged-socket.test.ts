@@ -47,6 +47,7 @@ catch(e){ process.stdout.write(e instanceof Error?e.message:String(e)); process.
     for (const host of REJECTS) {
       const env = { ...process.env, HOSTNAME: host, PORT: '3750' };
       delete env.NODE_ENV;
+      delete env.MEKSTATION_CONTAINER_LISTEN;
       const result = probe(root, preload, env);
       const out = `${result.stdout}${result.stderr}`;
       expect(result.status).not.toBe(0);
@@ -140,16 +141,19 @@ catch(e){ process.stdout.write(e instanceof Error?e.message:String(e)); process.
     };
     for (const dir of ['desktop', 'src', 'scripts', '.github'])
       if (fs.existsSync(dir)) visit(dir);
-    for (const file of [
-      'package.json',
-      'docker-compose.yml',
-      'electron-builder.yml',
-    ])
-      if (fs.existsSync(file) && fs.readFileSync(file, 'utf8').includes(FLAG))
-        offenders.push(file);
-    // server.js reads it and this test names it; only the Dockerfile sets it.
-    expect(offenders.map((f) => f.replace(/\\/g, '/'))).toEqual([
+    // Root configs that launch or configure a server: manifests, compose and
+    // builder files, Next and Playwright configs, other Dockerfiles, env files.
+    const rootFile =
+      /^(package\.json|(docker-)?compose[^/]*\.ya?ml|electron-builder\.yml|next\.config\.[cm]?[jt]s|playwright[^/]*\.config\.[cm]?[jt]s|Dockerfile\..+|\.env.*)$/;
+    for (const file of fs
+      .readdirSync('.')
+      .filter((name) => rootFile.test(name)))
+      if (fs.readFileSync(file, 'utf8').includes(FLAG)) offenders.push(file);
+    // server.js reads it, this test names it, and the validator names it only
+    // to strip it from its rejection probes; only the Dockerfile sets it.
+    expect(offenders.map((f) => f.replace(/\\/g, '/')).sort()).toEqual([
       'scripts/__tests__/validate-multiplayer-packaged-socket.test.ts',
+      'scripts/validate-multiplayer-packaged-socket.mjs',
     ]);
     expect(fs.readFileSync('Dockerfile', 'utf8')).toContain(
       `ENV ${FLAG}=all-interfaces`,

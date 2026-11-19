@@ -79,17 +79,30 @@ export function parseBody<T>(
   return null;
 }
 
+const LOOPBACK_PEER =
+  /^(127\.\d{1,3}\.\d{1,3}\.\d{1,3}|::1|::ffff:127\.\d{1,3}\.\d{1,3}\.\d{1,3})$/;
+
+/**
+ * Rate-limit key for one client. `X-Forwarded-For` is client-supplied, so it is
+ * honoured only when the direct peer is a loopback hop (the desktop app and
+ * local tooling, or an in-process request with no socket address). A network
+ * peer, such as a client reaching the container through its published port,
+ * is keyed by its socket address so it cannot rotate keys to evade the limit
+ * (PARITY-PLAN 1.0.92 security review).
+ */
 export function clientRateLimitKey(
   req: NextApiRequest,
   routeKey: string,
 ): string {
+  const peer = req.socket?.remoteAddress;
   const forwardedFor = req.headers['x-forwarded-for'];
   const firstForwardedFor = Array.isArray(forwardedFor)
     ? forwardedFor[0]
     : forwardedFor;
+  const trustForwarded = peer === undefined || LOOPBACK_PEER.test(peer);
   const client =
-    firstForwardedFor?.split(',')[0]?.trim() ||
-    req.socket?.remoteAddress ||
+    (trustForwarded && firstForwardedFor?.split(',')[0]?.trim()) ||
+    peer ||
     'unknown';
   return `${routeKey}:${client}`;
 }

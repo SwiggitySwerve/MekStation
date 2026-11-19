@@ -8,6 +8,8 @@ The production Docker image sets `HOSTNAME=0.0.0.0`, which a container needs to 
 - Every other value, the variable with any other host, and development mode leave the existing loopback rule unchanged, with a logged "ignored" line.
 - Only the production `Dockerfile` sets the variable. A test keeps it out of `desktop/`, `src/`, `scripts/`, `.github/`, `package.json`, `docker-compose.yml` and `electron-builder.yml`.
 - The same-host request guard, the desktop app's `HOSTNAME=127.0.0.1` launch and the packaged listener-ready evidence are unchanged.
+- The API rate-limit key (`clientRateLimitKey`) honours `X-Forwarded-For` only from a loopback hop; any other peer is keyed by its socket address, so a client of the container's port cannot rotate the header to evade the vault KDF limit.
+- The packaged-socket validator strips the variable from its rejection probes, so an exported opt-in cannot satisfy or bypass them.
 
 ## Capabilities
 
@@ -23,3 +25,4 @@ None.
 
 - LAN, remote or reverse-proxy access to the container. The same-host guard trusts a loopback `Host` header and the local API has no network authentication, so the compose file and run script publish the port on the host's `127.0.0.1` only, and the traefik labels are removed.
 - Any change to the desktop (Electron) listener.
+- Host checks on pages, `_next/data/*` and static `public/` files. The same-host guard covers `/api` and WebSocket upgrades only, so a client that reaches the port can read page data (for example `/gameplay/games` returns recent match logs). That is accepted: with the loopback-only publish only host-local processes can reach the container, which is the same exposure as the desktop app's local port (Root ruling on the 1.0.92 security review).
