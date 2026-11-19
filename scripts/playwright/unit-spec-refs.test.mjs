@@ -215,6 +215,21 @@ test('the workflow transports the generated JSON to all existing shard invocatio
   );
   assert.equal(data['continue-on-error'], undefined);
   assert.ok(jobs['lint-and-test'].needs.includes('e2e'));
+  // Every runner step plans the same shard count the matrix runs; a step planning
+  // more shards than the matrix has would leave its last shards' tests unrun.
+  const shards = jobs.e2e.strategy.matrix.shard;
+  const runners = jobs.e2e.steps.filter(({ run }) =>
+    run?.includes('scripts/playwright/run-ci-e2e.mjs test'),
+  );
+  assert.ok(runners.length >= 4, `runner steps: ${runners.length}`);
+  const expected = '--shard=${{ matrix.shard }}/' + shards.length;
+  for (const { name, run } of runners) {
+    assert.equal(run.split('--shard').length, 2, `${name}: one --shard flag`);
+    assert.ok(
+      run.includes(`${expected} `) || run.endsWith(expected),
+      `${name}: ${run}`,
+    );
+  }
 });
 
 test('data files are allocated by measured file weight; unmeasured tests retain the maximum fallback', () => {
