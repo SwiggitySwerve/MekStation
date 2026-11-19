@@ -174,6 +174,30 @@ export function producerEnvelope(observation, inputs, artifacts) {
   });
 }
 
+// One artifact per unit shard, whatever the shard count, in shard order.
+export function readJestArtifacts(artifactRoot) {
+  const shards = fs
+    .readdirSync(artifactRoot)
+    .map((name) => /^ci-budget-jest-([1-9]\d*)$/.exec(name)?.[1])
+    .filter(Boolean)
+    .map(Number)
+    .sort((a, b) => a - b);
+  const jest = [];
+  for (const shard of shards) {
+    for (const project of ['unit', 'corpus']) {
+      const entry = json(
+        path.join(
+          artifactRoot,
+          `ci-budget-jest-${shard}/jest-results-${project}-${shard}.json`,
+        ),
+        true,
+      );
+      if (entry) jest.push(entry);
+    }
+  }
+  return jest;
+}
+
 export async function reportRun({
   api = githubApi,
   repository,
@@ -201,27 +225,8 @@ export async function reportRun({
       path.join(artifactRoot, 'ci-budget-installers/installers.json'),
       true,
     ),
-    jest: [],
+    jest: readJestArtifacts(artifactRoot),
   };
-  // One artifact per unit shard, whatever the shard count.
-  const jestShards = fs
-    .readdirSync(artifactRoot)
-    .map((name) => /^ci-budget-jest-([1-9]\d*)$/.exec(name)?.[1])
-    .filter(Boolean)
-    .map(Number)
-    .sort((a, b) => a - b);
-  for (const shard of jestShards) {
-    for (const project of ['unit', 'corpus']) {
-      const entry = json(
-        path.join(
-          artifactRoot,
-          `ci-budget-jest-${shard}/jest-results-${project}-${shard}.json`,
-        ),
-        true,
-      );
-      if (entry) artifacts.jest.push(entry);
-    }
-  }
   const producer = producerEnvelope(current.observation, inputs, artifacts);
   producer.producer = observationProducer(
     {

@@ -532,10 +532,13 @@ function assertAdvisoryReports(jobs) {
   const at = (name) => sim.steps.findIndex((s) => s.name === name);
   const build = at('Build Next.js application');
   assert.ok(build >= 0);
+  // After every step that feeds a timing budget, census or installer artifact.
+  const lastCensus = at('Upload complete installer census');
+  assert.ok(lastCensus > build);
   for (const [name, command] of advisory) {
     const step = sim.steps[at(name)];
     assert.ok(step?.run.includes(command), name);
-    assert.ok(at(name) > build, `${name} runs after the Next build`);
+    assert.ok(at(name) > lastCensus, `${name} runs after the last census`);
     assert.equal(step['continue-on-error'], true, name);
     assert.equal(step.if, '${{ !cancelled() }}', name);
   }
@@ -590,7 +593,20 @@ test('advisory reports run late in Simulation Checks and Linux Pack, every advis
     (s) => s.run === 'node scripts/ci/budget-github.mjs',
   );
   steps.unshift(...steps.splice(reporter, 1));
-  assert.throws(() => assertAdvisoryReports(early), /after the Next build/);
+  assert.throws(() => assertAdvisoryReports(early), /after the last census/);
+  // After the build but before the web census and Linux pack is refused too.
+  const midway = structuredClone(workflow.jobs);
+  const midSteps = midway['simulation-checks'].steps;
+  const moved = midSteps.splice(
+    midSteps.findIndex((s) => s.run === 'node scripts/ci/budget-github.mjs'),
+    1,
+  );
+  midSteps.splice(
+    midSteps.findIndex((s) => s.name === 'Build Next.js application') + 1,
+    0,
+    ...moved,
+  );
+  assert.throws(() => assertAdvisoryReports(midway), /after the last census/);
 });
 
 test('actual aggregator boundary rejects failures, unexpected skips, unknown/missing results and forged gates', () => {
