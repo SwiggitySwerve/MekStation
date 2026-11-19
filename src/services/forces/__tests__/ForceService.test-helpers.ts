@@ -691,6 +691,23 @@ describe('ForceService', () => {
       expect(cloned?.assignments[0].unitId).toBe('unit-atlas');
     });
 
+    it('R4: keeps each slot unit roster link in the clone, since the clone keeps the same units', () => {
+      const forceResult = service.createForce({
+        name: 'Linked',
+        forceType: ForceType.Lance,
+      });
+      const source = service.getForce(forceResult.id!)!;
+      service.assignUnit(source.assignments[0].id, 'atlas-as7-d', 'roster-a');
+
+      const cloneResult = service.cloneForce(forceResult.id!, 'Linked Clone');
+      const clone = service.getForce(cloneResult.id!)!;
+
+      expect(clone.assignments[0]).toMatchObject({
+        unitId: 'atlas-as7-d',
+        rosterUnitId: 'roster-a',
+      });
+    });
+
     it('should return error when cloning non-existent force', () => {
       const result = service.cloneForce('non-existent', 'Clone');
 

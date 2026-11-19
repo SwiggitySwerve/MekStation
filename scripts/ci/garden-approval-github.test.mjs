@@ -147,10 +147,10 @@ const record = {
   approvals: [
     {
       pr: 3418,
-      key: 'limits.repoWideKeys',
-      from: 93,
-      to: 94,
-      ruling: { section: 'PARITY-PLAN §185', quote: 'Raise to 94 for PR-O.' },
+      key: 'timeouts.e2e.minutes',
+      from: 15,
+      to: 16,
+      ruling: { section: 'PARITY-PLAN §185', quote: 'Raise to 16 for PR-O.' },
     },
   ],
 };
@@ -162,7 +162,7 @@ function ownerFixture({ recordAt }) {
   f.reviews.length = 0;
   f.input.number = 3418;
   f.input.budgetRaises = () => [
-    { id: 'limits.repoWideKeys', before: 93, after: 94 },
+    { id: 'timeouts.e2e.minutes', before: 15, after: 16 },
   ];
   const blob = (value) => ({
     data: {
@@ -227,4 +227,20 @@ test('a non-owner author never reads the record', async () => {
   const f = fixture();
   assert.equal((await checkBudgetRaise(f.input)).code, 'owner-approved');
   assert.ok(f.calls.every((call) => call.path !== RECORD_PATH));
+});
+
+test('an owner-authored count-only raise passes as count-report-only and never reads the record', async () => {
+  const f = ownerFixture({ recordAt: 'base' });
+  f.pr.labels = [];
+  f.input.budgetRaises = () => [
+    { id: 'limits.repoWideKeys', before: 93, after: 95 },
+    { id: 'dependencies.root.lockEntries', before: 1194, after: 1195 },
+  ];
+  const result = await checkBudgetRaise(f.input);
+  assert.equal(result.allowed, true, result.message);
+  assert.equal(result.code, 'count-report-only');
+  assert.match(result.message, /limits\.repoWideKeys 93->95 \(\+2\)/);
+  assert.ok(f.calls.every((call) => call.path !== RECORD_PATH));
+  assert.equal(f.calls.at(-1).state, 'success');
+  assert.match(f.calls.at(-1).description, /^count-report-only: /);
 });

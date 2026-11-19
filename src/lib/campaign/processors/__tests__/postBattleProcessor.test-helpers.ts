@@ -34,6 +34,7 @@ import {
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import { PilotType, PilotStatus } from '@/types/pilot/PilotInterfaces';
 
+import { withIdentityManifest } from '../../__tests__/identityBattleUnitManifest';
 import {
   applyPostBattle,
   postBattleProcessor,
@@ -113,7 +114,7 @@ function createOutcome(
   overrides: Partial<ICombatOutcome> = {},
 ): ICombatOutcome {
   const matchId = overrides.matchId ?? 'match-1';
-  return {
+  return withIdentityManifest({
     version: COMBAT_OUTCOME_VERSION,
     matchId,
     contractId: null,
@@ -123,7 +124,7 @@ function createOutcome(
     unitDeltas: [],
     capturedAt: '3025-06-15T12:00:00Z',
     ...overrides,
-  };
+  });
 }
 
 // ----------------------------------------------------------------------------

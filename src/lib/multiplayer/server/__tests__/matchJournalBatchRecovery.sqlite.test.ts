@@ -109,11 +109,13 @@ async function openingEvents(): Promise<readonly IGameEvent[]> {
 function tailEvent(sequence: number): IGameEvent {
   return {
     id: `tail-${sequence}`,
+    gameId: MATCH_ID,
     sequence,
     type: GameEventType.PhaseChanged,
     timestamp: AT,
+    turn: 1,
     phase: GamePhase.Movement,
-    payload: { sequence },
+    payload: { fromPhase: GamePhase.Initiative, toPhase: GamePhase.Movement },
   } as unknown as IGameEvent;
 }
 

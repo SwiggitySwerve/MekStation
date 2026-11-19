@@ -119,6 +119,7 @@ export class ForceRepository implements IForceRepository {
         position TEXT NOT NULL DEFAULT 'member',
         slot INTEGER NOT NULL,
         notes TEXT,
+        roster_unit_id TEXT,
         FOREIGN KEY (force_id) REFERENCES forces(id) ON DELETE CASCADE,
         FOREIGN KEY (pilot_id) REFERENCES pilots(id) ON DELETE SET NULL
       )
@@ -128,6 +129,14 @@ export class ForceRepository implements IForceRepository {
     db.exec(
       `CREATE INDEX IF NOT EXISTS idx_forces_parent ON forces(parent_id)`,
     );
+    // T1: databases created before the roster link existed gain the
+    // nullable column; NULL reads as "roster unit unknown".
+    const assignmentColumns = db.pragma('table_info(force_assignments)') as {
+      name: string;
+    }[];
+    if (!assignmentColumns.some((column) => column.name === 'roster_unit_id')) {
+      db.exec('ALTER TABLE force_assignments ADD COLUMN roster_unit_id TEXT');
+    }
     db.exec(
       `CREATE INDEX IF NOT EXISTS idx_assignments_force ON force_assignments(force_id)`,
     );
@@ -295,7 +304,7 @@ export class ForceRepository implements IForceRepository {
 
     try {
       db.prepare(
-        'UPDATE force_assignments SET pilot_id = NULL, unit_id = NULL WHERE id = ?',
+        'UPDATE force_assignments SET pilot_id = NULL, unit_id = NULL, roster_unit_id = NULL WHERE id = ?',
       ).run(assignmentId);
 
       return { success: true, id: assignmentId };

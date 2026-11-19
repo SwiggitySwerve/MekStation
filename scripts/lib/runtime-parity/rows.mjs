@@ -20,6 +20,7 @@ import {
   saveLossProblems,
   saveLossSchema,
 } from './save-loss.mjs';
+import { isEditorOwned } from './vehicle-document.mjs';
 
 export const ROW_SCHEMA_VERSION = 1;
 
@@ -242,9 +243,68 @@ const reopenBlock = z.strictObject({
   saveLossAfter,
 });
 
-const unitKey = {
+/**
+ * What the vehicle editor shows for one loaded unit, read where VehicleStatusBar reads it. Same shape on both ends of a
+ * vehicle reopen row. Vehicles have no critical-slot cells, no second weight owner and no save-loss dialog, so the
+ * mech observation's allocatedWeight, occupancy and the cell/notice blocks have no vehicle counterpart.
+ */
+const vehicleObservation = z.strictObject({
+  /** The status bar's BV (its breakdown's `final`); null = the calculator threw (counts as a miss). */
+  bv: z.number().nullable(),
+  /** validateVehicleConstruction(...).isValid as the status bar computes it. */
+  validity: z.enum(['valid', 'invalid']),
+  /** .isComplete: false when an input (mass, equipment) was unknown, so `invalid` was not a decided verdict. */
+  complete: z.boolean(),
+  /** The reason codes: the error rule ids, sorted and duplicate-free (checked). Messages are in `issues`. */
+  reasons: z.array(text),
+  /** Unrounded used mass, tonnage - the weight breakdown's `remaining`; null when `remaining` is unknown. */
+  weight: z.number().nullable(),
+  mp: z.strictObject({
+    cruise: z.number(),
+    flank: z.number(),
+    /** null: the vehicle editor has no jump MP (the store has none; the BV input uses 0). Never written as 0. */
+    jump: z.number().nullable(),
+  }),
+  /** The loaded crew size as the store holds it; an explicit null stays null. */
+  crew: z.int().min(0).nullable(),
+});
+
+/** A vehicle validation message as recorded (a diagnostic; only `reasons` is compared). Warnings carry no rule id. */
+const vehicleIssue = z.strictObject({
+  ruleId: text.nullable(),
+  channel: z.enum(['errors', 'warnings']),
+  message: text,
+});
+
+const vehicleLoadBlock = z.strictObject({
+  observed: vehicleObservation,
+  /** numericTerms(vehicleBVTerms(breakdown)) (src/utils/construction/vehicle/bvTrace.ts), names unchanged. */
+  terms,
+  issues: z.array(vehicleIssue),
+  /** The BV and cost the real vehicle preview hands to the record-sheet renderer; null = not captured. */
+  preview: z.strictObject({ bv: z.number(), cost: z.number() }).nullable(),
+});
+
+const vehicleReopenObservation = vehicleObservation.extend({ terms });
+
+const vehicleReopenBlock = z.strictObject({
+  before: vehicleReopenObservation,
+  after: vehicleReopenObservation,
+  /**
+   * Source-document key paths the saved document lost or changed, outside the editor-owned keys
+   * (vehicle-document.mjs documentDiff, the one owner), sorted by path.
+   */
+  documentLosses: z.array(
+    z.strictObject({ path: text, change: z.enum(['lost', 'changed']) }),
+  ),
+  /** vehicle-document.mjs mountDiff: source mounts the saved document lacks, one numbered entry per copy, sorted. */
+  mountLosses: z.array(text),
+  /** Saved mounts the source lacks, the same way. */
+  mountAdditions: z.array(text),
+});
+
+const unitIdentity = {
   schemaVersion: z.literal(ROW_SCHEMA_VERSION),
-  family: z.enum(FAMILIES),
   unitId: z.string().min(1),
   /** Source (MTF/BLK) path in mm-data, from the S0b join; with `family` this is the scoreboard's row identity. */
   path: z.string().min(1),
@@ -254,9 +314,14 @@ const unitKey = {
   catalog: z.strictObject({ path: z.string().min(1), blob: gitBlob }),
 };
 
+/** An `ok` row's block is family-shaped; an `error` row is the same for every family. */
+const unitKey = { ...unitIdentity, family: z.enum(FAMILIES) };
+const mechKey = { ...unitIdentity, family: z.literal('battlemechs') };
+const vehicleKey = { ...unitIdentity, family: z.literal('vehicles') };
+
 export const RowSchema = z.union([
   z.strictObject({
-    ...unitKey,
+    ...mechKey,
     measure: z.literal('load'),
     status: z.literal('ok'),
     load: loadBlock,
@@ -268,7 +333,7 @@ export const RowSchema = z.union([
     error: failure,
   }),
   z.strictObject({
-    ...unitKey,
+    ...mechKey,
     measure: z.literal('reopen'),
     status: z.literal('ok'),
     reopen: reopenBlock,
@@ -278,6 +343,18 @@ export const RowSchema = z.union([
     measure: z.literal('reopen'),
     status: z.literal('error'),
     error: failure,
+  }),
+  z.strictObject({
+    ...vehicleKey,
+    measure: z.literal('load'),
+    status: z.literal('ok'),
+    load: vehicleLoadBlock,
+  }),
+  z.strictObject({
+    ...vehicleKey,
+    measure: z.literal('reopen'),
+    status: z.literal('ok'),
+    reopen: vehicleReopenBlock,
   }),
 ]);
 
@@ -379,7 +456,12 @@ function viewCells(view) {
 
 /** Cells owned by each added/changed mount of a reopen row, tagged with the owning entry. */
 export function ownedCellList(row) {
-  if (row.measure !== 'reopen' || row.status !== 'ok') return [];
+  if (
+    row.measure !== 'reopen' ||
+    row.status !== 'ok' ||
+    row.family !== 'battlemechs'
+  )
+    return [];
   const { addedLoadedMounts, changedLoadedMounts } = row.reopen;
   return [
     ...addedLoadedMounts.flatMap((m, i) =>
@@ -429,10 +511,49 @@ export {
   saveLossConfirms,
 };
 
+const strictlySorted = (list) =>
+  list.every((item, i) => i === 0 || list[i - 1] < item);
+
+/** The vehicle rules: sorted, duplicate-free lists, and no loss reported under an editor-owned key. */
+function vehicleCrossChecks(row) {
+  const problems = [];
+  const observations =
+    row.measure === 'load'
+      ? [['load.observed', row.load.observed]]
+      : [
+          ['reopen.before', row.reopen.before],
+          ['reopen.after', row.reopen.after],
+        ];
+  for (const [name, observed] of observations)
+    if (!strictlySorted(observed.reasons))
+      problems.push(`${name}.reasons is not sorted and duplicate-free`);
+  if (row.measure === 'reopen') {
+    const r = row.reopen;
+    if (!strictlySorted(r.documentLosses.map((loss) => loss.path)))
+      problems.push('documentLosses is not sorted by unique path');
+    const owned = r.documentLosses.filter((loss) => isEditorOwned(loss.path));
+    if (owned.length)
+      problems.push(
+        `documentLosses lists editor-owned key(s): ${owned.map((loss) => loss.path).join(', ')}`,
+      );
+    if (!strictlySorted(r.mountLosses))
+      problems.push('mountLosses is not sorted and duplicate-free');
+    if (!strictlySorted(r.mountAdditions))
+      problems.push('mountAdditions is not sorted and duplicate-free');
+  }
+  return problems;
+}
+
 /** Cross-field rules JSON Schema cannot express. Returns a list of problems. */
 function crossChecks(row) {
   const problems = [];
-  if (row.measure === 'reopen' && row.status === 'ok') {
+  if (row.status === 'ok' && row.family === 'vehicles')
+    problems.push(...vehicleCrossChecks(row));
+  if (
+    row.measure === 'reopen' &&
+    row.status === 'ok' &&
+    row.family === 'battlemechs'
+  ) {
     const r = row.reopen;
     const n = r.noticeResidual;
     if (n.equal !== (n.noticeOnly.length === 0 && n.roundTripOnly.length === 0))

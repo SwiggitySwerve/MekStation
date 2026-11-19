@@ -64,7 +64,11 @@ function makeForce(unitId: string, pilotId: string): IForce {
 }
 
 function makeForceWithAssignments(
-  assignments: readonly { unitId: string; pilotId: string | null }[],
+  assignments: readonly {
+    unitId: string;
+    pilotId: string | null;
+    rosterUnitId?: string;
+  }[],
 ): IForce {
   return {
     id: `${assignments[0]?.unitId ?? 'empty'}-force`,
@@ -72,13 +76,16 @@ function makeForceWithAssignments(
     forceType: ForceType.Lance,
     status: ForceStatus.Active,
     childIds: [],
-    assignments: assignments.map(({ pilotId, unitId }, index) => ({
-      id: `${unitId}-assignment`,
-      pilotId,
-      unitId,
-      position: ForcePosition.Member,
-      slot: index + 1,
-    })),
+    assignments: assignments.map(
+      ({ pilotId, unitId, rosterUnitId }, index) => ({
+        id: `${unitId}-assignment`,
+        pilotId,
+        unitId,
+        position: ForcePosition.Member,
+        slot: index + 1,
+        ...(rosterUnitId ? { rosterUnitId } : {}),
+      }),
+    ),
     stats: {
       totalBV: 0,
       totalTonnage: 0,
@@ -144,6 +151,40 @@ describe('buildPreparedBattleData', () => {
       unitRef: 'commando-com-2d',
     });
     expect(prepared.gameUnits[1].name).not.toContain('undefined');
+  });
+
+  it('T1: returns a manifest keyed by the exact player session ids, outside the game units', async () => {
+    adaptUnitMock.mockImplementation(async (unitId, options) =>
+      makeAdaptedUnit(unitId, options?.side ?? GameSide.Player, 20, 'single'),
+    );
+
+    const prepared = await buildPreparedBattleData({
+      playerForce: makeForceWithAssignments([
+        { unitId: 'atlas-as7-d', pilotId: null, rosterUnitId: 'roster-a' },
+        { unitId: 'atlas-as7-d', pilotId: null, rosterUnitId: 'roster-b' },
+        { unitId: 'locust-lct-1v', pilotId: null },
+      ]),
+      opponentForce: makeForce('commando-com-2d', 'pilot-x'),
+      pilots: [],
+    });
+
+    const playerIds = prepared.gameUnits
+      .filter((unit) => unit.side === GameSide.Player)
+      .map((unit) => unit.id);
+    expect(playerIds).toEqual([
+      'player-1-atlas-as7-d',
+      'player-2-atlas-as7-d',
+      'player-3-locust-lct-1v',
+    ]);
+    // Same design twice maps to two distinct roster units; a player unit
+    // with no roster link gets no entry; opponents never appear.
+    expect(prepared.unitManifest).toEqual({
+      'player-1-atlas-as7-d': { rosterUnitId: 'roster-a' },
+      'player-2-atlas-as7-d': { rosterUnitId: 'roster-b' },
+    });
+    // The manifest never reaches the game units (replay digest surface).
+    expect(JSON.stringify(prepared.gameUnits)).not.toContain('roster-');
+    expect(JSON.stringify(prepared.playerAdapted)).not.toContain('roster-');
   });
 
   it('threads adapted heat sink count and type into GameCreated unit seeds', async () => {

@@ -30,6 +30,15 @@ import {
 type CreateResponse = { matchId: string };
 type ErrorResponse = { error: string };
 
+/**
+ * The report carries the full event log, so a battle that runs to the turn
+ * limit posts well over Next's 1 MB bodyParser default and was refused 413.
+ * Same 16 MiB transport ceiling as the replay-library and session routes.
+ */
+export const config = {
+  api: { bodyParser: { sizeLimit: '16mb' } },
+};
+
 // =============================================================================
 // Handler
 // =============================================================================

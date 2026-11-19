@@ -22,6 +22,7 @@ import type {
   IGmTimeCascadeProjectedEffect,
 } from '../interventions';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
+import type { IPendingBattleUnitManifest } from './BattleUnitManifest';
 import type {
   ICampaignActiveContract,
   ICampaignContractMarket,
@@ -35,6 +36,10 @@ import type { ICoopSession } from './CoopSession';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
 import type { IForce } from './Force';
 import type { IDailyBattleAuditEntry } from './IDailyBattleAuditEntry';
+import type {
+  ILegacyCombatStateFlag,
+  IUnappliedDeltaQuarantineRecord,
+} from './LegacyCombatStateMigration';
 import type {
   IPersonnelMarketOffer,
   IUnitMarketOffer,
@@ -199,6 +204,14 @@ export interface SerializedCampaignBody {
   readonly salvageReports?: Readonly<Record<string, ISalvageReport>>;
   readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
   readonly processedBattleIds?: readonly string[];
+  /** T1 launch manifests for battles not yet applied, keyed by match id. */
+  readonly battleUnitManifests?: Readonly<
+    Record<string, IPendingBattleUnitManifest>
+  >;
+  /** Legacy session-keyed combat states awaiting the user's review. */
+  readonly legacyCombatStateFlags?: readonly ILegacyCombatStateFlag[];
+  /** Unapplied legacy deltas awaiting a confirmed quarantine write. */
+  readonly pendingQuarantineRecords?: readonly IUnappliedDeltaQuarantineRecord[];
   readonly gmInterventionEvents?: readonly IGmCampaignProjectedEffect[];
   readonly timeCascadeEvents?: readonly IGmTimeCascadeProjectedEffect[];
   readonly recentlyAppliedOutcomes?: readonly IAppliedCombatOutcome[];

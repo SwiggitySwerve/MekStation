@@ -3,6 +3,8 @@ import type {
   IGameSession,
   IGameUnit,
   IPendingPSR,
+  IPSRResolvedPayload,
+  IPSRResolutionTarget,
   IUnitGameState,
 } from '@/types/gameplay';
 
@@ -23,6 +25,7 @@ import {
   type IPSRResult,
   resolveAllPSRs,
 } from './pilotingSkillRolls';
+import { projectPsrResolutionTarget } from './pilotingSkillRolls/eventTargets';
 
 const DEFAULT_FALL_LOCATION = 'center_torso';
 
@@ -37,14 +40,11 @@ interface IPsrUnitResolutionContext {
   readonly d6Roller: D6Roller;
 }
 
-interface IPsrEventResolutionDetails {
-  readonly targetNumber: number;
-  readonly roll: number;
-  readonly modifiers: number;
-  readonly passed: boolean;
-  readonly reason: string;
-  readonly reasonCode?: IPendingPSR['reasonCode'];
-}
+type IPsrEventResolutionDetails = Omit<
+  IPSRResolvedPayload,
+  'unitId' | 'targetNumber' | 'automaticFailure'
+> &
+  IPSRResolutionTarget;
 
 interface IPsrFallReason {
   readonly reason?: string;
@@ -158,7 +158,7 @@ function appendAutomaticGyroPsrResolutions(
 
   for (const pending of context.pendingPSRs) {
     currentSession = appendPsrResolved(currentSession, context, {
-      targetNumber: Infinity,
+      automaticFailure: true,
       roll: 0,
       modifiers: 0,
       passed: false,
@@ -211,10 +211,9 @@ function appendBatchedPsrResults(
 
   for (const result of batchResult.results) {
     currentSession = appendPsrResolved(currentSession, context, {
-      targetNumber: result.targetNumber,
+      ...projectPsrResolutionTarget(result),
       roll: result.roll,
       modifiers: psrModifierTotal(result),
-      passed: result.passed,
       reason: result.psr.reason,
       reasonCode: result.psr.reasonCode,
     });
@@ -272,19 +271,14 @@ function appendPsrResolved(
   const sequence = session.events.length;
   return appendEvent(
     session,
-    createPSRResolvedEvent(
-      session.id,
+    createPSRResolvedEvent({
+      gameId: session.id,
       sequence,
-      context.turn,
-      context.phase,
-      context.unitId,
-      details.targetNumber,
-      details.roll,
-      details.modifiers,
-      details.passed,
-      details.reason,
-      details.reasonCode,
-    ),
+      turn: context.turn,
+      phase: context.phase,
+      unitId: context.unitId,
+      ...details,
+    }),
   );
 }
 

@@ -15,6 +15,7 @@ import { Button, PageLayout } from '@/components/ui';
 import { getCoopMatchId } from '@/lib/campaign/coop/coopRuntimeSession';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
 import { useDayAdvanceInFlight } from '@/lib/campaign/hooks/useDayAdvanceInFlight';
+import { getDeviceId } from '@/lib/campaign/persistence/deviceId';
 import {
   type CanonicalCombatCatalogSnapshot,
   admitCampaignLaunch,
@@ -37,6 +38,10 @@ import {
 } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import {
+  legacyCombatStateFlagKey,
+  pendingQuarantineKey,
+} from '@/types/campaign/LegacyCombatStateMigration';
 import { createMission as createCampaignMission } from '@/types/campaign/Mission';
 
 import type {
@@ -72,6 +77,7 @@ import {
 } from './CampaignDashboardPage.sections';
 import { CampaignSaveStatusCard } from './CampaignSaveStatusCard';
 import { DailyBattleAuditFeed } from './DailyBattleAuditFeed';
+import { LegacyCombatStateFlagsBanner } from './LegacyCombatStateFlagsBanner';
 import { PendingOutcomesBanner } from './PendingOutcomesBanner';
 
 export default function CampaignDashboardPage(): React.ReactElement {
@@ -410,6 +416,30 @@ export default function CampaignDashboardPage(): React.ReactElement {
       <PendingOutcomesBanner
         outcomes={pendingOutcomes}
         applyErrors={applyErrors}
+      />
+
+      <LegacyCombatStateFlagsBanner
+        flags={liveCampaign?.legacyCombatStateFlags}
+        currentDeviceId={getDeviceId()}
+        pendingQuarantineKeys={
+          new Set(
+            (liveCampaign?.pendingQuarantineRecords ?? []).map(
+              pendingQuarantineKey,
+            ),
+          )
+        }
+        onDismiss={(dismissed) =>
+          // The store's flags at click time, not this render's snapshot.
+          store.getState().updateCampaign({
+            legacyCombatStateFlags: (
+              store.getState().campaign?.legacyCombatStateFlags ?? []
+            ).filter(
+              (flag) =>
+                legacyCombatStateFlagKey(flag) !==
+                legacyCombatStateFlagKey(dismissed),
+            ),
+          })
+        }
       />
 
       <DailyBattleAuditFeed entries={auditEntries} />

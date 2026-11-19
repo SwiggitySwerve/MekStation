@@ -89,6 +89,12 @@ export interface IAssignment {
   readonly slot: number;
   /** Optional notes for this assignment */
   readonly notes?: string;
+  /**
+   * Campaign roster unit this slot's unit is (T1 launch manifest). Set only
+   * when a campaign launch assigns a roster unit; absent means unknown.
+   * Cleared whenever the slot's unit is reassigned or cleared.
+   */
+  readonly rosterUnitId?: string;
 }
 
 /**
@@ -108,6 +114,8 @@ export interface ICreateAssignmentRequest {
 export interface IUpdateAssignmentRequest {
   readonly pilotId?: string | null;
   readonly unitId?: string | null;
+  /** Roster link for `unitId`; written only together with `unitId`. */
+  readonly rosterUnitId?: string | null;
   readonly position?: ForcePosition;
   readonly notes?: string;
 }

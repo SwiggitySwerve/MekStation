@@ -1522,6 +1522,9 @@ export class ServerMatchHost {
       closeMatch: () => this.closeMatch(),
       maybeResume: () => this.maybeResume(),
       installFreshCapture: () => this.installFreshCapture(),
+      peekNewEvents: () =>
+        drainNewEvents(this.session.getSession().events, this.lastBroadcastSeq)
+          .events,
       drainNewEvents: () => this.drainNewEvents(),
       stampRollsOnNewEvents: (events) => this.stampRollsOnNewEvents(events),
       tryPublishOutcome: () => this.tryPublishOutcome(),
@@ -1593,7 +1596,7 @@ export class ServerMatchHost {
    * the next engine call's consumed rolls land in a clean buffer.
    * Delegates to the capture collaborator.
    */
-  private installFreshCapture = (): void => void this.capture.installFresh();
+  private installFreshCapture = (): (() => void) => this.capture.installFresh();
 
   /**
    * Per Wave 3a: stamp the captured d6 sequence onto every fresh event

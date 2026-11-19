@@ -12,6 +12,7 @@ import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
+import { withIdentityManifest } from '@/lib/campaign/__tests__/identityBattleUnitManifest';
 import * as battleHelpers from '@/lib/campaign/processors/postBattleProcessor.helpers';
 import PostBattleReviewPage from '@/pages/gameplay/games/[id]/review';
 import {
@@ -44,7 +45,7 @@ jest.mock('next/router', () => ({
 }));
 
 function makeOutcome(): ICombatOutcome {
-  return {
+  return withIdentityManifest({
     version: COMBAT_OUTCOME_VERSION,
     matchId: 'match-001',
     contractId: null,
@@ -81,7 +82,7 @@ function makeOutcome(): ICombatOutcome {
         },
       },
     ],
-  };
+  });
 }
 
 describe('PostBattleReviewPage — Return to Campaign CTA', () => {
@@ -102,7 +103,7 @@ describe('PostBattleReviewPage — Return to Campaign CTA', () => {
     expect(store.getState().campaign?.unitCombatStates).toEqual({});
   });
 
-  it('shows per-unit failures without navigating away or offering to repeat committed effects', () => {
+  it('T3: shows a per-unit failure, keeps the outcome queued and offers the retry', () => {
     const store = useCampaignStore();
     store.getState().createCampaign('Review Failure', 'mercenary');
     store.getState().enqueueOutcome(makeOutcome());
@@ -115,11 +116,9 @@ describe('PostBattleReviewPage — Return to Campaign CTA', () => {
       'unit unit-1: unit data unavailable',
     );
     expect(routerPush).not.toHaveBeenCalled();
-    expect(store.getState().processedBattleIds).toContain('match-001');
-    expect(screen.getByTestId('apply-outcome-cta')).toBeDisabled();
-    expect(
-      screen.queryByTestId('retry-application-cta'),
-    ).not.toBeInTheDocument();
+    expect(store.getState().processedBattleIds).not.toContain('match-001');
+    expect(store.getState().reviewReady('match-001')).toBe(true);
+    expect(screen.getByTestId('retry-application-cta')).toBeInTheDocument();
   });
 
   it('marks the battle reviewed and drains the pending queue when no campaign is loaded', () => {

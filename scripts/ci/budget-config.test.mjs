@@ -14,6 +14,7 @@ import {
   budgetDescriptors,
   budgetTargetGaps,
   budgetValues,
+  isReportOnlyBudgetId,
 } from './budget-config.mjs';
 
 const config = loadBudgets();
@@ -163,7 +164,7 @@ test('targets report configured gaps with unavailable or fractional observations
   const unknown = budgetTargetGaps(config);
   assert.deepEqual(
     unknown.map((row) => row.configuredGap),
-    [1, 2, 13],
+    [1, 2, 14],
   );
   assert.ok(
     unknown.every((row) => row.observed === null && row.gapToTarget === null),
@@ -189,7 +190,7 @@ test('ratchets lower canonical IDs and cannot add/raise/duplicate silently', () 
     { id: 'limits.repoWideKeys', value: 79 },
   ]);
   assert.equal(result.limits.repoWideKeys, 79);
-  assert.equal(config.limits.repoWideKeys, 93);
+  assert.equal(config.limits.repoWideKeys, 94);
   for (const proposals of [
     null,
     [{ id: 'unknown', value: 1 }],
@@ -219,4 +220,25 @@ test('config digest hashes exact bytes, including newline changes', () => {
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test('every canonical count ID is report-only; timeouts, profiles and unknown IDs are not (PARITY-PLAN §193.2)', () => {
+  const ids = Object.keys(budgetValues(config));
+  assert.deepEqual(
+    ids.filter((id) => !isReportOnlyBudgetId(id)),
+    ids.filter((id) => id.startsWith('timeouts.')),
+  );
+  for (const id of Object.keys(config.targets))
+    assert.equal(isReportOnlyBudgetId(`targets.${id}`), true, id);
+  for (const id of [
+    'profiles.docs',
+    'limits.installerBytes',
+    'limits.repoWideKeys.extra',
+    'dependencies.root',
+    'dependencies.other.lockEntries',
+    'reporting.other',
+    'timeouts.e2e',
+    undefined,
+  ])
+    assert.equal(isReportOnlyBudgetId(id), false, String(id));
 });

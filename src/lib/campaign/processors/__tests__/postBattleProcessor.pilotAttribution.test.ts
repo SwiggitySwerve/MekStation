@@ -33,6 +33,7 @@ import {
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import { PilotStatus, PilotType } from '@/types/pilot/PilotInterfaces';
 
+import { withIdentityManifest } from '../../__tests__/identityBattleUnitManifest';
 import {
   applyPostBattle,
   type ICampaignWithBattleState,
@@ -112,7 +113,7 @@ function createOutcome(
   overrides: Partial<ICombatOutcome> = {},
 ): ICombatOutcome {
   const matchId = overrides.matchId ?? 'match-pilot-attribution';
-  return {
+  return withIdentityManifest({
     version: COMBAT_OUTCOME_VERSION,
     matchId,
     contractId: null,
@@ -122,7 +123,7 @@ function createOutcome(
     unitDeltas: [],
     capturedAt: '3025-06-15T12:00:00Z',
     ...overrides,
-  };
+  });
 }
 
 function makeRosterEntry(
@@ -253,8 +254,9 @@ describe('postBattleProcessor — Engine-Derived Outcome Pilot Attribution (D9)'
       createTestCampaign({ id: 'camp-pilot-attribution-2' }),
     );
     expect(summary.pilotsUpdated).toHaveLength(0);
-    // Unit-state application is independent of pilot resolution.
-    expect(summary.unitsUpdated).toContain('opponent-1-marauder-mad-3r');
+    // T1: opponent units have no roster unit, so no campaign unit state
+    // is written for them.
+    expect(summary.unitsUpdated).toEqual([]);
     expect(summary.errors).toHaveLength(0);
   });
 
