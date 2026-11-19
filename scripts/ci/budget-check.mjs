@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
 import { exactKeys, loadBudgetTree, METRICS_SCHEMA } from './budget-config.mjs';
-import { dependencyViolations } from './budget-dependencies.mjs';
+import { dependencyOverBudget } from './budget-dependencies.mjs';
 import {
   collectRepositoryMetrics,
   validateRepositoryMetrics,
@@ -54,12 +54,25 @@ export function checkRepositoryMetrics(config, metrics, labels, context) {
     throw new Error('Representative profile census missing or reclassified');
   if (!Array.isArray(labels) || labels.some((l) => typeof l !== 'string'))
     throw new Error('PR labels missing/unknown');
+  // Timeouts block; counts are report-only (PARITY-PLAN §193.2).
   const violations = [];
+  const overBudget = [];
   const fail = (code, message) => violations.push({ code, message });
+  const over = (code, value, limit, message) =>
+    overBudget.push({
+      code,
+      key: `limits.${code}`,
+      value,
+      limit,
+      delta: value - limit,
+      message,
+    });
   for (const profile of metrics.workflow.profiles) {
     if (profile.typical && profile.active > config.limits.typicalPrJobs)
-      fail(
+      over(
         'typicalPrJobs',
+        profile.active,
+        config.limits.typicalPrJobs,
         `${profile.id}: ${profile.active} active / ${profile.expanded} expanded jobs > ${config.limits.typicalPrJobs}`,
       );
   }
@@ -77,15 +90,15 @@ export function checkRepositoryMetrics(config, metrics, labels, context) {
     if (!Array.isArray(census) || !metrics.cache.files.length)
       throw new Error(`${id}: missing actual census`);
     if (census.length > config.limits[id])
-      fail(
+      over(
         id,
+        census.length,
+        config.limits[id],
         `${census.length} > ${config.limits[id]}${breachAttribution(census, CENSUS_WORDS[id], context)}`,
       );
   }
-  violations.push(
-    ...dependencyViolations(config, metrics.dependencies, labels),
-  );
-  return { schema: METRICS_SCHEMA, metrics, violations };
+  overBudget.push(...dependencyOverBudget(config, metrics.dependencies));
+  return { schema: METRICS_SCHEMA, metrics, violations, overBudget };
 }
 
 const git = (args, root) =>
@@ -164,6 +177,20 @@ export function reportViolations(
   }
 }
 
+/** Print each count over its budget; a warning annotation, never a failure. */
+export function reportOverBudget(
+  overBudget,
+  env = process.env,
+  log = console.log,
+) {
+  for (const { key, delta, message } of overBudget) {
+    const line = `${key} over budget (report-only, +${delta}): ${message}`;
+    log(line);
+    if (env.GITHUB_ACTIONS === 'true')
+      log(`::warning title=CI budget (report-only)::${annotationData(line)}`);
+  }
+}
+
 export function run(argv, root = process.cwd()) {
   const { values } = parseArgs({
     args: argv,
@@ -209,7 +236,13 @@ export function run(argv, root = process.cwd()) {
   console.log(
     `Cache: ${metrics.cache.files.length} files, ${metrics.cache.unkeyable.length} unkeyable, ${metrics.cache.repoWide.length} repo-wide`,
   );
+  reportOverBudget(result.overBudget);
   reportViolations(result.violations);
+  return exitCodeFor(result);
+}
+
+// PARITY-PLAN §193.2: only violations fail the step; overBudget counts never do.
+export function exitCodeFor(result) {
   return result.violations.length ? 1 : 0;
 }
 

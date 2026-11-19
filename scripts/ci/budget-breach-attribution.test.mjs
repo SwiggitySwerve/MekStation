@@ -9,6 +9,7 @@ import {
   changedFilesRange,
   checkRepositoryMetrics,
   prChangedFiles,
+  reportOverBudget,
   reportViolations,
 } from './budget-check.mjs';
 import { loadBudgets } from './budget-config.mjs';
@@ -36,8 +37,15 @@ const breached = () => {
     },
   };
 };
-const violation = (result, code) =>
-  result.violations.find((v) => v.code === code);
+// PARITY-PLAN §193.2: a census breach is report-only, never a violation.
+const violation = (result, code) => {
+  assert.equal(
+    result.violations.find((v) => v.code === code),
+    undefined,
+    `${code} must not be a blocking violation`,
+  );
+  return result.overBudget.find((v) => v.code === code);
+};
 
 test('repoWideKeys breach names the PR, the changed repo-wide file and its reason', () => {
   const metrics = breached();
@@ -151,6 +159,46 @@ test('reportViolations prints each violation and annotates only on GitHub Action
     '::error title=CI budget::repoWideKeys: 11 > 10 (PR #1)',
     'timeout: a\nb 100%',
     '::error title=CI budget::timeout: a%0Ab 100%25',
+  ]);
+});
+
+test('a census breach is report-only: no violation, key, value, limit and delta recorded', () => {
+  const limit = config.limits.repoWideKeys;
+  const result = checkRepositoryMetrics(config, breached(), [], {
+    prNumber: '3401',
+    changedFiles: [`t/${limit}.test.ts`],
+  });
+  assert.deepEqual(result.violations, []);
+  const over = violation(result, 'repoWideKeys');
+  assert.deepEqual(
+    [over.key, over.value, over.limit, over.delta],
+    ['limits.repoWideKeys', limit + 1, limit, 1],
+  );
+});
+
+test('reportOverBudget prints a report-only line and warns, never errors, on GitHub Actions', () => {
+  const overBudget = [
+    {
+      code: 'repoWideKeys',
+      key: 'limits.repoWideKeys',
+      value: 95,
+      limit: 93,
+      delta: 2,
+      message: '95 > 93 (PR #1)',
+    },
+  ];
+  const plain = [];
+  reportOverBudget(overBudget, {}, (line) => plain.push(line));
+  assert.deepEqual(plain, [
+    'limits.repoWideKeys over budget (report-only, +2): 95 > 93 (PR #1)',
+  ]);
+  const hosted = [];
+  reportOverBudget(overBudget, { GITHUB_ACTIONS: 'true' }, (line) =>
+    hosted.push(line),
+  );
+  assert.deepEqual(hosted, [
+    'limits.repoWideKeys over budget (report-only, +2): 95 > 93 (PR #1)',
+    '::warning title=CI budget (report-only)::limits.repoWideKeys over budget (report-only, +2): 95 > 93 (PR #1)',
   ]);
 });
 

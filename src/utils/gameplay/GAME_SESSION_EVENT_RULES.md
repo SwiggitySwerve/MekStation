@@ -34,3 +34,41 @@ constructors append only their own throwaway factory events before adopting the
 hydrated session. Server recovery logs refusals through `utils/logger` and skips
 the failed match while continuing the sweep; existing corruption quarantine
 prevents a refused match from being recreated as a fresh one.
+
+## Recording serialization
+
+`gameEvents/serialization.ts` owns the stored-image guard: what is written
+must be readable. It forms the same JSON image as the reader, applies the
+reader format's existing transport-stamp split, and runs the strict event
+schema and resolved-input check. The schema decides validity; there is no
+numeric allowlist. PR-18 automatic shutdown images (`targetNumber: null`)
+are valid; the old PSR null target is invalid.
+
+An unreadable image throws `UnreadableStoredEventError` in `NODE_ENV=test`.
+For the single-player journal in production/development its recording copy gains
+`replayIntegrity: {status: 'unverifiable', reason: 'unreadable-stored-event',
+formatId: ...}`. The library and object-backed recovery block marked histories.
+The guard preserves the engine input. Valid finite event objects and their
+JSON key order stay unchanged. Supported non-finite values use their accepted
+JSON image so generic journal canonicalization can store that same image.
+
+The same function runs at session/IndexedDB journal writes, host initial
+history, host command commit/publication, journal-authority decisions, and
+resumed/delayed-reveal publication. The host validates its match-broadcast
+image with the existing host-stamp extraction. Replay-library writers validate
+the canonical NDJSON format; IndexedDB writes use match-log-idb. Invalid
+publication batches are refused before any append or publication in every
+environment. The existing sender-only INTERNAL_ERROR refusal logs the diagnostic;
+it does not close the match. Initial-history rejection throws directly.
+
+The legacy host stages commands with InteractiveSession.withValidatedCommand:
+the complete stamped batch must validate before retaining session or terrain
+changes, persisting browser events, or touching outcome publication. Refusal
+keeps the publication cursor and accepted-intent tracker unchanged. Journal
+authority already decides on a scratch session and refuses before append.
+
+A resolved PSR stores either a finite `targetNumber` or
+`automaticFailure: true` without a target and with `passed: false`. Destroyed
+gyros and impossible stand-up attempts use the latter. No legacy adapter is
+installed in the current writer change. The existing PR-18 read-side imaging
+and its acceptance behavior remain unchanged.

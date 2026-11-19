@@ -141,7 +141,7 @@ export const BATTLEMECH_PSR_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation interactive PSR resolver emits PSRResolved, UnitFell, UnitStuck, PilotHit, UnitDestroyed, and UnitStood paths.',
     'src/utils/gameplay/gameSessionPSRResolution.ts',
-    'L55-L417',
+    'L53-L412',
   ),
   mekstationDeviationSourceRef(
     'MekStation runner PSR event helpers emit PSRResolved, UnitFell, and fall-sourced PilotHit events.',

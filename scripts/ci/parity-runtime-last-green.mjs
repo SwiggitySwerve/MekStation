@@ -6,6 +6,10 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
 import { githubApi, paginate } from './ci-report-github.mjs';
+import {
+  DEFAULT_FAMILY,
+  parityRuntimeNames,
+} from './parity-runtime-families.mjs';
 
 // The single owner of the last-green artifact's retention. The workflow's
 // upload step must use the same value (parity-runtime-workflow.test.mjs pins it).
@@ -26,10 +30,19 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  */
 export const LAST_GREEN_UPLOAD_STATUSES = Object.freeze(['found', 'none']);
 
-async function findLastGreen({ api, repository, runId, measure, now, accept }) {
+async function findLastGreen({
+  api,
+  repository,
+  runId,
+  family,
+  measure,
+  now,
+  accept,
+}) {
   let expired = 0;
   const badArtifacts = [];
-  const name = `parity-runtime-last-green-${measure}`;
+  // The names owner keeps battlemechs on its pre-family name, so its chain continues.
+  const name = parityRuntimeNames(family, measure).lastGreen;
   const cutoff = now() - LAST_GREEN_RETENTION_DAYS * DAY_MS;
   const created = encodeURIComponent(`>=${new Date(cutoff).toISOString()}`);
   // GitHub returns newest runs first. Do not filter on conclusion: another
@@ -116,6 +129,7 @@ function downloadArtifact({ repository, runId, name, destination }) {
 export async function retrieveLastGreen({
   out,
   repository,
+  family = DEFAULT_FAMILY,
   measure,
   runId,
   api = githubApi,
@@ -162,6 +176,7 @@ export async function retrieveLastGreen({
       api,
       repository,
       runId,
+      family,
       measure,
       now,
       accept,
@@ -200,7 +215,11 @@ export async function retrieveLastGreen({
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const { values } = parseArgs({
-    options: { out: { type: 'string' }, measure: { type: 'string' } },
+    options: {
+      out: { type: 'string' },
+      family: { type: 'string' },
+      measure: { type: 'string' },
+    },
   });
   const result = await retrieveLastGreen({
     ...values,

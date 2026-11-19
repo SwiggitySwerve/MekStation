@@ -15,6 +15,8 @@ import type {
 } from '@/engine/combatOutcomeJournal';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
+import { prepareEventForSerialization } from '@/utils/gameplay/gameEvents/serialization';
+
 import {
   acknowledgeOutcomePublicationInDatabase,
   readOutcomePublication,
@@ -107,7 +109,7 @@ export class MatchLogStorage {
     const record: IMatchEventRecord = {
       matchId,
       sequence: event.sequence,
-      event,
+      event: prepareEventForSerialization(event, 'match-log-idb'),
       savedAt: this.now(),
     };
 

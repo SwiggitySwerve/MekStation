@@ -33,6 +33,7 @@
 import type { IGameSession } from '@/types/gameplay';
 
 import { GameSide } from '@/types/gameplay';
+import { prepareEventForSerialization } from '@/utils/gameplay/gameEvents/serialization';
 
 export interface IPersistEncounterFromSessionResult {
   readonly ok: boolean;
@@ -96,7 +97,7 @@ export function buildEncounterPersistBody(session: IGameSession): {
 
   return {
     gameId: session.id,
-    events: session.events,
+    events: session.events.map((event) => prepareEventForSerialization(event)),
     winner,
     // session.config.encounterId is guaranteed non-null by the caller's
     // gating check; coerce the optional to a string for the body.

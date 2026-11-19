@@ -9,6 +9,7 @@ import type {
 } from '@/types/gameplay';
 
 import { GameEventType, GamePhase } from '@/types/gameplay';
+import { projectPsrTriggerTarget } from '@/utils/gameplay/pilotingSkillRolls/eventTargets';
 
 import { createPSRTriggeredEvent, createUnitStuckEvent } from './gameEvents';
 import { appendEvent } from './gameSessionEvents';
@@ -92,19 +93,19 @@ export function buildInteractiveMovementTerrainEvents(
       );
     }
     const { psr } = effect;
-    return createPSRTriggeredEvent(
-      session.id,
+    return createPSRTriggeredEvent({
+      gameId: session.id,
       sequence,
       turn,
-      GamePhase.Movement,
-      declared.unitId,
-      psr.reason,
-      psr.additionalModifier,
-      psr.triggerSource,
-      piloting,
-      psr.reasonCode,
-      psr.fixedTargetNumber,
-    );
+      phase: GamePhase.Movement,
+      unitId: declared.unitId,
+      reason: psr.reason,
+      additionalModifier: psr.additionalModifier,
+      triggerSource: psr.triggerSource,
+      basePilotingSkill: piloting,
+      reasonCode: psr.reasonCode,
+      ...projectPsrTriggerTarget(psr),
+    });
   });
 }
 

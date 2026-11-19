@@ -10,6 +10,7 @@ import {
   createMASCFailurePSR,
   createSuperchargerFailurePSR,
 } from '@/utils/gameplay/pilotingSkillRolls';
+import { projectPsrTriggerTarget } from '@/utils/gameplay/pilotingSkillRolls/eventTargets';
 
 import { queuePendingPSR } from './physicalAttackPsr';
 
@@ -62,19 +63,19 @@ export function queueMovementEnhancementPSRs(options: {
   for (const psr of psrs) {
     currentState = queuePendingPSR(currentState, unitId, psr);
     events.push(
-      createPSRTriggeredEvent(
+      createPSRTriggeredEvent({
         gameId,
-        events.length,
-        currentState.turn,
-        GamePhase.Movement,
+        sequence: events.length,
+        turn: currentState.turn,
+        phase: GamePhase.Movement,
         unitId,
-        psr.reason,
-        psr.additionalModifier,
-        psr.triggerSource,
-        currentState.units[unitId]?.piloting,
-        psr.reasonCode,
-        psr.fixedTargetNumber,
-      ),
+        reason: psr.reason,
+        additionalModifier: psr.additionalModifier,
+        triggerSource: psr.triggerSource,
+        basePilotingSkill: currentState.units[unitId]?.piloting,
+        reasonCode: psr.reasonCode,
+        ...projectPsrTriggerTarget(psr),
+      }),
     );
   }
 

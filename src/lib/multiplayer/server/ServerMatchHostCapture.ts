@@ -11,8 +11,8 @@
  * stable because the host hands the engine a closure over a ref, and
  * this collaborator only ever mutates the value behind that ref.
  *
- * Behavior is byte-for-byte identical to the inline host fields it
- * replaces — this is a pure structural extraction.
+ * Refused commands return their entropy to the next capture, so the
+ * effective dice cursor advances only with journaled commands.
  *
  * @spec openspec/changes/add-authoritative-roll-arbitration/specs/multiplayer-server/spec.md
  */
@@ -29,6 +29,19 @@ export class ServerMatchHostCapture {
    * the entire match lifetime — every fresh `RollCapture` draws from it.
    */
   private readonly sourceRoller: IServerDiceRoller;
+  // Uncommitted entropy stays ahead of the source until an accepted command
+  // consumes it. Restart/rewind can reconstruct the effective seeded cursor
+  // solely from the rolls recorded by accepted commands.
+  private readonly pendingRolls: number[] = [];
+  private commandRolls: number[] = [];
+  private readonly transactionalSource: IServerDiceRoller = {
+    d6: () => {
+      const value = this.pendingRolls.shift() ?? this.sourceRoller.d6();
+      this.commandRolls.push(value);
+      return value;
+    },
+    asD6Roller: () => () => this.transactionalSource.d6(),
+  };
 
   /**
    * The *currently active* `RollCapture`. Reset between intent ticks
@@ -79,8 +92,18 @@ export class ServerMatchHostCapture {
    * engine call's consumed rolls land in a clean buffer. Identity of
    * the engine callback is unaffected — it reads through the ref.
    */
-  installFresh(): void {
-    this.captureSwap(new RollCapture(this.sourceRoller));
+  installFresh(): () => void {
+    const commandRolls: number[] = [];
+    this.commandRolls = commandRolls;
+    this.captureSwap(new RollCapture(this.transactionalSource));
+    let refused = false;
+    return () => {
+      if (refused) return;
+      refused = true;
+      this.pendingRolls.unshift(...commandRolls);
+      this.commandRolls = [];
+      this.captureSwap(new RollCapture(this.transactionalSource));
+    };
   }
 
   /** Current capture's d6. Journal decide continues this cursor. */

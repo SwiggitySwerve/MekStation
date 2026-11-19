@@ -169,11 +169,15 @@ export function resolvePSR(...args: ResolvePSRArgs): IPSRResult {
 
   // Special case: Shutdown PSR has fixed TN 3 (piloting skill not used)
   const isShutdownPSR = psr.triggerSource === PSRTrigger.Shutdown;
-  const targetNumber = usesFixedTargetNumber
-    ? psr.fixedTargetNumber + totalModifier
-    : isShutdownPSR
-      ? 3
-      : pilotingSkill + totalModifier;
+  // Internal diagnostic TN retains the old arithmetic/dice behavior. Events
+  // project the explicit automatic-failure arm and never store this Infinity.
+  const targetNumber = psr.automaticFailure
+    ? Infinity
+    : usesFixedTargetNumber
+      ? psr.fixedTargetNumber + totalModifier
+      : isShutdownPSR
+        ? 3
+        : pilotingSkill + totalModifier;
 
   const roll = roll2d6(diceRoller);
 

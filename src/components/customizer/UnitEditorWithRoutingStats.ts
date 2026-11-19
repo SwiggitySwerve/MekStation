@@ -15,6 +15,7 @@ import type { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import type { ISerializedStructure } from '@/types/unit/UnitSerialization';
 
 import { UnitStats } from '@/components/customizer/shared/UnitInfoBanner';
+import { useStableEditableMechProjectionInput } from '@/hooks/useEditableMechProjectionInput';
 import { useEquipmentCalculations } from '@/hooks/useEquipmentCalculations';
 import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
@@ -82,13 +83,9 @@ export function useUnitEditorRoutingStats(
   input: UnitEditorStatsInput,
 ): UnitEditorStatsResult {
   const {
-    bvContext,
     unitName,
-    chassis,
-    model,
     tonnage,
     configuration,
-    techBase,
     techBaseMode,
     componentTechBases,
     engineType,
@@ -157,57 +154,15 @@ export function useUnitEditorRoutingStats(
     configuration,
   );
 
+  // The BV projection input comes from the one owner (buildEditableMechProjectionInput); this hook
+  // only supplies its state (the parameters, with the unit name under `name`).
+  const projectionInput = useStableEditableMechProjectionInput({
+    ...input,
+    name: unitName,
+  });
   const editableMech = useMemo(
-    () =>
-      projectEditableMech(
-        {
-          name: unitName,
-          bvContext,
-          jumpMP,
-          chassis,
-          model,
-          tonnage,
-          configuration,
-          techBase,
-          techBaseMode,
-          componentTechBases,
-          engineType,
-          engineRating,
-          internalStructureType,
-          gyroType,
-          cockpitType,
-          armorType,
-          armorAllocation,
-          heatSinkType,
-          heatSinkCount,
-          equipment,
-        },
-        calculations.walkMP,
-        'editor',
-      ),
-    [
-      bvContext,
-      jumpMP,
-      unitName,
-      chassis,
-      model,
-      tonnage,
-      configuration,
-      techBase,
-      techBaseMode,
-      componentTechBases,
-      engineType,
-      engineRating,
-      internalStructureType,
-      gyroType,
-      cockpitType,
-      armorType,
-      armorAllocation,
-      heatSinkType,
-      heatSinkCount,
-      equipment,
-      calculations.walkMP,
-    ],
+    () => projectEditableMech(projectionInput, calculations.walkMP, 'editor'),
+    [projectionInput, calculations.walkMP],
   );
 
   const battleValue = useMemo(() => {
