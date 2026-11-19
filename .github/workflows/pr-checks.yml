@@ -93,7 +93,7 @@ jobs:
   # ---------------------------------------------------------------
   # static-checks runs the short checks that used to take a runner
   # each (lint, format, roadmap ledger, determinism, typecheck, desktop
-  # typecheck and tests, a11y, BV parity, Storybook, tsrs) on one
+  # typecheck and tests, a11y, BV parity, Storybook) on one
   # runner, so a PR run needs far fewer of the 20 concurrent jobs the
   # repository gets. Every check step runs even when an earlier one
   # fails (`!cancelled()`), so one run reports every failure. Gated
@@ -106,8 +106,7 @@ jobs:
     needs: detect-changes
     runs-on: ubuntu-latest
     timeout-minutes: 13
-    # Read-only token, not persisted: the advisory tsrs step installs and
-    # runs a pinned third-party compiler.
+    # Read-only token, not persisted.
     permissions:
       contents: read
       actions: read
@@ -161,31 +160,6 @@ jobs:
           name: ci-budget-repository
           path: ${{ runner.temp }}/budget-output/repository.json
           if-no-files-found: error
-          retention-days: 7
-
-      - name: Prepare source-head graphs and prove advisory reporting read-only
-        if: ${{ !cancelled() }}
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: node scripts/ci/budget-github.mjs
-
-      - name: Upload canonical reporter inputs
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: ci-budget-inputs
-          path: ${{ runner.temp }}/budget-output/inputs.json
-          if-no-files-found: warn
-          retention-days: 7
-
-      - name: Upload in-Actions reporter dry-run proof
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: ci-budget-report-proof
-          path: ${{ runner.temp }}/budget-output/report-dry-run.json
-          if-no-files-found: warn
           retention-days: 7
 
       - name: Setup Python for Schema Bridge
@@ -366,21 +340,6 @@ jobs:
           path: node_modules/.cache/storybook
           key: ${{ runner.os }}-storybook-${{ hashFiles('package-lock.json', '.storybook/**') }}-${{ github.sha }}
 
-      # tsrs side-check: advisory only. continue-on-error and the step
-      # timeouts keep it from ever failing this job, so it never blocks
-      # Lint and Test.
-      - name: Install isolated pinned tsrs (advisory)
-        if: ${{ !cancelled() }}
-        continue-on-error: true
-        timeout-minutes: 5
-        run: npm install --no-save --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/tsrs" tsrs@0.18.0-ts7.1.0-dev.20260929
-
-      - name: Compare TS7 and verified tsrs diagnostics (advisory)
-        if: ${{ !cancelled() }}
-        continue-on-error: true
-        timeout-minutes: 10
-        run: node scripts/qc/tsrs-side-check.mjs "$RUNNER_TEMP/tsrs"
-
   # ---------------------------------------------------------------
   # simulation-checks runs the simulation wall-clock, coverage and
   # statistical-proof lanes one after another on one runner (never
@@ -389,7 +348,8 @@ jobs:
   # that build (folded in from Build and Linux Pack, CI-SPEED round 2; it
   # runs after the budgets, so they still measure an idle runner). It
   # uploads `web-build` only when win/mac pack too. Code-only; the
-  # 100-game proof runs only outside pull requests.
+  # 100-game proof runs only outside pull requests. Last, the advisory
+  # budget reporter and tsrs side-check run here, off Static's path.
   # ---------------------------------------------------------------
   simulation-checks:
     name: Simulation Checks and Linux Pack
@@ -397,6 +357,12 @@ jobs:
     if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 14
+    # Read-only token, not persisted: the advisory tsrs step installs and
+    # runs a pinned third-party compiler.
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
     env:
       electron_config_cache: ${{ github.workspace }}/.cache/electron
       ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
@@ -404,6 +370,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       # The desktop lock pins both Electron and electron-builder exactly.
       # Restore before setup: npm ci can download Electron in its install hook.
@@ -671,7 +639,58 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  # Three shards. jest.config.js uses every vCPU in CI (Lane B), and
+      # Advisory reports, moved here from Static Checks (off its critical
+      # path), after the timing budgets, build and pack so they change
+      # none of them. They run only on code changes, like this job.
+      # continue-on-error keeps each one from ever failing this job.
+      - name: Prepare source-head graphs and prove advisory reporting read-only
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci/budget-github.mjs
+
+      - name: Upload canonical reporter inputs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-inputs
+          path: ${{ runner.temp }}/budget-output/inputs.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload in-Actions reporter dry-run proof
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-report-proof
+          path: ${{ runner.temp }}/budget-output/report-dry-run.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      # next-env.d.ts imports the generated route types, so both compilers
+      # need them, as they had after Static Checks generated them; typegen
+      # also writes them when the build did not.
+      - name: Generate Next.js route types
+        if: ${{ !cancelled() }}
+        run: npx next typegen
+
+      # tsrs side-check: advisory only. continue-on-error and the step
+      # timeouts keep it from ever failing this job, so it never blocks
+      # Lint and Test.
+      - name: Install isolated pinned tsrs (advisory)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        timeout-minutes: 5
+        run: npm install --no-save --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/tsrs" tsrs@0.18.0-ts7.1.0-dev.20260929
+
+      - name: Compare TS7 and verified tsrs diagnostics (advisory)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        timeout-minutes: 10
+        run: node scripts/qc/tsrs-side-check.mjs "$RUNNER_TEMP/tsrs"
+
+  # Four shards. jest.config.js uses every vCPU in CI (Lane B), and
   # JEST_SPLIT_CORPUS moves the whole-catalog suites to the `corpus` project
   # and the roadmap tooling suites to Static Checks
   # (config/jest/corpus-suites.js). Folded in (CI-SPEED round 2), so a PR
@@ -679,20 +698,23 @@ jobs:
   #   - shards 1 and 2 each run half of the corpus project after the unit
   #     shard, when a changed file is in its import closure or is
   #     catalog/converter data (always on main and nightly);
-  #   - shard 3 runs the Validate Combat Suite when combat inputs changed.
+  #   - shard 3 runs the Validate Combat Suite when combat inputs changed;
+  #   - shard 4 runs only its unit shard.
+  # The shard planner gives shards 1-3 less Jest work for that extra work
+  # (SHARD_PRELOAD_MS['unit/4'] in config/jest/shard-planner.js).
   # The Jest transform cache is restored from main's last run: its entries
   # are keyed by file content and transformer config, so a stale entry can
   # never stand in for changed source. Main pushes and the nightly run save
   # it.
   unit-test-shards:
-    name: Unit Tests (${{ matrix.shard }}/3)
+    name: Unit Tests (${{ matrix.shard }}/4)
     needs: detect-changes
     runs-on: ubuntu-latest
     timeout-minutes: 12
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        shard: [1, 2, 3, 4]
 
     steps:
       - name: Checkout code
@@ -746,7 +768,7 @@ jobs:
       - name: Run unit test shard
         run: >-
           node scripts/jest/cached-tests.js --project unit
-          --shard ${{ matrix.shard }}/3 --verify-hits 3
+          --shard ${{ matrix.shard }}/4 --verify-hits 3
           ${{ github.event_name != 'pull_request' && '--uncached' || '' }}
           --report jest-results-unit-${{ matrix.shard }}.json
           -- --ci --cacheDirectory=.jest-cache --maxWorkers=4
@@ -777,7 +799,7 @@ jobs:
       # former corpus-tests shards, but the new path changes the cache
       # version, so the first main run after this change seeds it again.
       - name: Restore corpus Jest result seed from main
-        if: ${{ !cancelled() && matrix.shard != 3 && needs.detect-changes.outputs.corpus == 'true' }}
+        if: ${{ !cancelled() && matrix.shard <= 2 && needs.detect-changes.outputs.corpus == 'true' }}
         uses: actions/cache/restore@v5
         with:
           path: .jest-result-cache-corpus
@@ -786,7 +808,7 @@ jobs:
             ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-main-
 
       - name: Restore this PR's corpus Jest results
-        if: ${{ !cancelled() && matrix.shard != 3 && needs.detect-changes.outputs.corpus == 'true' && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.shard <= 2 && needs.detect-changes.outputs.corpus == 'true' && github.event_name == 'pull_request' }}
         uses: actions/cache/restore@v5
         with:
           path: .jest-result-cache-corpus
@@ -795,7 +817,7 @@ jobs:
             ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-pr-
 
       - name: Run corpus test shard
-        if: ${{ !cancelled() && matrix.shard != 3 && needs.detect-changes.outputs.corpus == 'true' }}
+        if: ${{ !cancelled() && matrix.shard <= 2 && needs.detect-changes.outputs.corpus == 'true' }}
         run: >-
           node scripts/jest/cached-tests.js --project corpus
           --shard ${{ matrix.shard }}/2 --verify-hits 1
@@ -807,7 +829,7 @@ jobs:
           JEST_SPLIT_CORPUS: 'true'
 
       - name: Save corpus Jest result cache
-        if: ${{ always() && matrix.shard != 3 && needs.detect-changes.outputs.corpus == 'true' }}
+        if: ${{ always() && matrix.shard <= 2 && needs.detect-changes.outputs.corpus == 'true' }}
         uses: actions/cache/save@v5
         with:
           path: .jest-result-cache-corpus

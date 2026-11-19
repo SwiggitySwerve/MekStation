@@ -122,42 +122,44 @@ describe('shard preload (work a CI job does besides its Jest shard)', () => {
 
   it('looks the preload up by project name and shard count only', () => {
     const unit = { name: 'unit', color: 'x' };
-    expect(planner.preloadFor([unit, unit], 3)).toEqual(
-      planner.SHARD_PRELOAD_MS['unit/3'],
+    expect(planner.preloadFor([unit, unit], 4)).toEqual(
+      planner.SHARD_PRELOAD_MS['unit/4'],
     );
-    expect(planner.preloadFor(['unit'], 3)).toEqual(
-      planner.SHARD_PRELOAD_MS['unit/3'],
+    expect(planner.preloadFor(['unit'], 4)).toEqual(
+      planner.SHARD_PRELOAD_MS['unit/4'],
     );
-    expect(planner.preloadFor(['unit'], 4)).toBeUndefined();
-    expect(planner.preloadFor(['corpus'], 3)).toBeUndefined();
-    expect(planner.preloadFor([undefined], 3)).toBeUndefined();
+    expect(planner.preloadFor(['unit'], 3)).toBeUndefined();
+    expect(planner.preloadFor(['corpus'], 4)).toBeUndefined();
+    expect(planner.preloadFor([undefined], 4)).toBeUndefined();
     // a run that mixes projects is never loaded, whatever the order
-    expect(planner.preloadFor([unit, 'a11y'], 3)).toBeUndefined();
-    expect(planner.preloadFor(['a11y', unit], 3)).toBeUndefined();
+    expect(planner.preloadFor([unit, 'a11y'], 4)).toBeUndefined();
+    expect(planner.preloadFor(['a11y', unit], 4)).toBeUndefined();
     for (const [key, preload] of Object.entries(planner.SHARD_PRELOAD_MS)) {
       expect(preload).toHaveLength(Number(key.split('/')[1]));
     }
   });
 
   it('gives the preloaded shard less Jest work and still runs every file exactly once', () => {
-    const preload = planner.SHARD_PRELOAD_MS['unit/3'];
-    const even = planner.planShards(files, durations, 3);
-    const loaded = planner.planShards(files, durations, 3, preload);
+    const preload = planner.SHARD_PRELOAD_MS['unit/4'];
+    const even = planner.planShards(files, durations, 4);
+    const loaded = planner.planShards(files, durations, 4, preload);
     expect([...loaded.shardOf.keys()].sort()).toEqual([...files].sort());
     const jest = (plan: typeof even) =>
       plan.loads.map((load, i) => load - (plan === loaded ? preload[i] : 0));
-    // the shard that carries the Combat suite takes about 400,000 committed ms less
-    // (about 96 s of Jest wall time at 4,157 committed ms per second)
-    expect(jest(even)[2] - jest(loaded)[2]).toBeGreaterThan(350000);
+    // the shard that carries the Combat suite takes about 124,000 committed ms less
+    // (about 30 s of Jest wall time at 4,157 committed ms per second), and shard 4,
+    // which runs nothing else, about 188,000 more
+    expect(jest(even)[2] - jest(loaded)[2]).toBeGreaterThan(100000);
+    expect(jest(loaded)[3] - jest(even)[3]).toBeGreaterThan(150000);
     // and the totals, preload included, end up level
     const spread = Math.max(...loaded.loads) - Math.min(...loaded.loads);
     expect(spread).toBeLessThan(0.02 * Math.max(...loaded.loads));
   });
 
   it('an unloaded plan is unchanged by an empty or wrong-length preload', () => {
-    const base = planner.planShards(files, durations, 3);
+    const base = planner.planShards(files, durations, 4);
     for (const preload of [undefined, [], [1, 2]]) {
-      const plan = planner.planShards(files, durations, 3, preload);
+      const plan = planner.planShards(files, durations, 4, preload);
       expect(plan.loads).toEqual(base.loads);
       expect([...plan.shardOf]).toEqual([...base.shardOf]);
     }
@@ -199,13 +201,14 @@ describe('DurationSequencer', () => {
       (t: FakeTest[]) => t,
       (t: FakeTest[]) => [...t].reverse(),
       (t: FakeTest[]) => [...t.slice(half), ...t.slice(0, half)],
+      (t: FakeTest[]) => [...t.slice(half).reverse(), ...t.slice(0, half)],
     ];
     for (const tests of [unitOnly, mixed]) {
       const seen: string[] = [];
-      for (let shardIndex = 1; shardIndex <= 3; shardIndex += 1) {
+      for (let shardIndex = 1; shardIndex <= 4; shardIndex += 1) {
         seen.push(
           ...new DurationSequencer()
-            .shard(orders[shardIndex - 1](tests), { shardIndex, shardCount: 3 })
+            .shard(orders[shardIndex - 1](tests), { shardIndex, shardCount: 4 })
             .map((t) => t.path),
         );
       }
