@@ -3,7 +3,10 @@ import type { IQuickGameUnitRequest } from '@/types/quickgame';
 import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
 import { fetchCanonicalCatalogSnapshot } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { getCalculationService } from '@/services/construction/CalculationService';
-import { projectEditableMech } from '@/services/construction/editableMechProjection';
+import {
+  buildEditableMechProjectionInput,
+  projectEditableMech,
+} from '@/services/construction/editableMechProjection';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 
@@ -50,7 +53,11 @@ export async function loadQuickGameSavedDesign(
   }
   const state = unitLoaderService.mapToUnitState(parseUnit(definition), false);
   const bv = getCalculationService().calculateBattleValue(
-    projectEditableMech(state, adapted.walkMP, id),
+    projectEditableMech(
+      buildEditableMechProjectionInput(state),
+      adapted.walkMP,
+      id,
+    ),
   );
   return {
     sourceUnitId: id,
