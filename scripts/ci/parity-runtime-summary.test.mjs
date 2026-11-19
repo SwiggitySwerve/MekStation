@@ -135,7 +135,7 @@ test("a family leg names its family and expected units; a deriver change adds th
   assert.match(plain, /^## Runtime parity: battlemechs reopen$/m);
   assert.match(
     plain,
-    /Expected units \(registry\): 4263; tonight's run: 4263\./,
+    /Expected units \(registry\): 4263; this run's units: 4263\./,
   );
   assert.doesNotMatch(plain, /must be rebaselined/);
   // Without a family the heading is today's.

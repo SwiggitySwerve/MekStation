@@ -5,8 +5,9 @@
 // MAX_IN_FLIGHT runs in flight repo-wide (2 runs x 5 jobs leaves at least 10 of the 20 hosted jobs for PR runs).
 // It dispatches, takes the run id from the URL `gh workflow run` prints (never from `gh run list`, which can name
 // another lane's run), waits, then prints each job's conclusion, its gate summary and the run's artifact names.
-// Before dispatching, when this checkout is the ref head, it compares the fingerprint of facts.mjs (the gate owner,
-// factsDeriverBlob) with each enabled family baseline header and prints a plain message on a mismatch. It never refuses.
+// Before dispatching, when this checkout is the ref head and facts.mjs and the baselines are unchanged from HEAD, it
+// compares the fingerprint of facts.mjs (the gate owner, factsDeriverBlob) with each enabled family baseline header and
+// prints a plain message on a mismatch. It never refuses; a pre-check error is logged and the dispatch goes ahead.
 // Exit: 0 the run succeeded; 1 it failed, the wait timed out or gh failed; 2 refused before dispatching.
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -99,11 +100,39 @@ export function deriverPrecheck({
     : null;
 }
 
+/** The file the gate's owner fingerprints (factsDeriverBlob); the test pins the two together. */
+export const FACTS_DERIVER_FILE = 'scripts/lib/runtime-parity/facts.mjs';
+
+/** What the pre-check reads: facts.mjs and every enabled family's baseline headers. */
+export const precheckInputs = (registry) => [
+  FACTS_DERIVER_FILE,
+  ...enabledFamilies(registry).flatMap((family) =>
+    MEASURES.map(
+      (measure) => registry.families[family].baselines[measure].main,
+    ),
+  ),
+];
+
 function gitHead(root) {
   const result = spawnSync('git', ['-C', root, 'rev-parse', 'HEAD'], {
     encoding: 'utf8',
   });
   return result.status === 0 ? result.stdout.trim() : null;
+}
+
+/** The paths among `files` that differ from HEAD in this checkout (modified, staged or untracked). */
+function changedInCheckout(root, files) {
+  const result = spawnSync(
+    'git',
+    ['-C', root, 'status', '--porcelain', '--', ...files],
+    { encoding: 'utf8' },
+  );
+  if (result.status !== 0)
+    throw new Error(`git status failed: ${result.stderr.trim()}`);
+  return result.stdout
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => line.slice(3));
 }
 
 export async function censusDispatch({
@@ -120,6 +149,7 @@ export async function censusDispatch({
   workDir,
   root = process.cwd(),
   localHead = () => gitHead(root),
+  changed = (files) => changedInCheckout(root, files),
   precheck = () => deriverPrecheck({ registry, root }),
 }) {
   if (!ref) throw new Refusal('--ref <branch> is required');
@@ -144,21 +174,34 @@ export async function censusDispatch({
   ]);
   checkInFlight(runs, ref);
 
-  // The fingerprint pre-check reads this checkout, so it speaks for the ref only when this checkout is the ref's head.
-  // It informs and never refuses: the hosted gate is the judge.
-  const refHead = json(gh, [
-    'api',
-    `repos/${repo ?? '{owner}/{repo}'}/commits/${encodeURIComponent(ref)}`,
-  ]).sha;
-  if (localHead() === refHead) {
-    const changed = precheck();
+  // The fingerprint pre-check reads this checkout, so it speaks for the ref only when this checkout is the ref's head
+  // and its inputs are unchanged from HEAD. It informs and never refuses: the hosted gate is the judge, so any error
+  // here is logged and the dispatch goes ahead.
+  try {
+    const refHead = json(gh, [
+      'api',
+      `repos/${repo ?? '{owner}/{repo}'}/commits/${encodeURIComponent(ref)}`,
+    ]).sha;
+    const atHead = localHead() === refHead;
+    const dirty = atHead ? changed(precheckInputs(registry)) : [];
+    if (!atHead)
+      log(
+        `deriver fingerprint not pre-checked: this checkout is not ${ref}'s head (${refHead}); the job summaries will say if it changed`,
+      );
+    else if (dirty.length)
+      log(
+        `deriver fingerprint not pre-checked: ${dirty.join(', ')} changed in this checkout, so it doesn't speak for ${ref}; the job summaries will say if it changed`,
+      );
+    else
+      log(
+        precheck() ??
+          `deriver fingerprint matches every enabled family's baselines`,
+      );
+  } catch (error) {
     log(
-      changed ?? `deriver fingerprint matches every enabled family's baselines`,
+      `deriver fingerprint pre-check failed (${error.message}); dispatching anyway, the job summaries will say if it changed`,
     );
-  } else
-    log(
-      `deriver fingerprint not pre-checked: this checkout is not ${ref}'s head (${refHead}); the job summaries will say if it changed`,
-    );
+  }
 
   const dispatched = gh([
     'workflow',

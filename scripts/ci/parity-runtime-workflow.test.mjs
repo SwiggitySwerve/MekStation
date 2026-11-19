@@ -428,3 +428,35 @@ test('parity-census is dispatch only, read-only, and plans its matrix from the r
     budget.otherEvents.some((item) => item.file === 'parity-census.yml'),
   );
 });
+
+test('no census step interpolates an expression into its shell script', () => {
+  // Inputs (families, family, flags) reach a script only through env, so a
+  // value can never become shell code. Covers every step, present and future.
+  const nightly = parse(
+    fs.readFileSync('.github/workflows/nightly-validation.yml', 'utf8'),
+  );
+  const sources = [
+    ['parity-runtime.yml', workflow().jobs],
+    [
+      'parity-census.yml',
+      parse(fs.readFileSync('.github/workflows/parity-census.yml', 'utf8'))
+        .jobs,
+    ],
+    [
+      'nightly-validation.yml',
+      { 'parity-runtime-plan': nightly.jobs['parity-runtime-plan'] },
+    ],
+  ];
+  let checked = 0;
+  for (const [file, jobs] of sources)
+    for (const [id, job] of Object.entries(jobs))
+      for (const step of job.steps ?? []) {
+        if (typeof step.run !== 'string') continue;
+        checked += 1;
+        assert.ok(
+          !step.run.includes('${{'),
+          `${file} ${id} step "${step.name ?? step.id}" puts \${{ }} in run:; pass it through env`,
+        );
+      }
+  assert.ok(checked >= 8, `only ${checked} run steps found`);
+});
