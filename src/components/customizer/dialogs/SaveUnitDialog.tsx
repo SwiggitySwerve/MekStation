@@ -48,6 +48,7 @@ import {
   SaveUnitDialogSaveProgress,
 } from './SaveUnitDialogSaveProgress';
 import { useDeferredSave } from './useDeferredSave';
+import { useOpenSessionNames } from './useOpenSessionNames';
 import { useSaveConsent } from './useSaveConsent';
 
 // =============================================================================
@@ -180,8 +181,11 @@ export function SaveUnitDialog({
   onCancel,
 }: SaveUnitDialogProps): React.ReactElement {
   // Form state
-  const [chassis, setChassis] = useState(initialChassis);
-  const [variant, setVariant] = useState(initialVariant);
+  const { chassis, setChassis, variant, setVariant } = useOpenSessionNames(
+    isOpen,
+    initialChassis,
+    initialVariant,
+  );
   const [isConfirmingLoss, setIsConfirmingLoss] = useState(false);
   const lossCancelButton = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -240,8 +244,6 @@ export function SaveUnitDialog({
   useEffect(() => {
     setIsConfirmingLoss(false);
     if (isOpen) {
-      setChassis(initialChassis);
-      setVariant(initialVariant);
       setValidationResult(null);
       void validateName(initialChassis, initialVariant);
     } else {

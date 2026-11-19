@@ -101,6 +101,10 @@ export function TargetedSaveUnitDialog(
     props.isOpen && props.currentUnitId
       ? getLibrarySaveStore(props.currentUnitId, unitType)?.getState()
       : undefined;
+  // The closed and native branches render the same element type in the same
+  // place; a key per open session gives each opening a fresh dialog, so its
+  // first paint already shows this unit's names, never the previous state.
+  const session = props.isOpen ? `open:${props.currentUnitId ?? ''}` : 'closed';
   if (state && !('configuration' in state)) {
     // Native saves use the validated editor/contract serializers. Construction
     // diagnostics in the native editors remain separate from persistence.
@@ -113,6 +117,7 @@ export function TargetedSaveUnitDialog(
     }
     return (
       <SaveUnitDialog
+        key={session}
         {...props}
         constructionValidation={{
           isValid,
@@ -130,6 +135,7 @@ export function TargetedSaveUnitDialog(
   if (!targetStore) {
     return (
       <SaveUnitDialog
+        key={session}
         {...props}
         constructionValidation={{
           isValid: false,

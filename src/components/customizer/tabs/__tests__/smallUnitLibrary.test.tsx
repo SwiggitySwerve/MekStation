@@ -1,7 +1,7 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import fs from 'fs';
 import path from 'path';
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 
 import { UnitTypeRouter } from '@/components/customizer/UnitTypeRouter';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
@@ -22,6 +22,7 @@ import { useTabManagerStore } from '@/stores/useTabManagerStore';
 import { UnitContract } from '@/types/contracts';
 import { calculateBattleArmorBVFromState } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
 
+import { TargetedSaveUnitDialog } from '../MultiUnitTabs';
 import { loadUnitIntoTab } from '../useMultiUnitTabsController.helpers';
 
 const read = (file: string) =>
@@ -252,6 +253,81 @@ it.each(['protomechs', 'battlearmor'] as const)(
         JSON.stringify(records, null, 2),
       );
     expect(records.filter((record) => !record.opened)).toEqual([]);
+  },
+  180000,
+);
+
+it.each([
+  ['protomechs', 'centaur', 'Centaur'],
+  [
+    'battlearmor',
+    'achileus-light-battle-armor-wobsqd4',
+    'Achileus Light Battle Armor',
+  ],
+] as const)(
+  'shows the %s unit name in the first open paint of the save dialog',
+  async (family, id, chassis) => {
+    const [entry] = (
+      await getCanonicalUnitService().getIndex({ family, strict: true })
+    ).filter((unit) => unit.id === id);
+    useTabManagerStore.setState({ tabs: [], activeTabId: null });
+    await loadUnitIntoTab({
+      unit: entry,
+      source: 'canonical',
+      createTab: jest.fn(),
+      navigateToTab: jest.fn(),
+      setIsLoadDialogOpen: jest.fn(),
+      setIsLoadingUnit: jest.fn(),
+      showToast: jest.fn(),
+    });
+    const [tab] = useTabManagerStore.getState().tabs;
+    // Values the Chassis Name field holds in each committed render of the
+    // parent, before any effect of that commit runs (a fill lands here).
+    const painted: string[] = [];
+    // Text typed into the first open commit, before that commit's effects run.
+    let typeBeforeEffects: string | undefined;
+    function Host({ open }: { open: boolean }) {
+      useLayoutEffect(() => {
+        if (!open) return;
+        const field = screen.getByLabelText('Chassis Name') as HTMLInputElement;
+        painted.push(field.value);
+        if (typeBeforeEffects) {
+          fireEvent.change(field, { target: { value: typeBeforeEffects } });
+          typeBeforeEffects = undefined;
+        }
+      });
+      // The real controller keeps the dialog mounted while closed, with no tab.
+      return (
+        <TargetedSaveUnitDialog
+          isOpen={open}
+          currentUnitId={open ? tab.id : undefined}
+          initialChassis={open ? chassis : ''}
+          initialVariant=""
+          onSave={jest.fn()}
+          onCancel={jest.fn()}
+        />
+      );
+    }
+    const view = render(<Host open={false} />);
+    view.rerender(<Host open />);
+    expect(painted[0]).toBe(chassis);
+    // A second open of the same unit after a close starts from the current
+    // name, never from what was typed in the previous session.
+    fireEvent.change(screen.getByLabelText('Chassis Name'), {
+      target: { value: 'Typed Last Session' },
+    });
+    view.rerender(<Host open={false} />);
+    painted.length = 0;
+    view.rerender(<Host open />);
+    expect(painted[0]).toBe(chassis);
+    // Input that lands before the opening commit's effects is kept: the open
+    // effect never replaces the user's text with the initial name.
+    view.rerender(<Host open={false} />);
+    typeBeforeEffects = 'Typed Before Effect';
+    view.rerender(<Host open />);
+    expect(
+      (screen.getByLabelText('Chassis Name') as HTMLInputElement).value,
+    ).toBe('Typed Before Effect');
   },
   180000,
 );
