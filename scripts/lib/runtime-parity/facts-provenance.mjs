@@ -46,11 +46,18 @@ export const factsProvenance = ({ referenceSha256 }) =>
 export const FactsMetaSchema = ProvenanceSchema.extend({
   schemaVersion: z.literal(1),
   measure: z.string().min(1),
+  /** The family the facts describe. Optional so a facts-meta.json written before families existed (battlemechs) still reads. */
+  family: z.string().min(1).optional(),
 });
 
-export const factsMeta = ({ measure, referenceSha256 }) => ({
+export const factsMeta = ({
+  measure,
+  family = 'battlemechs',
+  referenceSha256,
+}) => ({
   schemaVersion: 1,
   measure,
+  family,
   ...factsProvenance({ referenceSha256 }),
 });
 

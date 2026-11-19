@@ -1110,6 +1110,16 @@ test('main fails with a named reason when the census cannot complete', async () 
     JSON.parse(family.read('failure.json')).reason,
     'UNSUPPORTED_FAMILY',
   );
+  // One family per run: each family has its own facts and baseline files.
+  const two = setup();
+  assert.equal(
+    await quietly(() => two.run('--family', 'battlemechs,vehicles')),
+    1,
+  );
+  assert.match(
+    JSON.parse(two.read('failure.json')).message,
+    /exactly one family per run/,
+  );
 });
 
 test('the runner can see a drop: one wrong BV lowers the exact count and names the unit', async () => {
@@ -1166,8 +1176,8 @@ test('main writes facts.ndjson beside the rows: bvExact, distance, validity and 
   // Where the facts came from travels with them: the facts schema, the deriver's blob, the reference sha.
   const meta = parseFactsMeta(t.read('facts-meta.json'));
   assert.deepEqual(
-    [meta.measure, meta.factsSchemaVersion, meta.referenceSha256],
-    ['load', FACTS_SCHEMA_VERSION, hex('d')],
+    [meta.measure, meta.family, meta.factsSchemaVersion, meta.referenceSha256],
+    ['load', 'battlemechs', FACTS_SCHEMA_VERSION, hex('d')],
   );
   assert.equal(meta.factsDeriverBlob, factsDeriverBlob());
 });
