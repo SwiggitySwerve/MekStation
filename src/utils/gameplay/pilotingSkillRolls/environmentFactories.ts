@@ -246,7 +246,7 @@ export function createSwampBogDownPSR(
     additionalModifier: 0,
     ...(swampDepth !== undefined ? { terrainLevel: swampDepth } : {}),
     ...(swampDepth !== undefined && swampDepth > 1
-      ? { fixedTargetNumber: Number.POSITIVE_INFINITY }
+      ? { automaticFailure: true as const }
       : {}),
     triggerSource: movementStepSource ?? PSRTrigger.SwampBogDown,
   };

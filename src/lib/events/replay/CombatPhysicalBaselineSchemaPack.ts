@@ -149,34 +149,51 @@ const physicalAttackResolvedBase = z
   })
   .strict();
 
+const psrResolvedDetails = {
+  unitId: z.string(),
+  roll: finiteNumber,
+  modifiers: finiteNumber,
+  passed: z.boolean(),
+  reason: z.string(),
+  edgeReroll: z.boolean().optional(),
+  edgeSuperseded: z.boolean().optional(),
+  edgeTrigger: z.string().optional(),
+  edgePointsRemaining: finiteNumber.optional(),
+  rolls: z.array(finiteNumber).optional(),
+  reasonCode: psrTriggerSchema.optional(),
+};
+
+const psrTriggeredDetails = {
+  unitId: z.string(),
+  reason: z.string(),
+  additionalModifier: finiteNumber,
+  triggerSource: z.string(),
+  basePilotingSkill: finiteNumber.optional(),
+  reasonCode: psrTriggerSchema.optional(),
+};
+
 const COMBAT_PHYSICAL_PAYLOAD_SCHEMAS = {
-  [GameEventType.PSRTriggered]: z
-    .object({
-      unitId: z.string(),
-      reason: z.string(),
-      additionalModifier: finiteNumber,
-      triggerSource: z.string(),
-      basePilotingSkill: finiteNumber.optional(),
-      fixedTargetNumber: finiteNumber.optional(),
-      reasonCode: psrTriggerSchema.optional(),
-    })
-    .strict(),
-  [GameEventType.PSRResolved]: z
-    .object({
-      unitId: z.string(),
-      targetNumber: finiteNumber,
-      roll: finiteNumber,
-      modifiers: finiteNumber,
-      passed: z.boolean(),
-      reason: z.string(),
-      edgeReroll: z.boolean().optional(),
-      edgeSuperseded: z.boolean().optional(),
-      edgeTrigger: z.string().optional(),
-      edgePointsRemaining: finiteNumber.optional(),
-      rolls: z.array(finiteNumber).optional(),
-      reasonCode: psrTriggerSchema.optional(),
-    })
-    .strict(),
+  [GameEventType.PSRTriggered]: z.union([
+    z
+      .object({
+        ...psrTriggeredDetails,
+        fixedTargetNumber: finiteNumber.optional(),
+      })
+      .strict(),
+    z
+      .object({ ...psrTriggeredDetails, automaticFailure: z.literal(true) })
+      .strict(),
+  ]),
+  [GameEventType.PSRResolved]: z.union([
+    z.object({ ...psrResolvedDetails, targetNumber: finiteNumber }).strict(),
+    z
+      .object({
+        ...psrResolvedDetails,
+        automaticFailure: z.literal(true),
+        passed: z.literal(false),
+      })
+      .strict(),
+  ]),
   [GameEventType.UnitFell]: z
     .object({
       unitId: z.string(),
@@ -272,6 +289,11 @@ const SWAMP_UNSTUCK_REVISED_EVENT_TYPES: ReadonlySet<GameEventType> =
   ]);
 
 function combatPhysicalSchemaId(eventType: GameEventType): string {
+  if (
+    eventType === GameEventType.PSRTriggered ||
+    eventType === GameEventType.PSRResolved
+  )
+    return `combat.${eventType}.v1.swamp-unstuck-1.automatic-failure-1`;
   return SWAMP_UNSTUCK_REVISED_EVENT_TYPES.has(eventType)
     ? `combat.${eventType}.v1.swamp-unstuck-1`
     : `combat.${eventType}.v1`;

@@ -39,6 +39,8 @@ import * as path from 'path';
 
 import type { IGameEvent } from '@/types/gameplay';
 
+import { serializeEvent } from '@/utils/gameplay/gameEvents/serialization';
+
 /**
  * Persist a single game's event log as NDJSON.
  *
@@ -67,7 +69,7 @@ export async function writeEventLog(
   // newline (per spec). An empty event list yields an empty file — that's
   // a legitimate state for a 0-turn run that produced no events, and the
   // line-count assertion in tests still holds.
-  const body = events.map((event) => JSON.stringify(event)).join('\n');
+  const body = events.map((event) => serializeEvent(event)).join('\n');
   const filePath = path.resolve(outputDir, `${gameId}.jsonl`);
   await fsPromises.writeFile(filePath, body, 'utf-8');
 

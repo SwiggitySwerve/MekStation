@@ -154,6 +154,9 @@ export function tryFinalizeAndPublishInteractiveSession(
   if (result.session !== context.getSession())
     context.setSession(result.session);
   if (!result.outcome) return;
+  // A staged command may still be refused. Finalize its state, but do not
+  // mutate the publication journal or announce an outcome before validation.
+  if (context.getDeferCommandEffects?.()) return;
   const pending = context.outcomeJournal.begin(result.session);
   if (!pending) return;
   if (context.getSuppressOutcomePublication()) {

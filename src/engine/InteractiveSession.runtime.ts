@@ -33,6 +33,7 @@ export interface IInteractiveSessionRuntimeContext {
   readonly outcomeJournal: CombatOutcomeJournal;
   readonly getOutcomePublicationStorage: () => IOutcomePublicationStorage;
   readonly getSuppressOutcomePublication: () => boolean;
+  readonly getDeferCommandEffects?: () => boolean;
   readonly markMatchLogDiverged: () => void;
   readonly hasMatchLogDiverged: () => boolean;
 }

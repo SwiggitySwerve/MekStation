@@ -41,9 +41,12 @@ import {
   type IMembershipRecord,
   type IMembershipSource,
 } from '../authorization/AuthorizedViewer';
+import { filterEventForPlayer } from '../fogOfWar';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
+import { projectEventForViewer } from '../projection/ViewerFrameProjector';
 import { MATCH_WIRE_PUBLICATION_BOUNDARY } from '../projection/ViewerPublicationBoundary';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
+import { commitThenPublish } from '../ServerMatchHostPublication';
 
 // B14 seam: this suite pins the existing per-viewer fog filter beneath the
 // B14 refusal. Production has no per-viewer reveal projection and refuses.
@@ -602,14 +605,33 @@ describe('viewer frame raw-wire negative sweep', () => {
 
       expect(hiddenFromPlayer.length).toBeGreaterThan(0);
 
-      await broadcast(
-        host,
-        matchId,
-        concealedActorOnlyEvent(matchId, host.highestSeq() + 1),
+      // Deliberate unknown-key input belongs below host schema preflight.
+      // The audience filter decides who receives the event; the direct
+      // projector call decides which fields an admitted viewer receives.
+      const event = concealedActorOnlyEvent(matchId, host.highestSeq() + 1);
+      const state = {
+        ...host.getSessionForTests().currentState,
+        sideAssignments: [
+          { playerId: 'pid_host', side: 'player' },
+          { playerId: 'pid_opp', side: 'opponent' },
+        ],
+      };
+      const projected = await Promise.all(
+        ['pid_host', 'pid_opp'].map(async (principalId) => {
+          const viewer = await brandedViewer({ ...PLAYER_ROW, principalId });
+          const visible = filterEventForPlayer(event, principalId, state, {
+            fogOfWar: true,
+          });
+          return projectEventForViewer(viewer, visible);
+        }),
       );
-
-      const playerJoined = allFrames(player).join('\n');
-      const opponentJoined = allFrames(opponent).join('\n');
+      expect(projected[0].kind).toBe('failure');
+      expect(projected[1].kind).toBe('project');
+      const raw = projected.map((result) =>
+        result.kind === 'project' ? JSON.stringify(result.event) : '',
+      );
+      const playerJoined = [...allFrames(player), raw[0]].join('\n');
+      const opponentJoined = [...allFrames(opponent), raw[1]].join('\n');
 
       expect(playerJoined).not.toContain(CONCEALED_EVENT_ID);
       expect(playerJoined).not.toContain(PRIVATE_REASON_SENTINEL);
@@ -638,6 +660,61 @@ describe('viewer frame raw-wire negative sweep', () => {
           expect(playerJoined).not.toContain(hidden.type);
         }
       }
+    });
+  });
+
+  describe('host schema preflight for concealed raw metadata', () => {
+    it('refuses an unknown payload key privately without any event frames', async () => {
+      const { host, matchId, player, opponent } = await driveFogMatch(
+        'm-raw-invalid-publication',
+      );
+      const storedBefore = await host.getEventsFromSeq(0);
+      const playerBefore = allFrames(player);
+      const opponentBefore = allFrames(opponent);
+      const appendEvent = jest.fn(async (_event: IGameEvent) => undefined);
+      const broadcastEvent = jest.fn(async (message: IEventMessage) =>
+        broadcast(host, matchId, message.event as IGameEvent),
+      );
+      const closeMatch = jest.fn(async () => undefined);
+      const sendRefusal = jest.fn((message: IServerMessage) =>
+        player.send(JSON.stringify(message)),
+      );
+      const result = await commitThenPublish({
+        matchId,
+        intentId: 'unknown-private-reason',
+        events: [concealedActorOnlyEvent(matchId, host.highestSeq() + 1)],
+        appendEvent,
+        broadcastEvent,
+        closeMatch,
+        sendRefusal,
+      });
+
+      expect(result).toMatchObject({
+        committed: false,
+        messages: [{ kind: 'Error', code: 'INTERNAL_ERROR' }],
+      });
+      expect(sendRefusal).toHaveBeenCalledTimes(1);
+      expect(allFrames(player).slice(playerBefore.length)).toEqual(
+        result.messages.map((message) => JSON.stringify(message)),
+      );
+      expect(allFrames(opponent)).toEqual(opponentBefore);
+      expect(projectionFrames(player)).toEqual(
+        playerBefore.filter((frame) =>
+          ['Event', 'ReplayChunk'].includes(parseKind(frame) ?? ''),
+        ),
+      );
+      expect(projectionFrames(opponent)).toEqual(
+        opponentBefore.filter((frame) =>
+          ['Event', 'ReplayChunk'].includes(parseKind(frame) ?? ''),
+        ),
+      );
+      expect(appendEvent).not.toHaveBeenCalled();
+      expect(broadcastEvent).not.toHaveBeenCalled();
+      expect(closeMatch).not.toHaveBeenCalled();
+      expect(await host.getEventsFromSeq(0)).toEqual(storedBefore);
+      expect(JSON.stringify(result.messages)).not.toContain(
+        PRIVATE_REASON_SENTINEL,
+      );
     });
   });
 

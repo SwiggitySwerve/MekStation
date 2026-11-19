@@ -158,20 +158,17 @@ export interface IDestroyedArtemisFcsState {
   readonly componentName: string;
 }
 
-/**
- * A pending Piloting Skill Roll that must be resolved.
- */
-export interface IPendingPSR {
+/** A finite system target (e.g. MASC), or an explicit impossible check.
+ * Ordinary piloting checks omit both and derive their target at resolution. */
+export type IPSRTriggerTarget =
+  | { readonly fixedTargetNumber?: number; readonly automaticFailure?: never }
+  | { readonly automaticFailure: true; readonly fixedTargetNumber?: never };
+
+export type IPendingPSR = {
   /** Entity/unit that must make the roll */
   readonly entityId: string;
   /** Human-readable reason for the PSR */
   readonly reason: string;
-  /**
-   * Fixed target number for system checks that do not use the pilot's
-   * piloting skill or damage/wound modifiers, such as MASC/Supercharger
-   * failure rolls.
-   */
-  readonly fixedTargetNumber?: number;
   /** Additional modifier to the piloting skill roll */
   readonly additionalModifier: number;
   /** Optional terrain level/depth associated with terrain-triggered PSRs */
@@ -189,7 +186,7 @@ export interface IPendingPSR {
    * `IPendingPSR` fixtures predating PR E.
    */
   readonly reasonCode?: PSRTrigger;
-}
+} & IPSRTriggerTarget;
 
 // =============================================================================
 // Game State
