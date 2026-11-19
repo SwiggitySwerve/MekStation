@@ -7,7 +7,10 @@ the runner rejects an invocation that changes any of those policies.
 Every invocation collects the live Chromium census. First-attempt passing
 durations in `ci-durations.json` are scheduling weights, never cached test
 results. A new test without a weight still runs and gets the largest recorded
-weight. Missing specs, duplicates, collection errors or invalid weights fail.
+weight; a test the census lists as skipped (`test.skip`/`test.fixme`) never
+runs and weighs nothing. A `test.fail()` test's first-attempt expected failure
+is recorded like a pass. Missing specs, duplicates, collection errors or
+invalid weights fail.
 
 The planner assigns the longest groups first to the lightest of the PR
 shards (`--shard=<i>/<n>`, n from 2 to 6; PR Checks runs 4), across suite
@@ -55,6 +58,17 @@ Only the recorder writes the weights, from Nightly JSON reports of all shards:
 ```sh
 node scripts/playwright/record-ci-e2e-durations.mjs --suite-set nightly RUN_ID path/to/shard1.json path/to/shard2.json path/to/shard3.json > config/playwright/nightly-durations.json
 ```
+
+Nightly Validation runs three shards (`Full E2E Shard (chromium, I/3)`), each
+uploading `nightly-e2e-timings-I` (its plan and `nightly.json`, the reports to
+reseed from). The `Full E2E Suite (chromium)` job then runs
+`summarize-nightly-shards.mjs`: it fails unless every shard succeeded and the
+shards' executed tests equal a fresh census of the same head exactly, and it
+prints merged first-attempt and retry-only lists.
+
+The first seed comes from one unsharded run (44284322346, converted from its
+HTML report). After the first green sharded Nightly, reseed from the three
+`nightly-e2e-timings-I/nightly.json` reports, adding green runs as they come.
 
 ## Shared-flow map schema
 

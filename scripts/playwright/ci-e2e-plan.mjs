@@ -230,9 +230,14 @@ export function recordDurations(reports, sourceRunIds, suites = CI_SUITES) {
   for (const report of reports) {
     for (const test of collectTests(report)) {
       suiteFor(test, suites);
+      // A test.fail() row that fails as expected ran in full: its time is a
+      // real weight, or the planner would give it the largest one.
       const passed = test.results.filter(
         ({ status, retry, duration }) =>
-          status === 'passed' && retry === 0 && duration > 0,
+          (status === 'passed' ||
+            (status === 'failed' && test.expectedStatus === 'failed')) &&
+          retry === 0 &&
+          duration > 0,
       );
       if (!passed.length) continue;
       const values = observations.get(test.key) ?? [];
@@ -307,10 +312,14 @@ export function planSuiteShards(tests, timing, shardCount, suites) {
       (!Number.isFinite(fileWeight) || fileWeight <= 0)
     )
       throw new Error('Invalid E2E file duration');
-    const duration =
+    let duration =
       fileWeight === undefined
         ? timing.milliseconds[test.key]
         : fileWeight / fileCounts.get(test.file);
+    // The census lists test.skip/test.fixme rows as skipped. They never run,
+    // so they weigh nothing instead of the largest recorded weight.
+    if (duration === undefined && test.expectedStatus === 'skipped')
+      duration = 0;
     if (duration === undefined) unknown++;
     group.tests.push(test);
     group.milliseconds += duration ?? fallback;
@@ -375,4 +384,27 @@ export function assertShardsCoverCensus(shardLists, census) {
     seen.add(key);
   }
   assertSameTests(census, all);
+}
+
+/**
+ * Retry accounting over executed tests (merged across shards). A test is a
+ * first-attempt result when its first attempt had the expected status
+ * (test.fail() rows expect 'failed'), retry-only when only a retry did, and
+ * failed when no attempt did. Retry-only passes are named, never folded in.
+ */
+export function retryAccounting(tests) {
+  const firstAttempt = [];
+  const retryOnly = [];
+  const failed = [];
+  const skipped = [];
+  for (const test of [...tests].sort((a, b) => compare(a.key, b.key))) {
+    const attempts = [...test.results].sort((a, b) => a.retry - b.retry);
+    const expected = test.expectedStatus ?? 'passed';
+    if (attempts.at(-1)?.status === 'skipped') skipped.push(test.key);
+    else if (attempts[0]?.status === expected) firstAttempt.push(test.key);
+    else if (attempts.at(-1)?.status === expected)
+      retryOnly.push({ key: test.key, attempts: attempts.length });
+    else failed.push(test.key);
+  }
+  return { firstAttempt, retryOnly, failed, skipped };
 }
