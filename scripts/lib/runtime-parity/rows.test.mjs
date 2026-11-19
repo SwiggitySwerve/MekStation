@@ -738,3 +738,144 @@ test('the committed JSON schemas are generated from the module (no drift)', () =
   assert.deepEqual(committed('./rows.schema.json'), rowJsonSchema());
   assert.deepEqual(committed('./receipt.schema.json'), receiptJsonSchema());
 });
+
+// --- vehicle rows -------------------------------------------------------------------------------------
+
+const vehicleKey = (unitId) => ({
+  ...key(unitId, `vehicles/${unitId}.blk`),
+  family: 'vehicles',
+  catalog: {
+    path: `public/data/units/vehicles/${unitId}.json`,
+    blob: 'b'.repeat(40),
+  },
+});
+const vehicleObserved = (overrides = {}) => ({
+  bv: 1353,
+  validity: 'invalid',
+  complete: true,
+  reasons: ['VAL-VEHICLE-CREW', 'VAL-VEHICLE-WEIGHT'],
+  weight: 95.5,
+  mp: { cruise: 4, flank: 6, jump: 0 },
+  crew: 7,
+  ...overrides,
+});
+const vehicleLoadRow = (unitId, observedOverrides = {}) => ({
+  ...vehicleKey(unitId),
+  measure: 'load',
+  status: 'ok',
+  load: {
+    observed: vehicleObserved(observedOverrides),
+    terms: { armorBV: 460, structureBV: 95 },
+    issues: [
+      { ruleId: 'VAL-VEHICLE-CREW', channel: 'errors', message: 'crew' },
+      { ruleId: null, channel: 'warnings', message: 'a warning' },
+    ],
+    preview: { bv: 1353, cost: 4000000 },
+  },
+});
+const vehicleReopenRow = (unitId, overrides = {}) => ({
+  ...vehicleKey(unitId),
+  measure: 'reopen',
+  status: 'ok',
+  reopen: {
+    before: { ...vehicleObserved(), terms: { armorBV: 460 } },
+    after: { ...vehicleObserved({ bv: 1340 }), terms: { armorBV: 447 } },
+    documentLosses: [
+      { path: 'fuelType', change: 'lost' },
+      { path: 'quirks[]', change: 'lost' },
+    ],
+    mountLosses: ['TURRET:ISMediumLaser#1'],
+    mountAdditions: [],
+    ...overrides,
+  },
+});
+
+test('vehicle load, reopen and error rows pass and serialise canonically', () => {
+  validateRow(vehicleLoadRow('v1'));
+  validateRow(vehicleReopenRow('v2'));
+  validateRow({
+    ...vehicleKey('v3'),
+    measure: 'reopen',
+    status: 'error',
+    error: { stage: 'open', name: 'Error', message: 'boom' },
+  });
+  // A null BV, mass, crew and jump MP (the editor has none) are values the row keeps, never coerced.
+  validateRow(
+    vehicleLoadRow('v4', {
+      bv: null,
+      weight: null,
+      crew: null,
+      mp: { cruise: 4, flank: 6, jump: null },
+    }),
+  );
+  const text = serializeRows([vehicleReopenRow('v2'), vehicleLoadRow('v1')]);
+  assert.deepEqual(
+    parseRows(text).map((row) => row.unitId),
+    ['v1', 'v2'],
+  );
+});
+
+test('an ok row has its own family shape: a mech block is not a vehicle row, nor the reverse', () => {
+  assert.throws(() => validateRow({ ...loadRow('a'), family: 'vehicles' }));
+  assert.throws(() =>
+    validateRow({ ...vehicleLoadRow('v'), family: 'battlemechs' }),
+  );
+  // A family with no ok shape yet can still record an error row.
+  validateRow({
+    ...key('ae'),
+    family: 'aerospace',
+    measure: 'load',
+    status: 'error',
+    error: { stage: 'open', name: 'Error', message: 'boom' },
+  });
+  assert.throws(() => validateRow({ ...loadRow('ae'), family: 'aerospace' }));
+  // ownedCellList is the mech grouping proof; a vehicle row owns no cells.
+  assert.deepEqual(ownedCellList(vehicleReopenRow('v')), []);
+});
+
+test('vehicle rows reject unsorted or repeated reasons, losses and mounts', () => {
+  assert.throws(
+    () => validateRow(vehicleLoadRow('v', { reasons: ['VAL-B', 'VAL-A'] })),
+    /reasons is not sorted/,
+  );
+  assert.throws(
+    () => validateRow(vehicleLoadRow('v', { reasons: ['VAL-A', 'VAL-A'] })),
+    /reasons is not sorted/,
+  );
+  assert.throws(
+    () =>
+      validateRow(
+        vehicleReopenRow('v', {
+          documentLosses: [
+            { path: 'quirks[]', change: 'lost' },
+            { path: 'fuelType', change: 'lost' },
+          ],
+        }),
+      ),
+    /documentLosses is not sorted/,
+  );
+  assert.throws(
+    () =>
+      validateRow(
+        vehicleReopenRow('v', {
+          mountLosses: ['TURRET:B#1', 'FRONT:A#1'],
+        }),
+      ),
+    /mountLosses is not sorted/,
+  );
+  assert.throws(
+    () =>
+      validateRow(
+        vehicleReopenRow('v', { mountAdditions: ['BODY:A#1', 'BODY:A#1'] }),
+      ),
+    /mountAdditions is not sorted/,
+  );
+  // An added key is not a loss: the change is lost or changed only.
+  assert.throws(() =>
+    validateRow(
+      vehicleReopenRow('v', {
+        documentLosses: [{ path: 'vehicleEditor.name', change: 'added' }],
+      }),
+    ),
+  );
+});

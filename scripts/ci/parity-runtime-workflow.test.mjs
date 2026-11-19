@@ -115,22 +115,23 @@ test('the family is resolved from the registry before anything uses its names or
   assert.match(scratch.run, /PARITY_RUNTIME_OUTPUT=%s\/%s/);
 });
 
-test('each measure maps to its port entry, gets the registry entry flags, and a missing entry fails by name', (t) => {
+test('each measure maps to its port entry, which gets --family, and a missing entry fails by name', (t) => {
   const step = workflow().jobs.census.steps.find(
     (item) => item.name === 'Run runtime census',
   );
   const run = step.run;
-  assert.equal(step.env.ENTRY_FLAGS, '${{ steps.family.outputs.entry-flags }}');
+  // One way to pass the family: the input, through env.
+  assert.equal(step.env.FAMILY, '${{ inputs.family }}');
+  assert.equal(step.env.ENTRY_FLAGS, undefined);
   assert.match(run, /load\) entry=scripts\/runtime-path-bv\/run\.mjs/);
   assert.match(run, /reopen\) entry=scripts\/runtime-roundtrip\/run\.mjs/);
   assert.match(run, /if \[ ! -f "\$entry" \]; then[\s\S]*exit 1/);
   assert.match(
     run,
-    /node "\$entry" --out "\$PARITY_RUNTIME_OUTPUT" "\$\{flags\[@\]\}" \|\| status=\$\?/,
+    /node "\$entry" --out "\$PARITY_RUNTIME_OUTPUT" --family "\$FAMILY" \|\| status=\$\?/,
   );
   assert.match(run, /exit "\$status"$/m);
-  // Run the step with a fake node: no flags add no argument (battlemechs
-  // today); flags arrive as separate words.
+  // Run the step with a fake node: the entry gets exactly --out and --family.
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'runtime-census-step-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, 'bin'));
@@ -146,10 +147,7 @@ test('each measure maps to its port entry, gets the registry entry flags, and a 
   fs.writeFileSync(path.join(root, 'bin/git'), '#!/bin/sh\necho sha\n', {
     mode: 0o755,
   });
-  for (const [flags, extra] of [
-    ['', []],
-    ['--family vehicles', ['--family', 'vehicles']],
-  ]) {
+  for (const family of ['battlemechs', 'vehicles']) {
     const out = path.join(root, 'out');
     const result = spawnSync('bash', ['-e', '-c', run], {
       cwd: root,
@@ -159,20 +157,19 @@ test('each measure maps to its port entry, gets the registry entry flags, and a 
         PATH: `${path.join(root, 'bin')}${path.delimiter}${process.env.PATH}`,
         PARITY_RUNTIME_OUTPUT: out,
         GITHUB_STEP_SUMMARY: path.join(root, 'summary'),
-        FAMILY: 'battlemechs',
+        FAMILY: family,
         MEASURE: 'load',
-        ENTRY_FLAGS: flags,
       },
     });
     assert.equal(result.status, 0, result.stderr);
     assert.deepEqual(
       fs.readFileSync(path.join(out, 'args'), 'utf8').split('\n').slice(0, -1),
-      ['scripts/runtime-path-bv/run.mjs', '--out', out, ...extra],
+      ['scripts/runtime-path-bv/run.mjs', '--out', out, '--family', family],
     );
     assert.equal(
       JSON.parse(fs.readFileSync(path.join(out, 'run-meta.json'), 'utf8'))
         .family,
-      'battlemechs',
+      family,
     );
   }
 });
@@ -235,7 +232,12 @@ test('gate runs after census and retrieval, and preserves pass/regression/fail-c
   assert.ok(!gate['continue-on-error']);
   assert.equal(gate.if, '${{ !cancelled() }}');
   assert.equal(gate.env.MEASURE, '${{ inputs.measure }}');
-  assert.match(gate.run, /node scripts\/lib\/runtime-parity\/gate\.mjs/);
+  // The gate gets the same family as the port, or a non-default family's run fails closed.
+  assert.equal(gate.env.FAMILY, '${{ inputs.family }}');
+  assert.match(
+    gate.run,
+    /node scripts\/lib\/runtime-parity\/gate\.mjs --family "\$FAMILY" --measure "\$MEASURE"/,
+  );
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'runtime-gate-step-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, 'bin'));
@@ -257,13 +259,14 @@ test('gate runs after census and retrieval, and preserves pass/regression/fail-c
           ...process.env,
           PATH: `${path.join(root, 'bin')}${path.delimiter}${process.env.PATH}`,
           PARITY_RUNTIME_OUTPUT: root,
+          FAMILY: 'vehicles',
           MEASURE: 'load',
           GATE_EXIT: String(code),
         },
       });
       assert.equal(result.status, code, result.stderr);
       const args = fs.readFileSync(path.join(root, 'args'), 'utf8');
-      assert.match(args, /--measure\nload\n--run-dir\n/);
+      assert.match(args, /--family\nvehicles\n--measure\nload\n--run-dir\n/);
       assert.equal(args.includes('--last-green\n'), hasGreen);
     }
   }

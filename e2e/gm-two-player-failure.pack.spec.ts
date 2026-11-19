@@ -498,11 +498,13 @@ test.describe('GM two-player failure pack', () => {
 
       // Drive one real command so there is a genuine committed frame to
       // replay — a spec-authored frame would test the spec's idea of the
-      // protocol rather than the protocol.
+      // protocol rather than the protocol. Launch already committed
+      // receipts, so wait for THIS command's own receipt, not any receipt.
+      const receiptsBefore = durableCounts(match.matchId).receipts;
       await advancePhase(hostPage, guestPage);
       await expect
         .poll(() => durableCounts(match.matchId).receipts, { timeout: 20_000 })
-        .toBeGreaterThan(0);
+        .toBeGreaterThan(receiptsBefore);
 
       const committed = durableCounts(match.matchId);
       const sequencesBefore = durableSequences(match.matchId);
