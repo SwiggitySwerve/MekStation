@@ -25,6 +25,8 @@ Cross-field rules JSON Schema can't express are enforced by `validateRow` and li
 `family` + `path` is the row identity (unique) and is the pair `parity-scoreboard-diff.mjs` already keys on,
 so `compareRows` works on these rows unchanged. Rows are sorted by (`family`, `path`, `unitId`) in code-unit order.
 `measure` is `load` or `reopen`; `status` is `ok` or `error`. An `error` row has `error {stage, name, message}` and no result block.
+An `ok` row's block is family-shaped: the two sections below are the `battlemechs` rows (an `ok` row of that shape must say
+`family: battlemechs`), and **Vehicle rows** further down are the `vehicles` rows. An `error` row is the same for every family.
 
 ## Load row (`measure: load`, `status: ok`) — `load`
 
@@ -102,6 +104,29 @@ construction validity, saving/refreshing) are separate and are not part of it.
 loss is permanent in the file, so a high `after` means the opposite of improvement. The remaining counts (confirmation, unsettled, unknown,
 noticeEntries, armorSaveLoss, errorRows) are under `saveLossDetail.before` and `saveLossDetail.after`. There is no `summary.saveLoss`.
 
+## Vehicle rows (`family: vehicles`, `status: ok`)
+
+A vehicle `observed` is what the vehicle editor's status bar shows, so it is not the mech shape: no critical-slot cells, no
+second weight owner (no `allocatedWeight`) and no save-loss dialog (`useUnitLoadDiagnostics` has no vehicle path).
+
+- `observed`: `bv` (the status bar's breakdown `final`, or `null` when the calculator threw), `validity` (`valid`/`invalid`),
+  `complete` (the validation's `isComplete`: `false` means an input was unknown, so `invalid` was not a decided verdict),
+  `reasons` (the error rule ids, sorted and duplicate-free: the reason codes that are compared), `weight` (unrounded used mass,
+  `tonnage - remaining` of the status bar's weight breakdown; `null` when `remaining` is unknown), `mp {cruise, flank, jump}`
+  (`jump` is `null` when the editor has no jump MP, as today: the vehicle store has no jump MP and the BV input uses 0; it is
+  never written as 0) and `crew` (the loaded `crewSize` as the store holds it; an explicit `null` stays `null`).
+- **Load** (`load`): `observed`, `terms` (`numericTerms(vehicleBVTerms(breakdown))`), `issues[]` (`{ruleId (null for a
+warning, which has none), channel (errors|warnings), message}`: diagnostics, never compared) and `preview` (`{bv, cost}` the
+  vehicle record sheet is handed, or `null`; a failed sheet calculation is an error row, as for mechs).
+- **Reopen** (`reopen`): `before` and `after` (the observation plus `terms`), `documentLosses[]` (`{path, change: lost|changed}`:
+  the source catalog document's key paths the saved document lost or changed, outside the editor-owned keys, sorted by path),
+  `mountLosses[]` and `mountAdditions[]` (the equipment lists compared as multisets by `<location>:<equipment id>`, one
+  numbered entry `#<n>` per surplus copy, sorted). `vehicle-document.mjs` is the one owner of the editor-owned key list and of
+  both comparisons; keys only the saved document has are not losses.
+
+Checked by `validateRow`: `reasons`, `documentLosses` paths, `mountLosses` and `mountAdditions` are sorted and duplicate-free,
+and no `documentLosses` path is an editor-owned key.
+
 ## Facts (`facts.ndjson`), derived, not part of the row
 
 The nightly gate's per-unit facts are derived from a row and the Java reference (`facts.mjs`) and written beside the rows; no field is
@@ -114,7 +139,7 @@ Provenance and resource facts live here, never on a row: `repoSha`, `node` (`pro
 (`config/reference/reference-full.jsonl.gz`), `sources.sha256` and `manifest.sha256` (the S0b join inputs as read),
 `rows {count, sha256}` (the rows file this receipt describes), `durationSeconds` (whole invocation), `runs[]` (one entry per
 fresh capture process: `rowsSha256`, `durationSeconds`, and that process's `resources` from `process.resourceUsage()`;
-recorded, never a gate), `deterministic` (every run's rows were byte-identical: the determinism gate) and `scope`
+recorded, never a gate), `captureMode` (`concurrent`, the default when `CI` is set or with `--concurrent`, or `sequential`, the local default or with `--sequential`), `captureOffsetMs` (how much later each concurrent run after the first started than the one before it; 0 for a sequential run) and `captureTimeZones` (each run's `TZ`, in `runs` order: concurrent runs after the first get a different zone from the first, so a row carrying a clock- or zone-derived value still differs between runs; all three optional, so receipts that predate them still validate), `deterministic` (every run's rows were byte-identical: the determinism gate) and `scope`
 (`families`; `populationCount`, the plan length after the family filter and before `--units`; and `unitIds`: `null` is the whole
 joined population, a sorted duplicate-free list is a deliberately narrowed local run). The population is proved, not inferred:
 `validateReceipt` and the summaries require `rows.count === populationCount` for a null scope and `rows.count === unitIds.length`

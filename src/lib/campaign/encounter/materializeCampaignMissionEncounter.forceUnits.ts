@@ -5,6 +5,8 @@ import { WIZARD_REPRESENTATIVE_UNITS } from '@/lib/campaign/wizard/representativ
 export interface AssignedForceUnit {
   readonly unitRef: string;
   readonly pilotRef?: string;
+  /** The campaign roster unit this is (T1); absent for OpFor units. */
+  readonly rosterUnitId?: string;
 }
 
 export function rosterUnitsToForceUnits(
@@ -19,6 +21,7 @@ export function rosterUnitsToForceUnits(
     return {
       unitRef: unit.unitRef,
       pilotRef: unit.pilotId,
+      rosterUnitId: unit.unitId,
     };
   });
 }

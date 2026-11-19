@@ -18,6 +18,7 @@ import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
  * @spec openspec/changes/fix-captured-at-time-domain/specs/campaign-refit-and-prestige/spec.md
  */
 import { toast } from '@/components/shared/Toast';
+import { withIdentityManifest } from '@/lib/campaign/__tests__/identityBattleUnitManifest';
 import { campaignDaysBetween } from '@/lib/campaign/campaignCalendar';
 import { _resetDayPipeline } from '@/lib/campaign/dayPipeline';
 import { _resetBuiltinRegistration } from '@/lib/campaign/processors';
@@ -98,7 +99,9 @@ function battle(result: 'victory' | 'defeat'): ICombatOutcome {
     'destruction',
   );
   battleSeq += 1;
-  return deriveCombatOutcome({ ...session, id: `timeline-${battleSeq}` });
+  return withIdentityManifest(
+    deriveCombatOutcome({ ...session, id: `timeline-${battleSeq}` }),
+  );
 }
 
 beforeEach(() => {

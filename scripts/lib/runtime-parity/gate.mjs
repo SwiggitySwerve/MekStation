@@ -4,9 +4,10 @@
 // baseline-<measure>.sets.ndjson sidecar), optionally tightened by the last green nightly. The workflow only
 // runs this; nothing else decides what "worse" means.
 //
-//   node scripts/lib/runtime-parity/gate.mjs --measure load --run-dir <port out dir> \
+//   node scripts/lib/runtime-parity/gate.mjs --measure load --run-dir <port out dir> [--family <family>] \
 //        [--baseline config/parity-runtime/baseline-load.json] [--last-green <last-green.json>] \
 //        [--repo <root>] [--out <dir>]
+// One family per run (default battlemechs); each family has its own baseline files and its own fact table.
 //
 // Rule (agreed by C1, C3, C5 and approved by Root, 2026-11-11), in a few lines:
 //   - A unit that gets WORSE on any gated fact fails the night (exit 1), by name: a bool pass -> fail, a set that
@@ -36,19 +37,26 @@ import {
 import {
   FACTS_FILE,
   FACT_DEFS,
-  REPORTED_DEFS,
+  FACT_FAMILIES,
+  factDefs,
   isFactValue,
   parseFacts,
+  reportedDefs,
   setFactNames,
   unitKey,
 } from './facts.mjs';
 
 export const BASELINE_SCHEMA_VERSION = 1;
 export const BASELINE_DIR = 'config/parity-runtime';
-export const baselinePath = (measure) =>
-  `${BASELINE_DIR}/baseline-${measure}.json`;
-export const baselineSetsPath = (measure) =>
-  `${BASELINE_DIR}/baseline-${measure}.sets.ndjson`;
+/** battlemechs keep the names they had before families: baseline-<measure>; every other family is baseline-<family>-<measure>. */
+const baselineStem = (measure, family) =>
+  family === 'battlemechs'
+    ? `${BASELINE_DIR}/baseline-${measure}`
+    : `${BASELINE_DIR}/baseline-${family}-${measure}`;
+export const baselinePath = (measure, family = 'battlemechs') =>
+  `${baselineStem(measure, family)}.json`;
+export const baselineSetsPath = (measure, family = 'battlemechs') =>
+  `${baselineStem(measure, family)}.sets.ndjson`;
 
 /** A distance that grows by no more than this (relative to max(1, baseline)) is not worse. The term rule's tolerance. */
 export const DISTANCE_TOLERANCE = 1e-9;
@@ -101,8 +109,8 @@ export const BaselineSchema = z.strictObject({
   units: z.record(z.string(), z.record(z.string(), z.unknown())),
 });
 
-/** Throws `GateError('BASELINE_MALFORMED', ...)` on anything that is not a well-formed baseline of `measure`. */
-export function validateBaseline(measure, baseline) {
+/** Throws `GateError('BASELINE_MALFORMED', ...)` on anything that is not a well-formed baseline of `measure` for `family`. */
+export function validateBaseline(measure, baseline, family = 'battlemechs') {
   const parsed = BaselineSchema.safeParse(baseline);
   if (!parsed.success)
     throw new GateError(
@@ -117,8 +125,13 @@ export function validateBaseline(measure, baseline) {
       'BASELINE_MALFORMED',
       `baseline is for ${value.measure}, not ${measure}`,
     );
-  const defs = FACT_DEFS[measure];
+  const defs = factDefs(measure, family);
   for (const [key, facts] of Object.entries(value.units)) {
+    if (!key.startsWith(`${family}/`))
+      throw new GateError(
+        'BASELINE_MALFORMED',
+        `${key} is not a ${family} unit; each family has its own baseline`,
+      );
     for (const [name, kind] of Object.entries(defs)) {
       if (!(name in facts))
         throw new GateError(
@@ -153,7 +166,7 @@ export function validateBaseline(measure, baseline) {
 }
 
 /** Optional input: return the first bad path rather than failing the night. */
-function lastGreenProblem(measure, artifact) {
+function lastGreenProblem(measure, artifact, family) {
   const parsed = z
     .strictObject({
       schemaVersion: z.literal(1),
@@ -167,7 +180,7 @@ function lastGreenProblem(measure, artifact) {
     const issue = parsed.error.issues[0];
     return `${issue.path.join('.') || '(root)'}: ${issue.message}`;
   }
-  const defs = FACT_DEFS[measure];
+  const defs = factDefs(measure, family);
   for (const [unit, facts] of Object.entries(parsed.data.units)) {
     for (const name of Object.keys(facts))
       if (!Object.hasOwn(defs, name))
@@ -186,9 +199,9 @@ function lastGreenProblem(measure, artifact) {
 //   {"u":"<family>/<unitId>","<setFact>":["<member>",...]}   (a set with no members is omitted; every unit has a line)
 
 /** The committed text of a baseline: `{ main, sets }` (`sets` is null for a measure with no set facts). */
-export function serializeBaseline(baseline) {
+export function serializeBaseline(baseline, family = 'battlemechs') {
   const { units, notes, ...header } = baseline;
-  const setNames = setFactNames(baseline.measure);
+  const setNames = setFactNames(baseline.measure, family);
   const keys = Object.keys(units).sort();
   const mainUnits = keys.map((key) => {
     const facts = Object.fromEntries(
@@ -237,7 +250,7 @@ export function parseBaseline(
   measure,
   mainText,
   setsText,
-  { verify = true } = {},
+  { verify = true, family = 'battlemechs' } = {},
 ) {
   let main;
   try {
@@ -248,18 +261,20 @@ export function parseBaseline(
       `not valid JSON: ${error.message}`,
     );
   }
-  const setNames = FACT_DEFS[measure] ? setFactNames(measure) : [];
+  const setNames = factDefs(measure, family)
+    ? setFactNames(measure, family)
+    : [];
   if (
     main === null ||
     typeof main !== 'object' ||
     !main.units ||
     !setNames.length
   )
-    return validateBaseline(measure, main);
+    return validateBaseline(measure, main, family);
 
   if (verify && (setsText === null || setsText === undefined))
     throw mismatch(
-      `the sidecar ${baselineSetsPath(measure)} is missing; the baseline cannot be checked`,
+      `the sidecar ${baselineSetsPath(measure, family)} is missing; the baseline cannot be checked`,
     );
   const sidecar = new Map();
   const malformed = [];
@@ -328,7 +343,7 @@ export function parseBaseline(
       "a unit's members do not match the size and hash recorded in the main file",
       bad,
     );
-  return validateBaseline(measure, { ...main, units });
+  return validateBaseline(measure, { ...main, units }, family);
 }
 
 /**
@@ -368,6 +383,7 @@ export function readBaselineNotes(mainText, measure) {
  */
 export function buildBaseline({
   measure,
+  family = 'battlemechs',
   facts,
   sha,
   note,
@@ -376,6 +392,12 @@ export function buildBaseline({
 }) {
   if (!facts.length)
     throw new GateError('BASELINE_REFUSED', 'the run has no units');
+  const foreign = facts.filter((entry) => entry.family !== family);
+  if (foreign.length)
+    throw new GateError(
+      'BASELINE_REFUSED',
+      `${foreign.length} unit(s) are not ${family} (first: ${unitKey(foreign[0])}); a baseline holds one family`,
+    );
   const bad = facts.filter(
     (entry) =>
       entry.status !== 'ok' ||
@@ -393,16 +415,20 @@ export function buildBaseline({
       .map((entry) => [unitKey(entry), entry.facts])
       .sort(([a], [b]) => (a < b ? -1 : 1)),
   );
-  return validateBaseline(measure, {
-    schemaVersion: BASELINE_SCHEMA_VERSION,
+  return validateBaseline(
     measure,
-    sha,
-    ...checkedProvenance,
-    populationCount: facts.length,
-    populationHash: populationHash(Object.keys(units)),
-    notes: [...existingNotes, checkedNote],
-    units,
-  });
+    {
+      schemaVersion: BASELINE_SCHEMA_VERSION,
+      measure,
+      sha,
+      ...checkedProvenance,
+      populationCount: facts.length,
+      populationHash: populationHash(Object.keys(units)),
+      notes: [...existingNotes, checkedNote],
+      units,
+    },
+    family,
+  );
 }
 
 // --- the rules (replaceable only so the test suite can prove each one is load-bearing) -------------------
@@ -473,9 +499,9 @@ export const defaultRules = {
 // --- reported facts (not gated) -----------------------------------------------------------------------
 
 /** For each reported fact: how many units it is known for, how many are non-zero, the largest value. */
-function reportedSummary(measure, facts) {
+function reportedSummary(measure, facts, family) {
   return Object.fromEntries(
-    Object.keys(REPORTED_DEFS[measure]).map((name) => {
+    Object.keys(reportedDefs(measure, family)).map((name) => {
       const values = facts.map((f) => f.reported?.[name] ?? null);
       const known = values.filter((v) => v !== null);
       return [
@@ -503,6 +529,7 @@ function reportedSummary(measure, facts) {
 export function evaluate(
   {
     measure,
+    family = 'battlemechs',
     facts,
     provenance,
     baselineText,
@@ -513,10 +540,11 @@ export function evaluate(
   },
   rules = defaultRules,
 ) {
-  const defs = FACT_DEFS[measure];
+  const defs = factDefs(measure, family);
   const report = {
     schemaVersion: 1,
     measure,
+    family,
     runSha: run?.sha ?? null,
     exitCode: 0,
     failClosed: [],
@@ -528,7 +556,7 @@ export function evaluate(
     population: { baseline: null, tonight: facts.length, overlap: 0 },
     provenance: { deriverChanged: false, referenceChanged: false },
     // Measured per unit and shown here, never gated: no baseline entry, no comparison (see REPORTED_DEFS).
-    reported: reportedSummary(measure, facts),
+    reported: reportedSummary(measure, facts, family),
     lastGreen: { status: 'not-used', detail: '' },
     headline: '',
   };
@@ -557,11 +585,15 @@ export function evaluate(
   let baseline = null;
   if (baselineText === null || baselineText === undefined) {
     if (rules.requireBaseline)
-      fail('BASELINE_MISSING', `no committed baseline for ${measure}`);
+      fail(
+        'BASELINE_MISSING',
+        `no committed baseline for ${family} ${measure}`,
+      );
   } else {
     try {
       baseline = parseBaseline(measure, baselineText, setsText, {
         verify: rules.verifySidecar,
+        family,
       });
     } catch (error) {
       if (rules.requireBaseline)
@@ -637,7 +669,7 @@ export function evaluate(
   // Last-green: tighten only while the committed baseline is byte-unchanged since that green run.
   let tightening = null;
   const lastGreenIssue =
-    lastGreen == null ? null : lastGreenProblem(measure, lastGreen);
+    lastGreen == null ? null : lastGreenProblem(measure, lastGreen, family);
   if (lastGreen == null) {
     report.lastGreen = {
       status: 'missing',
@@ -796,6 +828,7 @@ export function main(argv = process.argv.slice(2), deps = {}) {
     args: argv,
     options: {
       measure: { type: 'string' },
+      family: { type: 'string', default: 'battlemechs' },
       'run-dir': { type: 'string' },
       baseline: { type: 'string' },
       'last-green': { type: 'string' },
@@ -812,12 +845,15 @@ export function main(argv = process.argv.slice(2), deps = {}) {
     throw new Error(
       `--measure must be one of ${Object.keys(FACT_DEFS).join(', ')}`,
     );
+  const family = values.family;
+  if (!FACT_FAMILIES.includes(family))
+    throw new Error(`--family must be one of ${FACT_FAMILIES.join(', ')}`);
   const repo = path.resolve(values.repo);
   const runDir = path.resolve(values['run-dir']);
   const out = path.resolve(values.out ?? path.join(runDir, 'gate'));
   const baselineFile = path.resolve(
     repo,
-    values.baseline ?? baselinePath(measure),
+    values.baseline ?? baselinePath(measure, family),
   );
   // The sidecar sits beside the main file: baseline-<measure>.json -> baseline-<measure>.sets.ndjson.
   const setsFile = baselineFile.replace(/\.json$/, '.sets.ndjson');
@@ -847,9 +883,18 @@ export function main(argv = process.argv.slice(2), deps = {}) {
         'RUN_INCOMPLETE',
         `the run is ${receipt.measure}, not ${measure}`,
       );
+    const runFamilies = receipt.scope?.families ?? [];
+    if (runFamilies.length !== 1 || runFamilies[0] !== family)
+      throw new GateError(
+        'RUN_INCOMPLETE',
+        `the run measured ${runFamilies.join(', ') || 'no family'}, not ${family}`,
+      );
     let facts;
     try {
       facts = parseFacts(measure, factsText);
+      const foreign = facts.find((entry) => entry.family !== family);
+      if (foreign)
+        throw new Error(`${unitKey(foreign)} is not a ${family} unit`);
     } catch (error) {
       throw new GateError('FACTS_MALFORMED', error.message);
     }
@@ -859,6 +904,9 @@ export function main(argv = process.argv.slice(2), deps = {}) {
         const meta = parseFactsMeta(metaText);
         if (meta.measure !== measure)
           throw new Error(`${FACTS_META_FILE} is for ${meta.measure}`);
+        // A facts-meta.json written before families existed has no family: it was battlemechs.
+        if ((meta.family ?? 'battlemechs') !== family)
+          throw new Error(`${FACTS_META_FILE} is for ${meta.family}`);
         provenance = {
           factsSchemaVersion: meta.factsSchemaVersion,
           factsDeriverBlob: meta.factsDeriverBlob,
@@ -880,6 +928,7 @@ export function main(argv = process.argv.slice(2), deps = {}) {
     report = evaluate(
       {
         measure,
+        family,
         facts,
         provenance,
         baselineText: read(baselineFile),
@@ -898,6 +947,7 @@ export function main(argv = process.argv.slice(2), deps = {}) {
     report = {
       schemaVersion: 1,
       measure,
+      family,
       exitCode: 2,
       failClosed: [
         {

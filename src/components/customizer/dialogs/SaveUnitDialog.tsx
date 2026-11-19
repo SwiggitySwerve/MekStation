@@ -43,6 +43,12 @@ import {
   type SaveDialogStatus as ValidationStatus,
 } from './SaveUnitDialogFooter';
 import { SaveUnitDialogPreview } from './SaveUnitDialogPreview';
+import {
+  getSaveBlockedReason,
+  SaveUnitDialogSaveProgress,
+} from './SaveUnitDialogSaveProgress';
+import { useDeferredSave } from './useDeferredSave';
+import { useSaveConsent } from './useSaveConsent';
 
 // =============================================================================
 // Types
@@ -267,27 +273,36 @@ export function SaveUnitDialog({
     queueValidation(chassis, value);
   };
 
-  // Handle save action
-  const handleSave = () => {
-    if (!canSave) return;
-    if (
-      (unrecoveredCriticalSlots?.length ||
-        lossTrackingUnknown ||
-        armorSaveLoss) &&
-      !isConfirmingLoss
-    ) {
-      setIsConfirmingLoss(true);
+  // Runs when every check has settled: at click time, or later from the queue
+  // with the values the dialog then shows.
+  const submitSave = () => {
+    if (!isOpen || isSaving) return;
+    if (blockedReason) {
+      deferredSave.refuse(blockedReason);
       return;
     }
-    if (status === 'custom-conflict' && validationResult?.conflictingUnitId) {
-      onSave(
-        chassis.trim(),
-        variant.trim(),
-        validationResult.conflictingUnitId,
-      );
+    const overwriteRefusal = consent.overwriteRefusal();
+    if (overwriteRefusal) return deferredSave.refuse(overwriteRefusal);
+    if (hasLoss && !isConfirmingLoss) return setIsConfirmingLoss(true);
+    const lossRefusal = consent.lossRefusal();
+    if (lossRefusal) return deferredSave.refuse(lossRefusal);
+    if (overwriteTargetId) {
+      onSave(chassis.trim(), variant.trim(), overwriteTargetId);
     } else {
       onSave(chassis.trim(), variant.trim());
     }
+  };
+
+  // A click while checks are pending is queued, never dropped. Saving... is
+  // the visible reason a click during a save does nothing.
+  const handleSave = () => {
+    if (isSaving) return;
+    consent.record();
+    deferredSave.request();
+  };
+  const cancelLossConfirmation = () => {
+    deferredSave.cancel();
+    setIsConfirmingLoss(false);
   };
 
   // Handle save as new (different name to avoid conflict)
@@ -319,24 +334,57 @@ export function SaveUnitDialog({
     }
   };
 
-  // Determine button states
-  const canSave =
+  // Determine button states. Transient checks never disable the button: a
+  // click then waits for them. Only a settled reason or a running save does.
+  const hasNames = Boolean(chassis.trim() && variant.trim());
+  const isPending =
+    isOpen &&
     !isSaving &&
-    !isRefreshingLossDiagnostics &&
-    (status === 'valid' || status === 'custom-conflict') &&
-    constructionValidation.isValid &&
-    !constructionValidation.isLoading &&
-    !constructionValidation.isValidating;
+    (isRefreshingLossDiagnostics ||
+      status === 'validating' ||
+      (status === 'idle' && hasNames) ||
+      constructionValidation.isLoading ||
+      constructionValidation.isValidating);
+  const blockedReason = getSaveBlockedReason(
+    status,
+    validationResult,
+    constructionValidation,
+    hasNames,
+  );
+  const canClickSave = !isSaving && (isPending || blockedReason === null);
+  const consent = useSaveConsent({
+    status,
+    validationResult,
+    unrecoveredCriticalSlots,
+    lossTrackingUnknown,
+    armorSaveLoss,
+    isConfirmingLoss,
+  });
+  const { overwriteTargetId, hasLoss, lossFingerprint } = consent;
+  const deferredSave = useDeferredSave({
+    isOpen,
+    targetId: currentUnitId,
+    isPending,
+    resetKey: JSON.stringify([
+      chassis,
+      variant,
+      status,
+      overwriteTargetId,
+      blockedReason,
+      lossFingerprint,
+    ]),
+    submit: submitSave,
+  });
   const hasConflict =
     status === 'custom-conflict' || status === 'canonical-conflict';
 
   const inputConflictClass = getInputConflictClass(status);
-  const saveButtonClass = getSaveButtonClass(status, canSave);
+  const saveButtonClass = getSaveButtonClass(status, canClickSave);
 
   return (
     <DialogTemplate
       isOpen={isOpen}
-      onClose={isConfirmingLoss ? () => setIsConfirmingLoss(false) : onCancel}
+      onClose={isConfirmingLoss ? cancelLossConfirmation : onCancel}
       preventClose={isSaving}
       title={
         isConfirmingLoss
@@ -354,17 +402,17 @@ export function SaveUnitDialog({
               type="button"
               className={cs.dialog.btnSecondary}
               disabled={isSaving}
-              onClick={() => setIsConfirmingLoss(false)}
+              onClick={cancelLossConfirmation}
             >
               Cancel
             </button>
-            <Button disabled={!canSave} onClick={handleSave}>
+            <Button disabled={!canClickSave} onClick={handleSave}>
               {isSaving ? 'Saving...' : 'Save anyway'}
             </Button>
           </>
         ) : (
           <SaveDialogFooter
-            canSave={canSave}
+            canSave={canClickSave}
             isSaving={isSaving}
             handleSave={handleSave}
             handleSaveAsNew={handleSaveAsNew}
@@ -382,6 +430,13 @@ export function SaveUnitDialog({
         armorSaveLoss={armorSaveLoss}
         unknown={lossTrackingUnknown}
         checking={isRefreshingLossDiagnostics}
+      />
+      <SaveUnitDialogSaveProgress
+        isQueued={deferredSave.isQueued}
+        refusal={deferredSave.refusal}
+        confirmationReason={
+          isConfirmingLoss && !isPending ? blockedReason : null
+        }
       />
       {!isConfirmingLoss && (
         <>

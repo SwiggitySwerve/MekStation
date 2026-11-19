@@ -20,6 +20,11 @@ import { GameSide } from '@/types/gameplay/GameSessionCoreTypes';
 import { applyOutcomePrestige } from '../applyOutcomePrestige';
 
 const APPLIED_AT = '3025-02-01T00:00:00.000Z';
+/** Identity launch manifest: these fixtures' unit ids are roster ids. */
+const MANIFEST = {
+  'unit-1': { rosterUnitId: 'unit-1' },
+  'fresh-unit': { rosterUnitId: 'fresh-unit' },
+};
 
 function makeDelta(
   unitId: string,
@@ -65,7 +70,7 @@ describe('applyOutcomePrestige', () => {
         finalStatus: UnitFinalStatus.Damaged,
       }),
     ]);
-    const result = applyOutcomePrestige(outcome, [], APPLIED_AT);
+    const result = applyOutcomePrestige(outcome, [], APPLIED_AT, MANIFEST);
     const record = result.find((r) => r.unitId === 'unit-1');
     expect(record?.score).toBeGreaterThan(PRESTIGE_DEFAULT);
   });
@@ -76,7 +81,7 @@ describe('applyOutcomePrestige', () => {
         finalStatus: UnitFinalStatus.Crippled,
       }),
     ]);
-    const result = applyOutcomePrestige(outcome, [], APPLIED_AT);
+    const result = applyOutcomePrestige(outcome, [], APPLIED_AT, MANIFEST);
     const record = result.find((r) => r.unitId === 'unit-1');
     expect(record?.score).toBeLessThan(PRESTIGE_DEFAULT);
   });
@@ -85,7 +90,7 @@ describe('applyOutcomePrestige', () => {
     const outcome = makeOutcome('player', [
       makeDelta('fresh-unit', GameSide.Player),
     ]);
-    const result = applyOutcomePrestige(outcome, [], APPLIED_AT);
+    const result = applyOutcomePrestige(outcome, [], APPLIED_AT, MANIFEST);
     const record = result.find((r) => r.unitId === 'fresh-unit');
     expect(record).toBeDefined();
     expect(record?.history).toHaveLength(1);
@@ -108,7 +113,12 @@ describe('applyOutcomePrestige', () => {
     const outcome = makeOutcome('player', [
       makeDelta('unit-1', GameSide.Player),
     ]);
-    const result = applyOutcomePrestige(outcome, [existing], APPLIED_AT);
+    const result = applyOutcomePrestige(
+      outcome,
+      [existing],
+      APPLIED_AT,
+      MANIFEST,
+    );
     const record = result.find((r) => r.unitId === 'unit-1');
     expect(record?.history).toHaveLength(2);
   });
@@ -116,23 +126,37 @@ describe('applyOutcomePrestige', () => {
   it('returns the list unchanged for an outcome with no deltas', () => {
     const outcome = makeOutcome('player', []);
     const current: readonly IUnitPrestige[] = [];
-    expect(applyOutcomePrestige(outcome, current, APPLIED_AT)).toBe(current);
+    expect(applyOutcomePrestige(outcome, current, APPLIED_AT, MANIFEST)).toBe(
+      current,
+    );
   });
 
   it('treats a draw as a non-win for both sides', () => {
     const outcome = makeOutcome('draw', [makeDelta('unit-1', GameSide.Player)]);
-    const result = applyOutcomePrestige(outcome, [], APPLIED_AT);
+    const result = applyOutcomePrestige(outcome, [], APPLIED_AT, MANIFEST);
     const record = result.find((r) => r.unitId === 'unit-1');
     // A draw applies the defeat delta — score must not exceed the default.
     expect(record?.score).toBeLessThanOrEqual(PRESTIGE_DEFAULT);
+  });
+
+  it('T1: keys prestige by the manifest roster id and skips opponent and unmapped units', () => {
+    const outcome = makeOutcome('player', [
+      makeDelta('player-1-atlas-as7-d', GameSide.Player),
+      makeDelta('player-2-locust-lct-1v', GameSide.Player),
+      makeDelta('opponent-1-commando-com-2d', GameSide.Opponent),
+    ]);
+    const result = applyOutcomePrestige(outcome, [], APPLIED_AT, {
+      'player-1-atlas-as7-d': { rosterUnitId: 'roster-7' },
+    });
+    expect(result.map((r) => r.unitId)).toEqual(['roster-7']);
   });
 
   it('is deterministic for the same outcome and starting list', () => {
     const outcome = makeOutcome('player', [
       makeDelta('unit-1', GameSide.Player),
     ]);
-    const a = applyOutcomePrestige(outcome, [], APPLIED_AT);
-    const b = applyOutcomePrestige(outcome, [], APPLIED_AT);
+    const a = applyOutcomePrestige(outcome, [], APPLIED_AT, MANIFEST);
+    const b = applyOutcomePrestige(outcome, [], APPLIED_AT, MANIFEST);
     expect(a).toEqual(b);
   });
 });

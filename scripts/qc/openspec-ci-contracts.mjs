@@ -121,8 +121,12 @@ export const requiredWorkflowTokens = [
       'name: Build Test / ${{ matrix.platform }}',
       'platform: win',
       'platform: mac',
+      'name: Build unpacked Linux application',
+      'npx electron-builder --linux dir --publish never',
       'name: Build complete Linux installer and unpacked application',
       'npx electron-builder --linux tar.gz --publish never',
+      'name: Restore native module cache',
+      'path: desktop/.electron-native-cache',
     ],
   },
 ];
@@ -130,7 +134,7 @@ export const requiredWorkflowTokens = [
 /**
  * The per-PR browser gates (add-customizer-pr-regression-gate, and the seam
  * trust anchors of add-seam-trust-anchor-journeys) run in the `e2e` job, a
- * fixed two-shard matrix. Every token is scoped to that job block, so the
+ * fixed four-shard matrix. Every token is scoped to that job block, so the
  * contract pins the gate itself, not the workflow's vocabulary:
  *
  * - each shard fetches the record-sheet assets in ITS OWN checkout and
@@ -151,10 +155,10 @@ export const requiredWorkflowJobContracts = [
   {
     id: 'customizer-regressions-gate',
     jobId: 'e2e',
-    jobName: 'E2E (${{ matrix.shard }}/2)',
+    jobName: 'E2E (${{ matrix.shard }}/4)',
     requiredNeeds: ['detect-changes'],
     timeoutMinutes: budgets.timeouts.e2e.minutes,
-    matrixShards: [1, 2],
+    matrixShards: [1, 2, 3, 4],
     skipIf:
       "needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'",
     changeGateIf: E2E_CHANGE_GATE_IF,
@@ -203,7 +207,7 @@ export const requiredWorkflowJobContracts = [
           '--project=chromium',
           ...gates.options,
           `--workers=${gates.workers}`,
-          '--shard=${{ matrix.shard }}/2',
+          '--shard=${{ matrix.shard }}/4',
           '--output=test-results/gates',
         ].join(' '),
         env: {

@@ -52,13 +52,14 @@ function fixture(fn) {
     fs.rmSync(root, { recursive: true, force: true });
   }
 }
-function run(root, args = []) {
+function run(root, args = [], env = process.env) {
   return spawnSync(
     process.execPath,
     [path.join(source, 'scripts/ci/budget-artifacts.mjs'), ...args],
     {
       cwd: root,
       encoding: 'utf8',
+      env,
       timeout: 30000,
       stdio: ['ignore', 'pipe', 'pipe'],
     },
@@ -302,4 +303,37 @@ test('installer CLI counts every installer, rejects missing inventory and cannot
         files: [],
       }),
     );
+  }));
+
+test('installer census records the archive compression level and unpacked bytes', () =>
+  fixture((root, write) => {
+    write('desktop/release-upload/MekStation.exe', 'installer');
+    write('desktop/release/linux-unpacked/MekStation', 'runtime');
+    write('desktop/release/linux-unpacked/resources/app.asar', 'asar');
+    const { ELECTRON_BUILDER_COMPRESSION_LEVEL: _ignored, ...base } =
+      process.env;
+    const census = (env) => {
+      const result = run(
+        root,
+        ['--kind', 'installers', '--report', 'r.json'],
+        env,
+      );
+      assert.equal(result.status, 0, result.stderr);
+      return JSON.parse(fs.readFileSync(path.join(root, 'r.json'))).metrics;
+    };
+    const release = census(base);
+    assert.equal(release.compressionLevel, 'default(9)');
+    assert.equal(
+      release.unpackedBytes,
+      Buffer.byteLength('runtime') + Buffer.byteLength('asar'),
+    );
+    assert.equal(
+      census({ ...base, ELECTRON_BUILDER_COMPRESSION_LEVEL: '3' })
+        .compressionLevel,
+      '3',
+    );
+    fs.rmSync(path.join(root, 'desktop/release/linux-unpacked'), {
+      recursive: true,
+    });
+    assert.equal(census(base).unpackedBytes, null);
   }));

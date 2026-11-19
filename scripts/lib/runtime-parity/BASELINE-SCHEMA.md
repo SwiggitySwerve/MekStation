@@ -72,6 +72,29 @@ which is not a regression of the sheet. `previewEqualsStatus` (true -> false) is
 | `loadedMountLosses`        | set      | loaded mounts no reopened mount accounts for, as canonical JSON (sorted keys)                                                                               |
 | `reopenValid`              | bool     | validity after reopen is `valid` (valid at load -> invalid after reopen is the regression)                                                                  |
 
+### Families
+
+Each family has its own fact table (`factDefs(measure, family)` in `facts.mjs`) and its own baseline files, and a run and a
+gate cover exactly one family (`--family`, default `battlemechs`). The tables above are the `battlemechs` ones. `facts.mjs`
+stays the one deriver for every family, so its blob is shared: changing it rebaselines every family's header.
+
+`vehicles`, `load`: `bvExact`, `bvDistance`, `validity` and `previewEqualsStatus` as above. Reported, not gated:
+`previewStatusDistance`, `massJavaDistance` (`abs(status-bar used mass - Java TestTank weightExact)`) and `crewOracle`, which
+is **unavailable** (always `null`): no crew oracle is committed to the repository yet.
+
+`vehicles`, `reopen`:
+
+| fact                                                                   | kind     | meaning                                                                                       |
+| ---------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------- |
+| `reopenLoad`, `reopenJava`, `reopenJavaDistance`, `reopenLoadDistance` | as above | as above                                                                                      |
+| `reopenMass`                                                           | bool     | unrounded used mass equal at both ends (a `null` mass at either end is `false`, as a BV is)   |
+| `reopenVerdict`                                                        | bool     | validity, `complete` and the reason codes (rule ids) equal at both ends                       |
+| `reopenMP`                                                             | bool     | cruise, flank and jump MP equal                                                               |
+| `reopenCrew`                                                           | bool     | the loaded crew equal (an explicit `null` at both ends is equal)                              |
+| `reopenValid`                                                          | bool     | validity after reopen is `valid`                                                              |
+| `documentLosses`                                                       | set      | `lost:<path>` / `changed:<path>` for each source key path the save lost or changed            |
+| `mountLosses`                                                          | set      | `-<location>:<id>#<n>` source mounts missing after save, `+...` saved mounts the source lacks |
+
 ### Set members
 
 A cell is `<location code>:<zero-based slot>:<token text>`, e.g. `LT:4:AC/10`; the token may contain colons (split at the
@@ -90,6 +113,10 @@ another line did.
 `referenceSha256` is the sha256 of the committed Java reference the facts were derived against.
 
 ## Baseline: two text files per measure
+
+A family other than `battlemechs` names its files `baseline-<family>-<measure>.json` and `baseline-<family>-<measure>.sets.ndjson`
+(`baselinePath` / `baselineSetsPath` in `gate.mjs`); the battlemech files keep the names below. Every unit key in a family's
+baseline starts with `<family>/` (`BASELINE_MALFORMED` otherwise).
 
 Written **only** by a port's `--write-baseline`; never by hand (the population hash, the sidecar check and the notes
 make a hand edit fail closed). Both are text, one unit per line, sorted, so a PR diff names the units that moved. **No

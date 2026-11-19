@@ -1,5 +1,19 @@
 # Deterministic CI budgets
 
+Count gates are report-only (PARITY-PLAN §193.2). `budget-check.mjs` still
+computes every count on every run and prints typical PR jobs and the Jest cache
+census (`Cache: … files, N unkeyable, M repo-wide`); the root/desktop dependency
+counts are printed only when over, and every count is in the
+`ci-budget-repository` artifact. A count over its configured value prints
+`<key> over budget (report-only, +delta): …` and a `::warning` annotation on
+GitHub Actions, keeps the PR and changed-test attribution, and the run passes.
+The values are kept in the `overBudget` list of the `ci-budget-repository`
+census artifact. What still fails the step: a workflow timeout that differs
+from its budget, an invalid or malformed `budgets.json`, a byte limit in the
+tree, a missing/unknown census, an unsupported workflow shape, a
+representative profile missing or reclassified, a manifest/lockfile disagreement and malformed PR labels. A raise
+of only count keys passes the approval check as `count-report-only`.
+
 `budget-config.mjs` owns the schema, canonical numeric IDs, units, deltas and
 lowering API. `config/ci/budgets.json` declares non-size limits. Package size
 and memory growth are advisory observations, never acceptance or approval gates.
@@ -21,8 +35,8 @@ present objects require exactly both fields. Canonical IDs are
 `reporting.jobMinutes` (minutes) and `reporting.criticalPathMs` (ms).
 `reportingLimits` and `projectTimingLimits` expose configured values only.
 First additions constrain previously unconstrained metrics and are initial
-baselines, scoped solely to these IDs. Increases/removals require the existing
-owner label and exact-head approval; other simultaneous relaxations still count.
+baselines, scoped solely to these IDs. Increases/removals are report-only
+counts (PARITY-PLAN §193.2); other simultaneous relaxations still count.
 Manual lowering may preserve positive fractions; automatic timing ratchets stay
 disabled until a canonical complete comparable timing projection exists.
 These display caps do not change runtime assertions, hard budgets or label
@@ -38,11 +52,20 @@ The first stage leaves the config unchanged. Only after a main push runs the
 new Guard may the second stage initialize exact measured main R7 p75 times1.15;
 retain raw cohort/run/head/attempt evidence and never reset a later cap upward.
 
-The first enforced count baseline is 10 induced jobs, 57 unkeyable files and
+The first count baseline is 10 induced jobs, 57 unkeyable files and
 93 repo-wide keys. Root authorized this bootstrap before any cap existed on
-main. `targets` retains 9/55/80 as tracked goals, displayed through
-`budgetTargetGaps`; missing observations remain unknown. Future relaxations
-require G3's label and exact-head owner approval. Automated ratchets only lower.
+main. The repo-wide limit is now 94: the owner raised it by one for
+`src/services/construction/__tests__/editableMechProjection.callers.test.ts`
+(PARITY-PLAN §185). `targets` retains 9/55/80 as tracked goals, displayed through
+`budgetTargetGaps`; missing observations remain unknown. Since PARITY-PLAN
+§193.2 these counts and their targets are report-only and raising them needs no
+approval. Non-count relaxations (timeouts, profiles) require G3's label and
+exact-head owner approval; an owner-authored raise
+instead needs the label and a matching owner-ruling entry in
+`config/ci/approved-budget-raises.json` at the PR's base commit, so the raise PR
+merges main and pushes after its entry lands. A reviewer checks each entry's
+cited ruling against PARITY-PLAN; null-valued raises cannot use the record
+(`docs/ci/gardening.md`, Budget raises). Automated ratchets only lower.
 The extra trusted Guard entered main in #2666 (597976eb3); including it corrects
 9-to-10 job accounting. The 55-to-57 and 80-to-93 gaps use the full actual-keyer
 census; no individual introducing merge has been established by cheap history.
@@ -52,7 +75,7 @@ reporting and automatically induced trusted workflow jobs. Gated jobs remain
 visible in the expanded census. Desktop/global-CI/budget-change profiles are
 explicitly exceptional. Unknown secondary job conditions count as active.
 `workflow_run` cycles and unsupported matrices/conditions fail closed. The
-post-run guard has a separate trust boundary and counts toward the enforced ten.
+post-run guard has a separate trust boundary and counts toward the reported ten.
 The primary fan-out must exactly match the aggregator's `needs`; its runtime
 boundary rejects empty/missing results and every unproved skip.
 
@@ -66,16 +89,15 @@ count whenever their source workflow counts.
 Cache counts come from native Jest selection (unit/corpus with the production
 split/performance flags) and `scripts/jest/cached-tests.js`'s actual keyer.
 Full sorted selected/unkeyable/repo-wide file lists accompany every count.
-Neither gate changes keyer semantics, test selection or coverage.
+Neither count changes keyer semantics, test selection or coverage.
 
 Root and desktop lockfile v3 entries exclude the root package entry. Direct
 dependencies are unique names across dependencies, devDependencies,
 optionalDependencies and peerDependencies. Manifest/lock disagreement fails.
-Growth requires `ci-dependency-growth`; raising the configured baseline is a
-budget raise, subject to G3's separate exact-head owner approval policy.
-`budget-dependencies.mjs` owns this count and label rule. Both the required
-primary aggregator and the trusted live approval workflow call the same policy;
-head, label or review changes are reread before publishing a status.
+Growth over the configured baseline is report-only (PARITY-PLAN §193.2), and
+so is raising the baseline. `budget-dependencies.mjs` owns this count. The
+trusted live approval policy still reads both manifests and lockfiles at the
+PR head and fails closed (`invalid-dependencies`) when they disagree.
 
 Timeouts are static configured minutes, ceil(twice the recorded median seconds
 divided by 60), minimum one minute. Config retains actual GitHub run/job samples

@@ -48,10 +48,10 @@ function buildFixtureEvents(gameId: string): readonly IGameEvent[] {
       phase: GamePhase.Initiative,
       payload: {
         config: {
-          playersCount: 2,
-          maxTurns: 50,
-          rules: { quickStart: true },
-          mapId: 'test-map',
+          mapRadius: 5,
+          turnLimit: 50,
+          victoryConditions: ['destruction'],
+          optionalRules: [],
         },
         units: [],
       },
@@ -82,6 +82,7 @@ function buildFixtureEvents(gameId: string): readonly IGameEvent[] {
         facing: 0,
         movementType: 'walk',
         mpUsed: 1,
+        heatGenerated: 1,
       },
     },
     {
@@ -100,6 +101,7 @@ function buildFixtureEvents(gameId: string): readonly IGameEvent[] {
         facing: 3,
         movementType: 'walk',
         mpUsed: 1,
+        heatGenerated: 1,
       },
     },
     {
@@ -112,7 +114,7 @@ function buildFixtureEvents(gameId: string): readonly IGameEvent[] {
       phase: GamePhase.End,
       payload: {
         winner: 'player',
-        reason: 'opponent-destroyed',
+        reason: 'destruction',
       },
     },
   ] as readonly IGameEvent[];

@@ -31,8 +31,11 @@ import { stampPackIds } from '../../src/lib/scenarioPacks/packStamping';
 import { loadCampaignPack } from '../helpers/scenarioPackLoading';
 import { getManifestEntry } from './manifest';
 
-/** The unit whose damage the fixture deterministically produces tickets for (`ff-roster-unit-3` -> `hunchback-hbk-4g` -> `player-1-hunchback-hbk-4g`, mint-time verified against the committed payload). */
-const DAMAGED_UNIT_SESSION_ID = 'player-1-hunchback-hbk-4g';
+/**
+ * The damaged Hunchback whose untouched (`parts-needed`) tickets are still listed after the post-load advance-day. Since T1 the repair bay groups by ROSTER unit id, so this is now a roster id; the name is kept so the assertion below stays byte-identical.
+ * `ff-roster-unit-7` (`hunchback-hbk-4g`, team 7's battle): the old session key `player-1-hunchback-hbk-4g` held this unit's damage (CT armor 20 / RT armor 5 tickets), mint-time verified against the committed payload. `ff-roster-unit-3`, the other Hunchback, carries the D8-prioritised tickets that finish during the advance-day.
+ */
+const DAMAGED_UNIT_SESSION_ID = 'ff-roster-unit-7';
 
 /** Every repair-ticket ROW testid — `repair-ticket-${ticketId}` where `ticketId` itself starts with the literal `ticket-` prefix, distinguishing the row from its `repair-ticket-hours-*`/`repair-ticket-parts-*`/`repair-ticket-up-*`/`repair-ticket-down-*` sibling testids (all of which ALSO start with `repair-ticket-` but never `repair-ticket-ticket-`). */
 const REPAIR_TICKET_ROW_PREFIX = 'repair-ticket-ticket-';

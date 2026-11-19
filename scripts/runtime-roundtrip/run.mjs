@@ -29,12 +29,16 @@ export const runJestCapture = jestCapture({
 const spec = {
   measure: 'reopen',
   repoRoot,
-  supportedFamilies: ['battlemechs'],
-  capture: runJestCapture,
-  toRow: capturedToRow,
-  summarize,
-  facts: reopenFacts,
-  differencesFile: 'reopen-differences.ndjson',
+  // One entry per supported family; vehicles join in V2 with their own capture.
+  families: {
+    battlemechs: {
+      capture: runJestCapture,
+      toRow: capturedToRow,
+      summarize,
+      facts: reopenFacts,
+      differencesFile: 'reopen-differences.ndjson',
+    },
+  },
 };
 
 export const main = (argv = process.argv.slice(2), deps = {}) =>

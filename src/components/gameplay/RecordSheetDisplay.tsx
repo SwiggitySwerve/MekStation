@@ -22,6 +22,7 @@ import {
   IWeaponStatus,
 } from '@/types/gameplay';
 
+import { PendingPilotingChecks } from './PendingPilotingChecks';
 import { LOCATION_ORDER, REAR_ARMOR_LOCATIONS } from './recordSheet.helpers';
 import {
   LocationStatusRow,
@@ -233,6 +234,8 @@ export function RecordSheetDisplay({
           conscious={state.pilotConscious}
         />
       </div>
+
+      <PendingPilotingChecks checks={state.pendingPSRs ?? []} />
 
       {/* Heat */}
       <div className="mb-4">

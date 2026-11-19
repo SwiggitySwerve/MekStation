@@ -17,6 +17,7 @@
  */
 
 import type { InteractiveSession } from '@/engine/InteractiveSession';
+import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 import type {
   IEventMessage,
@@ -51,6 +52,7 @@ import type { IMatchSocket } from './ServerMatchSocketTypes';
  * one-directional.
  */
 export interface IServerMatchHostInternals extends IServerMatchHostCaptureContext {
+  readonly peekNewEvents: () => readonly IGameEvent[];
   readonly matchId: string;
   readonly store: IMatchStore;
   readonly session: InteractiveSession;
@@ -164,6 +166,7 @@ export function buildIntentContext(
     closeMatch: host.closeMatch,
     handleLobbyIntent: host.handleLobbyIntent,
     installFreshCapture: host.installFreshCapture,
+    peekNewEvents: host.peekNewEvents,
     drainNewEvents: host.drainNewEvents,
     stampRollsOnNewEvents: host.stampRollsOnNewEvents,
     tryPublishOutcome: host.tryPublishOutcome,

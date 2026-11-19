@@ -1,16 +1,40 @@
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
 import { exactKeys, loadBudgetTree, METRICS_SCHEMA } from './budget-config.mjs';
-import { dependencyViolations } from './budget-dependencies.mjs';
+import { dependencyOverBudget } from './budget-dependencies.mjs';
 import {
   collectRepositoryMetrics,
   validateRepositoryMetrics,
 } from './budget-metrics.mjs';
 
-export function checkRepositoryMetrics(config, metrics, labels) {
+const ATTRIBUTION_LIMIT = 10;
+const CENSUS_WORDS = {
+  unkeyableTests: 'unkeyable',
+  repoWideKeys: 'repo-wide',
+};
+
+/** Say which PR and which changed tests caused a cache-census breach. */
+function breachAttribution(census, word, { prNumber, changedFiles } = {}) {
+  if (!prNumber) return '';
+  const pr = ` (PR #${prNumber})`;
+  if (!Array.isArray(changedFiles)) return pr;
+  const changed = new Set(changedFiles);
+  const hits = census.filter((entry) => changed.has(entry.file));
+  if (!hits.length)
+    return `${pr}: no changed test is itself ${word}; a shared input changed, see the census artifact ci-budget-repository.`;
+  const named = hits.slice(0, ATTRIBUTION_LIMIT).map((entry) => {
+    const why = [].concat(entry.reasons ?? entry.reason ?? []);
+    return `${entry.file} (${why.slice(0, 3).join('; ')}${why.length > 3 ? `; +${why.length - 3} more` : ''})`;
+  });
+  const more = hits.length - named.length;
+  return `${pr}. Changed in this PR and ${word === 'repo-wide' ? 'keyed repo-wide' : word}: ${named.join(', ')}${more > 0 ? `, +${more} more` : ''}.`;
+}
+
+export function checkRepositoryMetrics(config, metrics, labels, context) {
   validateRepositoryMetrics(metrics);
   exactKeys(
     metrics.workflow.timeouts,
@@ -30,12 +54,25 @@ export function checkRepositoryMetrics(config, metrics, labels) {
     throw new Error('Representative profile census missing or reclassified');
   if (!Array.isArray(labels) || labels.some((l) => typeof l !== 'string'))
     throw new Error('PR labels missing/unknown');
+  // Timeouts block; counts are report-only (PARITY-PLAN §193.2).
   const violations = [];
+  const overBudget = [];
   const fail = (code, message) => violations.push({ code, message });
+  const over = (code, value, limit, message) =>
+    overBudget.push({
+      code,
+      key: `limits.${code}`,
+      value,
+      limit,
+      delta: value - limit,
+      message,
+    });
   for (const profile of metrics.workflow.profiles) {
     if (profile.typical && profile.active > config.limits.typicalPrJobs)
-      fail(
+      over(
         'typicalPrJobs',
+        profile.active,
+        config.limits.typicalPrJobs,
         `${profile.id}: ${profile.active} active / ${profile.expanded} expanded jobs > ${config.limits.typicalPrJobs}`,
       );
   }
@@ -53,12 +90,105 @@ export function checkRepositoryMetrics(config, metrics, labels) {
     if (!Array.isArray(census) || !metrics.cache.files.length)
       throw new Error(`${id}: missing actual census`);
     if (census.length > config.limits[id])
-      fail(id, `${census.length} > ${config.limits[id]}`);
+      over(
+        id,
+        census.length,
+        config.limits[id],
+        `${census.length} > ${config.limits[id]}${breachAttribution(census, CENSUS_WORDS[id], context)}`,
+      );
   }
-  violations.push(
-    ...dependencyViolations(config, metrics.dependencies, labels),
-  );
-  return { schema: METRICS_SCHEMA, metrics, violations };
+  overBudget.push(...dependencyOverBudget(config, metrics.dependencies));
+  return { schema: METRICS_SCHEMA, metrics, violations, overBudget };
+}
+
+const git = (args, root) =>
+  execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
+
+/**
+ * The diff that is exactly the PR's own change. A pull_request checkout is a
+ * merge commit whose first parent is the main it was merged with; anything
+ * else falls back to the event's base SHA, which can lag main.
+ */
+export function changedFilesRange(headParentCount, baseSha) {
+  if (headParentCount === 2)
+    return { source: 'merge commit HEAD^1..HEAD', args: ['HEAD^1', 'HEAD'] };
+  if (/^[0-9a-f]{7,64}$/i.test(baseSha ?? ''))
+    return {
+      source: `BUDGET_BASE_SHA ${baseSha}...HEAD`,
+      args: [`${baseSha}...HEAD`],
+    };
+  return undefined;
+}
+
+function headParentCount(root) {
+  try {
+    return (
+      git(['rev-list', '--parents', '-n', '1', 'HEAD'], root).trim().split(' ')
+        .length - 1
+    );
+  } catch {
+    return undefined;
+  }
+}
+
+/** Files the PR changed and where that list came from; files is undefined when unknown. */
+export function prChangedFiles(
+  baseSha,
+  root = process.cwd(),
+  parentCount = headParentCount(root),
+) {
+  const range = changedFilesRange(parentCount, baseSha);
+  if (!range)
+    return {
+      source:
+        'none (HEAD is not a merge and BUDGET_BASE_SHA is unset or invalid)',
+      files: undefined,
+    };
+  try {
+    return {
+      source: range.source,
+      files: git(['diff', '--name-only', ...range.args], root)
+        .split('\n')
+        .filter(Boolean),
+    };
+  } catch {
+    return { source: `${range.source} (git diff failed)`, files: undefined };
+  }
+}
+
+const annotationData = (text) =>
+  text.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+
+/** Print each violation; on GitHub Actions also surface it as an annotation. */
+export function reportViolations(
+  violations,
+  env = process.env,
+  log = console.error,
+) {
+  for (const { code, message } of violations) {
+    const line = `${code}: ${message}`;
+    log(line);
+    if (env.GITHUB_ACTIONS === 'true')
+      log(`::error title=CI budget::${annotationData(line)}`);
+  }
+}
+
+/** Print each count over its budget; a warning annotation, never a failure. */
+export function reportOverBudget(
+  overBudget,
+  env = process.env,
+  log = console.log,
+) {
+  for (const { key, delta, message } of overBudget) {
+    const line = `${key} over budget (report-only, +${delta}): ${message}`;
+    log(line);
+    if (env.GITHUB_ACTIONS === 'true')
+      log(`::warning title=CI budget (report-only)::${annotationData(line)}`);
+  }
 }
 
 export function run(argv, root = process.cwd()) {
@@ -79,7 +209,21 @@ export function run(argv, root = process.cwd()) {
         : '[]'),
   );
   const metrics = collectRepositoryMetrics(root, config);
-  const result = checkRepositoryMetrics(config, metrics, labels);
+  const prNumber =
+    process.env.GITHUB_EVENT_NAME === 'pull_request'
+      ? process.env.PR_NUMBER
+      : undefined;
+  const changed = prNumber
+    ? prChangedFiles(process.env.BUDGET_BASE_SHA, root)
+    : undefined;
+  if (changed)
+    console.log(
+      `PR #${prNumber} changed files: ${changed.files?.length ?? 'unknown'}, from ${changed.source}`,
+    );
+  const result = checkRepositoryMetrics(config, metrics, labels, {
+    prNumber,
+    changedFiles: changed?.files,
+  });
   if (values.report) {
     const destination = path.resolve(root, values.report);
     fs.mkdirSync(path.dirname(destination), { recursive: true });
@@ -92,8 +236,13 @@ export function run(argv, root = process.cwd()) {
   console.log(
     `Cache: ${metrics.cache.files.length} files, ${metrics.cache.unkeyable.length} unkeyable, ${metrics.cache.repoWide.length} repo-wide`,
   );
-  for (const violation of result.violations)
-    console.error(`${violation.code}: ${violation.message}`);
+  reportOverBudget(result.overBudget);
+  reportViolations(result.violations);
+  return exitCodeFor(result);
+}
+
+// PARITY-PLAN §193.2: only violations fail the step; overBudget counts never do.
+export function exitCodeFor(result) {
   return result.violations.length ? 1 : 0;
 }
 

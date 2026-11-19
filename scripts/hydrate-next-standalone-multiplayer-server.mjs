@@ -10,9 +10,14 @@ import {
   pruneDeploymentFiles,
 } from './next/deployment-files.mjs';
 import {
+  assertNativeBindingsLoad,
+  NATIVE_CHECK_SKIP_ENV,
+} from './next/native-bindings.mjs';
+import {
   collectRuntimePackages,
   collectTurbopackExternals,
   createPackageSourcePreflight,
+  runtimeLoaders,
 } from './next/runtime-packages.mjs';
 
 const root = process.cwd();
@@ -34,8 +39,7 @@ const megaMekBVCacheRelativePath = path.join(
   'megamek-bv-cache.json',
 );
 
-// tsx owns its nested compiler and platform binary through its package graph.
-const runtimeModuleDirs = ['tsx', 'ws'];
+const runtimeModuleDirs = runtimeLoaders;
 
 function rel(filePath) {
   return path.relative(root, filePath);
@@ -479,6 +483,16 @@ async function main() {
         `Runtime package ${request} resolved outside standalone output: ${resolved}`,
       );
     }
+  }
+
+  // Every native binding left in the image must load with the libraries the
+  // image carries (PARITY-PLAN 1.0.53: sharp shipped without libvips).
+  if (process.env[NATIVE_CHECK_SKIP_ENV] === '1') {
+    console.log(
+      `[hydrate] native load check skipped (${NATIVE_CHECK_SKIP_ENV}=1, fixture only)`,
+    );
+  } else {
+    assertNativeBindingsLoad(standaloneDir);
   }
 
   const hydratedServer = fs.readFileSync(generatedServerPath, 'utf8');

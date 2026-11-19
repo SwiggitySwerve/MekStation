@@ -1253,3 +1253,18 @@ and exported display names. Both are lines in `NATIVE_IDENTITY_CORRECTIONS`
 already lives, so the loader, registry, BV and printing paths agree. No catalog
 entry changed. A Nova CEWS tank weighs 3.5 t more than the same tank without it:
 1.5 t of equipment and 2 t of heat sinks (pinned sweep rows).
+
+## Native-handler validation ownership
+
+`vehicleValidation.ts` exports `validateVehicleSourceRules` as the public vehicle
+validation boundary. `sourceRules.ts` owns the existing Tank, VTOL and support
+handler predicates; handlers pass their plain domain facts and keep service
+mass-resolution warnings and cargo information at their existing boundary.
+`equipmentValidation.ts` owns the equipment predicates formerly declared in the
+facade. Every existing public equipment export remains available through it.
+
+The shared `unitTonnage.ts` and `unitWeight.ts` helpers retain the existing range
+and total-weight comparisons, guards and diagnostic formatting. The native
+handler result vector (Boolean, errors, warnings and infos) must stay identical
+for all pinned source keys before and after this extraction. This refactor does
+not change crew defaults, turret eligibility, editor validation or any rule.

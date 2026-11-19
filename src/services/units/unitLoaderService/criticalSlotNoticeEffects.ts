@@ -96,7 +96,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
         CriticalSlotRecoveryResponsibility.PR_D,
         'Ammo explosion protection is lost; BV changes.',
         'King Crab KGC-000',
-        'CASE protection and BV: King Crab KGC-000',
+        'CASE protection and BV are lost when CASE stays unrecovered: King Crab KGC-000',
       ),
     ],
   },
@@ -244,7 +244,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
         CriticalSlotRecoveryResponsibility.PR_D,
         unestablished,
         'Scarecrow UCU-F4',
-        'unestablished electronics: Scarecrow UCU-F4',
+        'unestablished electronics (Chameleon): Scarecrow UCU-F4',
       ),
     ],
   },
@@ -387,6 +387,11 @@ export function classifyCriticalSlotRecoveryKind(identity: {
   readonly equipmentCategory?: EquipmentCategory;
   readonly equipmentId?: string;
   readonly physicalWeapon: boolean;
+  readonly lookupToken: string;
+  readonly equipmentName?: string;
+  /** The resolved id is an exact `criticalSlotEquipment` vocabulary row and
+   * the cell's lookup token is one of that row's listed native spellings. */
+  readonly vocabularyEquipment: boolean;
 }): CriticalEntryKind {
   if (
     identity.markerKind === 'armor-marker' ||
@@ -397,6 +402,17 @@ export function classifyCriticalSlotRecoveryKind(identity: {
   if (identity.equipmentCategory === EquipmentCategory.AMMUNITION)
     return 'ammunition';
   if (identity.equipmentId === 'bomb-bay') return 'bomb-bay';
+  // Admission is the exact resolved id; this table only names its PR-D kind.
+  if (identity.vocabularyEquipment) {
+    const { kind } = classifyCriticalSlotNoticeIdentity({
+      lookupToken: identity.lookupToken,
+      equipmentId: identity.equipmentId,
+      equipmentName: identity.equipmentName,
+      equipmentCategory: identity.equipmentCategory,
+    });
+    if (kind === CriticalSlotEntryKind.CASE) return 'case';
+    if (kind === CriticalSlotEntryKind.ELECTRONICS) return 'electronics';
+  }
   if (
     identity.equipmentCategory &&
     (isWeaponCategory(identity.equipmentCategory) || identity.physicalWeapon)

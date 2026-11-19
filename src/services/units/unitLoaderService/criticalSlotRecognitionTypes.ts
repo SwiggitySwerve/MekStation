@@ -28,6 +28,8 @@ export type CriticalEntryKind =
   | 'heat-sink'
   | 'bomb-bay'
   | 'weapon'
+  | 'case'
+  | 'electronics'
   | 'unclassified';
 
 export type CriticalEntryEffect =
@@ -71,6 +73,10 @@ export interface ICriticalSlotRecoveryInput extends ICriticalSlotRecognitionInpu
   readonly entry: IRecognizedCriticalEntry;
   readonly location: MechLocation;
   readonly locationEntries: readonly IRecognizedCriticalEntry[];
+  /** Every recognised cell of the unit, coverage refreshed with `locationEntries`.
+   * Required: unit-wide rules (one targeting computer per unit) must never fall
+   * back to per-location counting. */
+  readonly unitEntries: readonly IRecognizedCriticalEntry[];
   /** Legacy summary-dependent ammo/sink/bay admission; not a global gate. */
   readonly physicalOnly?: boolean;
   /** Existing reservations, including invalid serialized allocations. */

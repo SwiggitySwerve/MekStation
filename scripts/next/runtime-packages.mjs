@@ -153,16 +153,21 @@ export function collectTurbopackExternals(
   return packages.sort((a, b) => a.target.localeCompare(b.target));
 }
 
-/** Discover raw server imports without executing server.js or its TS modules. */
-export async function collectRuntimePackages(
-  root,
-  loaders,
-  preflightSource = createPackageSourcePreflight(root),
-) {
-  const server = path.join(root, 'server.js');
-  const { metafile } = await build({
+// Packages server.js loads directly. tsx owns its nested compiler and platform
+// binary through its package graph.
+export const runtimeLoaders = ['tsx', 'ws'];
+
+/** Bare package requests of server.js and the raw-TS graph it loads, plus the
+ * loaders. Executes nothing and needs no physical install of the packages. */
+export async function discoverRuntimeRequests(root, loaders) {
+  const { metafile } = await bundleServerGraph(root);
+  return [...runtimeRequests(metafile, loaders)].sort();
+}
+
+function bundleServerGraph(root) {
+  return build({
     absWorkingDir: root,
-    entryPoints: [server],
+    entryPoints: [path.join(root, 'server.js')],
     bundle: true,
     treeShaking: false,
     platform: 'node',
@@ -172,8 +177,11 @@ export async function collectRuntimePackages(
     write: false,
     logLevel: 'silent',
   });
+}
+
+function runtimeRequests(metafile, loaders) {
   // Output imports exclude type-only declarations retained in input metadata.
-  const requests = new Set([
+  return new Set([
     ...loaders,
     ...Object.values(metafile.outputs).flatMap((output) =>
       output.imports
@@ -181,6 +189,17 @@ export async function collectRuntimePackages(
         .map((entry) => entry.path),
     ),
   ]);
+}
+
+/** Discover raw server imports without executing server.js or its TS modules. */
+export async function collectRuntimePackages(
+  root,
+  loaders,
+  preflightSource = createPackageSourcePreflight(root),
+) {
+  const server = path.join(root, 'server.js');
+  const { metafile } = await bundleServerGraph(root);
+  const requests = runtimeRequests(metafile, loaders);
   const directories = new Set();
   function visit(name, importer, optional = false) {
     // Next owns its own framework deployment and native dependencies. This

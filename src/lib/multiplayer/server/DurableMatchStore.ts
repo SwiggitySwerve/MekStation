@@ -65,6 +65,10 @@ import {
 } from '@/services/persistence/sqliteConstraintErrors';
 import { MATCH_ROOM_CODES_MIGRATION } from '@/services/persistence/SQLiteService.matchRoomCodes.migration';
 import { assertMatchCreateStatus } from '@/types/multiplayer/MatchStatus';
+import {
+  prepareEventForSerialization,
+  serializeEvent,
+} from '@/utils/gameplay/gameEvents/serialization';
 
 import type { ICapabilityDatabaseHandle } from './durableCapabilityPorts';
 import type {
@@ -142,6 +146,7 @@ import {
 import {
   getCombatJournalAuthorityMode,
   recordProcessShadowComparison,
+  verifyAppliedDigest,
 } from './matchJournalAuthority';
 import { lobbyMatchMeta, metaRevision, patchMatchMeta } from './matchRoomCodes';
 import { foldMatchSession } from './MatchSessionProjector';
@@ -781,7 +786,11 @@ export class DurableMatchStore
         throwRoomCodeWriteError(error, indexedRoomCode);
       }
       for (const event of initialEvents) {
-        insertEvent.run(meta.matchId, event.sequence, JSON.stringify(event));
+        insertEvent.run(
+          meta.matchId,
+          event.sequence,
+          serializeEvent(event, 'match-broadcast'),
+        );
       }
     });
     return meta.matchId;
@@ -903,8 +912,11 @@ export class DurableMatchStore
           storedEvents.length === batch.events.length &&
           batch.events.every(
             (event, index) =>
-              canonicalizeJsonV1(withoutUndefinedProperties(event)) ===
-              canonicalizeJsonV1(storedEvents[index]),
+              canonicalizeJsonV1(
+                withoutUndefinedProperties(
+                  prepareEventForSerialization(event, 'match-broadcast'),
+                ),
+              ) === canonicalizeJsonV1(storedEvents[index]),
           );
         // Keep the persisted fingerprint format stable, but close over
         // fields the journal identity also consumes (full events + digest).
@@ -967,7 +979,7 @@ export class DurableMatchStore
       const middleIndex = Math.floor(batch.events.length / 2);
       for (let index = 0; index < batch.events.length; index += 1) {
         const event = batch.events[index];
-        const eventJson = JSON.stringify(event);
+        const eventJson = serializeEvent(event, 'match-broadcast');
         if (
           index === middleIndex &&
           consumeE2EFault('append-event-insert', matchId)
@@ -1238,8 +1250,11 @@ export class DurableMatchStore
       stored.length >= events.length &&
       events.every(
         (event, index) =>
-          canonicalizeJsonV1(withoutUndefinedProperties(event)) ===
-          canonicalizeJsonV1(withoutUndefinedProperties(stored[index])),
+          canonicalizeJsonV1(
+            withoutUndefinedProperties(
+              prepareEventForSerialization(event, 'match-broadcast'),
+            ),
+          ) === canonicalizeJsonV1(withoutUndefinedProperties(stored[index])),
       );
     if (!exactOpening || firstNonContiguousSequence(batch) !== null) {
       throw new Error('journal-seed:opening-history-mismatch');
@@ -1373,7 +1388,7 @@ export class DurableMatchStore
       }
       const postState = foldMatchSession(matchId, batchEvents, reconstructed);
       const postDigest = digestCommandPostState(postState);
-      if (receipt.expectedPostStateDigest !== postDigest) {
+      if (!verifyAppliedDigest(postDigest, receipt.expectedPostStateDigest)) {
         return {
           kind: 'blocked',
           reason: 'partial-history',
@@ -1503,7 +1518,7 @@ export class DurableMatchStore
             `INSERT INTO mp_match_events (match_id, sequence, event_json)
              VALUES (?, ?, ?)`,
           )
-          .run(mId, evt.sequence, JSON.stringify(evt));
+          .run(mId, evt.sequence, serializeEvent(evt, 'match-broadcast'));
       } catch (e) {
         // Backstop: a concurrent writer won the race between the
         // SELECT above and this INSERT — the unique constraint catches

@@ -259,6 +259,38 @@ describe('CampaignDashboardPage reactivity', () => {
     global.fetch = originalFetch;
   });
 
+  it('F6: dismissing two legacy damage flags before a re-render keeps both dismissed', async () => {
+    const flag = (sessionUnitId: string) => ({
+      kind: 'combat-state' as const,
+      sessionUnitId,
+      reason: 'ambiguous-roster-unit' as const,
+      candidateRosterUnitIds: [],
+      matchIds: ['m-1'],
+    });
+    act(() => {
+      mockCampaignStore.getState().updateCampaign({
+        legacyCombatStateFlags: [
+          flag('player-1-atlas-as7-d'),
+          flag('player-2-locust-lct-1v'),
+        ],
+      });
+    });
+    render(<CampaignDashboardPage />);
+    const dismiss = await screen.findAllByText('Dismiss');
+    expect(dismiss).toHaveLength(2);
+
+    // Both clicks land before React re-renders: each handler must read the
+    // store's current flags, not the snapshot it was rendered with.
+    act(() => {
+      dismiss[0].click();
+      dismiss[1].click();
+    });
+
+    expect(
+      mockCampaignStore.getState().campaign?.legacyCombatStateFlags,
+    ).toEqual([]);
+  });
+
   it('shows an unassigned pilot blocker and its assignment link on the roster card', () => {
     const { buildMissionReadinessProjection } = jest.requireActual<
       typeof import('@/lib/campaign/readiness/missionReadinessProjection')

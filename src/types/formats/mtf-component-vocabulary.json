@@ -232,6 +232,141 @@
       "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:9896"
     }
   },
+  "criticalSlotEquipment": [
+    {
+      "id": "case",
+      "spellings": ["ISCASE"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:4713 (EquipmentTypeLookup.java:141 IS_CASE)"
+    },
+    {
+      "id": "caseii",
+      "spellings": ["ISCASEII"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:4813"
+    },
+    {
+      "id": "clan-caseii",
+      "spellings": ["CLCASEII"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:4843"
+    },
+    {
+      "id": "c3-slave",
+      "spellings": ["ISC3SlaveUnit"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:4497"
+    },
+    {
+      "id": "c3iunit",
+      "spellings": ["ISC3iUnit"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:4531"
+    },
+    {
+      "id": "c3boostedsystemslaveunit",
+      "spellings": ["ISC3BoostedSystemSlaveUnit"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:4566"
+    },
+    {
+      "id": "c3emergencymaster",
+      "spellings": ["ISC3EmergencyMaster"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:4605"
+    },
+    {
+      "id": "remotedronecommandconsole",
+      "spellings": ["ISRemoteDroneCommandConsole"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:5132"
+    },
+    {
+      "id": "beagle-active-probe",
+      "spellings": ["BeagleActiveProbe"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:5645 (Sensor.java:89 BAP)"
+    },
+    {
+      "id": "bloodhound-active-probe",
+      "spellings": ["BloodhoundActiveProbe"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:5724 (Sensor.java:92 BLOODHOUND)"
+    },
+    {
+      "id": "clan-active-probe",
+      "spellings": ["CLActiveProbe"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:5807 (Sensor.java:91 CLAN_AP)"
+    },
+    {
+      "id": "clan-light-active-probe",
+      "spellings": ["CLLightActiveProbe"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:5852 (Sensor.java:93 LIGHT_AP)"
+    },
+    {
+      "id": "guardian-ecm",
+      "spellings": ["ISGuardianECMSuite"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:5891"
+    },
+    {
+      "id": "ecmsuite",
+      "spellings": ["CLECMSuite"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:5972"
+    },
+    {
+      "id": "angel-ecm",
+      "spellings": ["ISAngelECMSuite"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:6016"
+    },
+    {
+      "id": "electronic-warfare-ew-equipment",
+      "spellings": ["ISElectronicWarfareEquipment"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:6109 (Sensor.java:98 EW_EQUIPMENT)"
+    },
+    {
+      "id": "watchdog-cews",
+      "spellings": ["WatchdogECMSuite"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:6143 (Sensor.java:87 WATCHDOG)"
+    },
+    {
+      "id": "nova-combined-electronic-warfare-system-cews",
+      "spellings": ["NovaCEWS"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:6193 (lookup name)"
+    },
+    {
+      "id": "reconcamera",
+      "spellings": ["ISReconCamera"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:6274"
+    },
+    {
+      "id": "remotesensordispenser",
+      "spellings": ["RemoteSensorDispenser"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:6335"
+    },
+    {
+      "id": "artemisiv",
+      "spellings": ["ISArtemisIV", "CLArtemisIV"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:6572 and 6657",
+      "note": "CLArtemisIV is a separate Java item with the same mass and criticals; the catalog has no Clan Artemis IV, so both resolve here."
+    },
+    {
+      "id": "artemisv",
+      "spellings": ["CLArtemisV"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:6701"
+    },
+    {
+      "id": "apollo",
+      "spellings": ["ISApollo"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:6747"
+    },
+    {
+      "id": "istargeting-computer-registry",
+      "spellings": ["ISTargeting Computer"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:6799; mass MiscType.java:614-616, criticals MiscType.java:1098-1102",
+      "mountAs": "targeting-computer"
+    },
+    {
+      "id": "cltargeting-computer-registry",
+      "spellings": ["CLTargeting Computer"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:6836; mass MiscType.java:614-616, criticals MiscType.java:1098-1102",
+      "mountAs": "clan-targeting-computer"
+    },
+    {
+      "id": "searchlight",
+      "spellings": ["Searchlight"],
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:9199"
+    }
+  ],
   "armor": [
     {
       "tag": "STANDARD",

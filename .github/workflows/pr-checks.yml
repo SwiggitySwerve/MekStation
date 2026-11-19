@@ -41,6 +41,10 @@ jobs:
   # desktop lanes always run. `desktop` limits the win/mac packaging legs
   # (native better-sqlite3 rebuild, the slowest PR jobs) to changes in
   # desktop packaging inputs; Linux packs on every code change.
+  # `packaging` is narrower: the full Linux installer (tar.gz, artifact name,
+  # byte census) is built on a pull request only when it is on, and always on
+  # main pushes, nightly and manual runs. Every code change still builds the
+  # unpacked Linux app (`electron-builder --linux dir`).
   # `pr-desktop` is `desktop` on pull requests and 'false' otherwise: main
   # pushes, nightly and manual runs pack win/mac in Desktop Packs
   # (desktop-packs.yml), outside this workflow's concurrency group.
@@ -61,6 +65,7 @@ jobs:
       e2e: ${{ steps.filter.outputs.e2e }}
       data-specs: ${{ steps.filter.outputs.data-specs }}
       equipment: ${{ steps.filter.outputs.equipment }}
+      packaging: ${{ steps.filter.outputs.packaging }}
       corpus: ${{ steps.filter.outputs.corpus }}
       roadmap: ${{ steps.filter.outputs.roadmap }}
       storybook: ${{ steps.filter.outputs.storybook }}
@@ -88,7 +93,7 @@ jobs:
   # ---------------------------------------------------------------
   # static-checks runs the short checks that used to take a runner
   # each (lint, format, roadmap ledger, determinism, typecheck, desktop
-  # typecheck and tests, a11y, BV parity, Storybook, tsrs) on one
+  # typecheck and tests, a11y, BV parity, Storybook) on one
   # runner, so a PR run needs far fewer of the 20 concurrent jobs the
   # repository gets. Every check step runs even when an earlier one
   # fails (`!cancelled()`), so one run reports every failure. Gated
@@ -101,8 +106,7 @@ jobs:
     needs: detect-changes
     runs-on: ubuntu-latest
     timeout-minutes: 13
-    # Read-only token, not persisted: the advisory tsrs step installs and
-    # runs a pinned third-party compiler.
+    # Read-only token, not persisted.
     permissions:
       contents: read
       actions: read
@@ -136,6 +140,8 @@ jobs:
         if: ${{ !cancelled() }}
         env:
           PR_LABELS_JSON: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BUDGET_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           node --test scripts/ci/*.test.mjs
           node scripts/ci/budget-check.mjs --report "$RUNNER_TEMP/budget-output/repository.json"
@@ -154,31 +160,6 @@ jobs:
           name: ci-budget-repository
           path: ${{ runner.temp }}/budget-output/repository.json
           if-no-files-found: error
-          retention-days: 7
-
-      - name: Prepare source-head graphs and prove advisory reporting read-only
-        if: ${{ !cancelled() }}
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: node scripts/ci/budget-github.mjs
-
-      - name: Upload canonical reporter inputs
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: ci-budget-inputs
-          path: ${{ runner.temp }}/budget-output/inputs.json
-          if-no-files-found: warn
-          retention-days: 7
-
-      - name: Upload in-Actions reporter dry-run proof
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: ci-budget-report-proof
-          path: ${{ runner.temp }}/budget-output/report-dry-run.json
-          if-no-files-found: warn
           retention-days: 7
 
       - name: Setup Python for Schema Bridge
@@ -296,14 +277,6 @@ jobs:
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         run: npx jest --selectProjects a11y --ci
 
-      # The roadmap Jest project (config/jest/corpus-suites.js): tooling tests
-      # that spawn the scripts/qc roadmap tools and read openspec/ files.
-      - name: Roadmap tooling tests
-        if: ${{ !cancelled() && needs.detect-changes.outputs.roadmap == 'true' }}
-        run: npx jest --selectProjects roadmap --ci
-        env:
-          JEST_SPLIT_CORPUS: 'true'
-
       - name: Validate BV Parity
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         run: npm run validate:bv
@@ -320,7 +293,7 @@ jobs:
 
       - name: Test schema generator fail-closed definitions and clause refine
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
-        run: node --test scripts/__tests__/schema-local-definitions.test.mjs scripts/__tests__/refine-conditional-clauses.test.mjs
+        run: node --test scripts/__tests__/schema-local-definitions.test.mjs scripts/__tests__/refine-conditional-clauses.test.mjs scripts/__tests__/route-safe-parse-issues.test.mjs
 
       # The equipment catalog resolution guard adds about 1-4 minutes.
       - name: Test equipment catalog generator and resolution guards
@@ -359,21 +332,6 @@ jobs:
           path: node_modules/.cache/storybook
           key: ${{ runner.os }}-storybook-${{ hashFiles('package-lock.json', '.storybook/**') }}-${{ github.sha }}
 
-      # tsrs side-check: advisory only. continue-on-error and the step
-      # timeouts keep it from ever failing this job, so it never blocks
-      # Lint and Test.
-      - name: Install isolated pinned tsrs (advisory)
-        if: ${{ !cancelled() }}
-        continue-on-error: true
-        timeout-minutes: 5
-        run: npm install --no-save --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/tsrs" tsrs@0.18.0-ts7.1.0-dev.20260929
-
-      - name: Compare TS7 and verified tsrs diagnostics (advisory)
-        if: ${{ !cancelled() }}
-        continue-on-error: true
-        timeout-minutes: 10
-        run: node scripts/qc/tsrs-side-check.mjs "$RUNNER_TEMP/tsrs"
-
   # ---------------------------------------------------------------
   # simulation-checks runs the simulation wall-clock, coverage and
   # statistical-proof lanes one after another on one runner (never
@@ -382,7 +340,8 @@ jobs:
   # that build (folded in from Build and Linux Pack, CI-SPEED round 2; it
   # runs after the budgets, so they still measure an idle runner). It
   # uploads `web-build` only when win/mac pack too. Code-only; the
-  # 100-game proof runs only outside pull requests.
+  # 100-game proof runs only outside pull requests. Last, the advisory
+  # budget reporter and tsrs side-check run here, off Static's path.
   # ---------------------------------------------------------------
   simulation-checks:
     name: Simulation Checks and Linux Pack
@@ -390,6 +349,12 @@ jobs:
     if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 14
+    # Read-only token, not persisted: the advisory tsrs step installs and
+    # runs a pinned third-party compiler.
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
     env:
       electron_config_cache: ${{ github.workspace }}/.cache/electron
       ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
@@ -397,6 +362,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       # The desktop lock pins both Electron and electron-builder exactly.
       # Restore before setup: npm ci can download Electron in its install hook.
@@ -532,6 +499,25 @@ jobs:
           # this the artifact silently drops it (Lane C, run 41790472413).
           include-hidden-files: true
 
+      # The rebuild script keeps its own content-keyed cache in
+      # desktop/.electron-native-cache (Electron and Node versions, runner
+      # image, kernel, glibc, compiler flags, better-sqlite3 sources) and
+      # probes a restored binding under Electron before using it. This outer
+      # key only decides when the directory is refreshed; the script rejects
+      # a stale entry itself. A runner-image roll changes the key, so the hit
+      # rate drops once per image roll. Main writes the shared key; a pull
+      # request reads main's and, on a miss, writes only its own scope.
+      - name: Identify runner image
+        id: runner-image
+        run: echo "id=${ImageOS:-unknown}-${ImageVersion:-unknown}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore native module cache
+        id: native-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: desktop/.electron-native-cache
+          key: electron-native-${{ runner.os }}-${{ steps.runner-image.outputs.id }}-${{ hashFiles('desktop/package-lock.json', 'package-lock.json') }}-${{ hashFiles('desktop/scripts/electron-native-cache.js', 'desktop/scripts/electron-native-modules.js') }}
+
       - name: Rebuild native modules for Linux
         if: ${{ !cancelled() }}
         working-directory: desktop
@@ -544,10 +530,54 @@ jobs:
           path: ${{ env.electron_config_cache }}
           key: ${{ steps.electron-cache.outputs.cache-primary-key }}
 
-      - name: Build complete Linux installer and unpacked application
-        if: ${{ !cancelled() }}
+      - name: Save native module cache
+        if: ${{ steps.native-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: desktop/.electron-native-cache
+          key: ${{ steps.native-cache.outputs.cache-primary-key }}
+
+      # Every code change builds the unpacked app: the same config, asar,
+      # afterPack copy, native modules and server closure, without the
+      # archive step. The full installer below runs when packaging inputs
+      # changed, and on main, nightly and manual runs.
+      - name: Build unpacked Linux application
+        if: ${{ !cancelled() && needs.detect-changes.outputs.packaging != 'true' }}
         working-directory: desktop
         run: |
+          # @electron/get fetches fresh checksums even for cached Electron zips.
+          for attempt in 1 2 3; do
+            echo "Linux packaging attempt $attempt/3"
+            if npx electron-builder --linux dir --publish never; then
+              exit 0
+            else
+              status=$?
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Linux packaging failed after 3 attempts (exit $status)"
+              exit "$status"
+            fi
+            delay=$((attempt * 15))
+            echo "::warning::Linux packaging failed (exit $status); retrying in ${delay}s"
+            sleep "$delay"
+          done
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          SKIP_NOTARIZATION: 'true'
+
+      - name: Build complete Linux installer and unpacked application
+        if: ${{ !cancelled() && needs.detect-changes.outputs.packaging == 'true' }}
+        working-directory: desktop
+        run: |
+          # electron-builder gzips tar.gz at -mx=9 unless this is set (archive.ts).
+          # The scheduled run keeps 9 so the release compression path stays
+          # exercised; level 3 measured 34x faster than 9 with an identical
+          # unpacked tar, and level 1 was no faster (C7 build-2x C1).
+          # $GITHUB_ENV carries it to the installer census, which records it.
+          if [ "$GITHUB_EVENT_NAME" != 'schedule' ]; then
+            export ELECTRON_BUILDER_COMPRESSION_LEVEL=3
+            echo "ELECTRON_BUILDER_COMPRESSION_LEVEL=3" >> "$GITHUB_ENV"
+          fi
           # @electron/get fetches fresh checksums even for cached Electron zips.
           for attempt in 1 2 3; do
             echo "Linux packaging attempt $attempt/3"
@@ -581,19 +611,19 @@ jobs:
         run: test -d release/linux-unpacked
 
       - name: Prepare complete Linux installer inventory
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.packaging == 'true' }}
         shell: bash
         run: |
           mkdir -p desktop/release-upload
           cp desktop/release/*.tar.gz desktop/release-upload/
 
       - name: Census complete Linux installer bytes (advisory)
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.packaging == 'true' }}
         shell: bash
         run: node scripts/ci/budget-artifacts.mjs --kind installers --report "$RUNNER_TEMP/budget-output/installers.json"
 
       - name: Upload complete installer census
-        if: ${{ always() }}
+        if: ${{ always() && needs.detect-changes.outputs.packaging == 'true' }}
         uses: actions/upload-artifact@v7
         with:
           name: ci-budget-installers
@@ -601,28 +631,85 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  # Three shards. jest.config.js uses every vCPU in CI (Lane B), and
+      # Advisory reports, moved here from Static Checks (off its critical
+      # path), after the timing budgets, build and pack so they change
+      # none of them. They run only on code changes, like this job.
+      # continue-on-error keeps each one from ever failing this job.
+      - name: Prepare source-head graphs and prove advisory reporting read-only
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci/budget-github.mjs
+
+      - name: Upload canonical reporter inputs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-inputs
+          path: ${{ runner.temp }}/budget-output/inputs.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload in-Actions reporter dry-run proof
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-report-proof
+          path: ${{ runner.temp }}/budget-output/report-dry-run.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      # next-env.d.ts imports the generated route types, so both compilers
+      # need them, as they had after Static Checks generated them; typegen
+      # also writes them when the build did not.
+      - name: Generate Next.js route types
+        if: ${{ !cancelled() }}
+        run: npx next typegen
+
+      # tsrs side-check: advisory only. continue-on-error and the step
+      # timeouts keep it from ever failing this job, so it never blocks
+      # Lint and Test.
+      - name: Install isolated pinned tsrs (advisory)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        timeout-minutes: 5
+        run: npm install --no-save --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/tsrs" tsrs@0.18.0-ts7.1.0-dev.20260929
+
+      - name: Compare TS7 and verified tsrs diagnostics (advisory)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        timeout-minutes: 10
+        run: node scripts/qc/tsrs-side-check.mjs "$RUNNER_TEMP/tsrs"
+
+  # Four shards. jest.config.js uses every vCPU in CI (Lane B), and
   # JEST_SPLIT_CORPUS moves the whole-catalog suites to the `corpus` project
-  # and the roadmap tooling suites to Static Checks
+  # and the roadmap tooling suites to the `roadmap` project
   # (config/jest/corpus-suites.js). Folded in (CI-SPEED round 2), so a PR
   # needs fewer runners:
   #   - shards 1 and 2 each run half of the corpus project after the unit
   #     shard, when a changed file is in its import closure or is
   #     catalog/converter data (always on main and nightly);
-  #   - shard 3 runs the Validate Combat Suite when combat inputs changed.
-  # The Jest transform cache is restored from main's last run: its entries
-  # are keyed by file content and transformer config, so a stale entry can
-  # never stand in for changed source. Main pushes and the nightly run save
-  # it.
+  #   - shard 3 runs the Validate Combat Suite when combat inputs changed;
+  #   - shard 4 runs the roadmap project when the roadmap gate is on (moved
+  #     from Static Checks, its critical path, in P1b lever 2).
+  # The shard planner gives each shard less Jest work for that extra work
+  # (SHARD_PRELOAD_MS['unit/4'] in config/jest/shard-planner.js).
+  # The Jest transform cache is restored from main's newest snapshot: its
+  # entries are keyed by file content and transformer config, so a stale
+  # entry can never stand in for changed source. The Actions key names only
+  # what changes a transform (the lockfile's swc and jest.config.js) plus the
+  # UTC day: main pushes and the nightly run save one snapshot per shard per
+  # day, not one per commit (per-commit keys were 3 GB of the 10 GB cache).
   unit-test-shards:
-    name: Unit Tests (${{ matrix.shard }}/3)
+    name: Unit Tests (${{ matrix.shard }}/4)
     needs: detect-changes
     runs-on: ubuntu-latest
     timeout-minutes: 12
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        shard: [1, 2, 3, 4]
 
     steps:
       - name: Checkout code
@@ -636,13 +723,21 @@ jobs:
           # The Validate Combat Suite (shard 3) reads the record-sheet assets.
           fetch-assets: ${{ matrix.shard == 3 && 'true' || 'false' }}
 
+      - name: Pick the Jest transform cache day
+        id: jest-transform-day
+        run: echo "day=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
+      # Newest snapshot of this shard, else of any shard (they share the
+      # transformed src).
       - name: Restore Jest transform cache
+        id: jest-transform
         uses: actions/cache/restore@v5
         with:
           path: .jest-cache
-          key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-${{ github.sha }}
+          key: ${{ runner.os }}-jest-transform-${{ hashFiles('package-lock.json', 'jest.config.js') }}-unit-${{ matrix.shard }}-${{ steps.jest-transform-day.outputs.day }}
           restore-keys: |
-            ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-
+            ${{ runner.os }}-jest-transform-${{ hashFiles('package-lock.json', 'jest.config.js') }}-unit-${{ matrix.shard }}-
+            ${{ runner.os }}-jest-transform-${{ hashFiles('package-lock.json', 'jest.config.js') }}-unit-
 
       # 4 workers on the runner's 4 vCPUs: Lane B measured 10-20% faster unit
       # shards than Jest's default 3 (JOBS.md 0a); corpus/roadmap keep 3.
@@ -676,7 +771,7 @@ jobs:
       - name: Run unit test shard
         run: >-
           node scripts/jest/cached-tests.js --project unit
-          --shard ${{ matrix.shard }}/3 --verify-hits 3
+          --shard ${{ matrix.shard }}/4 --verify-hits 3
           ${{ github.event_name != 'pull_request' && '--uncached' || '' }}
           --report jest-results-unit-${{ matrix.shard }}.json
           -- --ci --cacheDirectory=.jest-cache --maxWorkers=4
@@ -696,18 +791,18 @@ jobs:
           key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-${{ github.event_name == 'pull_request' && 'pr' || 'main' }}-${{ github.run_id }}
 
       - name: Save Jest transform cache
-        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
+        if: ${{ !cancelled() && github.event_name != 'pull_request' && steps.jest-transform.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v5
         with:
           path: .jest-cache
-          key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-${{ github.sha }}
+          key: ${{ runner.os }}-jest-transform-${{ hashFiles('package-lock.json', 'jest.config.js') }}-unit-${{ matrix.shard }}-${{ steps.jest-transform-day.outputs.day }}
 
       # Corpus half (shards 1 and 2): the whole-catalog suites replay the
       # committed catalog, with their own result store. The keys match the
       # former corpus-tests shards, but the new path changes the cache
       # version, so the first main run after this change seeds it again.
       - name: Restore corpus Jest result seed from main
-        if: ${{ !cancelled() && matrix.shard != 3 && needs.detect-changes.outputs.corpus == 'true' }}
+        if: ${{ !cancelled() && matrix.shard <= 2 && needs.detect-changes.outputs.corpus == 'true' }}
         uses: actions/cache/restore@v5
         with:
           path: .jest-result-cache-corpus
@@ -716,7 +811,7 @@ jobs:
             ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-main-
 
       - name: Restore this PR's corpus Jest results
-        if: ${{ !cancelled() && matrix.shard != 3 && needs.detect-changes.outputs.corpus == 'true' && github.event_name == 'pull_request' }}
+        if: ${{ !cancelled() && matrix.shard <= 2 && needs.detect-changes.outputs.corpus == 'true' && github.event_name == 'pull_request' }}
         uses: actions/cache/restore@v5
         with:
           path: .jest-result-cache-corpus
@@ -725,7 +820,7 @@ jobs:
             ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-pr-
 
       - name: Run corpus test shard
-        if: ${{ !cancelled() && matrix.shard != 3 && needs.detect-changes.outputs.corpus == 'true' }}
+        if: ${{ !cancelled() && matrix.shard <= 2 && needs.detect-changes.outputs.corpus == 'true' }}
         run: >-
           node scripts/jest/cached-tests.js --project corpus
           --shard ${{ matrix.shard }}/2 --verify-hits 1
@@ -737,7 +832,7 @@ jobs:
           JEST_SPLIT_CORPUS: 'true'
 
       - name: Save corpus Jest result cache
-        if: ${{ always() && matrix.shard != 3 && needs.detect-changes.outputs.corpus == 'true' }}
+        if: ${{ always() && matrix.shard <= 2 && needs.detect-changes.outputs.corpus == 'true' }}
         uses: actions/cache/save@v5
         with:
           path: .jest-result-cache-corpus
@@ -749,6 +844,15 @@ jobs:
         if: ${{ !cancelled() && matrix.shard == 3 && needs.detect-changes.outputs.combat == 'true' }}
         run: npm run validate:combat
 
+      # Shard 4: the roadmap Jest project (config/jest/corpus-suites.js),
+      # tooling tests that spawn the scripts/qc roadmap tools and read
+      # openspec/ files, when the roadmap gate is on.
+      - name: Roadmap tooling tests
+        if: ${{ !cancelled() && matrix.shard == 4 && needs.detect-changes.outputs.roadmap == 'true' }}
+        run: npx jest --selectProjects roadmap --ci
+        env:
+          JEST_SPLIT_CORPUS: 'true'
+
       - name: Upload actual Jest timing and cache observations
         if: ${{ always() }}
         uses: actions/upload-artifact@v7
@@ -759,7 +863,7 @@ jobs:
           retention-days: 7
 
   # ---------------------------------------------------------------
-  # e2e runs every per-PR Playwright gate in 2 shards. Each shard
+  # e2e runs every per-PR Playwright gate in 4 shards. Each shard
   # fetches and strictly validates the record-sheet assets in its own
   # checkout (a missing template fails here instead of degrading to the
   # CDN fallback) and builds the E2E-mode production app itself: a
@@ -779,7 +883,7 @@ jobs:
   #   - smoke specs keep the config's CI retries. The library suite runs
   #     on one worker (its flows share the server database); the
   #     tactical-map visual smoke uses all 4 vCPUs of the runner.
-  # run-ci-e2e allocates the live census across BOTH shards by recorded
+  # run-ci-e2e allocates the live census across ALL 4 shards by recorded
   # durations (config/playwright/ci-durations.json), across suite boundaries.
   # Gate files and the serial smoke file remain atomic; independent library
   # tests keep one worker. A timing miss changes only a weight. Native
@@ -789,7 +893,7 @@ jobs:
   # Step gating keeps docs- and openspec-only PRs green.
   # ---------------------------------------------------------------
   e2e:
-    name: E2E (${{ matrix.shard }}/2)
+    name: E2E (${{ matrix.shard }}/4)
     needs: detect-changes
     env:
       CI_E2E_DATA_SPECS: ${{ needs.detect-changes.outputs.data-specs || '[]' }}
@@ -798,7 +902,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2]
+        shard: [1, 2, 3, 4]
 
     steps:
       - name: Skip (no code or e2e changes)
@@ -863,7 +967,7 @@ jobs:
           # The smoke steps write their own report folders.
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates
           PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/gates.json
-        run: node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts e2e/customizer-mech-crew-roster.spec.ts e2e/gm-campaign-ledger-control-plane.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
+        run: node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts e2e/customizer-mech-crew-roster.spec.ts e2e/gm-campaign-ledger-control-plane.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/4 --output=test-results/gates
 
       # The library flows save and reopen units through the shared server
       # database, and both viewport variants of a family save the same
@@ -875,7 +979,7 @@ jobs:
           HOSTNAME: '127.0.0.1'
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-library
           PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/library.json
-        run: node scripts/playwright/run-ci-e2e.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/library
+        run: node scripts/playwright/run-ci-e2e.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/4 --output=test-results/library
 
       - name: Run tactical-map visual smoke
         if: ${{ !cancelled() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') }}
@@ -883,7 +987,7 @@ jobs:
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
           HOSTNAME: '127.0.0.1'
           PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/smoke.json
-        run: node scripts/playwright/run-ci-e2e.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/2 --output=test-results/smoke
+        run: node scripts/playwright/run-ci-e2e.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/4 --output=test-results/smoke
 
       - name: Run data-keyed unit regression specs
         if: ${{ !cancelled() && needs.detect-changes.outputs.data-specs != '' && needs.detect-changes.outputs.data-specs != '[]' }}
@@ -892,7 +996,7 @@ jobs:
           HOSTNAME: '127.0.0.1'
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-data
           PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/data.json
-        run: node scripts/playwright/run-ci-e2e.mjs test --data-specs --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/data
+        run: node scripts/playwright/run-ci-e2e.mjs test --data-specs --project=chromium --workers=1 --shard=${{ matrix.shard }}/4 --output=test-results/data
 
       - name: Upload E2E durations and test census
         if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
@@ -1067,6 +1171,20 @@ jobs:
           test -d desktop/dist || { echo "Missing desktop/dist"; exit 1; }
           test -f .next/standalone/.next/BUILD_ID || { echo "Missing .next/standalone/.next/BUILD_ID"; exit 1; }
 
+      # Same native module cache as simulation-checks (see the comment there);
+      # bash because the Windows default shell is pwsh.
+      - name: Identify runner image
+        id: runner-image
+        shell: bash
+        run: echo "id=${ImageOS:-unknown}-${ImageVersion:-unknown}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore native module cache
+        id: native-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: desktop/.electron-native-cache
+          key: electron-native-${{ runner.os }}-${{ steps.runner-image.outputs.id }}-${{ hashFiles('desktop/package-lock.json', 'package-lock.json') }}-${{ hashFiles('desktop/scripts/electron-native-cache.js', 'desktop/scripts/electron-native-modules.js') }}
+
       - name: Rebuild native modules for platform
         working-directory: desktop
         shell: bash
@@ -1078,6 +1196,13 @@ jobs:
         with:
           path: ${{ env.electron_config_cache }}
           key: ${{ steps.electron-cache.outputs.cache-primary-key }}
+
+      - name: Save native module cache
+        if: ${{ steps.native-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: desktop/.electron-native-cache
+          key: ${{ steps.native-cache.outputs.cache-primary-key }}
 
       - name: Test Electron build (pack mode)
         working-directory: desktop

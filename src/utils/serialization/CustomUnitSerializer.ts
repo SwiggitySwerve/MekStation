@@ -11,6 +11,7 @@ import type {
 
 import {
   buildEditableMechBVInput,
+  buildEditableMechProjectionInput,
   projectEditableMech,
 } from '@/services/construction/editableMechProjection';
 import {
@@ -62,6 +63,7 @@ import {
   getMountedSourceArmorSuffix,
   preserveSourceSystemCells,
 } from './CustomUnitSerializer.sourceCells';
+import { sourceOnlyFacts } from './CustomUnitSerializer.sourceFacts';
 import { ARMOR_TYPE, ENGINE_TYPE } from './CustomUnitSerializer.tags';
 import { cloneSerializedStructure } from './structureMetadata';
 
@@ -159,7 +161,9 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
   // Reuse the source-aware projection: editor mounts alone cannot represent
   // original critical-grid details such as the Atlas's rear laser markers.
   const projected = state.bvContext
-    ? buildEditableMechBVInput(projectEditableMech(state, walk)).criticalSlots
+    ? buildEditableMechBVInput(
+        projectEditableMech(buildEditableMechProjectionInput(state), walk),
+      ).criticalSlots
     : undefined;
   const result: Record<string, (string | null)[]> = {};
   const locations = getLocationsForConfig(state.configuration);
@@ -230,7 +234,7 @@ export function serializeCustomUnitState(
       ? numericMulId
       : state.mulId;
 
-  return {
+  const written = {
     schemaVersion: CURRENT_UNIT_SCHEMA_VERSION,
     id: identity.id,
     chassis: identity.chassis,
@@ -279,6 +283,7 @@ export function serializeCustomUnitState(
         : undefined,
     ...crewSeatSaveFields(state),
   };
+  return { ...written, ...sourceOnlyFacts(state) };
 }
 
 /** Vehicle store -> catalog contract; editor-only facts use a validated extension. */
@@ -457,3 +462,4 @@ export function serializeCustomAerospaceState(
 }
 
 export { serializeCustomSmallUnitState } from './CustomUnitSerializer.smallUnits';
+export { SOURCE_ONLY_FACTS } from './CustomUnitSerializer.sourceFacts';

@@ -1,4 +1,5 @@
 import { toast } from '@/components/shared/Toast';
+import { withIdentityManifest } from '@/lib/campaign/__tests__/identityBattleUnitManifest';
 import {
   serializeCampaign,
   deserializeCampaignBody,
@@ -64,7 +65,7 @@ function makeOutcome(
   matchId: string,
   overrides: Partial<ICombatOutcome> = {},
 ): ICombatOutcome {
-  return {
+  return withIdentityManifest({
     version: COMBAT_OUTCOME_VERSION,
     matchId,
     contractId: 'contract-1',
@@ -83,7 +84,7 @@ function makeOutcome(
     },
     unitDeltas: [],
     ...overrides,
-  };
+  });
 }
 
 function makePlayerDelta(unitId: string): IUnitCombatDelta {
@@ -276,7 +277,7 @@ describe('useCampaignStore outcome queue persistence/events', () => {
   );
 
   it.each(['retry', 'day'])(
-    'surfaces a per-unit failure through %s without replaying committed effects',
+    'T3: a per-unit failure through %s keeps the outcome queued and the retry applies once',
     (path) => {
       const store = createCampaignStore();
       store.getState().createCampaign('Partial Failure', 'mercenary');
@@ -305,13 +306,21 @@ describe('useCampaignStore outcome queue persistence/events', () => {
       expect(store.getState().outcomeApplyErrors.partial).toContain(
         'unit unit-broken: damaged unit data',
       );
+      expect(store.getState().processedBattleIds).not.toContain('partial');
+      expect(
+        store.getState().pendingBattleOutcomes.map((o) => o.matchId),
+      ).toEqual(['partial']);
+      expect(store.getState().campaign?.unitPrestige ?? []).toEqual([]);
+      expect(store.getState().retryOutcomeApplication('partial')).toBe(true);
       expect(store.getState().processedBattleIds).toContain('partial');
-      store.getState().enqueueOutcome(makeOutcome('partial'));
-      expect(store.getState().retryOutcomeApplication('partial')).toBe(false);
+      expect(store.getState().outcomeApplyErrors.partial).toBeUndefined();
       expect(store.getState().campaign?.unitPrestige?.[0].history).toHaveLength(
         1,
       );
       store.getState().advanceDay();
+      expect(store.getState().campaign?.unitPrestige?.[0].history).toHaveLength(
+        1,
+      );
       if (path === 'day') expect(toast).toHaveBeenCalledTimes(1);
     },
   );

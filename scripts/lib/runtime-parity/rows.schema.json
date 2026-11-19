@@ -8,18 +8,6 @@
           "type": "number",
           "const": 1
         },
-        "family": {
-          "type": "string",
-          "enum": [
-            "battlemechs",
-            "vehicles",
-            "aerospace",
-            "capital",
-            "battlearmor",
-            "infantry",
-            "protomechs"
-          ]
-        },
         "unitId": {
           "type": "string",
           "minLength": 1
@@ -46,6 +34,10 @@
           },
           "required": ["path", "blob"],
           "additionalProperties": false
+        },
+        "family": {
+          "type": "string",
+          "const": "battlemechs"
         },
         "measure": {
           "type": "string",
@@ -186,11 +178,11 @@
       },
       "required": [
         "schemaVersion",
-        "family",
         "unitId",
         "path",
         "sha256",
         "catalog",
+        "family",
         "measure",
         "status",
         "load"
@@ -203,18 +195,6 @@
         "schemaVersion": {
           "type": "number",
           "const": 1
-        },
-        "family": {
-          "type": "string",
-          "enum": [
-            "battlemechs",
-            "vehicles",
-            "aerospace",
-            "capital",
-            "battlearmor",
-            "infantry",
-            "protomechs"
-          ]
         },
         "unitId": {
           "type": "string",
@@ -242,6 +222,18 @@
           },
           "required": ["path", "blob"],
           "additionalProperties": false
+        },
+        "family": {
+          "type": "string",
+          "enum": [
+            "battlemechs",
+            "vehicles",
+            "aerospace",
+            "capital",
+            "battlearmor",
+            "infantry",
+            "protomechs"
+          ]
         },
         "measure": {
           "type": "string",
@@ -270,11 +262,11 @@
       },
       "required": [
         "schemaVersion",
-        "family",
         "unitId",
         "path",
         "sha256",
         "catalog",
+        "family",
         "measure",
         "status",
         "error"
@@ -287,18 +279,6 @@
         "schemaVersion": {
           "type": "number",
           "const": 1
-        },
-        "family": {
-          "type": "string",
-          "enum": [
-            "battlemechs",
-            "vehicles",
-            "aerospace",
-            "capital",
-            "battlearmor",
-            "infantry",
-            "protomechs"
-          ]
         },
         "unitId": {
           "type": "string",
@@ -326,6 +306,10 @@
           },
           "required": ["path", "blob"],
           "additionalProperties": false
+        },
+        "family": {
+          "type": "string",
+          "const": "battlemechs"
         },
         "measure": {
           "type": "string",
@@ -1311,11 +1295,11 @@
       },
       "required": [
         "schemaVersion",
-        "family",
         "unitId",
         "path",
         "sha256",
         "catalog",
+        "family",
         "measure",
         "status",
         "reopen"
@@ -1328,18 +1312,6 @@
         "schemaVersion": {
           "type": "number",
           "const": 1
-        },
-        "family": {
-          "type": "string",
-          "enum": [
-            "battlemechs",
-            "vehicles",
-            "aerospace",
-            "capital",
-            "battlearmor",
-            "infantry",
-            "protomechs"
-          ]
         },
         "unitId": {
           "type": "string",
@@ -1368,6 +1340,18 @@
           "required": ["path", "blob"],
           "additionalProperties": false
         },
+        "family": {
+          "type": "string",
+          "enum": [
+            "battlemechs",
+            "vehicles",
+            "aerospace",
+            "capital",
+            "battlearmor",
+            "infantry",
+            "protomechs"
+          ]
+        },
         "measure": {
           "type": "string",
           "const": "reopen"
@@ -1395,14 +1379,508 @@
       },
       "required": [
         "schemaVersion",
-        "family",
         "unitId",
         "path",
         "sha256",
         "catalog",
+        "family",
         "measure",
         "status",
         "error"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "number",
+          "const": 1
+        },
+        "unitId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "catalog": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "blob": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$"
+            }
+          },
+          "required": ["path", "blob"],
+          "additionalProperties": false
+        },
+        "family": {
+          "type": "string",
+          "const": "vehicles"
+        },
+        "measure": {
+          "type": "string",
+          "const": "load"
+        },
+        "status": {
+          "type": "string",
+          "const": "ok"
+        },
+        "load": {
+          "type": "object",
+          "properties": {
+            "observed": {
+              "type": "object",
+              "properties": {
+                "bv": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "validity": {
+                  "type": "string",
+                  "enum": ["valid", "invalid"]
+                },
+                "complete": {
+                  "type": "boolean"
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "weight": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "mp": {
+                  "type": "object",
+                  "properties": {
+                    "cruise": {
+                      "type": "number"
+                    },
+                    "flank": {
+                      "type": "number"
+                    },
+                    "jump": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["cruise", "flank", "jump"],
+                  "additionalProperties": false
+                },
+                "crew": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "bv",
+                "validity",
+                "complete",
+                "reasons",
+                "weight",
+                "mp",
+                "crew"
+              ],
+              "additionalProperties": false
+            },
+            "terms": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "issues": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "ruleId": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "channel": {
+                    "type": "string",
+                    "enum": ["errors", "warnings"]
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": ["ruleId", "channel", "message"],
+                "additionalProperties": false
+              }
+            },
+            "preview": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "bv": {
+                      "type": "number"
+                    },
+                    "cost": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["bv", "cost"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": ["observed", "terms", "issues", "preview"],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "unitId",
+        "path",
+        "sha256",
+        "catalog",
+        "family",
+        "measure",
+        "status",
+        "load"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "number",
+          "const": 1
+        },
+        "unitId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "catalog": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "blob": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$"
+            }
+          },
+          "required": ["path", "blob"],
+          "additionalProperties": false
+        },
+        "family": {
+          "type": "string",
+          "const": "vehicles"
+        },
+        "measure": {
+          "type": "string",
+          "const": "reopen"
+        },
+        "status": {
+          "type": "string",
+          "const": "ok"
+        },
+        "reopen": {
+          "type": "object",
+          "properties": {
+            "before": {
+              "type": "object",
+              "properties": {
+                "bv": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "validity": {
+                  "type": "string",
+                  "enum": ["valid", "invalid"]
+                },
+                "complete": {
+                  "type": "boolean"
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "weight": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "mp": {
+                  "type": "object",
+                  "properties": {
+                    "cruise": {
+                      "type": "number"
+                    },
+                    "flank": {
+                      "type": "number"
+                    },
+                    "jump": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["cruise", "flank", "jump"],
+                  "additionalProperties": false
+                },
+                "crew": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "terms": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "type": "number"
+                  }
+                }
+              },
+              "required": [
+                "bv",
+                "validity",
+                "complete",
+                "reasons",
+                "weight",
+                "mp",
+                "crew",
+                "terms"
+              ],
+              "additionalProperties": false
+            },
+            "after": {
+              "type": "object",
+              "properties": {
+                "bv": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "validity": {
+                  "type": "string",
+                  "enum": ["valid", "invalid"]
+                },
+                "complete": {
+                  "type": "boolean"
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "weight": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "mp": {
+                  "type": "object",
+                  "properties": {
+                    "cruise": {
+                      "type": "number"
+                    },
+                    "flank": {
+                      "type": "number"
+                    },
+                    "jump": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["cruise", "flank", "jump"],
+                  "additionalProperties": false
+                },
+                "crew": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "terms": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "type": "number"
+                  }
+                }
+              },
+              "required": [
+                "bv",
+                "validity",
+                "complete",
+                "reasons",
+                "weight",
+                "mp",
+                "crew",
+                "terms"
+              ],
+              "additionalProperties": false
+            },
+            "documentLosses": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "change": {
+                    "type": "string",
+                    "enum": ["lost", "changed"]
+                  }
+                },
+                "required": ["path", "change"],
+                "additionalProperties": false
+              }
+            },
+            "mountLosses": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "mountAdditions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "before",
+            "after",
+            "documentLosses",
+            "mountLosses",
+            "mountAdditions"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "unitId",
+        "path",
+        "sha256",
+        "catalog",
+        "family",
+        "measure",
+        "status",
+        "reopen"
       ],
       "additionalProperties": false
     }

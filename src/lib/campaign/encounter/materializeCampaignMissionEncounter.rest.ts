@@ -99,6 +99,7 @@ export async function createAssignedForceWithUnits({
         body: JSON.stringify({
           unitId: unit.unitRef,
           pilotId: unit.pilotRef,
+          rosterUnitId: unit.rosterUnitId,
         }),
       },
     );

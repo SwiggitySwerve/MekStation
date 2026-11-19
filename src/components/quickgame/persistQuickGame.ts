@@ -23,6 +23,7 @@
 // (which import `node:fs/promises`) when erasing the type-only import.
 // Turbopack's chunking still walks value re-exports in the barrel even
 // when the import is `import type`, hence the deep path.
+
 import type { IQuickReplayManifestEntry } from '@/replay-library/types';
 
 import {
@@ -32,6 +33,7 @@ import {
   replayTurnCount,
 } from '@/replay-library/eventMetadata';
 import { GameSide, ReplaySource, type IGameEvent } from '@/types/gameplay';
+import { serializeEvent } from '@/utils/gameplay/gameEvents/serialization';
 
 /**
  * Inputs required to persist a completed quick game.
@@ -208,7 +210,7 @@ export async function persistQuickGame(
   await mkdir(partitionDir, { recursive: true });
   // NDJSON: one JSON-encoded event per line, `\n` separator, no trailing
   // newline (matches the swarm format from PR 4).
-  const body = stampedEvents.map((event) => JSON.stringify(event)).join('\n');
+  const body = stampedEvents.map((event) => serializeEvent(event)).join('\n');
   const filePath = path.resolve(partitionDir, `${input.gameId}.jsonl`);
   await writeFile(filePath, body, 'utf-8');
 

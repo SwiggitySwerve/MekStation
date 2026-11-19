@@ -20,6 +20,7 @@ import {
   getUnitCategory,
 } from '@/types/unit/UnitTypeHandler';
 import { validateAerospaceSource } from '@/utils/construction/aerospace/sourceValidation';
+import { unitOverweightErrors } from '@/utils/validation/unitWeight';
 
 import {
   UnitValidationMessages,
@@ -362,11 +363,8 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit> {
     }
 
     // Check total weight doesn't exceed tonnage
-    if (this.requiresUnitTonnage && unit.totalWeight > unit.tonnage) {
-      errors.push(
-        `Total weight (${unit.totalWeight.toFixed(2)}t) exceeds tonnage (${unit.tonnage}t)`,
-      );
-    }
+    if (this.requiresUnitTonnage)
+      errors.push(...unitOverweightErrors(unit.totalWeight, unit.tonnage));
 
     // Metadata validation
     if (!unit.metadata?.chassis) {

@@ -7,7 +7,7 @@ import type {
 
 import { GamePhase } from '@/types/gameplay';
 
-import { deriveCombatRangeHexes } from './combatProjection';
+import { deriveSharedCombatRangeHexes } from './combatProjection.shared';
 import { selectCombatProjectionWeapons } from './combatProjection.weaponSelection';
 import { hexesInRange } from './hexMath';
 
@@ -46,7 +46,7 @@ export function deriveValidWeaponTargetIds({
     unitWeapons[selectedUnitId] ?? [],
     selectedWeaponIds,
   );
-  for (const projection of deriveCombatRangeHexes({
+  for (const projection of deriveSharedCombatRangeHexes({
     attacker,
     hexes: hexesInRange({ q: 0, r: 0 }, mapRadius),
     grid,

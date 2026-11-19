@@ -78,7 +78,7 @@ test('Windows and macOS keep existing namespaces without reading Linux metadata'
   assert.equal(cachePlatform({ os: 'macOS' }), 'macOS');
 });
 
-test('all thirteen existing Linux browser legs use supported Ubuntu 24.04', () => {
+test('all fifteen existing Linux browser legs use supported Ubuntu 24.04', () => {
   let linux = 0;
   let windows = 0;
   for (const [workflow, id] of browserJobs) {
@@ -92,7 +92,7 @@ test('all thirteen existing Linux browser legs use supported Ubuntu 24.04', () =
       }
     }
   }
-  assert.equal(linux, 13);
+  assert.equal(linux, 15);
   assert.equal(windows, 1);
 });
 

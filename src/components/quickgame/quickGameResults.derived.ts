@@ -14,6 +14,7 @@ import {
 } from '@/services/game-resolution';
 import { GameSide } from '@/types/gameplay';
 import { calculateForceTotals } from '@/types/quickgame/QuickGameInterfaces';
+import { prepareEventForSerialization } from '@/utils/gameplay/gameEvents/serialization';
 
 export interface QuickGameUnitRow {
   readonly unit: IQuickGameUnit;
@@ -32,7 +33,7 @@ export interface QuickGameResultsViewModel {
 export function buildReplayLibraryPayload(game: IQuickGameInstance): string {
   return JSON.stringify({
     gameId: game.id,
-    events: game.events,
+    events: game.events.map((event) => prepareEventForSerialization(event)),
     winner: game.winner,
     aiVariant: game.scenarioConfig.enemyFaction ?? '',
     bvTotal: calculateForceTotals(listQuickGameUnits(game)).totalBV,

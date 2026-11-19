@@ -27,6 +27,7 @@ import {
   GameSide,
 } from '@/types/gameplay/GameSessionInterfaces';
 
+import { withIdentityManifest } from '../../__tests__/identityBattleUnitManifest';
 import {
   applyPostBattle,
   type ICampaignWithBattleState,
@@ -79,7 +80,7 @@ function outcome(
   unitDelta: IUnitCombatDelta,
   log: IPostBattleReport['log'] = [],
 ): ICombatOutcome {
-  return {
+  return withIdentityManifest({
     version: COMBAT_OUTCOME_VERSION,
     matchId: `match-${String(winner)}`,
     contractId: null,
@@ -97,7 +98,7 @@ function outcome(
     },
     unitDeltas: [unitDelta],
     capturedAt: '3025-06-15T12:00:00Z',
-  };
+  });
 }
 
 function combatReadyAfter(result: ICombatOutcome): boolean | undefined {

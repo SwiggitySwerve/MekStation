@@ -5,6 +5,10 @@ import { equipmentNameResolver } from '@/services/conversion/EquipmentNameResolv
 import { getEquipmentCalculatorService } from '@/services/equipment/EquipmentCalculatorService';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import {
+  createCalculatedEquipment,
+  recalculateTargetingComputers,
+} from '@/stores/unit/unitEquipmentAddition';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
@@ -27,7 +31,10 @@ import {
   splitPartners,
 } from '@/utils/construction/slotOperations/splitAllocation';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
-import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
+import {
+  HEAT_SINK_EQUIPMENT_IDS,
+  TARGETING_COMPUTER_IDS,
+} from '@/utils/equipment/equipmentConstants';
 import { createHeatSinkEquipmentList } from '@/utils/equipment/heatSinkEquipmentUtils';
 
 import type {
@@ -336,6 +343,33 @@ const criticalSlotMarkers = new Map(
   ]),
 );
 
+/** PR-D crit-only equipment rows, keyed by the exact resolved equipment id. */
+const criticalSlotEquipmentRows: ReadonlyMap<
+  string,
+  { readonly spellings: readonly string[]; readonly mountAs?: string }
+> = new Map(vocabulary.criticalSlotEquipment.map((row) => [row.id, row]));
+
+/** `mountAs` id -> the registry-stub id its native cells resolve to. */
+const stubIdByMountAs: ReadonlyMap<string, string> = new Map(
+  [...criticalSlotEquipmentRows].flatMap(([id, row]) =>
+    row.mountAs ? [[row.mountAs, id] as const] : [],
+  ),
+);
+
+/** Exact resolved id AND exact listed native spelling: a spelling the
+ * resolver merely maps onto a row id (CLCASE -> IS case) is not admitted. */
+function isVocabularyEquipment(
+  equipmentId: string | undefined,
+  lookupToken: string,
+): boolean {
+  return (
+    !!equipmentId &&
+    !!criticalSlotEquipmentRows
+      .get(equipmentId)
+      ?.spellings.includes(lookupToken)
+  );
+}
+
 function representedCriticalSlots(
   equipment: readonly IMountedEquipmentInstance[],
 ): ReadonlyMap<MechLocation, ReadonlySet<number>> {
@@ -400,6 +434,12 @@ function recognizeResolvedCriticalSlotEntries(
         equipmentCategory: slot.equipmentDef?.category,
         equipmentId: slot.equipmentId,
         physicalWeapon: isSourcePhysicalWeapon(slot.equipmentId ?? ''),
+        lookupToken: parsedToken.lookupToken,
+        equipmentName: slot.equipmentDef?.name,
+        vocabularyEquipment: isVocabularyEquipment(
+          slot.equipmentId,
+          parsedToken.lookupToken,
+        ),
       });
       cells.push({
         text,
@@ -553,6 +593,76 @@ export function recoverCriticalSlotEntries(
         },
       ];
     }
+    // MtfFile.java:1049-1140 (48fcb2f64): one mount per complete native group,
+    // its identity from the resolved token. Mass/criticals come from the
+    // definition, or the existing variable owner (targeting computer).
+    case 'case':
+    case 'electronics': {
+      const row = entry.equipmentId
+        ? criticalSlotEquipmentRows.get(entry.equipmentId)
+        : undefined;
+      if (!row || !entry.equipmentId || !entry.definition || entry.represented)
+        return [];
+      const reserved = new Set(reservedSlots.get(location));
+      for (const cell of input.locationEntries)
+        if (cell.represented) reserved.add(cell.slot);
+      if (reserved.has(entry.slot)) return [];
+      const definition = row.mountAs
+        ? getEquipmentLookupService().getById(row.mountAs)
+        : entry.definition;
+      if (!definition) return [];
+      const sized = createCalculatedEquipment(definition, definition.id, {
+        tonnage: input.tonnage ?? 0,
+        equipment: [...input.equipment],
+      });
+      const count = criticalEntryCount(sized.criticalSlots, input.tonnage);
+      if (count <= 0) return [];
+      // MtfFile.java:1076-1084 (48fcb2f64): one targeting computer per type per
+      // unit; Java attaches every later TC cell, in any location, to it. PR-D1
+      // recovers it only when the unit's cells total the owner's criticals and
+      // the grouping below finds all of them in this location. Cells in several
+      // locations, more cells than computed, or a superheavy mismatch are
+      // deliberately left in the residual (no canonical unit; never mints an
+      // extra TC); Java would recover one shared TC.
+      if (TARGETING_COMPUTER_IDS.includes(sized.equipmentId)) {
+        const unitCells = input.unitEntries.filter(
+          (cell) => cell.equipmentId === entry.equipmentId,
+        );
+        if (
+          input.equipment.some(
+            (item) => item.equipmentId === sized.equipmentId,
+          ) ||
+          unitCells.length !== count ||
+          unitCells.some((cell) => cell.represented || reserved.has(cell.slot))
+        )
+          return [];
+      }
+      const matching = takeMatchingSlots(
+        input.locationEntries.map((cell) => ({
+          ...cell,
+          index: cell.slot,
+          equipmentDef: cell.definition,
+        })),
+        reserved,
+        entry.equipmentId,
+        count,
+      );
+      if (matching.length !== count || matching[0].index !== entry.slot)
+        return [];
+      const slots = matching.map((cell) => cell.index);
+      return [
+        {
+          ...sized,
+          instanceId: recoveredMountInstanceId(sized.equipmentId, [
+            { location, slots },
+          ]),
+          criticalSlots: count,
+          location,
+          slots,
+          isRearMounted: matching.some((cell) => cell.isRearMounted),
+        },
+      ];
+    }
     case 'armor-marker':
     case 'structure-marker':
       // Marker cells stay in the residual and notice exactly as on main until
@@ -585,14 +695,22 @@ export function restoreCriticalSlotEquipmentWithDiagnostics(
     unitTechBase,
     unitTechBaseMode,
   );
-  const normalizedMapped = mapped.map((item, index) => {
-    const categorized = restoreSerializedCategory(
-      serialized[index],
-      item,
-      resolvedByLocation,
-      entries,
-    );
-    const restored = restoreSerializedHeatSink(serialized[index], categorized);
+  // A saved targeting computer carries no mass: size it from the listed
+  // weapons with the existing owner before it claims its cells.
+  const restoredMapped = recalculateTargetingComputers(
+    mapped.map((item, index) =>
+      restoreSerializedHeatSink(
+        serialized[index],
+        restoreSerializedCategory(
+          serialized[index],
+          item,
+          resolvedByLocation,
+          entries,
+        ),
+      ),
+    ),
+  );
+  const normalizedMapped = restoredMapped.map((restored) => {
     const sizing =
       isSourcePhysicalWeapon(restored.equipmentId) &&
       getEquipmentCalculatorService().isVariable(
@@ -637,10 +755,23 @@ export function restoreCriticalSlotEquipmentWithDiagnostics(
     }
 
     const claimedAtLocation = claimedSlotsFor(claimed, item.location);
+    // A listed `mountAs` item (targeting computer) owns cells resolved to its
+    // stub; cells that resolve straight to its own id keep matching as before.
+    const stubId = stubIdByMountAs.get(item.equipmentId);
+    const cellIdentity =
+      stubId &&
+      takeMatchingSlots(
+        resolvedByLocation.get(item.location) ?? [],
+        claimedAtLocation,
+        stubId,
+        item.criticalSlots,
+      ).length === item.criticalSlots
+        ? stubId
+        : item.equipmentId;
     const matching = takeMatchingSlots(
       resolvedByLocation.get(item.location) ?? [],
       claimedAtLocation,
-      item.equipmentId,
+      cellIdentity,
       item.criticalSlots,
       item.category === EquipmentCategory.AMMUNITION,
     );
@@ -651,7 +782,7 @@ export function restoreCriticalSlotEquipmentWithDiagnostics(
         const rest = takeMatchingSlots(
           resolvedByLocation.get(partner) ?? [],
           claimedAtPartner,
-          item.equipmentId,
+          cellIdentity,
           item.criticalSlots - matching.length,
           item.category === EquipmentCategory.AMMUNITION,
         );
@@ -736,6 +867,7 @@ export function restoreCriticalSlotEquipmentWithDiagnostics(
       locationEntries: cells.filter(
         (cell) => cell.location === current.location,
       ),
+      unitEntries: cells,
       physicalOnly,
       reservedSlots: claimed,
       sourceWeapon,

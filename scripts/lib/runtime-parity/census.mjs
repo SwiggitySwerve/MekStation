@@ -7,7 +7,7 @@
 // Exit code: non-zero only when the census did not complete (missing/drifted inputs, a capture that
 // did not finish, an infrastructure failure, a short or padded capture, or two runs that are not
 // byte-identical). Parity differences never fail the run; they are the measurement.
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
@@ -46,12 +46,56 @@ export class RunError extends Error {
 }
 
 /**
+ * Concurrent captures share a wall clock and a time zone, so a row that carries a time-derived value would agree between
+ * them where two sequential runs (minutes apart) would not. To keep that detectable, every concurrent run after the first
+ * starts this much later than the one before it and runs under a different time zone (concurrentTimeZone).
+ */
+export const CONCURRENT_START_OFFSET_MS = 4000;
+
+/** The time zone this process (and so a capture that inherits its environment) runs in. */
+export const inheritedTimeZone = () =>
+  Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+/**
+ * Concurrent captures roughly double peak memory (a local load capture peaks at about 2.9 GB). On CI the
+ * runner has the headroom, so the default there is concurrent. Locally the default stays sequential, so a
+ * census under the shared machine's two census slots keeps its old footprint unless asked:
+ * `--concurrent` opts in, `--sequential` opts out, and the two together are an error.
+ */
+export function selectCaptureMode(values, env) {
+  if (values.sequential && values.concurrent)
+    throw new Error('--sequential and --concurrent cannot both be given');
+  if (values.sequential) return 'sequential';
+  if (values.concurrent) return 'concurrent';
+  return isCi(env) ? 'concurrent' : 'sequential';
+}
+
+/** `CI` counts only when set to something other than empty, `false` or `0`, so `CI=false` in a shell stays local. */
+export const isCi = (env) => {
+  const value = String(env.CI ?? '')
+    .trim()
+    .toLowerCase();
+  return value !== '' && value !== 'false' && value !== '0';
+};
+
+/** UTC+14, so its calendar date differs from most zones' for most of the day; UTC-11 if that is already the inherited one. */
+export const concurrentTimeZone = (inherited) =>
+  inherited === 'Pacific/Kiritimati'
+    ? 'Pacific/Pago_Pago'
+    : 'Pacific/Kiritimati';
+
+/**
  * A capture that is one fresh Jest process over the plan. `config` is the Jest config, `contextEnv`
  * the environment variable that carries the context file to the capture, and `extraContext({dir})`
  * adds capture-specific fields (the reopen capture gets its fresh database path this way).
+ *
+ * A capture is `({repoRoot, plan, dir, env}) => {records, durationSeconds, resources}` or a promise of that;
+ * runCensus awaits it, so a synchronous capture (a test's injected one) is just as valid. Everything a
+ * capture writes goes under its own `dir`, which is what lets runCensus run several at once. `env` holds
+ * the variables the capture process gets on top of this process's environment (a concurrent run's `TZ`).
  */
 export function jestCapture({ config, contextEnv, extraContext = () => ({}) }) {
-  return ({ repoRoot, plan, dir }) => {
+  return async ({ repoRoot, plan, dir, env = {} }) => {
     fs.mkdirSync(dir, { recursive: true });
     const planFile = path.join(dir, 'plan.json');
     const contextFile = path.join(dir, 'context.json');
@@ -66,21 +110,25 @@ export function jestCapture({ config, contextEnv, extraContext = () => ({}) }) {
     );
     const log = fs.openSync(path.join(dir, 'jest.log'), 'w');
     const started = process.hrtime.bigint();
-    const result = spawnSync(
-      process.execPath,
-      [
-        path.join(repoRoot, 'node_modules/jest/bin/jest.js'),
-        '--config',
-        path.join(repoRoot, config),
-        '--runInBand',
-        '--ci',
-      ],
-      {
-        cwd: repoRoot,
-        env: { ...process.env, [contextEnv]: contextFile },
-        stdio: ['ignore', log, log],
-      },
-    );
+    const result = await new Promise((resolve) => {
+      const child = spawn(
+        process.execPath,
+        [
+          path.join(repoRoot, 'node_modules/jest/bin/jest.js'),
+          '--config',
+          path.join(repoRoot, config),
+          '--runInBand',
+          '--ci',
+        ],
+        {
+          cwd: repoRoot,
+          env: { ...process.env, ...env, [contextEnv]: contextFile },
+          stdio: ['ignore', log, log],
+        },
+      );
+      child.once('error', (error) => resolve({ error }));
+      child.once('close', (status, signal) => resolve({ status, signal }));
+    });
     fs.closeSync(log);
     const durationSeconds = Number(process.hrtime.bigint() - started) / 1e9;
     const read = (name) =>
@@ -204,12 +252,14 @@ export function differingUnits(texts) {
 }
 
 /**
- * spec: { measure, repoRoot, supportedFamilies, capture, toRow, summarize, differencesFile, facts }
+ * spec: { measure, repoRoot, families: { <family>: { capture, toRow, summarize, differencesFile, facts } } }
+ *   One entry per supported family; a run measures exactly one family (`--family`, default battlemechs).
  *   toRow(record) -> row; summarize({rows, referenceByPath, scope, deterministic}) -> {summary, differences};
  *   facts(row, javaReferenceRow) -> the unit's gated facts (scripts/lib/runtime-parity/facts.mjs), written to
  *   facts.ndjson beside the rows for the nightly gate.
  *
- * `--write-baseline --reason <text> [--pr <n>] [--baseline-dir <dir>]` also writes config/parity-runtime/baseline-<measure>.json (and its .sets.ndjson sidecar) from
+ * `--write-baseline --reason <text> [--pr <n>] [--baseline-dir <dir>]` also writes the family's baseline (gate.mjs baselinePath:
+ * config/parity-runtime/baseline-<measure>.json for battlemechs, baseline-<family>-<measure>.json otherwise, and its .sets.ndjson sidecar) from
  * the run's facts, with its SHA, population hash and a `notes[]` entry. It REFUSES (nothing written, exit 1,
  * failure.json BASELINE_REFUSED) for a narrowed run, nondeterministic rows, or any failed, incomplete or unknown unit.
  */
@@ -223,6 +273,8 @@ export async function runCensus(argv, deps, spec) {
       family: { type: 'string', default: 'battlemechs' },
       units: { type: 'string' },
       runs: { type: 'string', default: '2' },
+      sequential: { type: 'boolean', default: false },
+      concurrent: { type: 'boolean', default: false },
       'write-baseline': { type: 'boolean', default: false },
       'baseline-dir': { type: 'string' },
       reason: { type: 'string' },
@@ -236,20 +288,31 @@ export async function runCensus(argv, deps, spec) {
     );
   if (values.pr !== undefined && !/^[1-9][0-9]*$/.test(values.pr))
     throw new Error('--pr must be a positive integer');
+  // Decided with the other flag checks, so a --sequential/--concurrent conflict fails before any input is read.
+  const captureMode = selectCaptureMode(values, deps.env ?? process.env);
   const repoRoot = deps.repoRoot ?? spec.repoRoot;
-  const capture = deps.capture ?? spec.capture;
   const out = path.resolve(values.out);
   const work = path.join(out, 'work');
   fs.mkdirSync(work, { recursive: true });
   const started = process.hrtime.bigint();
   try {
+    // One family per run: each family has its own fact table and baseline files.
     const families = values.family.split(',').filter(Boolean);
-    for (const family of families)
-      if (!spec.supportedFamilies.includes(family))
-        throw new InputError(
-          'UNSUPPORTED_FAMILY',
-          `${family} is not supported yet (battlemechs first)`,
-        );
+    if (families.length !== 1)
+      throw new InputError(
+        'UNSUPPORTED_FAMILY',
+        `--family takes exactly one family per run, not ${families.length}`,
+      );
+    const [family] = families;
+    const familySpec = Object.hasOwn(spec.families, family)
+      ? spec.families[family]
+      : null;
+    if (!familySpec)
+      throw new InputError(
+        'UNSUPPORTED_FAMILY',
+        `${family} is not supported yet (battlemechs first)`,
+      );
+    const capture = deps.capture ?? familySpec.capture;
     const runCount = Number(values.runs);
     if (!Number.isInteger(runCount) || runCount < 1)
       throw new Error('--runs must be a positive integer');
@@ -292,21 +355,51 @@ export async function runCensus(argv, deps, spec) {
         'the join produced no units for the requested families',
       );
 
-    const runs = [];
-    for (let index = 1; index <= runCount; index++) {
-      const result = capture({
+    // Every capture is its own fresh process over the whole plan in its own work/run-<n>, so they can run
+    // together. Either way the runs are kept in index order. Concurrent runs after the first start later and
+    // in another time zone (CONCURRENT_START_OFFSET_MS); sequential runs all inherit this process's
+    // environment, as before.
+    const sequential = captureMode === 'sequential';
+    const captureOffsetMs = sequential
+      ? 0
+      : (deps.captureOffsetMs ?? CONCURRENT_START_OFFSET_MS);
+    const inherited = inheritedTimeZone();
+    const staggered = (index) => !sequential && index > 1;
+    const timeZoneOf = (index) =>
+      staggered(index) ? concurrentTimeZone(inherited) : inherited;
+    const captureRun = async (index) => {
+      if (staggered(index))
+        await new Promise((resolve) =>
+          setTimeout(resolve, (index - 1) * captureOffsetMs),
+        );
+      return capture({
         repoRoot,
         plan,
         dir: path.join(work, `run-${index}`),
+        env: staggered(index) ? { TZ: timeZoneOf(index) } : {},
       });
+    };
+    const toRun = (result) => {
       assertOneRecordPerUnit(result.records, plan);
-      const text = serializeRows(result.records.map(spec.toRow));
-      runs.push({
+      const text = serializeRows(result.records.map(familySpec.toRow));
+      return {
         text,
         rowsSha256: sha256(Buffer.from(text)),
         durationSeconds: result.durationSeconds,
         resources: result.resources,
-      });
+      };
+    };
+    const indices = Array.from({ length: runCount }, (_, i) => i + 1);
+    let runs;
+    if (sequential) {
+      runs = [];
+      for (const index of indices) runs.push(toRun(await captureRun(index)));
+    } else {
+      // Wait for every capture to settle before reporting a failure, so none outlives the run.
+      const settled = await Promise.allSettled(indices.map(captureRun));
+      const failed = settled.find((outcome) => outcome.status === 'rejected');
+      if (failed) throw failed.reason;
+      runs = settled.map((outcome) => toRun(outcome.value));
     }
     const deterministic = runs.every((run) => run.text === runs[0].text);
     const rows = runs[0].text
@@ -314,15 +407,15 @@ export async function runCensus(argv, deps, spec) {
       .filter(Boolean)
       .map((line) => JSON.parse(line));
     const scope = { families, populationCount, unitIds };
-    const { summary, differences } = spec.summarize({
+    const { summary, differences } = familySpec.summarize({
       rows,
       referenceByPath,
       scope,
       deterministic,
     });
 
-    const facts = spec.facts
-      ? rows.map((row) => spec.facts(row, referenceByPath.get(row.path)))
+    const facts = familySpec.facts
+      ? rows.map((row) => familySpec.facts(row, referenceByPath.get(row.path)))
       : null;
     if (facts) {
       fs.writeFileSync(
@@ -335,6 +428,7 @@ export async function runCensus(argv, deps, spec) {
         JSON.stringify(
           factsMeta({
             measure: spec.measure,
+            family,
             referenceSha256: reference.gzipSha256,
           }),
           null,
@@ -348,7 +442,7 @@ export async function runCensus(argv, deps, spec) {
       JSON.stringify(summary, null, 2) + '\n',
     );
     fs.writeFileSync(
-      path.join(out, spec.differencesFile),
+      path.join(out, familySpec.differencesFile),
       differences.map((d) => JSON.stringify(d) + '\n').join(''),
     );
     const receipt = validateReceipt({
@@ -368,6 +462,9 @@ export async function runCensus(argv, deps, spec) {
         durationSeconds,
         resources,
       })),
+      captureMode,
+      captureOffsetMs,
+      captureTimeZones: indices.map(timeZoneOf),
       deterministic,
       scope,
     });
@@ -396,14 +493,17 @@ export async function runCensus(argv, deps, spec) {
         // The committed config/parity-runtime/ unless --baseline-dir names another (a smoke writes to a temp dir).
         const dir = values['baseline-dir']
           ? path.resolve(values['baseline-dir'])
-          : path.join(repoRoot, path.dirname(baselinePath(spec.measure)));
+          : path.join(
+              repoRoot,
+              path.dirname(baselinePath(spec.measure, family)),
+            );
         const target = path.join(
           dir,
-          path.basename(baselinePath(spec.measure)),
+          path.basename(baselinePath(spec.measure, family)),
         );
         const setsTarget = path.join(
           dir,
-          path.basename(baselineSetsPath(spec.measure)),
+          path.basename(baselineSetsPath(spec.measure, family)),
         );
         // Only the notes carry over: the units and facts are replaced by this run, so a baseline that predates a new fact
         // (the very rebaseline that adds it) must still be readable.
@@ -412,6 +512,7 @@ export async function runCensus(argv, deps, spec) {
           : [];
         const baseline = buildBaseline({
           measure: spec.measure,
+          family,
           facts,
           sha: repoSha,
           note: {
@@ -426,7 +527,7 @@ export async function runCensus(argv, deps, spec) {
           existingNotes,
         });
         // Both files come from the one serializer, so they share the one member-set hash function.
-        const { main, sets } = serializeBaseline(baseline);
+        const { main, sets } = serializeBaseline(baseline, family);
         fs.mkdirSync(path.dirname(target), { recursive: true });
         fs.writeFileSync(target, main);
         if (sets !== null) fs.writeFileSync(setsTarget, sets);

@@ -170,7 +170,7 @@ it.each<Mode>(['create', 'overwrite', 'save-as-new', 'save-on-close'])(
     );
     expect(notice).toHaveTextContent('Why?');
     expect(within(notice).getAllByRole('heading')[0]).toHaveTextContent(
-      'Other critical-slot entries (13)',
+      'Other critical-slot entries (9)',
     );
     expect(
       within(notice).getByRole('heading', {

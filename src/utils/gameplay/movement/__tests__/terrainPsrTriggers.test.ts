@@ -286,19 +286,19 @@ describe('planMovementTerrainEffects (shared movement terrain PSR producer)', ()
       terrainLevel: 1,
       triggerSource: 'movement-step:0',
     });
-    expect(
-      onlyPsr(
-        plan({
-          terrain: {
-            [coordToKey(B)]: features({ type: TerrainType.Swamp, level: 2 }),
-          },
-          steps: [forward(0, A, B)],
-        }),
-      ),
-    ).toMatchObject({
+    const deepSwamp = onlyPsr(
+      plan({
+        terrain: {
+          [coordToKey(B)]: features({ type: TerrainType.Swamp, level: 2 }),
+        },
+        steps: [forward(0, A, B)],
+      }),
+    );
+    expect(deepSwamp).toMatchObject({
       terrainLevel: 2,
-      fixedTargetNumber: Number.POSITIVE_INFINITY,
+      automaticFailure: true,
     });
+    expect(deepSwamp).not.toHaveProperty('fixedTargetNumber');
     expect(
       plan({
         terrain: {
