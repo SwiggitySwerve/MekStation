@@ -16,10 +16,21 @@ export function prCacheRef(pr) {
   return `refs/pull/${pr}/merge`;
 }
 
+/** gh api; a failed call carries its HTTP status ("gh: ... (HTTP 404)"). */
 function ghRequest(endpoint, { method = 'GET' } = {}) {
-  const out = execFileSync('gh', ['api', endpoint, '--method', method], {
-    encoding: 'utf8',
-  });
+  let out;
+  try {
+    out = execFileSync('gh', ['api', endpoint, '--method', method], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (error) {
+    const stderr = String(error.stderr ?? '').trim();
+    const status = /\(HTTP (\d{3})\)/.exec(stderr)?.[1];
+    throw Object.assign(new Error(stderr || error.message), {
+      status: status && Number(status),
+    });
+  }
   return out.trim() ? JSON.parse(out) : null;
 }
 
@@ -46,6 +57,7 @@ export async function cleanupPrCaches(
     );
   let deleted = 0,
     bytes = 0,
+    gone = 0,
     failed = 0;
   for (const cache of owned) {
     if (dryRun) {
@@ -59,16 +71,28 @@ export async function cleanupPrCaches(
       deleted++;
       bytes += cache.size_in_bytes ?? 0;
     } catch (error) {
-      // Keep going: one failure (e.g. evicted meanwhile) must not keep the rest.
+      // 404: evicted, or deleted by an earlier cleanup, after the listing.
+      if (error.status === 404) {
+        gone++;
+        continue;
+      }
+      // Anything else (e.g. 403) fails the run, after trying the rest.
       failed++;
       warn(`Could not delete cache ${cache.id} ${cache.key}: ${error.message}`);
     }
   }
   log(
     `${ref}: ${dryRun ? 'found' : 'deleted'} ${dryRun ? owned.length : deleted} cache(s)` +
-      `${dryRun ? '' : `, ${(bytes / 1e6).toFixed(1)} MB`}${failed ? `, ${failed} failed` : ''}.`,
+      `${dryRun ? '' : `, ${(bytes / 1e6).toFixed(1)} MB, ${gone} already gone`}${failed ? `, ${failed} failed` : ''}.`,
   );
-  return { ref, listed: listed.length, owned: owned.length, deleted, failed };
+  return {
+    ref,
+    listed: listed.length,
+    owned: owned.length,
+    deleted,
+    gone,
+    failed,
+  };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

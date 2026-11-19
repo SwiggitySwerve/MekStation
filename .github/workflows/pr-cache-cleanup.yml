@@ -12,9 +12,16 @@ on:
 
 permissions: {}
 
+# One cleanup per PR at a time (a reopen and second close queues behind it).
+concurrency:
+  group: pr-cache-cleanup-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
 jobs:
   cleanup:
     name: Delete the closed PR's caches
+    # A fork PR's token cannot get actions: write, so the job would only fail.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:
