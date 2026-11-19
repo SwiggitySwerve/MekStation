@@ -77,7 +77,7 @@ export {
   isPhaseActivationEligible,
 } from './gameSessionActivation';
 import { appendEvent } from './gameSessionEvents';
-import { allUnitsLocked, deriveState } from './gameState';
+import { allUnitsLocked, deriveFoldedState } from './gameState';
 import {
   calculateSideInitiativeModifier,
   hasSideTacticalGeniusInitiativeReroll,
@@ -133,7 +133,7 @@ export function createGameSession(
     options.quickMeta?.bvTotal,
   );
   const events: IGameEvent[] = [createdEvent];
-  const currentState = deriveState(id, events);
+  const currentState = deriveFoldedState(id, events);
 
   return {
     id,
@@ -175,7 +175,7 @@ export function hydrateGameSessionFromEvents(
     config: payload.config,
     units: payload.units,
     events: orderedEvents,
-    currentState: deriveState(matchId, orderedEvents),
+    currentState: deriveFoldedState(matchId, orderedEvents),
   };
 }
 

@@ -16,7 +16,7 @@ import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
 import { GameEventType } from '@/types/gameplay';
 import { RangeBracket } from '@/types/gameplay/HexGridInterfaces';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
-import { deriveState } from '@/utils/gameplay/gameState';
+import { deriveFoldedState } from '@/utils/gameplay/gameState';
 import { hexEquals } from '@/utils/gameplay/hexMath';
 import {
   calculateLOS,
@@ -324,7 +324,7 @@ export function enrichAttackDeclaredEventFromProjection({
   return {
     ...session,
     events,
-    currentState: deriveState(session.id, events),
+    currentState: deriveFoldedState(session.id, events),
   };
 }
 

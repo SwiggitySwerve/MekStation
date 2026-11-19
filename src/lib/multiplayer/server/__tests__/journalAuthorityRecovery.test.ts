@@ -22,6 +22,7 @@ import {
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { GameSide, type IGameUnit } from '@/types/gameplay';
 import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
+import { withStateOutsideEventLog } from '@/utils/gameplay/__tests__/eventLogFault.test-helpers';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
 import { DurableMatchStore } from '../DurableMatchStore';
@@ -878,11 +879,18 @@ describe('combat journal-authority recovery', () => {
           committed,
           deps,
         );
-        applied.applyCorrectedState({
-          ...applied.getState(),
-          turn: applied.getState().turn + 99,
-        });
-        return applied;
+        return InteractiveSession.fromHydratedSession(
+          withStateOutsideEventLog(applied.getSession(), (state) => ({
+            ...state,
+            turn: state.turn + 99,
+          })),
+          {
+            random: new SeededRandom(deps.randomSeed),
+            d6Roller: deps.d6Roller,
+            playerUnits: deps.playerUnits,
+            opponentUnits: deps.opponentUnits,
+          },
+        );
       },
     );
 

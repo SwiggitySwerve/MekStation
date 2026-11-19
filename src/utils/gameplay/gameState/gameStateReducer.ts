@@ -11,6 +11,7 @@ import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveE
 import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
 import { applyEvent } from './eventDispatch';
+import { stampFoldRevision } from './foldRevision';
 import {
   createInitialGameState,
   createInitialUnitState,
@@ -28,6 +29,20 @@ export function deriveState(
     state = applyEvent(state, event);
   }
 
+  return state;
+}
+
+/**
+ * deriveState, stamped with the events array it was folded from (and that
+ * array's last event), for a session's `currentState`: appendEvent then folds
+ * onto it incrementally, and refuses it once it is out of step with its log.
+ */
+export function deriveFoldedState(
+  gameId: string,
+  events: readonly IGameEvent[],
+): IGameState {
+  const state = deriveState(gameId, events);
+  stampFoldRevision(state, events);
   return state;
 }
 
