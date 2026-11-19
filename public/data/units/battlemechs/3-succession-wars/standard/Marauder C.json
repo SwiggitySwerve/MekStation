@@ -196,6 +196,7 @@
     "RT:0:CLUltraAC5": ["exposed_linkage"]
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "INNER_SPHERE"
   }
 }

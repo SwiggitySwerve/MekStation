@@ -37,6 +37,53 @@ in `BMStructureTab.java:773-802`.
 - **WHEN** an unchanged pure Inner Sphere or Clan unit is exported
 - **THEN** its complete export bytes SHALL remain unchanged
 
+### Requirement: Mixed Tech component sides in converted units
+
+The unit converter SHALL state, on every qualified Mixed Tech unit, the component
+technology sides the pinned MegaMek `48fcb2f64` loaders derive, so that absence on a
+Mixed unit never has to be interpreted, and a committed catalog splice of these
+fields SHALL equal a fresh converter emit of the pinned mm-data `50f7efef` source.
+
+- Mek engine: `componentTechBases.engine` from the engine line (`MtfFile.java:387-392`,
+  `Entity.itemOppositeTech:13668-13674`); the `XL`/`CLAN_XL` engine token SHALL agree with it.
+- Vehicle and fighter armor: `componentTechBases.armor` from `armor_tech_level`, else
+  `armor_tech`, else the chassis side (`BLKFile.java:1951-1958`; support vehicles read only
+  `armor_tech_level`, `BLKFile.java:505-524`), Clan for the `clanTechLevels` of
+  `mtf-component-vocabulary.json` (`ArmorType.forEntity:96-101`, `TechConstants.isClan:394-399`).
+- Vehicle and fighter engine: the existing `clanEngine` carrier, from the source tag or
+  else the loader's rule (Tank, VTOL and fighter loaders take the chassis side; support
+  vehicle and small-craft loaders never set a Clan engine).
+
+#### Scenario: Every Mixed mek states its engine side
+
+- **GIVEN** a qualified Mixed mek source with an engine line
+- **WHEN** it is converted
+- **THEN** `componentTechBases` SHALL be `{chassis, engine}` with the engine side of the pinned rule
+- **AND** an IS chassis SHALL be Clan only when the line names Clan, and a Clan chassis SHALL be Inner Sphere only when the line names Inner Sphere
+- **AND** a non-Mixed mek SHALL gain no component sides
+
+#### Scenario: Vehicle and fighter armor side follows the armor technology level
+
+- **GIVEN** a qualified Mixed vehicle or fighter source
+- **WHEN** it is converted
+- **THEN** `componentTechBases` SHALL be `{chassis, armor}` with Clan only for levels 2, 6, 8, 10 and 12
+- **AND** explicit -1 SHALL be Inner Sphere even on a Clan chassis, and only an absent level SHALL inherit the chassis side
+- **AND** patchwork armor, infantry and battle armor SHALL emit no armor side
+
+#### Scenario: Untagged Mixed engines state the loader's side
+
+- **GIVEN** a qualified Mixed vehicle or fighter source without `clan_engine`
+- **WHEN** it is converted
+- **THEN** `clanEngine` SHALL be emitted with the pinned loader's side, and a present tag SHALL win
+- **AND** a non-Mixed source SHALL emit `clanEngine` only from its tag
+
+#### Scenario: The catalog splice equals a fresh emit
+
+- **GIVEN** the committed catalog after the tech-side splice
+- **WHEN** each spliced unit is compared with the converter's output for its pinned source
+- **THEN** every spliced field and the `componentTechBases` key order SHALL be equal
+- **AND** the splice SHALL change no other byte than the inserted lines and one counted comma per file
+
 ### Requirement: Preserve binary technology facts at the BLK import boundary
 
 The common BLK import boundary SHALL decode qualified Mixed headers once into

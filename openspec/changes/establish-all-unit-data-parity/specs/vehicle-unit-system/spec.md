@@ -515,10 +515,10 @@ It SHALL preserve source loadability independently of construction validity.
 - **GIVEN** a mixed-tech IS-chassis Tank with explicit Clan armor technology
 - **WHEN** native weight is transported to the existing construction owner
 - **THEN** the existing parsed armor technology SHALL select armor side independently of chassis
-- **AND** concrete Clan levels 2, 6, 8 and 10 SHALL use Clan armor; absent or unknown (-1) SHALL fall back to chassis
+- **AND** Clan levels 2, 6, 8, 10 and 12 SHALL use Clan armor; explicit -1 SHALL use IS armor; only an absent tag SHALL inherit the chassis side
 - **AND** explicit IS armor technology SHALL retain IS armor even on a Clan chassis
 - **AND** pinned Zephyr EC and Tokugawa Yumi SHALL retain 7.5 and 8.5 tons of armor and remain valid at 40 and 60 tons
-- **AND** armor formulas, catalogs and unrelated technology-side consumers SHALL remain unchanged
+- **AND** armor formulas and unrelated technology-side consumers SHALL remain unchanged
 
 #### Scenario: No-controls source presence
 
@@ -533,6 +533,37 @@ It SHALL preserve source loadability independently of construction validity.
 - **THEN** only the three known genuine overweight validity corrections SHALL occur
 - **AND** no native-valid source SHALL newly fail construction and no source SHALL lose loadability
 - **AND** all 9815 BV report rows SHALL remain byte-identical under the approved blocking-trust invocation
+
+### Requirement: Editor armor side follows the stated technology
+
+The vehicle editor SHALL weigh a Mixed Tech vehicle's armor on the side its definition
+states (`componentTechBases.armor`), independently of the chassis. A Mixed definition
+that states no side SHALL be treated as unknown, never as Inner Sphere: a saved editor
+document SHALL keep its own side-explicit armor tag, and any other definition whose armor
+weight depends on the side SHALL be refused with a visible reason. A Mixed vehicle
+save SHALL state `componentTechBases.armor` for an armor type that is one half of an
+Inner Sphere/Clan pair, and no armor side for side-neutral armor.
+
+#### Scenario: Stated Clan armor on an Inner Sphere chassis
+
+- **GIVEN** the committed Zephyr Hovertank EC, Tokugawa Heavy Tank Yumi, Chalchiuhtotolin Support Tank (Chemical Laser), Cardinal Transport (RAF) and Skanda Light Tank (TSEMP)
+- **WHEN** each is opened in the vehicle editor
+- **THEN** the armor SHALL be Clan ferro-fibrous of 7.5, 8.5, 7, 5 and 6.5 tons respectively
+- **AND** Chalchiuhtotolin Support Tank (Bombast Laser), with explicit level -1 on a Clan chassis, SHALL keep 7.5 tons of Inner Sphere ferro-fibrous
+
+#### Scenario: Unknown side
+
+- **GIVEN** a Mixed vehicle definition with ferro-fibrous armor and no stated armor side
+- **WHEN** it is opened and it is not a saved editor document
+- **THEN** the editor SHALL refuse it with a reason stating that its armor technology is unknown
+- **AND** side-neutral armor SHALL open without a stated side
+
+#### Scenario: Saved Mixed vehicles reopen on their saved side
+
+- **GIVEN** a Mixed vehicle saved with Inner Sphere or Clan ferro-fibrous
+- **WHEN** it is saved and reopened
+- **THEN** the save SHALL state that armor side and the reopened armor type and tonnage SHALL equal the saved state
+- **AND** an older save that states only the chassis SHALL reopen its plain ferro-fibrous tag as Inner Sphere, as written
 
 ### Requirement: Native vehicle equipment introduction diagnostics
 

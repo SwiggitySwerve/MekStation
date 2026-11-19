@@ -61,6 +61,7 @@
       "location": "BODY"
     }
   ],
+  "clanEngine": true,
   "armorTechRating": 0,
   "transporters": [
     "troopspace:12.0"
@@ -80,6 +81,7 @@
     "primaryFactory": "Itabaiana"
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "armor": "CLAN"
   }
 }

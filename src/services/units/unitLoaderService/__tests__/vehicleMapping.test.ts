@@ -596,3 +596,137 @@ describe('pinned Dune Buggy source equipment identity', () => {
     });
   });
 });
+
+// MegaMek 48fcb2f64 ArmorType.forEntity:96-101 -> TechConstants.isClan: a Mixed
+// vehicle weighs the armor side its source states, not its chassis (row 2.1.5).
+describe('Mixed Tech armor side', () => {
+  const base = supported[0].definition;
+  const mixed = (
+    componentTechBases: Record<string, string>,
+    type = 'FERRO_FIBROUS',
+  ) => ({
+    ...base,
+    techBase: 'MIXED',
+    componentTechBases,
+    armor: { ...base.armor, type },
+  });
+  it('weighs the stated armor side independently of the chassis', () => {
+    expect(
+      mapToVehicleState(mixed({ chassis: 'INNER_SPHERE', armor: 'CLAN' }))
+        .armorType,
+    ).toBe(ArmorTypeEnum.FERRO_FIBROUS_CLAN);
+    expect(
+      mapToVehicleState(mixed({ chassis: 'CLAN', armor: 'INNER_SPHERE' }))
+        .armorType,
+    ).toBe(ArmorTypeEnum.FERRO_FIBROUS_IS);
+  });
+  it('refuses side-dependent armor whose side a Mixed source does not state', () => {
+    let error: unknown;
+    try {
+      mapToVehicleState(mixed({ chassis: 'CLAN' }));
+    } catch (caught) {
+      error = caught;
+    }
+    expect(error).toBeInstanceOf(UnsupportedVehicleConfigurationError);
+    expect((error as UnsupportedVehicleConfigurationError).field).toBe(
+      'armor.techBase',
+    );
+    expect((error as Error).message).toContain('armor technology is unknown');
+  });
+  it('opens side-neutral armor without a stated side', () => {
+    expect(
+      mapToVehicleState(mixed({ chassis: 'CLAN' }, 'STANDARD')).armorType,
+    ).toBe(ArmorTypeEnum.STANDARD);
+  });
+  it.each(['INNER_SPHERE', 'CLAN'] as const)(
+    'reopens a saved Mixed vehicle on its saved %s armor side',
+    (side) => {
+      const state = mapToVehicleState(
+        mixed({ chassis: 'INNER_SPHERE', armor: side }),
+      );
+      const saved = serializeCustomVehicleState(state, {
+        id: `mixed-armor-${side}`,
+        chassis: state.chassis,
+        variant: state.model,
+        era: Era.DARK_AGE,
+      });
+      // New saves state the side they were saved with.
+      expect(saved.componentTechBases?.armor).toBe(side);
+      const reopened = mapToVehicleState(JSON.parse(JSON.stringify(saved)));
+      expect([reopened.armorType, reopened.armorTonnage]).toEqual([
+        state.armorType,
+        state.armorTonnage,
+      ]);
+    },
+  );
+  it('opens an older saved Mixed ferro-fibrous document, written without a side, as written', () => {
+    // Saves before this change wrote only the chassis; their FERRO_FIBROUS tag
+    // was written from Inner Sphere ferro-fibrous (CustomUnitSerializer.tags.ts).
+    const state = mapToVehicleState(
+      mixed({ chassis: 'CLAN', armor: 'INNER_SPHERE' }),
+    );
+    const saved: Record<string, unknown> = JSON.parse(
+      JSON.stringify(
+        serializeCustomVehicleState(state, {
+          id: 'mixed-armor-legacy',
+          chassis: state.chassis,
+          variant: state.model,
+          era: Era.DARK_AGE,
+        }),
+      ),
+    );
+    const { armor: _armor, ...legacy } = saved.componentTechBases as Record<
+      string,
+      string
+    >;
+    const reopened = mapToVehicleState({
+      ...saved,
+      componentTechBases: legacy,
+    });
+    expect(reopened.armorType).toBe(ArmorTypeEnum.FERRO_FIBROUS_IS);
+  });
+  it('writes no armor side for a side-neutral Mixed armor', () => {
+    const state = mapToVehicleState(mixed({ chassis: 'CLAN' }, 'STANDARD'));
+    const saved = serializeCustomVehicleState(state, {
+      id: 'mixed-armor-neutral',
+      chassis: state.chassis,
+      variant: state.model,
+      era: Era.DARK_AGE,
+    });
+    expect(saved.componentTechBases).toEqual({ chassis: 'CLAN' });
+  });
+  // Committed catalog (spliced from the pinned BLKs); tonnages from the phase-1 prediction.
+  it.each([
+    ['Zephyr Hovertank EC', ArmorTypeEnum.FERRO_FIBROUS_CLAN, 7.5],
+    ['Tokugawa Heavy Tank Yumi', ArmorTypeEnum.FERRO_FIBROUS_CLAN, 8.5],
+    [
+      'Chalchiuhtotolin Support Tank (Chemical Laser)',
+      ArmorTypeEnum.FERRO_FIBROUS_CLAN,
+      7,
+    ],
+    ['Cardinal Transport (RAF)', ArmorTypeEnum.FERRO_FIBROUS_CLAN, 5],
+    ['Skanda Light Tank (TSEMP)', ArmorTypeEnum.FERRO_FIBROUS_CLAN, 6.5],
+    // Control: explicit -1 on a Clan chassis is Inner Sphere armor.
+    [
+      'Chalchiuhtotolin Support Tank (Bombast Laser)',
+      ArmorTypeEnum.FERRO_FIBROUS_IS,
+      7.5,
+    ],
+  ] as const)(
+    'loads catalog %s with %s armor of %s tons',
+    (name, armorType, tons) => {
+      const definition: unknown = JSON.parse(
+        fs.readFileSync(
+          path.join(
+            process.cwd(),
+            'public/data/units/vehicles',
+            `${name}.json`,
+          ),
+          'utf8',
+        ),
+      );
+      const state = mapToVehicleState(definition);
+      expect([state.armorType, state.armorTonnage]).toEqual([armorType, tons]);
+    },
+  );
+});

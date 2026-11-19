@@ -220,6 +220,7 @@
   "role": "Sniper",
   "source": "Unbound",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

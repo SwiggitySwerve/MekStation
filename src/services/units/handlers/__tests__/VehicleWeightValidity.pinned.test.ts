@@ -238,7 +238,7 @@ it('transports no-controls tag presence without interpreting its payload', () =>
   expect(result.data.unit.totalWeight).toBe(37);
 });
 
-// Entity.isClanArmor:1985-1999; densities from native ArmorType / TestTank.
+// ArmorType.forEntity:96-101 -> TechConstants.isClan:394-399; densities from native ArmorType / TestTank.
 const mixedArmorFixtures = [
   {
     path: 'vehicles/Golden Century/Zephyr Hovertank EC.blk',

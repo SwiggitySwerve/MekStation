@@ -177,6 +177,7 @@
   "role": "Striker",
   "source": "WoR,TR:CI,WoRS",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

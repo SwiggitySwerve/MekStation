@@ -188,6 +188,7 @@
   "role": "Missile Boat",
   "source": "TR:GC",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "INNER_SPHERE"
   }
 }

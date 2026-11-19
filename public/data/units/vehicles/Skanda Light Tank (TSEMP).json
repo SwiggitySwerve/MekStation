@@ -50,6 +50,7 @@
       "location": "BODY"
     }
   ],
+  "clanEngine": true,
   "armorTechRating": 0,
   "mulId": 8058,
   "role": "Striker",
@@ -73,6 +74,7 @@
     }
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "armor": "CLAN"
   }
 }

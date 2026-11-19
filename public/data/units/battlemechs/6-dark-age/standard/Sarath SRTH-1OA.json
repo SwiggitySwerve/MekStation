@@ -180,6 +180,7 @@
   "role": "Missile Boat",
   "source": "TR:3145:FWL,TR:DA",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

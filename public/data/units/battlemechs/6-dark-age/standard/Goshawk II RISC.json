@@ -187,6 +187,7 @@
   "role": "Striker",
   "source": "XTR:RotS 3",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

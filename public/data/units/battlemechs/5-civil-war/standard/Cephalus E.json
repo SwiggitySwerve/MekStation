@@ -181,6 +181,7 @@
   "role": "Sniper",
   "source": "WoR,WoRS",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

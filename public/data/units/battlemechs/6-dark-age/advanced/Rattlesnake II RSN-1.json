@@ -196,6 +196,7 @@
   "role": "Striker",
   "source": "Shrap09",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "CLAN"
   }
 }

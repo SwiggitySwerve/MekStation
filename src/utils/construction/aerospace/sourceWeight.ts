@@ -8,6 +8,7 @@ import {
   EngineType,
   getEngineDefinition,
 } from '@/types/construction/EngineType';
+import { isClanTechLevel } from '@/types/formats/ArmorTechSide';
 import { ceilToHalfTon as half } from '@/utils/physical/weightUtils';
 
 import {
@@ -185,7 +186,7 @@ export function sourceArmor(s: Source) {
     clan:
       s.rawTags.armor_tech_level === undefined
         ? sourceClan(s)
-        : [2, 4, 6, 8].includes(Number(s.rawTags.armor_tech_level)),
+        : isClanTechLevel(Number(s.rawTags.armor_tech_level)),
     structuralIntegrity: s.structuralIntegrity ?? 0,
     spheroid: s.motionType?.toLowerCase() === 'spheroid',
     large: large(s),

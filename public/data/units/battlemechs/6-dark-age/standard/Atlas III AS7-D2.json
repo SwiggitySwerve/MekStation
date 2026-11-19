@@ -191,6 +191,7 @@
     "RA:4:CLHAG30": ["jettison_capable"]
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

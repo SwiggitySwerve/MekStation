@@ -187,6 +187,7 @@
     "LA:2:Autocannon/5": ["no_cooling"]
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from blk_common import get_string, normalize_equipment_id, parse_number, map_armor_code, BLK_ARMOR_CODE_MAP, validate_blk_tech_type
 from enum_mappings import map_chassis_tech_base
+from enum_mapping_tables import CLAN_TECH_LEVELS
 from blk_vehicle_tables import BAR_ARMOR_CODES
 from weapon_quirks import append_weapon_quirk
 
@@ -20,15 +21,69 @@ STANDARD_FLUFF_FIELDS = (
 )
 
 
-def mixed_chassis_fields(tech_type: str) -> Dict[str, Any]:
+def mixed_chassis_fields(tech_type: str, tags: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """Project a validated BLK header through the shared Mixed chassis decoder.
 
     BLK_TECH_TYPES owns accepted rules-level suffixes; the existing MTF decoder
     owns the chassis qualifier and tech-base mapping. BA uses clanChassis instead.
+    Given the unit's tags (vehicles and fighters), the armor side is added too.
     """
     header = validate_blk_tech_type(tech_type).partition(')')[0] + ')'
     chassis = map_chassis_tech_base(header)
-    return {'componentTechBases': {'chassis': chassis}} if chassis else {}
+    if not chassis:
+        return {}
+    sides = {'chassis': chassis}
+    armor = mixed_armor_side(tags, chassis) if tags is not None else None
+    if armor:
+        sides['armor'] = armor
+    return {'componentTechBases': sides}
+
+
+# Pinned loaders that read the armor level through loadSVArmor (BLKFile.java:505-524): armor_tech_level only.
+_SV_ARMOR_LOADERS = frozenset({'SupportTank', 'LargeSupportTank', 'SupportVTOL', 'FixedWingSupport'})
+
+
+def mixed_armor_side(tags: Dict[str, Any], chassis: str) -> Optional[str]:
+    """Armor side of a Mixed BLK unit, as the pinned loaders weigh it (MegaMek 48fcb2f64).
+
+    The level comes from armor_tech_level, else the legacy armor_tech, else the unit's own level, which is
+    the chassis side (BLKFile.setArmorTechLevelFromDataFile:1951-1958; BLKTankFile:283-304). Support
+    vehicles read only armor_tech_level (BLKFile.loadSVArmor:505-524). ArmorType.forEntity:96-101 then picks
+    the Clan type when TechConstants.isClan holds (CLAN_TECH_LEVELS). Patchwork armor has one level per
+    location, so it has no single side and none is emitted.
+    """
+    if 'armor_type' in tags and parse_qualifier_number(tags, 'armor_type', integer=True) == 7:
+        return None
+    keys = ('armor_tech_level',) if get_string(tags, 'UnitType') in _SV_ARMOR_LOADERS else ('armor_tech_level', 'armor_tech')
+    key = next((k for k in keys if k in tags), None)
+    if key is None:
+        return chassis
+    return 'CLAN' if parse_qualifier_number(tags, key, integer=True) in CLAN_TECH_LEVELS else 'INNER_SPHERE'
+
+
+# Engine side of an untagged Mixed unit, by pinned loader. These read clan_engine and otherwise take the
+# chassis side: BLKTankFile:144-151 (Tank, VTOL via BLKVTOLFile:94-102), BLKAeroSpaceFighterFile:115-123,
+# BLKConvFighterFile:106-114. BLKLargeSupportTankFile:98-101 always takes the chassis side. The support and
+# small-craft loaders never set Engine.CLAN_ENGINE (BLKSupportTankFile:99, BLKSupportVTOLFile:99,
+# BLKFixedWingSupportFile:100, BLKSmallCraftFile).
+_ENGINE_CHASSIS_SIDE_LOADERS = frozenset({'Tank', 'VTOL', 'AeroSpaceFighter', 'Aero', 'ConvFighter', 'LargeSupportTank'})
+_ENGINE_NEVER_CLAN_LOADERS = frozenset({'SupportTank', 'SupportVTOL', 'FixedWingSupport', 'SmallCraft'})
+
+
+def untagged_mixed_clan_engine(tags: Dict[str, Any]) -> Optional[bool]:
+    """Resolved engine side of a Mixed unit without a clan_engine tag; None for a non-Mixed unit."""
+    tech_type = get_string(tags, 'type', 'Type')
+    chassis = map_chassis_tech_base(validate_blk_tech_type(tech_type).partition(')')[0] + ')') if tech_type else None
+    if chassis is None:
+        return None
+    unit_type = get_string(tags, 'UnitType')
+    if unit_type is None:
+        return None  # no loader is known, so no engine side is stated
+    if unit_type in _ENGINE_CHASSIS_SIDE_LOADERS:
+        return chassis == 'CLAN'
+    if unit_type in _ENGINE_NEVER_CLAN_LOADERS:
+        return False
+    raise ValueError(f'No pinned engine-side rule for Mixed BLK UnitType {unit_type!r}')
 
 
 def parse_mul_id(tags: Dict[str, Any]) -> Optional[int]:
@@ -107,6 +162,10 @@ def parse_source_qualifiers(tags: Dict[str, Any]) -> Dict[str, Any]:
         if raw not in ('true', 'false'):
             raise ValueError(f'Invalid BLK clan_engine: {tags["clan_engine"]!r}')
         result['clanEngine'] = raw == 'true'
+    else:
+        resolved = untagged_mixed_clan_engine(tags)
+        if resolved is not None:
+            result['clanEngine'] = resolved
 
     if 'transporters' in tags:
         result['transporters'] = [

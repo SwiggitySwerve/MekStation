@@ -192,6 +192,7 @@
   "role": "Brawler",
   "source": "Shrap25",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "CLAN"
   }
 }

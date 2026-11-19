@@ -179,6 +179,7 @@
   "role": "Skirmisher",
   "source": "Shrap17",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

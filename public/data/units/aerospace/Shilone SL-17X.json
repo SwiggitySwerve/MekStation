@@ -81,6 +81,7 @@
       "location": "FUSELAGE"
     }
   ],
+  "clanEngine": false,
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 2927,
@@ -95,6 +96,7 @@
     "primaryFactory": "Chatham|Ramora|Pinard|Pompey"
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "INNER_SPHERE"
   }
 }

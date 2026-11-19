@@ -193,6 +193,7 @@
   "role": "Striker",
   "source": "TR:3055U,Shrap09",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

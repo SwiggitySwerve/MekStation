@@ -127,6 +127,7 @@
     }
   ],
   "isOmni": true,
+  "clanEngine": false,
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 5758,
@@ -141,6 +142,7 @@
     "primaryFactory": "Orestes"
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "INNER_SPHERE"
   }
 }

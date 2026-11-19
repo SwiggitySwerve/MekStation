@@ -96,6 +96,7 @@
       "location": "FUSELAGE"
     }
   ],
+  "clanEngine": false,
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 7690,
@@ -110,6 +111,7 @@
     "primaryFactory": "Various"
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "INNER_SPHERE"
   }
 }

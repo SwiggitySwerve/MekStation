@@ -186,6 +186,7 @@
   "role": "Scout",
   "source": "PS:AO-UrbanFest",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "CLAN"
   }
 }

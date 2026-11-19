@@ -1,4 +1,8 @@
 import {
+  resolveDefinitionComponentTechBase,
+  resolveMechEngineTechBase,
+} from '@/services/units/unitLoaderService/componentMappers';
+import {
   TechBaseMode,
   resolveUnitChassisTechBase,
   pickUnitTechBaseIdentity,
@@ -348,5 +352,63 @@ describe('the family-owned chassis fact', () => {
         chassisTechBase: undefined,
       }),
     ).toEqual({});
+  });
+});
+
+describe('stated component technology sides (rows 2.1.3, 2.1.5)', () => {
+  // The converter states each Mixed component side the pinned loaders derive;
+  // absence on a Mixed definition is unknown, never Inner Sphere.
+  it.each([
+    [
+      { techBase: 'MIXED', componentTechBases: { armor: 'CLAN' } },
+      TechBase.CLAN,
+    ],
+    [
+      { techBase: 'MIXED', componentTechBases: { armor: 'INNER_SPHERE' } },
+      TechBase.INNER_SPHERE,
+    ],
+    [
+      { techBase: 'CLAN', componentTechBases: { armor: 'INNER_SPHERE' } },
+      TechBase.INNER_SPHERE,
+    ],
+    [{ techBase: 'CLAN' }, TechBase.CLAN],
+    [{ techBase: 'INNER_SPHERE' }, TechBase.INNER_SPHERE],
+    [{ techBase: 'MIXED', componentTechBases: { chassis: 'CLAN' } }, undefined],
+    [{ techBase: 'MIXED' }, undefined],
+  ] as const)('reads the armor side of %j as %s', (definition, side) => {
+    expect(resolveDefinitionComponentTechBase(definition, 'armor')).toBe(side);
+  });
+  it.each([
+    // A side-naming token wins over the stated field (the converter keeps them equal).
+    [{ techBase: 'MIXED', engine: { type: 'CLAN_XL' } }, TechBase.CLAN],
+    [
+      {
+        techBase: 'MIXED',
+        engine: { type: 'CLAN_XL' },
+        componentTechBases: { engine: 'INNER_SPHERE' },
+      },
+      TechBase.CLAN,
+    ],
+    [
+      {
+        techBase: 'MIXED',
+        engine: { type: 'XL' },
+        componentTechBases: { engine: 'CLAN' },
+      },
+      TechBase.INNER_SPHERE,
+    ],
+    [{ techBase: 'CLAN', engine: { type: 'XL' } }, TechBase.CLAN],
+    [
+      {
+        techBase: 'MIXED',
+        engine: { type: 'XXL' },
+        componentTechBases: { engine: 'CLAN' },
+      },
+      TechBase.CLAN,
+    ],
+    [{ techBase: 'MIXED', engine: { type: 'XXL' } }, undefined],
+    [{ techBase: 'CLAN', engine: { type: 'XXL' } }, TechBase.CLAN],
+  ] as const)('reads the mek engine side of %j as %s', (definition, side) => {
+    expect(resolveMechEngineTechBase(definition)).toBe(side);
   });
 });

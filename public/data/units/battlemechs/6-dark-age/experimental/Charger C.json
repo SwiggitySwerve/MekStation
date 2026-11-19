@@ -188,6 +188,7 @@
   "role": "Scout",
   "source": "RG29",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

@@ -192,6 +192,7 @@
   "role": "Juggernaut",
   "source": "TR:3145:DC,TR:3150",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

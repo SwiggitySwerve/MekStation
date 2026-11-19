@@ -204,6 +204,7 @@
   "role": "Striker",
   "source": "RG21",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

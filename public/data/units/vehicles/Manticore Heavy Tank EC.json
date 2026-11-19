@@ -61,6 +61,7 @@
       "location": "BODY"
     }
   ],
+  "clanEngine": false,
   "armorTechRating": 0,
   "mulId": 7675,
   "role": "Brawler",
@@ -81,6 +82,7 @@
     }
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "INNER_SPHERE"
   }
 }

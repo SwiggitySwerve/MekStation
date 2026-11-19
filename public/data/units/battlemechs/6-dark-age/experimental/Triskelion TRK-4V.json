@@ -201,6 +201,7 @@
   "role": "Brawler",
   "source": "XTR:RotS 3",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "CLAN"
   }
 }

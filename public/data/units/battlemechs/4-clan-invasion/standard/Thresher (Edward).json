@@ -189,6 +189,7 @@
   "role": "Skirmisher",
   "source": "JTP:Luthien",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

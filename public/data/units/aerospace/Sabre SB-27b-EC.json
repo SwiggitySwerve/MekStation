@@ -56,6 +56,7 @@
       "location": "RIGHT_WING"
     }
   ],
+  "clanEngine": false,
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 7687,
@@ -70,6 +71,7 @@
     "primaryFactory": "Various"
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "INNER_SPHERE"
   }
 }

@@ -185,6 +185,7 @@
   "role": "Striker",
   "source": "RG28",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

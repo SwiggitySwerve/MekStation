@@ -180,6 +180,7 @@
   "role": "Striker",
   "source": "RG16",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

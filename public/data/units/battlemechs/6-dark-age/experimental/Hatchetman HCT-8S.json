@@ -180,6 +180,7 @@
   "role": "Striker",
   "source": "RG12",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "CLAN"
   }
 }

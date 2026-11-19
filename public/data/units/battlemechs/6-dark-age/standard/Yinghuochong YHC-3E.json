@@ -179,6 +179,7 @@
     "LA:4:CLERPPC": ["imp_cooling"]
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

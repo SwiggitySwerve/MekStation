@@ -179,6 +179,7 @@
   "role": "Scout",
   "source": "XTR:Boondoggles",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

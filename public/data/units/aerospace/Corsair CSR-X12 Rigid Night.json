@@ -76,6 +76,7 @@
       "location": "AFT"
     }
   ],
+  "clanEngine": false,
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 699,
@@ -90,6 +91,7 @@
     "primaryFactory": "Axton|Connaught|Lee|Orbisonia|Ramen II"
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "INNER_SPHERE"
   }
 }

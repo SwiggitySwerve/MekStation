@@ -10,6 +10,7 @@
  */
 
 import { BattleArmorLocation } from '@/types/construction/UnitLocation';
+import { isClanTechLevel } from '@/types/formats/ArmorTechSide';
 import {
   BA_VALIDATION_RULES,
   BA_WEIGHT_CLASS_LIMITS,
@@ -322,7 +323,7 @@ export function validateBattleArmorSource(unit: IBattleArmor): string[] {
     );
   if (
     unit.armorType === 28 &&
-    [2, 6, 8, 10, 12].includes(unit.sourceArmorTech ?? -1) &&
+    isClanTechLevel(unit.sourceArmorTech ?? -1) &&
     unit.metadata.year + 5 < 2863
   )
     errors.push('BA Standard (Basic) armor has intro date of 2863');

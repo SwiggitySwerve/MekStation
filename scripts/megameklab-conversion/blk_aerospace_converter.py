@@ -344,7 +344,7 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     if fluff:
         output["fluff"] = fluff
 
-    output.update(mixed_chassis_fields(tech_type_str))
+    output.update(mixed_chassis_fields(tech_type_str, tags))
     return output
 
 

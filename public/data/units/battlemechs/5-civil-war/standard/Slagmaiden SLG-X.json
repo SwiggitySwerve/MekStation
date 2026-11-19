@@ -185,6 +185,7 @@
     "RA:3:CLHeavyLargeLaser": ["stable_weapon"]
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

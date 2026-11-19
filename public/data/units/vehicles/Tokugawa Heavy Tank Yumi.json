@@ -66,6 +66,7 @@
       "location": "BODY"
     }
   ],
+  "clanEngine": false,
   "armorTechRating": 0,
   "mulId": 3267,
   "role": "Missile Boat",
@@ -86,6 +87,7 @@
     }
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "CLAN"
   }
 }

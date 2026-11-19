@@ -175,6 +175,7 @@
     "RT:7:CLERPPC": ["stable_weapon"]
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "INNER_SPHERE"
   }
 }

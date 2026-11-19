@@ -195,6 +195,7 @@
   "role": "Brawler",
   "source": "XTR:RISC",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

@@ -178,6 +178,7 @@
   "role": "Striker",
   "source": "XTR:Pirates",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "CLAN"
   }
 }

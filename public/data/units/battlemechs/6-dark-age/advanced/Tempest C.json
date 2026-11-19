@@ -195,6 +195,7 @@
     "HD:3:Medium Laser": ["direct_torso_mount"]
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

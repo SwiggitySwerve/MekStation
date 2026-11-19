@@ -200,6 +200,7 @@
   "role": "Sniper",
   "source": "XTR:Marik",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "CLAN"
   }
 }

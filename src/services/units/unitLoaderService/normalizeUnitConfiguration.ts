@@ -41,6 +41,7 @@ import {
   mapTechBaseMode,
   mapRulesLevel,
   mapArmorAllocation,
+  resolveMechEngineTechBase,
 } from './componentMappers';
 import { getCriticalSlotsForLocation } from './criticalSlotEquipment';
 import { parseCriticalSlotToken } from './equipmentResolution';
@@ -231,7 +232,11 @@ function deriveIdentityState(
   };
 }
 
-/** Saved Mixed Tech selections over the unit-wide default; absent keys keep the default. */
+/**
+ * Saved Mixed Tech selections over the unit-wide default; absent keys keep the
+ * default. The engine side follows the one engine resolver; an unknown Mixed
+ * engine side keeps the binary editor default until a consumer reads unknown.
+ */
 function deriveComponentTechBases(
   serialized: IRawSerializedUnit,
   techBase: TechBase,
@@ -243,6 +248,9 @@ function deriveComponentTechBases(
       components[component] =
         saved === 'CLAN' ? TechBase.CLAN : TechBase.INNER_SPHERE;
   }
+  components[TechBaseComponent.ENGINE] =
+    resolveMechEngineTechBase(serialized) ??
+    components[TechBaseComponent.ENGINE];
   return components;
 }
 

@@ -81,6 +81,7 @@
     }
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "armor": "INNER_SPHERE"
   }
 }

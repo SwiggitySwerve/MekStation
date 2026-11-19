@@ -194,6 +194,7 @@
   "role": "Sniper",
   "source": "SO:HH,TR:SW",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

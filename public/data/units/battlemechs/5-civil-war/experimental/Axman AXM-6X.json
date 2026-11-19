@@ -192,6 +192,7 @@
   "role": "Missile Boat",
   "source": "XTR:Steiner",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "CLAN"
   }
 }

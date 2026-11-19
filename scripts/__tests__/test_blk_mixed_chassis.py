@@ -1,4 +1,4 @@
-"""Reproduce #3287's trailing chassis field without changing prior BLK bytes."""
+"""Reproduce #3287's trailing chassis field, plus the vehicle/fighter armor and engine sides, without changing prior BLK bytes."""
 import hashlib
 import json
 import logging
@@ -18,6 +18,12 @@ FIXTURE_DIR = Path(__file__).parent / 'fixtures'
 FIXTURES = json.loads((FIXTURE_DIR / 'blk_mixed_chassis.json').read_text(encoding='utf-8'))
 CONVERTERS = {'vehicles': convert_vehicle_blk, 'aerospace': convert_aerospace_blk,
               'infantry': convert_infantry_blk}
+# Armor side per pinned source (armor_tech_level -> TechConstants.isClan): Bardiche 7, Anhur 7, Corax 1 -> IS;
+# Goth D 2 -> Clan. Infantry carries no armor side.
+ARMOR_SIDE = {'vehicles/3150/Bardiche Heavy Strike Tank C.blk': 'INNER_SPHERE',
+              'vehicles/XTRs/Pirates/Anhur P-Stealth.blk': 'INNER_SPHERE',
+              'fighters/TRO3067 Unabridged/IS Aerospace/Corax CRX-OR.blk': 'INNER_SPHERE',
+              'fighters/Golden Century/Goth D.blk': 'CLAN'}
 
 
 def with_header(body, header):
@@ -40,10 +46,14 @@ class MixedChassisTest(unittest.TestCase):
                 self.assertEqual(hashlib.sha256(body.encode()).hexdigest(), fixture['sha256'])
                 unit = self.convert(CONVERTERS[fixture['family']], body)
                 self.assertEqual(unit['techBase'], 'MIXED')
-                suffix = ',\n  "componentTechBases": {\n    "chassis": "' + fixture['chassis'] + '"\n  }\n}'
-                serialized = json.dumps(unit, indent=2, ensure_ascii=False)
-                self.assertTrue(serialized.endswith(suffix), serialized[-250:])
-                self.assertEqual(unit.pop('componentTechBases'), {'chassis': fixture['chassis']})
+                sides = {'chassis': fixture['chassis']}
+                if fixture['path'] in ARMOR_SIDE:
+                    sides['armor'] = ARMOR_SIDE[fixture['path']]
+                self.assertEqual(list(unit)[-1], 'componentTechBases')
+                self.assertEqual(unit.pop('componentTechBases'), sides)
+                if fixture['family'] != 'infantry' and '<clan_engine>' not in body:
+                    # The resolved engine side of an untagged Mixed source is the only other new field.
+                    self.assertIs(unit.pop('clanEngine'), fixture['chassis'] == 'CLAN')
                 previous = json.dumps(unit, indent=2, ensure_ascii=False).encode()
                 self.assertEqual(hashlib.sha256(previous).hexdigest(), fixture['previousOutputSha256'])
 
@@ -55,7 +65,8 @@ class MixedChassisTest(unittest.TestCase):
                     header = f'Mixed ({chassis} Chassis){suffix}'
                     with self.subTest(family=family, header=header):
                         unit = self.convert(converter, with_header(body, header))
-                        self.assertEqual(unit['componentTechBases'], {'chassis': expected})
+                        sides = {'chassis': expected} if family == 'infantry' else {'chassis': expected, 'armor': 'INNER_SPHERE'}
+                        self.assertEqual(unit['componentTechBases'], sides)
                         self.assertEqual(list(unit)[-1], 'componentTechBases')
 
     def test_non_mixed_controls_do_not_gain_component_selections(self):

@@ -20,6 +20,7 @@ import {
 } from '@/services/conversion/blkEngineIdentity';
 import { serializeVehicleTurretContext } from '@/services/conversion/vehicleTurretContext';
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
+import { sidedArmorTechBase } from '@/services/units/unitLoaderService/componentMappers';
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
 import { getMountedAmmoSourceToken } from '@/services/units/unitLoaderService/equipmentResolution';
 import { getCockpitSourceTag } from '@/types/construction/CockpitType';
@@ -33,6 +34,7 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { getLocationsForConfig } from '@/types/construction/MechConfigurationSystem';
 import {
+  TechBaseComponent,
   TechBaseMode,
   applyUnitTechBaseIdentity,
   serializeComponentTechBases,
@@ -311,6 +313,10 @@ export function serializeCustomVehicleState(
     name: [identity.chassis, identity.variant].filter(Boolean).join(' '),
     mounts: state.equipment,
   });
+  const armorSide =
+    state.techBaseMode === TechBaseMode.MIXED && !state.usesBarArmor
+      ? sidedArmorTechBase(state.armorType)
+      : undefined;
   const definition = UnitContract.parse({
     schemaVersion: CURRENT_UNIT_SCHEMA_VERSION,
     id: identity.id,
@@ -362,6 +368,15 @@ export function serializeCustomVehicleState(
         ? `mount-${state.equipment.findIndex((mount) => mount.id === item.linkedAmmoId)}`
         : item.linkedAmmoId,
     })),
+    // A Mixed save states the armor side it was weighed on (row 2.1.5), so a
+    // reopen never has to infer it; side-neutral armor states none.
+    ...(armorSide === undefined
+      ? {}
+      : {
+          componentTechBases: serializeComponentTechBases({
+            [TechBaseComponent.ARMOR]: armorSide,
+          }),
+        }),
     vehicleEditor,
   });
   return {

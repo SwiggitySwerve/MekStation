@@ -183,6 +183,7 @@
   "role": "Sniper",
   "source": "XTR:RISC",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "CLAN"
   }
 }

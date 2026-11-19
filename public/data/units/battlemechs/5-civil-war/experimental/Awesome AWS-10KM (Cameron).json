@@ -184,6 +184,7 @@
   "role": "Juggernaut",
   "source": "TR:3050,Total Chaos",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

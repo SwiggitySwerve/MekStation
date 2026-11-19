@@ -45,6 +45,7 @@
       "location": "BODY"
     }
   ],
+  "clanEngine": false,
   "armorTechRating": 0,
   "mulId": 2185,
   "role": "Scout",
@@ -65,6 +66,7 @@
     }
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "INNER_SPHERE"
   }
 }

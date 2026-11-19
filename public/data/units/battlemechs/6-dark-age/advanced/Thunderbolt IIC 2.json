@@ -201,6 +201,7 @@
     "RT:4:CLImprovedHeavyLargeLaser": ["mod_weapons"]
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "INNER_SPHERE"
   }
 }

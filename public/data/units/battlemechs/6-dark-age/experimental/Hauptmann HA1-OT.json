@@ -188,6 +188,7 @@
   "role": "Juggernaut",
   "source": "TR:J",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

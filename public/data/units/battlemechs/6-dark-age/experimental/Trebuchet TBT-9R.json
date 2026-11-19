@@ -191,6 +191,7 @@
     "RT:6:CLLRM15": ["fast_reload"]
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

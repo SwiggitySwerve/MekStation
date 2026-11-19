@@ -188,6 +188,7 @@
   "role": "Sniper",
   "source": "Unbound",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

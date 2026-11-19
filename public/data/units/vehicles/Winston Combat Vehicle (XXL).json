@@ -81,6 +81,7 @@
       "location": "BODY"
     }
   ],
+  "clanEngine": false,
   "armorTechRating": 0,
   "mulId": 6800,
   "role": "Sniper",
@@ -101,6 +102,7 @@
     }
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "armor": "INNER_SPHERE"
   }
 }

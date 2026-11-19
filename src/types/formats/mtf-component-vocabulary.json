@@ -786,5 +786,9 @@
       "enum": null,
       "family": "BLK:protomech"
     }
-  ]
+  ],
+  "clanTechLevels": {
+    "authority": "MegaMek 48fcb2f64: ArmorType.java:96-101 (forEntity picks the IS or Clan ArmorType by TechConstants.isClan of the location armor tech level), TechConstants.java:55-75 and 394-399 (isClan: CLAN_TW 2, CLAN_ADVANCED 6, CLAN_EXPERIMENTAL 8, CLAN_UNOFFICIAL 10, ALL_CLAN 12; unknown -1 is not Clan). BLK armor_tech_level and armor_tech carry these levels.",
+    "levels": [2, 6, 8, 10, 12]
+  }
 }

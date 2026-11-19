@@ -188,6 +188,7 @@
   "role": "Striker",
   "source": "TR:3050,TR:3050U",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "CLAN"
   }
 }

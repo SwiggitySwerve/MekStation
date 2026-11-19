@@ -203,6 +203,7 @@
   "role": "Sniper",
   "source": "TR:GC",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

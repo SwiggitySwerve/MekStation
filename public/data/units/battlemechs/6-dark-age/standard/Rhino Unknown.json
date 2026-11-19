@@ -175,6 +175,7 @@
   "role": "Skirmisher",
   "source": "OTP:HC",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

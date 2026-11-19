@@ -190,6 +190,7 @@
     "RA:4:ISERPPC": ["jettison_capable"]
   },
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

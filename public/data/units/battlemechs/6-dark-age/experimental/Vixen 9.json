@@ -194,6 +194,7 @@
     "RA:4:CLERLargePulseLaser": ["jettison_capable"]
   },
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

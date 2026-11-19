@@ -183,6 +183,7 @@
   "role": "Brawler",
   "source": "XTR:Royal Fantasy",
   "componentTechBases": {
-    "chassis": "INNER_SPHERE"
+    "chassis": "INNER_SPHERE",
+    "engine": "INNER_SPHERE"
   }
 }

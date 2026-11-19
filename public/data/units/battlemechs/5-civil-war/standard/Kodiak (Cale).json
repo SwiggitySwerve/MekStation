@@ -216,6 +216,7 @@
   "role": "Juggernaut",
   "source": "JTP:Dieron",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

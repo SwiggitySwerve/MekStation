@@ -759,11 +759,14 @@ describe('source ammo identity round trips', () => {
       // reproduced on main; non-cell facts, draft fingerprints and Java BV stay.
       // S1 adds only the persisted source quirks, weapon quirks and publication
       // source; without them the A2 hashes (f7a347a1…, 2b0394a3…) reproduce.
+      // Rows 2.1.3/2.1.5 add only Archer C's stated Clan engine side
+      // (componentTechBases.engine, MtfFile.java:387-392); with that side reset
+      // to Inner Sphere the previous hash (e28b814b…) reproduces and BV stays.
       const writerFingerprints = {
         'sentinel-stn-3l':
           'c67a3ddc9c90598532d7576213730a95eca9a2e8933f3bce6d851b47d06a4103',
         'archer-c':
-          'e28b814b66277bc8bc2c20d0f296077b54c6cde22ddf970f6748dcf624507ec3',
+          'cb3ac049b25afe3883be5dcfae76cd7b5110bb78a0ab1a2f57e318786c048339',
       };
       expect(createHash('sha256').update(fingerprint).digest('hex')).toBe(
         writerFingerprints[id],

@@ -192,6 +192,7 @@
   "role": "Striker",
   "source": "RG15",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

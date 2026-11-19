@@ -188,6 +188,7 @@
   "role": "Brawler",
   "source": "RG20",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

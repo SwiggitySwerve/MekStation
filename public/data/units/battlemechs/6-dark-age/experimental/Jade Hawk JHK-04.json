@@ -188,6 +188,7 @@
   "role": "Sniper",
   "source": "TR:3145:Merc,TR:DA",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }

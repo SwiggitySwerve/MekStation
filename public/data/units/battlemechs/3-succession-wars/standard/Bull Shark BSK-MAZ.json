@@ -187,6 +187,7 @@
   "quirks": ["distracting"],
   "source": "Apocryphal (Videogame)",
   "componentTechBases": {
-    "chassis": "CLAN"
+    "chassis": "CLAN",
+    "engine": "CLAN"
   }
 }
