@@ -1,0 +1,74 @@
+name: Parity Census
+
+# Hosted per-family runtime parity census: one parity-runtime.yml job per
+# (family, measure), each gated against that family's committed baseline, the
+# same gate Nightly enforces. Lanes iterate locally on a small sample and judge
+# a change here instead of queuing a full local census.
+#
+# Dispatch only, through scripts/ci/census-dispatch.mjs: it refuses a second
+# in-flight run on the same ref, and a dispatch that would put more than two
+# runs in flight repo-wide (the 20-job hosted ceiling). There is deliberately no
+# repo-wide concurrency group: GitHub keeps one pending run per group and
+# cancels the older pending one, which would silently drop another lane's
+# dispatch. Never add a PR or push trigger.
+#
+# The plan job reads config/parity-runtime/families.json and fails on an
+# unknown or disabled family. At most 1 + 4 jobs run at once per dispatch.
+on:
+  workflow_dispatch:
+    inputs:
+      families:
+        description: Comma list of registry family ids, or all (every enabled family)
+        required: true
+        default: all
+        type: string
+      measures:
+        description: Measures to census
+        required: true
+        default: both
+        type: choice
+        options: [both, load, reopen]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Plan the census matrix
+        id: plan
+        env:
+          FAMILIES: ${{ inputs.families }}
+          MEASURES: ${{ inputs.measures }}
+        run: node scripts/ci/parity-runtime-families.mjs plan --families "$FAMILIES" --measures "$MEASURES"
+
+  census:
+    needs: plan
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    uses: ./.github/workflows/parity-runtime.yml
+    with:
+      family: ${{ matrix.family }}
+      measure: ${{ matrix.measure }}
+      timeout-minutes: ${{ matrix.timeout }}
+    permissions:
+      contents: read
+      actions: read

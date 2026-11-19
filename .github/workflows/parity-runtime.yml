@@ -10,11 +10,20 @@ name: Parity Runtime
 # the hosted per-unit table equals the local one (gh workflow run
 # parity-runtime.yml --ref <branch> -f measure=load). Each port supplies its
 # entry script; on a ref without it the job fails and says so. Nightly
-# Validation calls this workflow for both measures. Never add a PR or
-# push trigger. Branch dispatches are logged in the C5 queue notes, one in
+# Validation and parity-census.yml call this workflow once per (family,
+# measure) from the registry, config/parity-runtime/families.json. Never add a
+# PR or push trigger. Branch dispatches are logged in the C5 queue notes, one in
 # flight per measure; they are not charged against the nightly dispatch slots.
-# Hosted census wall times: load 210-242 s, reopen 331-499 s. The 15/20-minute
-# limits allow installation, optional artifact retrieval and reporting headroom.
+# Hosted census wall times (battlemechs): load 210-242 s, reopen 331-499 s. The
+# 15/20-minute limits allow installation, optional artifact retrieval and
+# reporting headroom. Every family's limit is the registry's (owner-held); the
+# battlemechs fallback below equals its registry values
+# (parity-runtime-workflow.test.mjs pins them).
+#
+# Names come from scripts/ci/parity-runtime-families.mjs (the resolve step):
+# battlemechs keeps parity-runtime-<measure> and
+# parity-runtime-last-green-<measure>; every other family is
+# parity-runtime-<family>-<measure>.
 on:
   workflow_dispatch:
     inputs:
@@ -23,14 +32,29 @@ on:
         required: true
         type: choice
         options: [load, reopen]
+      family:
+        description: Unit family (registry id); only enabled families run
+        required: false
+        default: battlemechs
+        type: choice
+        options: [battlemechs, vehicles]
   workflow_call:
     inputs:
       measure:
         required: true
         type: string
+      family:
+        required: false
+        default: battlemechs
+        type: string
+      # The registry's timeout for this leg; 0 is the battlemechs fallback.
+      timeout-minutes:
+        required: false
+        default: 0
+        type: number
 
 concurrency:
-  group: parity-runtime-${{ inputs.measure }}-${{ github.ref }}
+  group: parity-runtime-${{ inputs.family }}-${{ inputs.measure }}-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
@@ -39,13 +63,10 @@ permissions:
 
 jobs:
   census:
-    name: Parity Runtime ${{ inputs.measure }}
+    name: Parity Runtime ${{ inputs.family }} ${{ inputs.measure }}
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ inputs.measure == 'load' && 15 || 20 }}
+    timeout-minutes: ${{ inputs.timeout-minutes || (inputs.measure == 'load' && 15 || 20) }}
     steps:
-      - name: Set runner scratch path
-        run: printf 'PARITY_RUNTIME_OUTPUT=%s/parity-runtime\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
-
       - name: Checkout
         uses: actions/checkout@v6
         with:
@@ -59,12 +80,29 @@ jobs:
           node-version: '22'
           cache: npm
 
+      # Refuses an unknown or disabled family, or a non-default family called
+      # without its registry timeout. Each family has its own output directory.
+      - name: Resolve family
+        id: family
+        env:
+          FAMILY: ${{ inputs.family }}
+          MEASURE: ${{ inputs.measure }}
+          TIMEOUT_MINUTES: ${{ inputs.timeout-minutes }}
+        run: node scripts/ci/parity-runtime-families.mjs resolve --family "$FAMILY" --measure "$MEASURE" --timeout-minutes "$TIMEOUT_MINUTES"
+
+      - name: Set runner scratch path
+        env:
+          OUT_DIR: ${{ steps.family.outputs.out-dir }}
+        run: printf 'PARITY_RUNTIME_OUTPUT=%s/%s\n' "$RUNNER_TEMP" "$OUT_DIR" >> "$GITHUB_ENV"
+
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: Run runtime census
         env:
+          FAMILY: ${{ inputs.family }}
           MEASURE: ${{ inputs.measure }}
+          ENTRY_FLAGS: ${{ steps.family.outputs.entry-flags }}
         run: |
           case "$MEASURE" in
             load) entry=scripts/runtime-path-bv/run.mjs ;;
@@ -76,19 +114,20 @@ jobs:
             exit 1
           fi
           mkdir -p "$PARITY_RUNTIME_OUTPUT"
+          read -ra flags <<< "$ENTRY_FLAGS"
           start=$(date -u +%s)
           status=0
-          node "$entry" --out "$PARITY_RUNTIME_OUTPUT" || status=$?
+          node "$entry" --out "$PARITY_RUNTIME_OUTPUT" "${flags[@]}" || status=$?
           end=$(date -u +%s)
           # What the ports' acceptance compares against the local run: the
           # checked-out SHA, Node version and runner image, written even when
           # the census fails.
-          printf '{"measure":"%s","entry":"%s","sha":"%s","node":"%s","runnerImage":"%s %s","runnerArch":"%s","wallSeconds":%s,"exitCode":%s}\n' \
-            "$MEASURE" "$entry" "$(git rev-parse HEAD)" "$(node --version)" \
+          printf '{"family":"%s","measure":"%s","entry":"%s","sha":"%s","node":"%s","runnerImage":"%s %s","runnerArch":"%s","wallSeconds":%s,"exitCode":%s}\n' \
+            "$FAMILY" "$MEASURE" "$entry" "$(git rev-parse HEAD)" "$(node --version)" \
             "${ImageOS:-unknown}" "${ImageVersion:-unknown}" "$RUNNER_ARCH" \
             "$((end - start))" "$status" \
             > "$PARITY_RUNTIME_OUTPUT/run-meta.json"
-          echo "census $MEASURE: exit $status, wall time $((end - start)) s, node $(node --version), image ${ImageOS:-unknown} ${ImageVersion:-unknown}" >> "$GITHUB_STEP_SUMMARY"
+          echo "census $FAMILY $MEASURE: exit $status, wall time $((end - start)) s, node $(node --version), image ${ImageOS:-unknown} ${ImageVersion:-unknown}" >> "$GITHUB_STEP_SUMMARY"
           exit "$status"
 
       - name: Retrieve last green from main Nightly
@@ -98,8 +137,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RUN_ID: ${{ github.run_id }}
+          FAMILY: ${{ inputs.family }}
           MEASURE: ${{ inputs.measure }}
-        run: node scripts/ci/parity-runtime-last-green.mjs --measure "$MEASURE" --out "$PARITY_RUNTIME_OUTPUT/previous"
+        run: node scripts/ci/parity-runtime-last-green.mjs --family "$FAMILY" --measure "$MEASURE" --out "$PARITY_RUNTIME_OUTPUT/previous"
 
       - name: Gate runtime parity
         id: gate
@@ -115,19 +155,22 @@ jobs:
 
       - name: Summarize runtime gate
         if: ${{ !cancelled() }}
-        run: node scripts/ci/parity-runtime-summary.mjs --run-dir "$PARITY_RUNTIME_OUTPUT"
+        env:
+          FAMILY: ${{ inputs.family }}
+        run: node scripts/ci/parity-runtime-summary.mjs --family "$FAMILY" --run-dir "$PARITY_RUNTIME_OUTPUT"
 
+      # After a resolve failure there is no name or directory to upload.
       - name: Upload census output
-        if: ${{ always() }}
+        if: ${{ always() && steps.family.outcome == 'success' }}
         uses: actions/upload-artifact@v7
         with:
-          name: parity-runtime-${{ inputs.measure }}
+          name: ${{ steps.family.outputs.census-artifact }}
           overwrite: true
           if-no-files-found: error
           retention-days: 14
           # Includes census files and gate/{gate-report.json,gate-units.ndjson,
           # proposed-baseline.json}, even when the gate fails.
-          path: ${{ runner.temp }}/parity-runtime/
+          path: ${{ runner.temp }}/${{ steps.family.outputs.out-dir }}/
 
       # Only after a lookup that completed (status found or none; the list is
       # LAST_GREEN_UPLOAD_STATUSES in parity-runtime-last-green.mjs). After a
@@ -138,8 +181,8 @@ jobs:
         if: ${{ success() && steps.gate.outcome == 'success' && (steps.last-green.outputs.status == 'found' || steps.last-green.outputs.status == 'none') }}
         uses: actions/upload-artifact@v7
         with:
-          name: parity-runtime-last-green-${{ inputs.measure }}
+          name: ${{ steps.family.outputs.last-green-artifact }}
           overwrite: true
           retention-days: 30
           if-no-files-found: error
-          path: ${{ runner.temp }}/parity-runtime/gate/last-green.json
+          path: ${{ runner.temp }}/${{ steps.family.outputs.out-dir }}/gate/last-green.json
