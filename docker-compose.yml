@@ -10,7 +10,10 @@
 # Ports are published on 127.0.0.1 only. Remote or LAN access is NOT
 # supported: the server's same-host guard trusts a loopback Host header and
 # the local API has no network authentication, so a port published on all
-# interfaces would expose it to any peer that can reach this machine.
+# interfaces would expose it to any peer that can reach this machine. Even
+# with the loopback publish, the server listens on 0.0.0.0 inside the
+# container, so any other container on the same Docker network can reach it
+# directly: do not attach untrusted containers to its network.
 
 version: '3.8'
 

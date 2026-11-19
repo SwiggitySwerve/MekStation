@@ -183,9 +183,23 @@ catch(e){ process.stdout.write(e instanceof Error?e.message:String(e)); process.
           continue;
         }
         if (!/^\s*#/.test(line)) inPorts = false;
-        if (/traefik\.|caddy\.|nginx-proxy/i.test(line) && !/^\s*#/.test(line))
+        if (/^\s*#/.test(line)) continue;
+        if (/traefik\.|caddy\.|nginx-proxy/i.test(line))
           unsafe.push(`${file}: reverse-proxy label ${line.trim()}`);
+        // Host networking would bind 0.0.0.0 on every host interface.
+        if (/^\s*network_mode:\s*['"]?host['"]?\s*$/.test(line))
+          unsafe.push(`${file}: network_mode host`);
       }
+      // Long-syntax port entries must pin host_ip to the loopback.
+      const text = lines.join('\n');
+      for (const block of text.matchAll(
+        /-\s*target:[^\n]*(?:\n\s+(?!-)[^\n]*)*/g,
+      ))
+        if (
+          /\bpublished:/.test(block[0]) &&
+          !/\bhost_ip:\s*['"]?127\.0\.0\.1['"]?/.test(block[0])
+        )
+          unsafe.push(`${file}: long-syntax port without host_ip 127.0.0.1`);
     }
     const scripts = JSON.parse(fs.readFileSync('package.json', 'utf8'))
       .scripts as Record<string, string>;

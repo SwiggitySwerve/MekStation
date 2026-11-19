@@ -88,7 +88,9 @@ const LOOPBACK_PEER =
  * local tooling, or an in-process request with no socket address). A network
  * peer, such as a client reaching the container through its published port,
  * is keyed by its socket address so it cannot rotate keys to evade the limit
- * (PARITY-PLAN 1.0.92 security review).
+ * (PARITY-PLAN 1.0.92 security review). A reverse proxy sharing the server's
+ * network namespace would appear as a loopback hop and reopen header rotation;
+ * proxies are unsupported (docker-compose.yml).
  */
 export function clientRateLimitKey(
   req: NextApiRequest,

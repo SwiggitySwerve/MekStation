@@ -63,7 +63,8 @@ ENV HOSTNAME="0.0.0.0"
 # Publish the port on the host's loopback only (-p 127.0.0.1:3600:3600, as
 # docker-compose.yml and npm run docker:run do). Remote or LAN access is not
 # supported: the same-host guard trusts a loopback Host header and the local
-# API has no network authentication.
+# API has no network authentication. Inside the container the server listens
+# on 0.0.0.0, so containers sharing its Docker network can also reach it.
 ENV MEKSTATION_CONTAINER_LISTEN=all-interfaces
 
 # Copy necessary files from builder
