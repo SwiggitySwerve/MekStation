@@ -84,10 +84,15 @@ export default async function handler(
   }
 }
 
-function readRosterUnitId(body: UpdateAssignmentBody): string | undefined {
+/**
+ * The request's roster link as a trailing service argument: `[rosterUnitId]`
+ * when it carries one, otherwise nothing, so a request without it calls the
+ * service exactly as before T1.
+ */
+function rosterUnitIdArg(body: UpdateAssignmentBody): [] | [string] {
   return typeof body.rosterUnitId === 'string' && body.rosterUnitId.length > 0
-    ? body.rosterUnitId
-    : undefined;
+    ? [body.rosterUnitId]
+    : [];
 }
 
 /**
@@ -108,7 +113,7 @@ function handlePut(
         assignmentId,
         body.pilotId,
         body.unitId,
-        readRosterUnitId(body),
+        ...rosterUnitIdArg(body),
       );
       if (result.success) {
         return res.status(200).json(result);
@@ -142,7 +147,7 @@ function handlePut(
       const result = forceService.assignUnit(
         assignmentId,
         body.unitId,
-        readRosterUnitId(body),
+        ...rosterUnitIdArg(body),
       );
       if (result.success) {
         return res.status(200).json(result);
