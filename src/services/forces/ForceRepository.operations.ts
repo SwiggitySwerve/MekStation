@@ -152,6 +152,10 @@ export function updateAssignmentOperation(
     if (request.unitId !== undefined) {
       updates.push('unit_id = ?');
       params.push(request.unitId);
+      // The roster link names the unit in this slot, so any unit write
+      // replaces it: kept only when the writer supplies it.
+      updates.push('roster_unit_id = ?');
+      params.push(request.rosterUnitId ?? null);
     }
     if (request.position !== undefined) {
       updates.push('position = ?');
@@ -210,10 +214,10 @@ export function swapAssignmentsOperation(
     }
 
     const update = db.prepare(
-      'UPDATE force_assignments SET pilot_id = ?, unit_id = ? WHERE id = ?',
+      'UPDATE force_assignments SET pilot_id = ?, unit_id = ?, roster_unit_id = ? WHERE id = ?',
     );
-    update.run(a2.pilot_id, a2.unit_id, a1.id);
-    update.run(a1.pilot_id, a1.unit_id, a2.id);
+    update.run(a2.pilot_id, a2.unit_id, a2.roster_unit_id ?? null, a1.id);
+    update.run(a1.pilot_id, a1.unit_id, a1.roster_unit_id ?? null, a2.id);
 
     return { success: true };
   } catch (error) {

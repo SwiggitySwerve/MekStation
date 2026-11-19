@@ -260,8 +260,8 @@ describe('authoritative owned-force materialization', () => {
     if (result.kind !== 'materialized') throw new Error('expected slots');
 
     expect(ownedPlayerForceUnits(result.slots)).toEqual([
-      { unitRef: 'catalog-ref-0', pilotRef: 'pilot-0' },
-      { unitRef: 'catalog-ref-1', pilotRef: 'pilot-1' },
+      { unitRef: 'catalog-ref-0', pilotRef: 'pilot-0', rosterUnitId: 'unit-0' },
+      { unitRef: 'catalog-ref-1', pilotRef: 'pilot-1', rosterUnitId: 'unit-1' },
     ]);
   });
 
@@ -525,8 +525,8 @@ describe('signed mission ownership projection', () => {
       { slot: 2, owner: 'pid-z-host', refs: [['catalog-ref-0', 'pilot-0']] },
     ]);
     expect(ownedPlayerForceUnits(result.slots)).toEqual([
-      { unitRef: 'catalog-ref-1', pilotRef: 'pilot-1' },
-      { unitRef: 'catalog-ref-0', pilotRef: 'pilot-0' },
+      { unitRef: 'catalog-ref-1', pilotRef: 'pilot-1', rosterUnitId: 'unit-1' },
+      { unitRef: 'catalog-ref-0', pilotRef: 'pilot-0', rosterUnitId: 'unit-0' },
     ]);
   });
 

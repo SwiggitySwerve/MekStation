@@ -1,17 +1,23 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 
-import { factsDeriverBlob } from '../lib/runtime-parity/facts-provenance.mjs';
+import {
+  factsDeriverBlob,
+  gitBlobSha,
+} from '../lib/runtime-parity/facts-provenance.mjs';
 import {
   CENSUS_WORKFLOW,
+  FACTS_DERIVER_FILE,
   MAX_IN_FLIGHT,
   Refusal,
   censusDispatch,
   checkInFlight,
   deriverPrecheck,
+  precheckInputs,
   runIdFromDispatch,
 } from './census-dispatch.mjs';
 import { readRegistry } from './parity-runtime-families.mjs';
@@ -40,6 +46,8 @@ const summaryJson = {
 /** A scripted gh: answers by command, records every call. */
 function fakeGh({
   runs = [],
+  head = HEAD,
+  commitsError = false,
   dispatchOutput = { stdout: `${URL}\n`, stderr: '' },
   views = [
     { status: 'queued' },
@@ -97,8 +105,10 @@ function fakeGh({
         stderr: '',
       };
     }
-    if (group === 'api' && args[1].includes('/commits/'))
-      return { stdout: JSON.stringify({ sha: HEAD }), stderr: '' };
+    if (group === 'api' && args[1].includes('/commits/')) {
+      if (commitsError) throw new Error('HTTP 404 ref');
+      return { stdout: JSON.stringify({ sha: head }), stderr: '' };
+    }
     if (group === 'api')
       return {
         stdout: JSON.stringify({
@@ -141,6 +151,7 @@ function options(t, gh, extra = {}) {
       registry: readRegistry(),
       workDir,
       localHead: () => 'other-checkout',
+      changed: () => [],
       ...extra,
     },
   };
@@ -365,28 +376,134 @@ test("deriver pre-check: the gate's fingerprint owner against each enabled famil
   assert.equal(deriverPrecheck({ registry, root }), null);
 });
 
-test('the pre-check runs only when this checkout is the ref head, and only informs', async (t) => {
-  for (const [localHead, expected] of [
+test('the pre-check runs only at the ref head with unchanged inputs, and only informs', async (t) => {
+  const changedMessage =
+    'deriver fingerprint changed (shared core): every enabled family (battlemechs) must be rebaselined before its gate can pass.';
+  const fail = (message) => () => {
+    throw new Error(message);
+  };
+  for (const [label, extra, expected, runs] of [
     [
-      HEAD,
+      'at head, clean',
+      { localHead: () => HEAD },
       /^deriver fingerprint changed \(shared core\): every enabled family \(battlemechs\)/m,
+      true,
     ],
-    ['other-checkout', /^deriver fingerprint not pre-checked/m],
+    [
+      'another checkout',
+      { localHead: () => 'other-checkout' },
+      /^deriver fingerprint not pre-checked: this checkout is not lane\/branch's head/m,
+      false,
+    ],
+    [
+      'inputs changed locally',
+      {
+        localHead: () => HEAD,
+        changed: () => ['scripts/lib/runtime-parity/facts.mjs'],
+      },
+      /^deriver fingerprint not pre-checked: scripts\/lib\/runtime-parity\/facts\.mjs changed in this checkout, so it doesn't speak for lane\/branch/m,
+      false,
+    ],
+    [
+      'pre-check throws',
+      // This case replaces the counting stub, so it counts nothing.
+      { localHead: () => HEAD, precheck: fail('baseline unreadable') },
+      /^deriver fingerprint pre-check failed \(baseline unreadable\); dispatching anyway/m,
+      false,
+    ],
+    [
+      'git status throws',
+      { localHead: () => HEAD, changed: fail('git status failed: boom') },
+      /^deriver fingerprint pre-check failed \(git status failed: boom\); dispatching anyway/m,
+      false,
+    ],
+    [
+      'ref head lookup throws',
+      { commitsError: true },
+      /^deriver fingerprint pre-check failed \(HTTP 404 ref\); dispatching anyway/m,
+      false,
+    ],
   ]) {
-    const { gh, calls } = fakeGh({ artifacts: [] });
+    const { gh, calls } = fakeGh({
+      artifacts: [],
+      commitsError: extra.commitsError,
+    });
     let checked = 0;
     const { lines, options: opts } = options(t, gh, {
       measures: 'load',
-      localHead: () => localHead,
       precheck: () => {
         checked += 1;
-        return 'deriver fingerprint changed (shared core): every enabled family (battlemechs) must be rebaselined before its gate can pass.';
+        return changedMessage;
       },
+      ...extra,
     });
     await censusDispatch(opts);
-    assert.equal(checked, localHead === HEAD ? 1 : 0);
+    assert.equal(checked > 0, runs, label);
+    assert.match(lines.join('\n'), expected, label);
+    // Dispatched every time: the hosted gate is the judge.
+    assert.ok(
+      calls.some(([group]) => group === 'workflow'),
+      label,
+    );
+  }
+});
+
+test('the pre-check inputs are the gate owner file and the enabled baselines, read through real git status', async (t) => {
+  const registry = readRegistry();
+  assert.deepEqual(precheckInputs(registry), [
+    'scripts/lib/runtime-parity/facts.mjs',
+    'config/parity-runtime/baseline-load.json',
+    'config/parity-runtime/baseline-reopen.json',
+  ]);
+  // FACTS_DERIVER_FILE is the file the owner fingerprints.
+  const text = fs
+    .readFileSync(FACTS_DERIVER_FILE, 'utf8')
+    .replace(/\r\n/g, '\n');
+  assert.equal(gitBlobSha(Buffer.from(text, 'utf8')), factsDeriverBlob());
+  // A real repository: a clean checkout is pre-checked; a modified input is skipped by name.
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'census-precheck-git-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const identity = {
+    GIT_AUTHOR_NAME: 'test',
+    GIT_AUTHOR_EMAIL: 'test@example.invalid',
+    GIT_COMMITTER_NAME: 'test',
+    GIT_COMMITTER_EMAIL: 'test@example.invalid',
+  };
+  const git = (...args) =>
+    execFileSync('git', ['-C', root, ...args], {
+      encoding: 'utf8',
+      env: { ...process.env, ...identity },
+    }).trim();
+  git('init', '-q');
+  for (const file of precheckInputs(registry)) {
+    fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+    fs.writeFileSync(path.join(root, file), '{}\n');
+  }
+  git('add', '.');
+  git('commit', '-qm', 'fixture');
+  const head = git('rev-parse', 'HEAD');
+  for (const [modify, expected] of [
+    [false, /^checked$/m],
+    [
+      true,
+      /^deriver fingerprint not pre-checked: config\/parity-runtime\/baseline-load\.json changed in this checkout/m,
+    ],
+  ]) {
+    if (modify)
+      fs.writeFileSync(
+        path.join(root, 'config/parity-runtime/baseline-load.json'),
+        '{"x":1}\n',
+      );
+    const { gh } = fakeGh({ artifacts: [], head });
+    const { lines, options: opts } = options(t, gh, {
+      measures: 'load',
+      root,
+      // The real git defaults: HEAD and status of the fixture repository.
+      localHead: undefined,
+      changed: undefined,
+      precheck: () => 'checked',
+    });
+    await censusDispatch(opts);
     assert.match(lines.join('\n'), expected);
-    // Dispatched either way: the hosted gate is the judge.
-    assert.ok(calls.some(([group]) => group === 'workflow'));
   }
 });

@@ -611,7 +611,7 @@ function waitExit(child,ms) { return new Promise((resolve,reject)=>{ if(child.ex
 // prettier-ignore
 async function stopChild(child,port) { if(child.pid&&process.platform==='win32') spawnSync('taskkill',['/pid',String(child.pid),'/t','/f'],{stdio:'ignore'}); else if(child.pid) child.kill('SIGTERM'); await waitExit(child,5000); await bindPort(port); }
 // prettier-ignore
-function withoutHostMode(base,overlay) { const env={...base,...overlay}; if(!Object.hasOwn(overlay,'HOSTNAME')) delete env.HOSTNAME; if(!Object.hasOwn(overlay,'NODE_ENV')) delete env.NODE_ENV; return env; }
+function withoutHostMode(base,overlay) { const env={...base,...overlay}; if(!Object.hasOwn(overlay,'HOSTNAME')) delete env.HOSTNAME; if(!Object.hasOwn(overlay,'NODE_ENV')) delete env.NODE_ENV; delete env.MEKSTATION_CONTAINER_LISTEN; return env; }
 // prettier-ignore
 function waitReady(child,requestedPort) { const parser=createReadyParser(requestedPort); return new Promise((resolve,reject)=>{ const timer=setTimeout(()=>reject(new Error('ready timeout')),60_000); const onData=(chunk)=>{ try { const ready=parser.push(chunk); if(ready){ clearTimeout(timer); child.stdout.off('data',onData); resolve(ready); } } catch(error) { clearTimeout(timer); reject(error); } }; child.stdout.on('data',onData); child.once('exit',(code)=>{ clearTimeout(timer); reject(new Error(`exited ${code}`)); }); }); }
 // prettier-ignore

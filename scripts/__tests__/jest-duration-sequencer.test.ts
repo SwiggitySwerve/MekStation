@@ -146,11 +146,11 @@ describe('shard preload (work a CI job does besides its Jest shard)', () => {
     expect([...loaded.shardOf.keys()].sort()).toEqual([...files].sort());
     const jest = (plan: typeof even) =>
       plan.loads.map((load, i) => load - (plan === loaded ? preload[i] : 0));
-    // the shard that carries the Combat suite takes about 124,000 committed ms less
-    // (about 30 s of Jest wall time at 4,157 committed ms per second), and shard 4,
-    // which runs nothing else, about 188,000 more
-    expect(jest(even)[2] - jest(loaded)[2]).toBeGreaterThan(100000);
-    expect(jest(loaded)[3] - jest(even)[3]).toBeGreaterThan(150000);
+    // shard 4, which carries the roadmap tooling tests, takes about 186,000
+    // committed ms less (about 45 s of Jest wall time at 4,157 committed ms per
+    // second), and shard 1, with the lightest extra work, about 122,000 more
+    expect(jest(even)[3] - jest(loaded)[3]).toBeGreaterThan(150000);
+    expect(jest(loaded)[0] - jest(even)[0]).toBeGreaterThan(100000);
     // and the totals, preload included, end up level
     const spread = Math.max(...loaded.loads) - Math.min(...loaded.loads);
     expect(spread).toBeLessThan(0.02 * Math.max(...loaded.loads));

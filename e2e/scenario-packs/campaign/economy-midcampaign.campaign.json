@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "campaignId": "pack:economy-midcampaign:campaign",
-  "savedAt": "2026-10-18T05:39:27.272Z",
-  "originDeviceId": "b1d6e277-b2f1-419b-8d73-5d6eba513ca1",
+  "savedAt": "2026-11-18T18:57:42.155Z",
+  "originDeviceId": "b9e5f2ad-172f-42a6-9f3b-c5da13a8c42b",
   "version": 1,
   "body": {
     "id": "pack:economy-midcampaign:campaign",
@@ -35,7 +35,7 @@
           "type": "contract",
           "systemId": "Unknown System",
           "scenarioIds": [],
-          "endDate": "3025-06-14T00:00:00.000Z",
+          "endDate": "3025-06-16T00:00:00.000Z",
           "employerId": "fixture-employer",
           "targetId": "fixture-target",
           "paymentTerms": {
@@ -49,8 +49,8 @@
           },
           "salvageRights": "None",
           "commandRights": "House",
-          "createdAt": "2026-10-18T05:39:27.092Z",
-          "updatedAt": "2026-10-18T05:39:27.271Z"
+          "createdAt": "2026-11-18T18:57:41.777Z",
+          "updatedAt": "2026-11-18T18:57:42.151Z"
         }
       ]
     ],
@@ -64,7 +64,7 @@
           "description": "Daily salaries for 4 personnel"
         },
         {
-          "id": "tx-contract-close-fast-forward-fixture-contract-2026-10-18T05:39:27.271Z",
+          "id": "tx-contract-close-fast-forward-fixture-contract-2026-11-18T18:57:42.151Z",
           "type": "income",
           "amount": 300000,
           "date": "3025-06-14T00:00:00.000Z",
@@ -178,17 +178,15 @@
     },
     "campaignType": "mercenary",
     "createdAt": "3025-06-13T00:00:00.000Z",
-    "updatedAt": "2026-10-18T05:39:27.272Z",
+    "updatedAt": "2026-11-18T18:57:42.154Z",
     "unitCombatStates": {
-      "player-1-atlas-as7-d": {
-        "unitId": "player-1-atlas-as7-d",
+      "ff-roster-unit-1": {
+        "unitId": "ff-roster-unit-1",
         "currentArmorPerLocation": {
           "head": 9,
           "center_torso": 47,
           "left_torso": 32,
           "right_torso": 22,
-          "left_arm": null,
-          "right_leg": null,
           "center_torso_rear": 5
         },
         "currentStructurePerLocation": {
@@ -196,8 +194,6 @@
           "center_torso": 31,
           "left_torso": 21,
           "right_torso": 21,
-          "left_arm": null,
-          "right_leg": null,
           "right_torso_rear": 21,
           "center_torso_rear": 31
         },
@@ -207,36 +203,7 @@
         "ammoRemaining": {},
         "combatReady": true,
         "lastCombatOutcomeId": null,
-        "lastUpdated": "2026-10-18T05:39:27.271Z"
-      },
-      "opponent-1-marauder-mad-3r": {
-        "unitId": "opponent-1-marauder-mad-3r",
-        "currentArmorPerLocation": {
-          "head": 9,
-          "center_torso": 31,
-          "left_torso": 21,
-          "right_torso": 26,
-          "center_torso_rear": 5,
-          "left_leg": null,
-          "right_torso_rear": 2
-        },
-        "currentStructurePerLocation": {
-          "head": 3,
-          "center_torso": 23,
-          "left_torso": 16,
-          "right_torso": 16,
-          "center_torso_rear": 23,
-          "left_leg": null,
-          "left_torso_rear": 16,
-          "right_torso_rear": 16
-        },
-        "destroyedLocations": [],
-        "destroyedComponents": [],
-        "heatEnd": 0,
-        "ammoRemaining": {},
-        "combatReady": true,
-        "lastCombatOutcomeId": null,
-        "lastUpdated": "2026-10-18T05:39:27.271Z"
+        "lastUpdated": "2026-11-18T18:57:42.151Z"
       }
     },
     "rosterProjection": {
@@ -246,7 +213,7 @@
           "unitId": "ff-roster-unit-1",
           "unitRef": "atlas-as7-d",
           "unitName": "atlas-as7-d",
-          "pilotId": "pilot-e525b957-8d80-4094-bbac-69feea34599b",
+          "pilotId": "pilot-39c75a8d-97ae-4a7c-9bbf-eb27531e73ad",
           "chassisVariant": "atlas-as7-d",
           "readiness": "Ready"
         },
@@ -277,11 +244,11 @@
       ],
       "pilots": [
         {
-          "pilotId": "pilot-e525b957-8d80-4094-bbac-69feea34599b",
+          "pilotId": "pilot-39c75a8d-97ae-4a7c-9bbf-eb27531e73ad",
           "pilotName": "Fixture Pilot 1",
-          "status": "active",
-          "wounds": 0,
-          "recoveryTime": 0,
+          "status": "wounded",
+          "wounds": 2,
+          "recoveryTime": 14,
           "xp": 1,
           "campaignXpEarned": 1,
           "campaignKills": 0,
@@ -342,9 +309,9 @@
       "missionCount": 0
     },
     "salvageAllocations": {
-      "88fff218-fbc0-462b-9b07-a66184b9f971": {
+      "6a002a98-6dc0-4562-b63d-3b4a67225547": {
         "pool": {
-          "battleId": "88fff218-fbc0-462b-9b07-a66184b9f971",
+          "battleId": "6a002a98-6dc0-4562-b63d-3b4a67225547",
           "contractId": "fast-forward-fixture-contract",
           "candidates": [],
           "totalEstimatedValue": 0,
@@ -367,8 +334,8 @@
       }
     },
     "salvageReports": {
-      "88fff218-fbc0-462b-9b07-a66184b9f971": {
-        "matchId": "88fff218-fbc0-462b-9b07-a66184b9f971",
+      "6a002a98-6dc0-4562-b63d-3b4a67225547": {
+        "matchId": "6a002a98-6dc0-4562-b63d-3b4a67225547",
         "contractId": "fast-forward-fixture-contract",
         "candidates": [],
         "totalValueEmployer": 0,
@@ -378,15 +345,15 @@
       }
     },
     "pendingBattleOutcomes": [],
-    "processedBattleIds": ["88fff218-fbc0-462b-9b07-a66184b9f971"],
-    "recentlyAppliedOutcomes": [],
+    "processedBattleIds": ["6a002a98-6dc0-4562-b63d-3b4a67225547"],
+    "battleUnitManifests": {},
     "dailyBattleAudit": [
       {
         "date": "3025-06-14",
         "matchesProcessed": 1,
         "matches": [],
         "totalXpAwarded": 1,
-        "pilotsWounded": 0,
+        "pilotsWounded": 1,
         "pilotsKia": 0,
         "pilotsMia": 0,
         "salvageValueSecured": 0,
@@ -405,51 +372,32 @@
     ],
     "unitPrestige": [
       {
-        "unitId": "player-1-atlas-as7-d",
+        "unitId": "ff-roster-unit-1",
         "score": 49,
         "history": [
           {
-            "matchId": "88fff218-fbc0-462b-9b07-a66184b9f971",
+            "matchId": "6a002a98-6dc0-4562-b63d-3b4a67225547",
             "delta": -1,
             "scoreAfter": 49,
             "reason": "Defeat, survived intact",
-            "appliedAt": "2026-10-18T05:39:27.271Z"
-          }
-        ]
-      },
-      {
-        "unitId": "opponent-1-marauder-mad-3r",
-        "score": 62,
-        "history": [
-          {
-            "matchId": "88fff218-fbc0-462b-9b07-a66184b9f971",
-            "delta": 12,
-            "scoreAfter": 62,
-            "reason": "Victory, survived intact",
-            "appliedAt": "2026-10-18T05:39:27.271Z"
+            "appliedAt": "2026-11-18T18:57:42.151Z"
           }
         ]
       }
     ],
-    "moraleState": "elite",
+    "moraleState": "unhappy",
     "moraleTransitions": [
       {
         "from": "steady",
-        "to": "high",
-        "direction": "up",
-        "reason": "Morale rose: pay met",
-        "occurredAt": "3025-06-13T00:00:00.000Z"
-      },
-      {
-        "from": "high",
-        "to": "elite",
-        "direction": "up",
-        "reason": "Morale rose: pay met",
+        "to": "unhappy",
+        "direction": "down",
+        "reason": "Morale fell: 1 recent defeat(s)",
         "occurredAt": "3025-06-14T00:00:00.000Z"
       }
-    ]
+    ],
+    "moraleCountedMatchIds": ["6a002a98-6dc0-4562-b63d-3b4a67225547"]
   },
-  "instanceId": "b1d6e277-b2f1-419b-8d73-5d6eba513ca1",
+  "instanceId": "b9e5f2ad-172f-42a6-9f3b-c5da13a8c42b",
   "authority": {
     "role": "source"
   }

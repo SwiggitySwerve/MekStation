@@ -78,6 +78,10 @@ import type { IUnitMaxState } from '@/types/campaign/UnitCombatState';
 
 import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
 import { authoritativeStateFromSerializedCampaign } from '@/lib/campaign/authority/campaignSourceGenesis';
+import {
+  battleUnitManifestFor,
+  resolveDeltaRosterUnit,
+} from '@/lib/campaign/battleUnitManifest';
 import { fastForwardCampaign } from '@/lib/campaign/fastForward/fastForwardCampaign';
 import { buildFastForwardFixture } from '@/lib/campaign/fastForward/fastForwardFixture';
 import { initializeInProcessApiDatabase } from '@/lib/campaign/fastForward/inProcessApiRouter';
@@ -89,6 +93,7 @@ import {
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { deserializeCampaignBody } from '@/lib/campaign/persistence/serializeCampaign';
 import { postBattleProcessor } from '@/lib/campaign/processors/postBattleProcessor';
+import { repairProgressProcessor } from '@/lib/campaign/processors/repairProgressProcessor';
 import { deriveCombatOutcome } from '@/lib/combat/outcome/combatOutcome';
 import { reorderRepairTicketPriority } from '@/stores/campaign/campaignBayActions';
 import {
@@ -316,15 +321,23 @@ async function runMaintenanceFastForward(): Promise<MaintenanceMintResult> {
   // the drain (module doc: repairQueueBuilderProcessor is same-day-coupled
   // to the outcome's apply, so injecting later never retroactively builds
   // tickets).
+  // Keyed by ROSTER unit id (T1): damage lands there, resolved through the
+  // battle's launch manifest exactly as the post-battle apply resolves it.
   const unitMaxStates: Record<string, IUnitMaxState> = {};
+  const liveCampaign = store.getState().campaign;
+  if (!liveCampaign) {
+    throw new Error('runMaintenanceFastForward: no live campaign');
+  }
   for (const c of captured) {
+    const manifest = battleUnitManifestFor(liveCampaign, c.outcome)?.units;
     for (const delta of c.outcome.unitDeltas) {
-      if (delta.side !== GameSide.Player) continue;
+      const resolution = resolveDeltaRosterUnit(delta, manifest);
+      if (resolution.kind !== 'roster') continue;
       const unitRef = unitRefFromSessionUnitId(delta.unitId);
       const sheet = CANONICAL_COMBAT_SHEETS[unitRef];
       if (!sheet) continue;
-      unitMaxStates[delta.unitId] = {
-        unitId: delta.unitId,
+      unitMaxStates[resolution.rosterUnitId] = {
+        unitId: resolution.rosterUnitId,
         maxArmorPerLocation: { ...sheet.armor },
         maxStructurePerLocation: { ...sheet.structure },
         maxAmmoPerBin: {},
@@ -397,31 +410,59 @@ async function runMaintenanceFastForward(): Promise<MaintenanceMintResult> {
   } as never);
 
   // D8 needs visible partial work after the next day, rather than only
-  // completed jobs (which the bay hides). Raise the longest movable job
-  // one slot within its unit group, just as RepairBay's Move Up control
-  // does. The page calls this public action in repair-bay.tsx:54.
+  // completed jobs (which the bay hides): the 8-hour repair day must end
+  // INSIDE a ticket. Tickets are honest per-roster-unit jobs (T1), so
+  // whether a boundary falls inside one depends on their order: before T1,
+  // damage from different battles piled onto shared session keys and made
+  // a few large tickets, which a fixed "raise the longest job one slot"
+  // happened to split; with honest 0.5-2.5h tickets this seed's day ended
+  // exactly on a ticket boundary (8.0h). So the fixture now tries the
+  // RepairBay Move Up control (the public action repair-bay.tsx:54 calls)
+  // on each movable job, longest first, and keeps the first order a dry
+  // run of the real `repairProgressProcessor` shows leaving a ticket
+  // partly worked; any other order is put back. The pack's tickets and
+  // damage are untouched; only the bay priority is chosen.
   const unitGroups = groupRepairBayByUnit(selectRepairBay(afterDrain));
-  const movableTickets = Array.from(unitGroups.values()).flatMap((tickets) =>
-    tickets.slice(1),
-  );
-  const longestJob = movableTickets.sort(
-    (a, b) => b.expectedHours - a.expectedHours,
-  )[0];
-  if (!longestJob) {
-    throw new Error('The maintenance fixture has no repair job to raise');
-  }
-  const reordered = [...(unitGroups.get(longestJob.unitId) ?? [])];
-  const index = reordered.findIndex(
-    (ticket) => ticket.ticketId === longestJob.ticketId,
-  );
-  const [raised] = reordered.splice(index, 1);
-  if (!raised) throw new Error('The maintenance repair job was not found');
-  reordered.splice(index - 1, 0, raised);
-  if (
-    !reorderRepairTicketPriority(reordered.map((ticket) => ticket.ticketId))
-      .applied
-  ) {
-    throw new Error('The maintenance repair priority request was refused');
+  const movableTickets = Array.from(unitGroups.values())
+    .flatMap((tickets) => tickets.slice(1))
+    .sort((a, b) => b.expectedHours - a.expectedHours);
+  const queueBeforeRaise = store.getState().getCampaign()?.repairQueue;
+  const leavesPartialWork = (): boolean => {
+    const current = store.getState().getCampaign();
+    if (!current) return false;
+    const day = repairProgressProcessor.process(
+      current,
+      current.currentDate,
+    ).campaign;
+    return (day.repairQueue ?? []).some(
+      (ticket) =>
+        ticket.remainingHours !== undefined &&
+        ticket.remainingHours > 0 &&
+        ticket.remainingHours < ticket.expectedHours,
+    );
+  };
+  const raisedJob = movableTickets.find((job) => {
+    const reordered = [...(unitGroups.get(job.unitId) ?? [])];
+    const index = reordered.findIndex(
+      (ticket) => ticket.ticketId === job.ticketId,
+    );
+    const [raised] = reordered.splice(index, 1);
+    if (!raised) return false;
+    reordered.splice(index - 1, 0, raised);
+    if (
+      !reorderRepairTicketPriority(reordered.map((ticket) => ticket.ticketId))
+        .applied
+    ) {
+      throw new Error('The maintenance repair priority request was refused');
+    }
+    if (leavesPartialWork()) return true;
+    void store.getState().updateCampaign({ repairQueue: queueBeforeRaise });
+    return false;
+  });
+  if (!raisedJob) {
+    throw new Error(
+      'The maintenance fixture has no single Move Up that leaves partial work after one day',
+    );
   }
 
   const finalCampaign = store.getState().getCampaign();
@@ -738,7 +779,11 @@ describe('a minted pack carries no retained-outcome history, and loses nothing d
     );
     session = startGame(session, GameSide.Player);
     session = endGame(session, GameSide.Player, 'destruction');
-    return deriveCombatOutcome({ ...session, id: matchId });
+    // T1 launch manifest: this synthetic player unit has no roster unit.
+    return {
+      ...deriveCombatOutcome({ ...session, id: matchId }),
+      unitManifest: { a: { notOnRoster: true as const } },
+    };
   }
 
   interface IDayTrace {

@@ -5,6 +5,7 @@ import { useCallback, useRef } from 'react';
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { IInteractiveSessionLinkage } from '@/engine/InteractiveSession.types';
 import type { SpectatorMode } from '@/stores/useGameplayStore';
+import type { BattleUnitManifest } from '@/types/campaign/BattleUnitManifest';
 import type { IMapConfiguration } from '@/types/encounter';
 import type { IForce } from '@/types/force';
 import type { IGameConfig, IGameSession } from '@/types/gameplay';
@@ -26,6 +27,8 @@ import {
   linkEncounterSession,
   completeEncounterSession,
 } from '@/services/encounter/encounterLifecycleClient';
+import { recordCampaignBattleUnitManifest } from '@/stores/campaign/campaignBattleUnitManifests';
+import { GameSide } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
 
 export type BattleMode = 'auto' | 'interactive' | 'spectator';
@@ -89,6 +92,32 @@ export function buildGameSessionRoute(
     missionId,
   });
   return `/gameplay/games/${sessionId}?${params.toString()}`;
+}
+
+/**
+ * T1: a campaign-linked session's launch manifest goes onto the campaign,
+ * keyed by session (match) id, before any outcome for it can be published.
+ * A failure is logged by the recorder; the outcome then fails loud on apply.
+ */
+function recordCampaignLaunchManifest(
+  session: IGameSession,
+  linkage: IPreBattleLaunchLinkage | undefined,
+  unitManifest: BattleUnitManifest,
+): void {
+  if (!hasCampaignOutcomeLinkage(linkage)) return;
+  recordCampaignBattleUnitManifest({
+    campaignId: nonEmpty(linkage.campaignId),
+    matchId: session.id,
+    units: unitManifest,
+    playerUnits: session.units
+      .filter((unit) => unit.side === GameSide.Player)
+      .map((unit) => ({
+        unitId: unit.id,
+        unitRef: unit.unitRef,
+        pilotRef: unit.pilotRef,
+      })),
+    scenarioId: nonEmpty(linkage.scenarioId),
+  });
 }
 
 export function publishAutoResolvedCampaignOutcome(
@@ -194,7 +223,7 @@ export function usePreBattleLaunch({
           return;
         }
 
-        const { playerAdapted, opponentAdapted, gameUnits } =
+        const { playerAdapted, opponentAdapted, gameUnits, unitManifest } =
           await buildPreparedBattleData({
             playerForce,
             opponentForce,
@@ -226,6 +255,7 @@ export function usePreBattleLaunch({
             gameUnits,
             linkage,
           );
+          recordCampaignLaunchManifest(session, linkage, unitManifest);
           // A route fallback can reload the page and discard the result in memory.
           await persistInteractiveLaunchRecoveryLog(session);
           await linkEncounterSession(session, { restart: true });
@@ -261,6 +291,7 @@ export function usePreBattleLaunch({
           linkage,
         );
         const session = interactiveSession.getSession();
+        recordCampaignLaunchManifest(session, linkage, unitManifest);
 
         if (mode === 'interactive') {
           await persistInteractiveLaunchRecoveryLog(session);
