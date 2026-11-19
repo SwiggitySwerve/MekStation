@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "measure": "reopen",
-  "sha": "4bf7e4d449bba3d6df32cf00dee35be234852c6b",
+  "sha": "942a58247a5c810be581107190e255047b43a001",
   "factsSchemaVersion": 2,
-  "factsDeriverBlob": "c9e04dcedb7f09ed70d6f9ead2ca7ff122ca1b50",
+  "factsDeriverBlob": "51fc7f4f702379bef35be0b591f25800cdf119a6",
   "referenceSha256": "bb1c1bf38eedf821ddd665a441c9c949a1ae255ceecfebc81d6fa2ed5cff0f77",
   "populationCount": 4263,
   "populationHash": "6c3540803d194e7f5e358d1bbb7d52ab5b9daec219cfba76c65b4bc1b3f792a8",
@@ -12,7 +12,8 @@
     {"sha":"c395d800c3ab4716c3b5384b8f128afcdf90f94a","pr":3392,"reason":"A2 (#3392): sealed prediction d9978bc7a8a93e8b8ac70752da52779f46c27bb0f5ec8af60994f7cd5118532c; Mad Cat Mk IV A/Prime reopenLoad + rawIdentityLosses members (39,087 removed, 0 added, 4,263 units; 33 reopen distance gains), matched exactly by gate-before on c395d800c","units":[]},
     {"sha":"117ad0914465cbdac65b28566e907eb9d68df896","pr":3393,"reason":"merge of main 79efd5968 (A2 #3392) into #3393: deriver blob only (facts.mjs isFactValue), no unit fact changes","units":[]},
     {"sha":"fec64fc4e26df40c0b5e5ac97bdcbf57ce6b2f95","pr":null,"reason":"PR-P: previewBV load-port facts (previewEqualsStatus gated, distance reported); facts schema 1->2","units":[]},
-    {"sha":"4bf7e4d449bba3d6df32cf00dee35be234852c6b","pr":3422,"reason":"PR-D1 #3422 (electronics case): reopen rebaseline at 4bf7e4d44. reopen=load 2062 -> 3319 (+1257). Four reopen Java-distance regressions accepted by the owner as unmasking: lich-uabm-2r 33->92, raptor-ii-rpt-5x 75->156, avatar-av1-oh 34->41 (PARITY-PLAN §186.5); schwerer-gustav-unknown 12->18 (PARITY-PLAN §187; load-time ammo identity, owner C2, follow-up Celerity-b). Each remaining defect, bucket, owner and parked id is named in #3422 \"Accepted by the owner\". Written by C5.","units":[]}
+    {"sha":"4bf7e4d449bba3d6df32cf00dee35be234852c6b","pr":3422,"reason":"PR-D1 #3422 (electronics case): reopen rebaseline at 4bf7e4d44. reopen=load 2062 -> 3319 (+1257). Four reopen Java-distance regressions accepted by the owner as unmasking: lich-uabm-2r 33->92, raptor-ii-rpt-5x 75->156, avatar-av1-oh 34->41 (PARITY-PLAN §186.5); schwerer-gustav-unknown 12->18 (PARITY-PLAN §187; load-time ammo identity, owner C2, follow-up Celerity-b). Each remaining defect, bucket, owner and parked id is named in #3422 \"Accepted by the owner\". Written by C5.","units":[]},
+    {"sha":"942a58247a5c810be581107190e255047b43a001","pr":3437,"reason":"V0 (#3437) header-only rebaseline: family axis (--family battlemechs); factsDeriverBlob c9e04dce -> 51fc7f4f; rows and facts byte-identical to C2 before 8c8577add / after d7fef069c","units":[]}
   ],
   "units": {
     "battlemechs/agrotera-agt-1a": {"reopenLoad":false,"reopenJava":false,"reopenJavaDistance":269,"reopenLoadDistance":269,"noLossConfirmationBefore":false,"noticeResidual":{"n":30,"h":"00f87bb665d18d84"},"noticeMismatch":{"n":0,"h":"e3b0c44298fc1c14"},"rawIdentityLosses":{"n":64,"h":"e24551990a80c0bc"},"loadedMountLosses":{"n":0,"h":"e3b0c44298fc1c14"},"reopenValid":true},
