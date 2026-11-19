@@ -503,6 +503,11 @@ async function getReplayEventsForPlayer(
   // start, so carrying it forward gives the same state per event in one
   // pass instead of one full re-derivation per event (P9: quadratic per
   // join). Events before `fromSeq` still fold: they shape the state.
+  //
+  // Keep the filter synchronous inside this iteration: event k's state must
+  // be fully consumed before event k+1 is applied. Never make the filter
+  // async, and never keep a reference to `state` in the filtered event -
+  // either would let the running state leak into a later event's frame.
   let derived = createInitialGameState(gameId);
   for (const event of allEvents) {
     derived = applyEvent(derived, event);
