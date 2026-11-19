@@ -26,6 +26,8 @@ export {
   assertGameEventBatchAdmissible,
   GameEventIdCollisionError,
   GameEventSequenceError,
+  GameStateRevisionError,
+  isOwnedGameSession,
 } from './gameSessionEvents';
 
 export {

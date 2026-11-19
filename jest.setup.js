@@ -38,6 +38,12 @@ import './src/__tests__/helpers/assertions';
 // Set test timeout for database operations
 jest.setTimeout(30000);
 
+// Fail a test whose appendEvent folds onto a game session the event-log owner
+// did not produce, unless its file is allow-listed (unownedAppendGuard.ts).
+// Jest only; dev and production builds log a warning and refold instead.
+import { installUnownedAppendGuard } from './src/__tests__/helpers/unownedAppendGuard';
+installUnownedAppendGuard();
+
 // Mock Next.js modules that might not be available in test environment
 jest.mock('next/router', () => ({
   useRouter() {
