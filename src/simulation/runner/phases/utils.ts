@@ -1,3 +1,5 @@
+import type { IPSRTriggerTarget } from '@/types/gameplay/GameSessionStateTypes';
+
 import {
   GameEventType,
   GamePhase,
@@ -10,6 +12,7 @@ import {
   ReplaySource,
 } from '@/types/gameplay';
 import { D6Roller } from '@/utils/gameplay/hitLocation';
+import { projectPsrTriggerTarget } from '@/utils/gameplay/pilotingSkillRolls/eventTargets';
 
 import { SeededRandom } from '../../core/SeededRandom';
 
@@ -176,7 +179,7 @@ export function appendUnitDestroyedEvent(
   );
 }
 
-export interface IAppendPsrTriggeredEventInput {
+export type IAppendPsrTriggeredEventInput = IPSRTriggerTarget & {
   readonly events: IGameEvent[];
   readonly gameId: string;
   readonly turn: number;
@@ -187,9 +190,8 @@ export interface IAppendPsrTriggeredEventInput {
   readonly triggerSource: IPSRTriggeredPayload['triggerSource'];
   readonly actorId?: string;
   readonly basePilotingSkill?: IPSRTriggeredPayload['basePilotingSkill'];
-  readonly fixedTargetNumber?: IPSRTriggeredPayload['fixedTargetNumber'];
   readonly reasonCode?: IPSRTriggeredPayload['reasonCode'];
-}
+};
 
 export function appendPsrTriggeredEvent(
   options: IAppendPsrTriggeredEventInput,
@@ -202,9 +204,7 @@ export function appendPsrTriggeredEvent(
     ...(options.basePilotingSkill !== undefined
       ? { basePilotingSkill: options.basePilotingSkill }
       : {}),
-    ...(options.fixedTargetNumber !== undefined
-      ? { fixedTargetNumber: options.fixedTargetNumber }
-      : {}),
+    ...projectPsrTriggerTarget(options),
     ...(options.reasonCode !== undefined
       ? { reasonCode: options.reasonCode }
       : {}),

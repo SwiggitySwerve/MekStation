@@ -3379,11 +3379,12 @@ it('keeps destroyed-leg-and-arms stand-up attempts at the origin as impossible',
   );
   expect(resolved?.payload).toMatchObject({
     unitId: 'm1',
-    targetNumber: Infinity,
+    automaticFailure: true,
     roll: 0,
     passed: false,
     reason: 'Cannot stand with a destroyed leg and both arms destroyed',
   });
+  expect(resolved?.payload).not.toHaveProperty('targetNumber');
 
   const declared = result.events.find(
     (event) => event.type === GameEventType.MovementDeclared,
@@ -3465,11 +3466,12 @@ it('keeps destroyed-gyro stand-up attempts at the origin as impossible', () => {
   );
   expect(resolved?.payload).toMatchObject({
     unitId: 'm1',
-    targetNumber: Infinity,
+    automaticFailure: true,
     roll: 0,
     passed: false,
     reason: 'Cannot stand with a destroyed gyro',
   });
+  expect(resolved?.payload).not.toHaveProperty('targetNumber');
 
   const declared = result.events.find(
     (event) => event.type === GameEventType.MovementDeclared,

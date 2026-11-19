@@ -13,10 +13,24 @@
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
+import {
+  GameEventType,
+  GamePhase,
+} from '@/types/gameplay/GameSessionInterfaces';
+
 import { commitThenPublish } from '../ServerMatchHostPublication';
 
 function gameEvent(sequence: number): IGameEvent {
-  return { type: 'TestEvent', sequence } as unknown as IGameEvent;
+  return {
+    id: `evt-${sequence}`,
+    gameId: 'match-commit',
+    sequence,
+    timestamp: '2026-01-01T00:00:00Z',
+    type: GameEventType.TurnStarted,
+    turn: 1,
+    phase: GamePhase.Initiative,
+    payload: {},
+  };
 }
 
 function harness(failOnCall: number | null) {

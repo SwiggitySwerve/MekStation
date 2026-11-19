@@ -134,7 +134,7 @@ export const LOCAL_INTERACTIVE_PSR_RESOLUTION_SOURCE_REFS = [
     kind: 'mekstation-deviation',
     citation:
       'MekStation resolvePendingPSRs mirrors interactive/session PSR resolution, fall emission, fall-sourced PilotHit emission, and reasonCode propagation.',
-    url: 'src/utils/gameplay/gameSessionPSRResolution.ts#L55-L417',
+    url: 'src/utils/gameplay/gameSessionPSRResolution.ts#L53-L412',
     sourceVersion: MEKSTATION_SOURCE_VERSION,
   },
 ] satisfies readonly ICombatFeatureSourceReference[];

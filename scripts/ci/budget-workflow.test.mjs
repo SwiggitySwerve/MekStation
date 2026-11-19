@@ -9,6 +9,7 @@ import { parse, parseDocument } from 'yaml';
 import { assertJobResults } from './budget-aggregate.mjs';
 import {
   checkRepositoryMetrics,
+  exitCodeFor,
   run as runBudgetCheck,
 } from './budget-check.mjs';
 import { loadBudgets } from './budget-config.mjs';
@@ -79,15 +80,15 @@ test('typical event census retains omitted, synchronize, ready and mixed types; 
 
 test('event-aware census preserves the deployed main profile counts and included files', () => {
   const expected = {
-    docs: 9,
-    source: 10,
-    data: 10,
-    browser: 9,
-    desktop: 12,
-    ci: 12,
-    budgets: 11,
-    bootstrap: 13,
-    dependency: 13,
+    docs: 12,
+    source: 13,
+    data: 13,
+    browser: 12,
+    desktop: 15,
+    ci: 15,
+    budgets: 14,
+    bootstrap: 16,
+    dependency: 16,
   };
   for (const profile of workflowMetrics(root, config).profiles) {
     assert.equal(profile.active, expected[profile.id], profile.id);
@@ -449,7 +450,7 @@ test('matrix template metadata and soft timing projection share expanded names',
     'Build Test / mac',
   ]);
   assert.equal(
-    projectTimingLimits(config, workflow).jobsMs['E2E (1/2)'],
+    projectTimingLimits(config, workflow).jobsMs['E2E (1/4)'],
     config.timeouts.e2e.minutes * 60000,
   );
 });
@@ -457,21 +458,31 @@ test('matrix template metadata and soft timing projection share expanded names',
 test('expanded count includes matrix legs, detector, aggregator and induced trusted guard', () => {
   const metrics = workflowMetrics(root, config);
   const source = metrics.profiles.find((p) => p.id === 'source');
-  assert.equal(source.active, 10); // 9 PR Checks + the automatically induced guard
-  assert.equal(source.expanded, 12); // also exposes the 2 gated packaging legs
+  assert.equal(source.active, 13); // 12 PR Checks + the automatically induced guard
+  assert.equal(source.expanded, 15); // also exposes the 2 gated packaging legs
   assert.equal(
     source.census.filter((j) => j.file === 'lint-and-test-guard.yml').length,
     1,
   );
+  // PARITY-PLAN §193.2: the typical job count is reported, never blocking.
+  const overJobs = checkRepositoryMetrics(
+    { ...config, limits: { ...config.limits, typicalPrJobs: 9 } },
+    repository(),
+    [],
+  );
+  assert.deepEqual(overJobs.violations, []);
+  const jobs = overJobs.overBudget.filter((v) => v.code === 'typicalPrJobs');
+  assert.ok(jobs.length);
   assert.ok(
-    checkRepositoryMetrics(
-      { ...config, limits: { ...config.limits, typicalPrJobs: 9 } },
-      repository(),
-      [],
-    ).violations.some((v) => v.code === 'typicalPrJobs'),
+    jobs.every(
+      (v) =>
+        v.key === 'limits.typicalPrJobs' &&
+        v.limit === 9 &&
+        v.delta === v.value - 9,
+    ),
   );
   const graph = expandedJobGraph(workflow);
-  assert.ok(graph['Lint and Test'].includes('E2E (2/2)'));
+  assert.ok(graph['Lint and Test'].includes('E2E (4/4)'));
   assert.ok(graph['Lint and Test'].includes('Build Test / win'));
   assert.ok(
     inducedWorkflowCensus(root, ['src/utils/uuid.ts']).files.includes(
@@ -557,6 +568,101 @@ test('dynamic/unknown matrices, conditions and aggregator bypasses fail closed',
     mutate(next);
     assert.throws(() => workflowMetrics(root, config, next));
   }
+});
+
+/** Fails unless the advisory reports run in Sim + Pack after its build, tolerated, and Static has none. */
+function assertAdvisoryReports(jobs) {
+  const sim = jobs['simulation-checks'],
+    staticJob = jobs['static-checks'];
+  const advisory = [
+    [
+      'Prepare source-head graphs and prove advisory reporting read-only',
+      'node scripts/ci/budget-github.mjs',
+    ],
+    ['Install isolated pinned tsrs (advisory)', 'tsrs@'],
+    [
+      'Compare TS7 and verified tsrs diagnostics (advisory)',
+      'node scripts/qc/tsrs-side-check.mjs',
+    ],
+  ];
+  const at = (name) => sim.steps.findIndex((s) => s.name === name);
+  const build = at('Build Next.js application');
+  assert.ok(build >= 0);
+  // After every step that feeds a timing budget, census or installer artifact.
+  const lastCensus = at('Upload complete installer census');
+  assert.ok(lastCensus > build);
+  for (const [name, command] of advisory) {
+    const step = sim.steps[at(name)];
+    assert.ok(step?.run.includes(command), name);
+    assert.ok(at(name) > lastCensus, `${name} runs after the last census`);
+    assert.equal(step['continue-on-error'], true, name);
+    assert.equal(step.if, '${{ !cancelled() }}', name);
+  }
+  // The side-check's compilers read the generated route types.
+  assert.ok(
+    at('Generate Next.js route types') <
+      at('Compare TS7 and verified tsrs diagnostics (advisory)'),
+  );
+  for (const [name, artifact] of [
+    ['Upload canonical reporter inputs', 'ci-budget-inputs'],
+    ['Upload in-Actions reporter dry-run proof', 'ci-budget-report-proof'],
+  ]) {
+    const step = sim.steps[at(name)];
+    assert.equal(step?.with.name, artifact, name);
+    assert.equal(step.if, '${{ always() }}', name);
+    assert.equal(step.with['if-no-files-found'], 'warn', name);
+  }
+  // Static Checks no longer carries them.
+  for (const step of staticJob.steps) {
+    assert.ok(!advisory.some(([name]) => name === step.name), step.name);
+    assert.ok(!/budget-github|tsrs/.test(step.run ?? ''), step.name);
+    assert.ok(!/ci-budget-(inputs|report-proof)/.test(step.with?.name ?? ''));
+  }
+}
+
+test('advisory reports run late in Simulation Checks and Linux Pack, every advisory step tolerated, none in Static', () => {
+  assertAdvisoryReports(workflow.jobs);
+  // No new job: the aggregator still needs every job.
+  assert.deepEqual(
+    [...workflow.jobs['lint-and-test'].needs].sort(),
+    Object.keys(workflow.jobs)
+      .filter((id) => id !== 'lint-and-test')
+      .sort(),
+  );
+  // Mutants: an advisory step that can fail its job, one back in Static
+  // Checks, and one moved before the build are refused.
+  const tolerated = structuredClone(workflow.jobs);
+  delete tolerated['simulation-checks'].steps.find(
+    (s) => s.name === 'Compare TS7 and verified tsrs diagnostics (advisory)',
+  )['continue-on-error'];
+  assert.throws(() => assertAdvisoryReports(tolerated));
+  const back = structuredClone(workflow.jobs);
+  back['static-checks'].steps.push(
+    back['simulation-checks'].steps.find(
+      (s) => s.run === 'node scripts/ci/budget-github.mjs',
+    ),
+  );
+  assert.throws(() => assertAdvisoryReports(back));
+  const early = structuredClone(workflow.jobs);
+  const steps = early['simulation-checks'].steps;
+  const reporter = steps.findIndex(
+    (s) => s.run === 'node scripts/ci/budget-github.mjs',
+  );
+  steps.unshift(...steps.splice(reporter, 1));
+  assert.throws(() => assertAdvisoryReports(early), /after the last census/);
+  // After the build but before the web census and Linux pack is refused too.
+  const midway = structuredClone(workflow.jobs);
+  const midSteps = midway['simulation-checks'].steps;
+  const moved = midSteps.splice(
+    midSteps.findIndex((s) => s.run === 'node scripts/ci/budget-github.mjs'),
+    1,
+  );
+  midSteps.splice(
+    midSteps.findIndex((s) => s.name === 'Build Next.js application') + 1,
+    0,
+    ...moved,
+  );
+  assert.throws(() => assertAdvisoryReports(midway), /after the last census/);
 });
 
 test('actual aggregator boundary rejects failures, unexpected skips, unknown/missing results and forged gates', () => {
@@ -660,7 +766,11 @@ test('the shipped gate map accepts draft-held skips only on a draft', () => {
     assert.throws(() => run({ ...draft, ready }, ['e2e']), /e2e=skipped/);
 });
 
-test('cache caps use exact censuses; dependency growth needs explicit label; timeout drift is red', () => {
+// The live workflow's typical job counts are over their limit too (four PR E2E
+// shards); the expanded-count test pins those rows, these pin the others.
+const notJobCount = ({ code }) => code !== 'typicalPrJobs';
+
+test('cache and dependency counts are report-only; timeout drift is red', () => {
   const metrics = repository();
   metrics.cache.files = Array.from(
     { length: config.limits.repoWideKeys + 1 },
@@ -674,26 +784,88 @@ test('cache caps use exact censuses; dependency growth needs explicit label; tim
     reasons: ['child process'],
   }));
   metrics.dependencies.root.lockEntries++;
-  metrics.workflow.timeouts.e2e++;
-  const result = checkRepositoryMetrics(config, metrics, []);
-  for (const code of [
-    'unkeyableTests',
-    'repoWideKeys',
-    'dependencyGrowth',
-    'timeout',
-  ])
-    assert.ok(
-      result.violations.some((v) => v.code === code),
-      code,
-    );
-  assert.ok(
-    !checkRepositoryMetrics(config, metrics, [
-      'ci-dependency-growth',
-    ]).violations.some((v) => v.code === 'dependencyGrowth'),
+  metrics.dependencies.desktop.directDependencies += 2;
+  // PARITY-PLAN §193.2: counts over their limits pass with a report line.
+  const counts = checkRepositoryMetrics(config, metrics, []);
+  assert.deepEqual(counts.violations, []);
+  assert.deepEqual(
+    counts.overBudget
+      .filter(notJobCount)
+      .map(({ key, value, limit, delta }) => [key, value, limit, delta]),
+    [
+      [
+        'limits.unkeyableTests',
+        config.limits.unkeyableTests + 1,
+        config.limits.unkeyableTests,
+        1,
+      ],
+      [
+        'limits.repoWideKeys',
+        config.limits.repoWideKeys + 1,
+        config.limits.repoWideKeys,
+        1,
+      ],
+      [
+        'dependencies.root.lockEntries',
+        config.dependencies.root.lockEntries + 1,
+        config.dependencies.root.lockEntries,
+        1,
+      ],
+      [
+        'dependencies.desktop.directDependencies',
+        config.dependencies.desktop.directDependencies + 2,
+        config.dependencies.desktop.directDependencies,
+        2,
+      ],
+    ],
   );
+  // No label silences or changes the report.
+  assert.deepEqual(
+    checkRepositoryMetrics(config, metrics, ['ci-dependency-growth']),
+    counts,
+  );
+  // A timeout is not a count: drift still blocks.
+  metrics.workflow.timeouts.e2e++;
+  const drifted = checkRepositoryMetrics(config, metrics, []);
+  assert.deepEqual(
+    drifted.violations.map((v) => v.code),
+    ['timeout'],
+  );
+  assert.equal(drifted.overBudget.length, counts.overBudget.length);
   metrics.cache.files = [];
   assert.throws(() => checkRepositoryMetrics(config, metrics, []));
   assert.throws(() => checkRepositoryMetrics(config, repository(), null));
+});
+
+test('the CLI exits 0 when only counts are over and 1 on any violation', () => {
+  const metrics = repository();
+  metrics.dependencies.root.lockEntries++;
+  const counts = checkRepositoryMetrics(config, metrics, []);
+  assert.equal(counts.overBudget.filter(notJobCount).length, 1);
+  assert.equal(exitCodeFor(counts), 0);
+  metrics.workflow.timeouts.e2e++;
+  const drifted = checkRepositoryMetrics(config, metrics, []);
+  assert.equal(drifted.overBudget.filter(notJobCount).length, 1);
+  assert.equal(exitCodeFor(drifted), 1);
+});
+
+test('the CLI fails closed on a malformed budgets.json before any census', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-cli-'));
+  try {
+    fs.mkdirSync(path.join(dir, 'config/ci'), { recursive: true });
+    for (const content of ['{', '{}']) {
+      fs.writeFileSync(path.join(dir, 'config/ci/budgets.json'), content);
+      const run = spawnSync(
+        process.execPath,
+        [path.join(root, 'scripts/ci/budget-check.mjs')],
+        { cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+      );
+      assert.equal(run.status, 1, content);
+      assert.match(run.stderr, /^Budget inputs rejected: /, content);
+    }
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('repository gate rejects omitted/unknown timeouts and omitted/reclassified profiles', () => {

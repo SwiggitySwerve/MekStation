@@ -26,6 +26,15 @@ export class SeededRandom {
     return min + this.next() * (max - min);
   }
 
+  /** Runtime transaction state; not a stored replay identity. */
+  snapshot(): number {
+    return this.state;
+  }
+
+  restore(state: number): void {
+    this.state = state;
+  }
+
   /**
    * Reset the PRNG to its initial seed state
    */
