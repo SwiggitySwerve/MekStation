@@ -47,7 +47,7 @@ import {
   mapTechBase,
   mapTechBaseMode,
   mapUnitTechBaseIdentity,
-  resolveArmorType,
+  isSideDependentArmorTag,
   resolveDefinitionComponentTechBase,
 } from './componentMappers';
 import { createVehicleSession } from './createVehicleSession';
@@ -78,7 +78,7 @@ const UNSUPPORTED_VEHICLE_COPY: Readonly<
   'armor.type': (value) =>
     `The vehicle editor cannot open vehicles with ${plain(value)} armor yet.`,
   'armor.techBase': (value) =>
-    `The vehicle editor cannot open this Mixed Tech vehicle: its ${plain(value)} armor does not state Inner Sphere or Clan technology.`,
+    `The vehicle editor cannot open this Mixed Tech vehicle: its ${plain(value)} armor technology is unknown (Inner Sphere or Clan).`,
 };
 
 export class UnsupportedVehicleConfigurationError extends UnsupportedUnitConfigurationError {
@@ -123,10 +123,7 @@ function resolveVehicleArmorTechBase(
   const stated = resolveDefinitionComponentTechBase(definition, 'armor');
   if (stated !== undefined) return stated;
   if (definition.vehicleEditor !== undefined) return unitTechBase;
-  if (
-    resolveArmorType(armorType, TechBase.INNER_SPHERE) !==
-    resolveArmorType(armorType, TechBase.CLAN)
-  )
+  if (isSideDependentArmorTag(armorType))
     throw new UnsupportedVehicleConfigurationError('armor.techBase', armorType);
   return unitTechBase;
 }

@@ -540,7 +540,9 @@ The vehicle editor SHALL weigh a Mixed Tech vehicle's armor on the side its defi
 states (`componentTechBases.armor`), independently of the chassis. A Mixed definition
 that states no side SHALL be treated as unknown, never as Inner Sphere: a saved editor
 document SHALL keep its own side-explicit armor tag, and any other definition whose armor
-weight depends on the side SHALL be refused with a visible reason.
+weight depends on the side SHALL be refused with a visible reason. A Mixed vehicle
+save SHALL state `componentTechBases.armor` for an armor type that is one half of an
+Inner Sphere/Clan pair, and no armor side for side-neutral armor.
 
 #### Scenario: Stated Clan armor on an Inner Sphere chassis
 
@@ -553,14 +555,15 @@ weight depends on the side SHALL be refused with a visible reason.
 
 - **GIVEN** a Mixed vehicle definition with ferro-fibrous armor and no stated armor side
 - **WHEN** it is opened and it is not a saved editor document
-- **THEN** the editor SHALL refuse it with the armor-technology reason
+- **THEN** the editor SHALL refuse it with a reason stating that its armor technology is unknown
 - **AND** side-neutral armor SHALL open without a stated side
 
 #### Scenario: Saved Mixed vehicles reopen on their saved side
 
 - **GIVEN** a Mixed vehicle saved with Inner Sphere or Clan ferro-fibrous
-- **WHEN** it is reopened
-- **THEN** its armor type and tonnage SHALL equal the saved state
+- **WHEN** it is saved and reopened
+- **THEN** the save SHALL state that armor side and the reopened armor type and tonnage SHALL equal the saved state
+- **AND** an older save that states only the chassis SHALL reopen its plain ferro-fibrous tag as Inner Sphere, as written
 
 ### Requirement: Native vehicle equipment introduction diagnostics
 

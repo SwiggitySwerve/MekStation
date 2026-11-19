@@ -461,6 +461,34 @@ MegaMekLab 62bf193 UnitUtil.java:650-686 also checks fixed-only equipment and
 fixed heat-sink quotas for newly authored pod mounts. No eligibility or
 base-chassis heat-sink arithmetic is copied into this loading boundary.
 
+## Mixed Tech component sides (rows 2.1.3, 2.1.5)
+
+`componentMappers` owns the reading of a definition's stated component sides.
+The converter states every Mixed side the pinned loaders derive (MegaMek
+48fcb2f64), so absence on a Mixed definition is **unknown**, never Inner Sphere.
+
+- `resolveDefinitionComponentTechBase`: a stated `componentTechBases` side wins;
+  a pure definition's own tech base answers otherwise; a Mixed definition that
+  states no side returns `undefined` (unknown).
+- `resolveMechEngineTechBase`, in precedence order: the `CLAN_XL`/`XL` engine
+  token (through `mapEngineType`; XL is the unit side, Inner Sphere on a Mixed
+  mek), `componentTechBases.engine`, a non-Mixed mek's own tech base, otherwise
+  unknown (`MtfFile.java:387-392`).
+- **Boundary.** The resolvers return unknown to every consumer that can carry
+  it (the BV engine-side consumer reads it). The mek editor's
+  `componentTechBases` state holds only Inner Sphere or Clan, so an unknown engine
+  side shows today's Inner Sphere default in the editor display only; that
+  placeholder is never written back as a source fact by these readers.
+- Vehicle armor (`vehicleMapping.resolveVehicleArmorTechBase`): the stated side
+  wins. With none, a saved editor document keeps its side-explicit armor tag
+  (`FERRO_FIBROUS` was written from Inner Sphere ferro-fibrous); any other Mixed
+  definition whose tag is side-dependent (`isSideDependentArmorTag`) is refused
+  with the armor-technology-unknown reason. Mixed vehicle saves state
+  `componentTechBases.armor` for an armor type that is one half of an IS/Clan
+  pair (`sidedArmorTechBase`); side-neutral armor states none.
+- Fighters: the fighter editor does not model Ferro-Aluminum or a Reflective
+  side, so it reads no armor side; the catalog field is for source consumers.
+
 ## Equipment source-side markers
 
 The loader admits a source item's own explicit tech side only when critical

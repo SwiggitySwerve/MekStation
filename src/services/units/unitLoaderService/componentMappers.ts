@@ -36,6 +36,7 @@ import {
 } from '@/types/construction/TechBaseConfiguration';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
+import { ARMOR_IDENTITY_ROWS } from '@/types/formats/ArmorIdentity';
 
 type RawArmorValue = number | { front: number; rear: number };
 type RearArmorField = 'centerTorsoRear' | 'leftTorsoRear' | 'rightTorsoRear';
@@ -277,12 +278,47 @@ export function resolveDefinitionComponentTechBase(
     : mapTechBase(techBase);
 }
 
+/** An armor tag whose Inner Sphere and Clan resolutions differ: its side changes the weight. */
+export function isSideDependentArmorTag(tag: string): boolean {
+  return (
+    resolveArmorType(tag, TechBase.INNER_SPHERE) !==
+    resolveArmorType(tag, TechBase.CLAN)
+  );
+}
+
+let sidedArmorTypes: ReadonlyMap<ArmorTypeEnum, TechBase> | undefined;
+
+/**
+ * The side an editor armor type stands for when it is one half of an Inner
+ * Sphere/Clan pair (a side-dependent tag resolves to it); otherwise none, so a
+ * side-neutral armor never acquires an invented side.
+ */
+export function sidedArmorTechBase(
+  armorType: ArmorTypeEnum,
+): TechBase | undefined {
+  sidedArmorTypes ??= new Map(
+    ARMOR_IDENTITY_ROWS.filter((row) =>
+      isSideDependentArmorTag(row.tag),
+    ).flatMap((row) => [
+      [
+        resolveArmorType(row.tag, TechBase.INNER_SPHERE)!,
+        TechBase.INNER_SPHERE,
+      ],
+      [resolveArmorType(row.tag, TechBase.CLAN)!, TechBase.CLAN],
+    ]),
+  );
+  return sidedArmorTypes.get(armorType);
+}
+
 /**
  * A mek's engine side. Precedence: an engine token that names a side wins
  * (`mapEngineType`: CLAN_XL is Clan; XL takes the unit side, Inner Sphere on a
  * Mixed mek, where the converter writes XL only for an Inner Sphere engine
  * line, `test_mixed_tech_sides.py`); then the stated component side; then a
- * pure mek's tech base. A Mixed mek that states neither is unknown.
+ * pure mek's tech base. A Mixed mek that states neither is unknown: callers that
+ * can carry unknown (the BV engine-side consumer) receive `undefined`; only the
+ * binary editor display substitutes its Inner Sphere default (see RULES.md,
+ * "Mixed Tech component sides").
  */
 export function resolveMechEngineTechBase(
   definition: IComponentTechSideSource,

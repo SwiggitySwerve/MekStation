@@ -631,6 +631,7 @@ describe('Mixed Tech armor side', () => {
     expect((error as UnsupportedVehicleConfigurationError).field).toBe(
       'armor.techBase',
     );
+    expect((error as Error).message).toContain('armor technology is unknown');
   });
   it('opens side-neutral armor without a stated side', () => {
     expect(
@@ -649,6 +650,8 @@ describe('Mixed Tech armor side', () => {
         variant: state.model,
         era: Era.DARK_AGE,
       });
+      // New saves state the side they were saved with.
+      expect(saved.componentTechBases?.armor).toBe(side);
       const reopened = mapToVehicleState(JSON.parse(JSON.stringify(saved)));
       expect([reopened.armorType, reopened.armorTonnage]).toEqual([
         state.armorType,
@@ -656,6 +659,42 @@ describe('Mixed Tech armor side', () => {
       ]);
     },
   );
+  it('opens an older saved Mixed ferro-fibrous document, written without a side, as written', () => {
+    // Saves before this change wrote only the chassis; their FERRO_FIBROUS tag
+    // was written from Inner Sphere ferro-fibrous (CustomUnitSerializer.tags.ts).
+    const state = mapToVehicleState(
+      mixed({ chassis: 'CLAN', armor: 'INNER_SPHERE' }),
+    );
+    const saved: Record<string, unknown> = JSON.parse(
+      JSON.stringify(
+        serializeCustomVehicleState(state, {
+          id: 'mixed-armor-legacy',
+          chassis: state.chassis,
+          variant: state.model,
+          era: Era.DARK_AGE,
+        }),
+      ),
+    );
+    const { armor: _armor, ...legacy } = saved.componentTechBases as Record<
+      string,
+      string
+    >;
+    const reopened = mapToVehicleState({
+      ...saved,
+      componentTechBases: legacy,
+    });
+    expect(reopened.armorType).toBe(ArmorTypeEnum.FERRO_FIBROUS_IS);
+  });
+  it('writes no armor side for a side-neutral Mixed armor', () => {
+    const state = mapToVehicleState(mixed({ chassis: 'CLAN' }, 'STANDARD'));
+    const saved = serializeCustomVehicleState(state, {
+      id: 'mixed-armor-neutral',
+      chassis: state.chassis,
+      variant: state.model,
+      era: Era.DARK_AGE,
+    });
+    expect(saved.componentTechBases).toEqual({ chassis: 'CLAN' });
+  });
   // Committed catalog (spliced from the pinned BLKs); tonnages from the phase-1 prediction.
   it.each([
     ['Zephyr Hovertank EC', ArmorTypeEnum.FERRO_FIBROUS_CLAN, 7.5],
