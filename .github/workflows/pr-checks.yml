@@ -277,14 +277,6 @@ jobs:
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         run: npx jest --selectProjects a11y --ci
 
-      # The roadmap Jest project (config/jest/corpus-suites.js): tooling tests
-      # that spawn the scripts/qc roadmap tools and read openspec/ files.
-      - name: Roadmap tooling tests
-        if: ${{ !cancelled() && needs.detect-changes.outputs.roadmap == 'true' }}
-        run: npx jest --selectProjects roadmap --ci
-        env:
-          JEST_SPLIT_CORPUS: 'true'
-
       - name: Validate BV Parity
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         run: npm run validate:bv
@@ -692,15 +684,16 @@ jobs:
 
   # Four shards. jest.config.js uses every vCPU in CI (Lane B), and
   # JEST_SPLIT_CORPUS moves the whole-catalog suites to the `corpus` project
-  # and the roadmap tooling suites to Static Checks
+  # and the roadmap tooling suites to the `roadmap` project
   # (config/jest/corpus-suites.js). Folded in (CI-SPEED round 2), so a PR
   # needs fewer runners:
   #   - shards 1 and 2 each run half of the corpus project after the unit
   #     shard, when a changed file is in its import closure or is
   #     catalog/converter data (always on main and nightly);
   #   - shard 3 runs the Validate Combat Suite when combat inputs changed;
-  #   - shard 4 runs only its unit shard.
-  # The shard planner gives shards 1-3 less Jest work for that extra work
+  #   - shard 4 runs the roadmap project when the roadmap gate is on (moved
+  #     from Static Checks, its critical path, in P1b lever 2).
+  # The shard planner gives each shard less Jest work for that extra work
   # (SHARD_PRELOAD_MS['unit/4'] in config/jest/shard-planner.js).
   # The Jest transform cache is restored from main's last run: its entries
   # are keyed by file content and transformer config, so a stale entry can
@@ -840,6 +833,15 @@ jobs:
       - name: Validate Combat Suite
         if: ${{ !cancelled() && matrix.shard == 3 && needs.detect-changes.outputs.combat == 'true' }}
         run: npm run validate:combat
+
+      # Shard 4: the roadmap Jest project (config/jest/corpus-suites.js),
+      # tooling tests that spawn the scripts/qc roadmap tools and read
+      # openspec/ files, when the roadmap gate is on.
+      - name: Roadmap tooling tests
+        if: ${{ !cancelled() && matrix.shard == 4 && needs.detect-changes.outputs.roadmap == 'true' }}
+        run: npx jest --selectProjects roadmap --ci
+        env:
+          JEST_SPLIT_CORPUS: 'true'
 
       - name: Upload actual Jest timing and cache observations
         if: ${{ always() }}

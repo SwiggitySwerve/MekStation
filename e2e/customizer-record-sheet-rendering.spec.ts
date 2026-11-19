@@ -549,3 +549,69 @@ test('Infantry preview shares zoom, fit modes, paper geometry and export @custom
   expect(await zoomPercent(page)).toBe(mobileManual);
   await noDocumentOverflow(page);
 });
+
+/** The BV text as bound onto the rendered sheet SVG (`id="bv"`), not a store or projection value. */
+async function renderedSheetBV(page: Page) {
+  const svg = await latestSheetSvg(page);
+  return page.evaluate(
+    (text) =>
+      new DOMParser()
+        .parseFromString(text, 'image/svg+xml')
+        .getElementById('bv')
+        ?.textContent?.trim() ?? '',
+    svg,
+  );
+}
+
+async function loadCanonicalMechPreview(
+  page: Page,
+  chassis: string,
+  variant: string,
+) {
+  await page.goto('/customizer');
+  await page.getByRole('button', { name: 'Load from Library' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Add Unit', exact: true });
+  await dialog.getByRole('combobox').first().selectOption('canonical');
+  await dialog
+    .getByPlaceholder('Search by chassis or variant...')
+    .fill(`${chassis} ${variant}`);
+  await dialog
+    // String.raw keeps the backslash: a plain template literal would turn \s into "s".
+    .getByRole('row', {
+      name: new RegExp(String.raw`^${chassis} ${variant}(\s|$)`),
+    })
+    .click();
+  await dialog.getByRole('button', { name: 'Load Unit', exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await page.getByRole('tab', { name: 'Preview', exact: true }).click();
+  await expect(
+    page.getByRole('tab', { name: 'Preview', exact: true }),
+  ).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByLabel('Current zoom', { exact: true })).toBeVisible();
+}
+
+/** The BV the editor's status bar shows on this page (the "Battle Value" group of the unit status banner). */
+async function statusBarBV(page: Page) {
+  const text = await page
+    .getByRole('group', { name: 'Battle Value' })
+    .first()
+    .innerText();
+  return text.match(/([\d,]+)\s*$/)?.[1] ?? '';
+}
+
+// Masakari L printed 2,467 on the sheet (PreviewTab dropped bvContext) while the status bar and the
+// Java reference say 3,695. The sheet reads the same projection input as the status bar now.
+// Two assertions, both reported: (i) the invariant, the sheet prints what the status bar shows on the same
+// page (it survives any future correct BV change); (ii) the oracle value, 3,695.
+test('the rendered sheet prints the status-bar BV for Masakari L @customizer', async ({
+  page,
+}) => {
+  await loadCanonicalMechPreview(page, 'Masakari', 'L');
+  await expectSheetType(page, 'Masakari L');
+  await expect.poll(() => renderedSheetBV(page)).toMatch(/^[1-9][\d,]*$/);
+  await expect.poll(() => statusBarBV(page)).toMatch(/^[1-9][\d,]*$/);
+  const sheet = await renderedSheetBV(page);
+  const status = await statusBarBV(page);
+  expect.soft(sheet, 'the sheet BV equals the status-bar BV').toBe(status);
+  expect.soft(sheet, 'the sheet BV is the oracle value').toBe('3,695');
+});

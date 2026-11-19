@@ -4,12 +4,22 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
+import { readRegistry, rebaselineNotice } from './parity-runtime-families.mjs';
 import { lastGreenLine } from './parity-runtime-last-green.mjs';
 
 const code = (value) =>
   `\`${String(value).replaceAll('`', '&#96;').replaceAll('\n', ' ').replaceAll('\r', ' ')}\``;
 
-export function renderRuntimeSummary(report, summary, retrieval = {}) {
+/**
+ * `family` and `registry` (optional) name the leg and add the registry's facts: the family's expected unit count and,
+ * on a deriver change, which enabled families must be rebaselined. The gate's own message is shown as it is.
+ */
+export function renderRuntimeSummary(
+  report,
+  summary,
+  retrieval = {},
+  { family, registry } = {},
+) {
   // Early input failures produce only measure, exitCode, regressions and
   // failClosed. Preserve that diagnosis without inventing a population count.
   report = {
@@ -40,12 +50,17 @@ export function renderRuntimeSummary(report, summary, retrieval = {}) {
     counts.push(`- ${code(key)}: ${value} (${gate.direction})`);
   }
   const lines = [
-    `## Runtime parity: ${report.measure}`,
+    `## Runtime parity: ${family ? `${family} ` : ''}${report.measure}`,
     '',
     `**${report.population?.overlap ?? 'unknown'} gated units · ${report.regressions.length} regressions · ${report.failClosed.length} fail-closed reasons · ${report.unbaselined.length} unbaselined · ${report.removed.length} removed**`,
     '',
     `Gate exit: ${report.exitCode}.`,
   ];
+  const expected = registry?.families?.[family]?.expectedUnits;
+  if (expected !== undefined)
+    lines.push(
+      `Expected units (registry): ${expected}; tonight's run: ${report.population?.tonight ?? 'unknown'}.`,
+    );
   // The gate refused a downloaded artifact (stale/malformed); otherwise the
   // lookup's own wording applies: found, none within retention, or failed.
   const lastGreen = ['stale', 'malformed'].includes(report.lastGreen.status)
@@ -72,6 +87,8 @@ export function renderRuntimeSummary(report, summary, retrieval = {}) {
   for (const row of report.failClosed)
     lines.push(`- ${code(row.reason)}: ${row.message}`);
   if (!report.failClosed.length) lines.push('None.');
+  const rebaseline = registry ? rebaselineNotice(report, registry) : null;
+  if (rebaseline) lines.push('', rebaseline);
   lines.push(
     '',
     `### Unprotected gains (${report.unprotectedGains.length})`,
@@ -91,7 +108,7 @@ export function renderRuntimeSummary(report, summary, retrieval = {}) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
     const { values } = parseArgs({
-      options: { 'run-dir': { type: 'string' } },
+      options: { 'run-dir': { type: 'string' }, family: { type: 'string' } },
     });
     const read = (name) =>
       JSON.parse(fs.readFileSync(path.join(values['run-dir'], name), 'utf8'));
@@ -105,6 +122,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       read('gate/gate-report.json'),
       read('summary.json'),
       retrieval,
+      values.family ? { family: values.family, registry: readRegistry() } : {},
     );
     if (process.env.GITHUB_STEP_SUMMARY)
       fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, text);

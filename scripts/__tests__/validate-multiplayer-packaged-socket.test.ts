@@ -47,6 +47,7 @@ catch(e){ process.stdout.write(e instanceof Error?e.message:String(e)); process.
     for (const host of REJECTS) {
       const env = { ...process.env, HOSTNAME: host, PORT: '3750' };
       delete env.NODE_ENV;
+      delete env.MEKSTATION_CONTAINER_LISTEN;
       const result = probe(root, preload, env);
       const out = `${result.stdout}${result.stderr}`;
       expect(result.status).not.toBe(0);
@@ -65,5 +66,151 @@ catch(e){ process.stdout.write(e instanceof Error?e.message:String(e)); process.
     expect(`${incomplete.stdout}${incomplete.stderr}`).not.toContain(SENTINEL);
     expect(incomplete.status).not.toBe(0);
     fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  // PARITY-PLAN 1.0.92: the exact container opt-in is the only way past the
+  // loopback rule, and only for HOSTNAME=0.0.0.0 in the packaged layout.
+  it('binds all interfaces only with the exact container opt-in', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'camp00-ctr-'));
+    fs.writeFileSync(path.join(root, 'server.js'), fs.readFileSync(serverSrc));
+    fs.writeFileSync(path.join(root, 'server.next-config.json'), '{}');
+    fs.mkdirSync(path.join(root, '.next'));
+    const preload = path.join(root, 'preload.cjs');
+    // prettier-ignore
+    fs.writeFileSync(preload, "const M=require('module');const o=M._load;M._load=function(r,...a){if(r==='next')throw new Error('NEXT_IMPORT_SENTINEL');return o.call(this,r,...a);};");
+    const run = (vars: Record<string, string>) => {
+      const env: NodeJS.ProcessEnv = { ...process.env, PORT: '3750', ...vars };
+      delete env.NODE_ENV;
+      const result = probe(root, preload, env);
+      return { status: result.status, out: `${result.stdout}${result.stderr}` };
+    };
+    const FLAG = 'MEKSTATION_CONTAINER_LISTEN';
+
+    const opted = run({ HOSTNAME: '0.0.0.0', [FLAG]: 'all-interfaces' });
+    expect(opted.out).toContain('CONTAINER_LISTEN_ALL_INTERFACES');
+    expect(opted.out).toContain(SENTINEL);
+
+    // prettier-ignore
+    for (const value of ['', ' ', '1', 'true', 'yes', 'ALL-INTERFACES', 'all-interfaces ', ' all-interfaces', 'all']) {
+      const wrong = run({ HOSTNAME: '0.0.0.0', [FLAG]: value });
+      expect(wrong.status).not.toBe(0);
+      expect(wrong.out).toContain(`${FLAG} ignored`);
+      expect(wrong.out).not.toContain('CONTAINER_LISTEN_ALL_INTERFACES');
+      expect(wrong.out).not.toContain(SENTINEL);
+    }
+
+    // The desktop shape: Electron passes 127.0.0.1, so an inherited flag is ignored.
+    const desktop = run({ HOSTNAME: '127.0.0.1', [FLAG]: 'all-interfaces' });
+    expect(desktop.out).toContain(`${FLAG} ignored`);
+    expect(desktop.out).not.toContain('CONTAINER_LISTEN_ALL_INTERFACES');
+    expect(desktop.out).toContain(SENTINEL);
+
+    for (const host of REJECTS.filter((h) => h !== '0.0.0.0')) {
+      const other = run({ HOSTNAME: host, [FLAG]: 'all-interfaces' });
+      expect(other.status).not.toBe(0);
+      expect(other.out).not.toContain(SENTINEL);
+    }
+
+    // Development (nonpackaged) keeps its rule: 0.0.0.0 is refused even with the flag.
+    fs.rmSync(path.join(root, 'server.next-config.json'));
+    const dev = run({ HOSTNAME: '0.0.0.0', [FLAG]: 'all-interfaces' });
+    expect(dev.status).not.toBe(0);
+    expect(dev.out).not.toContain(SENTINEL);
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  it('keeps the container opt-in out of everything but the Dockerfile', () => {
+    const FLAG = 'MEKSTATION_CONTAINER_LISTEN';
+    const offenders: string[] = [];
+    const skip = new Set([
+      'node_modules',
+      '.next',
+      '.git',
+      'public',
+      'openspec',
+    ]);
+    const visit = (dir: string) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (skip.has(entry.name)) continue;
+        const file = path.join(dir, entry.name);
+        if (entry.isDirectory()) visit(file);
+        else if (/\.(ts|tsx|js|mjs|cjs|json|ya?ml|sh)$/.test(entry.name))
+          if (fs.readFileSync(file, 'utf8').includes(FLAG))
+            offenders.push(path.relative(process.cwd(), file));
+      }
+    };
+    for (const dir of ['desktop', 'src', 'scripts', '.github'])
+      if (fs.existsSync(dir)) visit(dir);
+    // Root configs that launch or configure a server: manifests, compose and
+    // builder files, Next and Playwright configs, other Dockerfiles, env files.
+    const rootFile =
+      /^(package\.json|(docker-)?compose[^/]*\.ya?ml|electron-builder\.yml|next\.config\.[cm]?[jt]s|playwright[^/]*\.config\.[cm]?[jt]s|Dockerfile\..+|\.env.*)$/;
+    for (const file of fs
+      .readdirSync('.')
+      .filter((name) => rootFile.test(name)))
+      if (fs.readFileSync(file, 'utf8').includes(FLAG)) offenders.push(file);
+    // server.js reads it, this test names it, and the validator names it only
+    // to strip it from its rejection probes; only the Dockerfile sets it.
+    expect(offenders.map((f) => f.replace(/\\/g, '/')).sort()).toEqual([
+      'scripts/__tests__/validate-multiplayer-packaged-socket.test.ts',
+      'scripts/validate-multiplayer-packaged-socket.mjs',
+    ]);
+    expect(fs.readFileSync('Dockerfile', 'utf8')).toContain(
+      `ENV ${FLAG}=all-interfaces`,
+    );
+  });
+
+  // The same-host guard trusts a loopback Host header, so the container's port
+  // must never be published beyond the host's loopback (PARITY-PLAN 1.0.92).
+  it('publishes the container port on 127.0.0.1 only and adds no reverse proxy', () => {
+    const composeFiles = fs
+      .readdirSync('.')
+      .filter((name) => /^(docker-)?compose[^/]*\.ya?ml$/.test(name));
+    expect(composeFiles).toContain('docker-compose.yml');
+    const unsafe: string[] = [];
+    for (const file of composeFiles) {
+      const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/);
+      let inPorts = false;
+      for (const line of lines) {
+        if (/^\s*ports:\s*$/.test(line)) {
+          inPorts = true;
+          continue;
+        }
+        const entry = /^\s*-\s*['"]?([^'"\s]+)['"]?\s*$/.exec(line);
+        if (inPorts && entry) {
+          if (!entry[1].startsWith('127.0.0.1:'))
+            unsafe.push(`${file}: ${entry[1]}`);
+          continue;
+        }
+        if (!/^\s*#/.test(line)) inPorts = false;
+        if (/^\s*#/.test(line)) continue;
+        if (/traefik\.|caddy\.|nginx-proxy/i.test(line))
+          unsafe.push(`${file}: reverse-proxy label ${line.trim()}`);
+        // Host networking would bind 0.0.0.0 on every host interface.
+        if (/^\s*network_mode:\s*['"]?host['"]?\s*$/.test(line))
+          unsafe.push(`${file}: network_mode host`);
+      }
+      // Long-syntax port entries must pin host_ip to the loopback.
+      const text = lines.join('\n');
+      for (const block of text.matchAll(
+        /-\s*target:[^\n]*(?:\n\s+(?!-)[^\n]*)*/g,
+      ))
+        if (
+          /\bpublished:/.test(block[0]) &&
+          !/\bhost_ip:\s*['"]?127\.0\.0\.1['"]?/.test(block[0])
+        )
+          unsafe.push(`${file}: long-syntax port without host_ip 127.0.0.1`);
+    }
+    const scripts = JSON.parse(fs.readFileSync('package.json', 'utf8'))
+      .scripts as Record<string, string>;
+    for (const [name, command] of Object.entries(scripts)) {
+      if (!/\bdocker\s+run\b/.test(command)) continue;
+      for (const match of command.matchAll(
+        /(?:^|\s)(?:-p|--publish)[\s=](\S+)/g,
+      ))
+        if (!match[1].startsWith('127.0.0.1:'))
+          unsafe.push(`package.json ${name}: ${match[1]}`);
+    }
+    expect(unsafe).toEqual([]);
   });
 });
