@@ -23,6 +23,19 @@ import {
 import { aerospaceArmor, isPrimitiveAerospaceArmor } from './armor';
 import { capitalDriveWeight } from './capitalStructure';
 import { aerospaceBays } from './sourceBays';
+
+export type {
+  AerospaceArmorWeightInput,
+  AerospaceFuelWeightInput,
+  AerospaceWeightInput,
+  AerospaceWeightResult,
+  IAerospaceBreakdown,
+  IAerospaceEquipmentWeightTerms,
+  IAerospaceWeightCommonInput,
+  IAerospaceWeightIssue,
+  IAerospaceWeightMount,
+} from './sourceWeight.types';
+
 // ============================================================================
 // Cockpit Tonnage by Cockpit Type
 // ============================================================================

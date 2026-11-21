@@ -80,30 +80,38 @@ export interface ISmallCraftCrew {
 // Aerospace Weight Breakdown
 // ============================================================================
 
-/**
- * Complete weight-usage summary for an aerospace unit at construction time.
- * All values in tons.
- */
-export interface IAerospaceBreakdown {
-  /** Engine tonnage (from rating × weight table) */
-  readonly engineTons: number;
-  /** Structural integrity tonnage above default */
-  readonly siTons: number;
-  /** Fuel tonnage allocated */
-  readonly fuelTons: number;
-  /** Armor tonnage */
-  readonly armorTons: number;
-  /** Heat sink tonnage (sinks above the 10 engine-free baseline) */
-  readonly heatSinkTons: number;
-  /** Cockpit tonnage (3 for standard, 2 for small) */
-  readonly cockpitTons: number;
-  /** Crew quarters tonnage (small craft only; 0 for ASF/CF) */
+/** Native equipment components, all in tons and charged exactly once. */
+export interface IAerospaceEquipmentWeightTerms {
+  readonly weaponsTons: number;
+  readonly ammunitionTons: number;
+  readonly miscellaneousTons: number;
+  readonly powerAmplifiersTons: number;
+  /** Native miscellaneous systems, such as VSTOL. */
+  readonly systemsTons: number;
+  readonly carryingSpaceTons: number;
+  /** Excludes accommodation already included in controls. */
   readonly quartersTons: number;
-  /** Equipment tonnage (sum of all mounted items) */
+  readonly armoredComponentsTons: number;
+}
+
+/** Complete native construction weight summary. All values are in tons. */
+export interface IAerospaceBreakdown {
+  readonly engineTons: number;
+  /** Entire native structure/SI contribution. */
+  readonly structureTons: number;
+  readonly armorTons: number;
+  readonly heatSinkTons: number;
+  /** Native controls and crew accommodation contribution. */
+  readonly cockpitTons: number;
+  readonly fuelTons: number;
+  /** Sum of the equipment components exactly once. */
   readonly equipmentTons: number;
-  /** Total tons used */
-  readonly totalUsed: number;
-  /** Tons remaining (chassis tonnage − totalUsed) */
+  readonly equipment: IAerospaceEquipmentWeightTerms;
+  /** Native calculateWeightExact / weightTotal. */
+  readonly total: number;
+  /** Native calculateWeight, kept separate from the exact total. */
+  readonly roundedTotal: number;
+  /** Design tonnage minus exact total; overweight values remain negative. */
   readonly remaining: number;
 }
 
