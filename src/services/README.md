@@ -57,11 +57,11 @@ const serviceFactory = createSingleton(
 );
 ```
 
-**Migrated Services** (10 services):
+**Migrated Services** (9 services):
 
 - VaultService, PermissionService, ContactService, OfflineQueueService, VersionHistoryService
 - EquipmentRegistry, EquipmentLoaderService, EquipmentNameMapper
-- UnitFactoryService, UnitTypeRegistry
+- UnitTypeRegistry
 
 **Benefits**:
 

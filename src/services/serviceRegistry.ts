@@ -10,7 +10,6 @@ import {
 } from './equipment';
 import { getFileService, getIndexedDBService } from './persistence';
 import { getPilotRepository, getPilotService } from './pilots';
-import { getUnitFactory } from './units';
 
 export const services = {
   persistence: {
@@ -30,11 +29,6 @@ export const services = {
     },
     get nameMapper() {
       return getEquipmentNameMapper();
-    },
-  },
-  units: {
-    get factory() {
-      return getUnitFactory();
     },
   },
   construction: {
