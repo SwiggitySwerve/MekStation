@@ -9,6 +9,10 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { z } from 'zod';
 
+// Windows measured 147s under four-worker load; leave headroom and setup time.
+const nativeRpcTimeoutMs = process.platform === 'win32' ? 210000 : 120000;
+const nativeTestTimeoutMs = process.platform === 'win32' ? 240000 : 120000;
+
 const repo = process.cwd();
 const ledger = path.join(
   repo,
@@ -385,13 +389,22 @@ const nativeRpcCode = [
   '}',
   "else if(request.op==='mode') result={mode:api.reviewIdentityMode(request.value)};",
   "else if(request.op==='facts') result={privateRoots:facts.NATIVE_PRIVATE_ROOTS};",
+  "else if(request.op==='archive-custody') {",
+  'const spawn=cp.spawnSync;let attributeCalls=0;const checkpoints=[];',
+  "cp.spawnSync=(command,...args)=>{if(String(command).endsWith('powershell.exe'))attributeCalls++;return spawn(command,...args);};",
+  'syncBuiltinESMExports();',
+  "const verified={manifest:{reviewContractVersion:3,unit:'CNI1'},snapshots:request.observations.map(text=>({bytes:Buffer.from(text)})),revalidate:()=>checkpoints.push(attributeCalls)};",
+  'const ref=api.archiveReviewIdentity(request.ledgerDir,verified),publishedCalls=attributeCalls,publishedCheckpoints=[...checkpoints];',
+  'let refusal;try{api.archiveReviewIdentity(request.ledgerDir,verified);}catch(error){refusal={code:error.code,message:String(error.message)};}',
+  'result={ref,publishedCalls,publishedCheckpoints,attributeCalls,refusal};',
+  '}',
   "else if(request.op==='external-review'){api.validateReviewReceipt(request.args.ledgerDir,request.args.unit);result={accepted:true};}",
   "else if(request.op==='archived-intake') {",
   'const open=fs.openSync,spawn=cp.spawnSync;let attributeCalls=0,localReads=0,swapped=false;',
   'const local=path.join(request.args.ledgerDir,request.args.unit.stageReceipts.local.path),review=path.join(request.args.ledgerDir,request.args.unit.stageReceipts.review.path);',
   'const originalLocal=fs.readFileSync(local);',
   "fs.openSync=(file,...args)=>{if(file===local)localReads++;if(request.fault==='between-intakes'&&file===review){const changed=JSON.parse(originalLocal);changed.reviewContractVersion=2;fs.writeFileSync(local,JSON.stringify(changed));}if(request.fault==='between-intakes'&&file===request.manifest)fs.writeFileSync(local,originalLocal);if(request.fault==='member-swap'&&file===request.target&&!swapped&&(!request.inner||localReads===2)){swapped=true;fs.renameSync(file,file+'.displaced');fs.copyFileSync(file+'.displaced',file);}return open(file,...args);};",
-  "cp.spawnSync=(command,...args)=>{if(String(command).endsWith('powershell.exe'))attributeCalls++;return spawn(command,...args);};",
+  "cp.spawnSync=(command,...args)=>{if(String(command).endsWith('powershell.exe')){attributeCalls++;if(request.fault==='inner-boundary-swap'&&attributeCalls===3){fs.renameSync(local,local+'.displaced');fs.copyFileSync(local+'.displaced',local);}}return spawn(command,...args);};",
   'syncBuiltinESMExports();',
   'api.validateReviewReceipt(request.args.ledgerDir,request.args.unit);result={accepted:true,attributeCalls,localReads};',
   '}',
@@ -611,6 +624,70 @@ describe('Native custody batched relative inventory', () => {
   });
 });
 
+describe('Native archive publication custody', () => {
+  it('batches directory guards while retaining every publication checkpoint', () => {
+    const f = fixture();
+    const observations = ['{"actor":"author"}\n', '{"actor":"reviewer"}\n'];
+    const call = rpc(f, 'archive-custody', {
+      op: 'archive-custody',
+      ledgerDir: f.dir,
+      observations,
+    });
+    expect(call.exit).toBe(0);
+    const result = z
+      .object({
+        ref: archiveRefShape,
+        publishedCalls: z.number(),
+        publishedCheckpoints: z.array(z.number()),
+        attributeCalls: z.number(),
+        refusal: z.object({ code: z.string(), message: z.string() }),
+      })
+      .parse(JSON.parse(call.stdout));
+    expect(result.publishedCheckpoints).toEqual(
+      process.platform === 'win32' ? [1, 2, 3, 4, 6] : [0, 0, 0, 0, 0],
+    );
+    expect(result.publishedCalls).toBe(process.platform === 'win32' ? 6 : 0);
+    expect(result.attributeCalls).toBe(process.platform === 'win32' ? 7 : 0);
+    expect(result.refusal).toEqual({
+      code: 'REVIEW_IDENTITY_INVALID',
+      message: 'native archive target already exists',
+    });
+    const refs = observations.map((text) => {
+      const ref = blob(Buffer.from(text));
+      return {
+        path: `codex-observation-${ref.sha256}.json`,
+        sha256: ref.sha256,
+        bytes: ref.bytes,
+      };
+    });
+    const manifestBytes = Buffer.from(
+      JSON.stringify(
+        {
+          reviewContractVersion: 3,
+          unit: 'CNI1',
+          author: refs[0],
+          finishers: [],
+          reviewer: refs[1],
+        },
+        null,
+        2,
+      ) + '\n',
+    );
+    expect(result.ref).toEqual({
+      path: `evidence/codex-review-identity-${digest(manifestBytes)}.json`,
+      ...blob(manifestBytes),
+    });
+    expect(fs.readFileSync(path.join(f.dir, result.ref.path))).toEqual(
+      manifestBytes,
+    );
+    refs.forEach((ref, index) =>
+      expect(fs.readFileSync(path.join(f.dir, 'evidence', ref.path))).toEqual(
+        Buffer.from(observations[index]),
+      ),
+    );
+  });
+});
+
 function rpc(
   f: Pick<IFixture, 'dir' | 'calls'>,
   name: string,
@@ -623,7 +700,7 @@ function rpc(
   const r = spawnSync(process.execPath, argv, {
     cwd: repo,
     encoding: 'utf8',
-    timeout: 120000,
+    timeout: nativeRpcTimeoutMs,
   });
   const call: ICall = {
     command: [process.execPath, ...argv],
@@ -1410,7 +1487,7 @@ describe('API transport', () => {
 });
 
 describe('Native-v3 paired identity facade and portable consumption', () => {
-  jest.setTimeout(120000);
+  jest.setTimeout(nativeTestTimeoutMs);
   it.each([0, 1, 2])('accepts a complete census with %i finishers', (count) => {
     const f = nativeFixture(count);
     const result = rpc(f.sizing, 'candidate', {
@@ -1603,10 +1680,32 @@ describe('Native-v3 fresh archived intake inventories', () => {
     expect(result.stderr).toContain('REVIEW_IDENTITY_INVALID');
     expect(result.stdout).toBe('');
   });
+
+  if (process.platform === 'win32') {
+    it('refuses local replacement at the inner attribute boundary before any file opens', () => {
+      const { f, manifest } = archived();
+      const local = path.join(
+        f.sizing.dir,
+        receipt.parse(f.sizing.unit.stageReceipts.local).path,
+      );
+      const original = fs.readFileSync(local);
+      const result = rpc(f.sizing, 'inner-boundary-swap', {
+        op: 'archived-intake',
+        args: f.args,
+        manifest,
+        fault: 'inner-boundary-swap',
+      });
+      expect(fs.existsSync(local + '.displaced')).toBe(true);
+      expect(fs.readFileSync(local)).toEqual(original);
+      expect(result.exit).toBe(1);
+      expect(result.stderr).toContain('REVIEW_IDENTITY_INVALID');
+      expect(result.stdout).toBe('');
+    });
+  }
 });
 
 describe('Native-v3 chunk completion and App correlation', () => {
-  jest.setTimeout(120000);
+  jest.setTimeout(nativeTestTimeoutMs);
   it('accepts all chunk frames and App calls with the final completion anchor', () => {
     const f = nativeFixture(0, { target: 'observation', fault: 'none' });
     const result = rpc(f.sizing, 'chunks', { op: 'candidate', args: f.args });
@@ -1668,7 +1767,7 @@ describe('Native-v3 chunk completion and App correlation', () => {
 });
 
 describe('Native-v3 retained birth and measured parent interaction', () => {
-  jest.setTimeout(120000);
+  jest.setTimeout(nativeTestTimeoutMs);
   it.each<TParentFault>(['linked', 'started'])(
     'accepts original birth with %s App activity',
     (fault) => {
@@ -1744,7 +1843,7 @@ describe('Native-v3 retained birth and measured parent interaction', () => {
 });
 
 describe('Native-v3 malformed input privacy', () => {
-  jest.setTimeout(120000);
+  jest.setTimeout(nativeTestTimeoutMs);
   it.each(['manifest', 'local', 'review'])(
     'refuses malformed %s without exporting its marker',
     (kind) => {
@@ -1784,7 +1883,7 @@ describe('Native-v3 malformed input privacy', () => {
 });
 
 describe('Native-v3 archive residue and legacy byte reuse', () => {
-  jest.setTimeout(180000);
+  jest.setTimeout(Math.max(nativeTestTimeoutMs, 180000));
   const censusShape = z.array(
     z.object({ name: z.string(), bytes: z.number(), sha256: z.string() }),
   );
@@ -1876,7 +1975,7 @@ describe('Native-v3 archive residue and legacy byte reuse', () => {
 });
 
 describe('Native-v3 shared observer and subject-selected records', () => {
-  jest.setTimeout(120000);
+  jest.setTimeout(nativeTestTimeoutMs);
   it('accepts distinct valid App record selections under the same observer prefix', () => {
     const f = nativeFixture(0, undefined, 'distinct-records');
     const result = rpc(f.sizing, 'observer', { op: 'candidate', args: f.args });
