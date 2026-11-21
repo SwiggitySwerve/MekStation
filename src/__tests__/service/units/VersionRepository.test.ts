@@ -142,6 +142,39 @@ describe('VersionRepository', () => {
   });
 
   describe('revert', () => {
+    it.each([
+      ['BattleMech', 'VALIDATION_ERROR'],
+      ['DropShip', 'READ_ONLY'],
+    ])(
+      'refuses malformed stored %s data without writes',
+      (unitType, errorCode) => {
+        const repository = getUnitRepository();
+        const created = repository.create({
+          chassis: 'Malformed',
+          variant: 'A',
+          data: { unitType, tonnage: 50 },
+        });
+        if (!created.success) throw new Error(created.error.message);
+        const id = created.data.id;
+        const db = getSQLiteService().getDatabase();
+        db.prepare('UPDATE custom_units SET data = ? WHERE id = ?').run(
+          '{broken',
+          id,
+        );
+        const before = repository.getById(id);
+        const versions = () =>
+          db.prepare('SELECT * FROM unit_versions WHERE unit_id = ?').all(id);
+        const history = versions();
+
+        expect(versionRepository.revert(id, 1)).toMatchObject({
+          success: false,
+          error: { errorCode },
+        });
+        expect(repository.getById(id)).toEqual(before);
+        expect(versions()).toEqual(history);
+      },
+    );
+
     it('should create new version with old data', () => {
       const unitId = createTestUnit();
       updateTestUnit(unitId);
